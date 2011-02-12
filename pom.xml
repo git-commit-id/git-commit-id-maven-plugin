@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>pl.project13.maven</groupId>
+    <artifactId>git-commit-hash-plugin</artifactId>
+
+    <packaging>maven-plugin</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>Git Commit Hash Plugin Maven Mojo</name>
+    <url>http://www.project13.pl</url>
+
+    <developers>
+        <developer>
+            <name>Konrad Malawski</name>
+            <email>konrad.malawski@project13.pl</email>
+            <organization>Project13.pl</organization>
+            <url>http://blog.project13.pl</url>
+        </developer>
+    </developers>
+
+    <prerequisites>
+        <maven>2.2.1</maven>
+    </prerequisites>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+
+    <dependencies>
+        <!-- MAVEN -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>2.2.1</version>
+        </dependency>
+
+        <!-- JGit -->
+        <dependency>
+            <groupId>com.madgag</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>0.9.9.5-UNOFFICIAL-ROBERTO-RELEASE</version>
+        </dependency>
+
+        <!-- Test stuff -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>2.0.5</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
