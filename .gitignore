@@ -1,0 +1,6 @@
+*.class
+*.tmp
+*~
+
+out
+target
