@@ -199,7 +199,7 @@ Just a short recap of the available parameters...
 
 Required parameters:
 
-* *dotGitDirectory* - (required) the location of your .git folder. Try to use ${project.basedir} as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
+* **dotGitDirectory** - (required) the location of your .git folder. Try to use ${project.basedir} as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
 
 
 Optional parameters:
