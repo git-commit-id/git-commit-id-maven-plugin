@@ -12,12 +12,12 @@ import static org.fest.assertions.Assertions.assertThat;
  *
  * @author Konrad Malawski
  */
-public class GitCommitHashMojoTest extends PlexusTestCase {
+public class GitCommitIdMojoTest extends PlexusTestCase {
 
-  GitCommitHashMojo mojo;
+  GitCommitIdMojo mojo;
 
   public void setUp() throws Exception {
-    mojo = new GitCommitHashMojo();
+    mojo = new GitCommitIdMojo();
     mojo.setBasedir(new File("/home/ktoso/coding/maven-plugins/git-commit-hash-plugin/.git/"));
     mojo.setPrefix("git");
     mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");

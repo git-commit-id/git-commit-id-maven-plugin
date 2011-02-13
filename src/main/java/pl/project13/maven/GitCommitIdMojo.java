@@ -42,7 +42,7 @@ import java.util.Properties;
  * @requiresProject
  */
 @SuppressWarnings({"JavaDoc"})
-public class GitCommitHashMojo extends AbstractMojo {
+public class GitCommitIdMojo extends AbstractMojo {
 
   // these properties will be exposed to maven
   public final String BRANCH               = "branch";
