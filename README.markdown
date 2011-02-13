@@ -11,6 +11,8 @@ This scenario keeps repeating sometimes, thus you can state which commit fixes/c
 
 Usage
 =====
+Maven plugin installation
+-------------------------
 It's really simple to setup this plugin, here's a sample pom that you may base your pom on:
 
        <?xml version="1.0" encoding="UTF-8"?>
@@ -64,27 +66,174 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                    </plugin>
                    <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
 
-                   <plugin>
-                       <groupId>org.mortbay.jetty</groupId>
-                       <artifactId>maven-jetty-plugin</artifactId>
-                       <version>6.1.10</version>
-                       <configuration>
-                           <contextPath>/management-ws</contextPath>
-                           <stopKey>stop</stopKey>
-                           <stopPort/>
-                       </configuration>
-                   </plugin>
-                   <plugin>
-                       <groupId>org.apache.maven.plugins</groupId>
-                       <artifactId>maven-war-plugin</artifactId>
-                       <version>2.1.1</version>
-                       <configuration>
-                           <warName>management-ws</warName>
-                       </configuration>
-                   </plugin>
+                   <!-- other plugins -->
                </plugins>
            </build>
        </project>
 
 Based on the above part of a working POM you should be able to figure out the rest, I mean you are a maven user after all... ;-)
 Note that the resources filtering is important for this plugin to work, don't omit it!
+
+Now you just have to include such a properties file in your project under `/src/main/resources` and maven will put the appropriate properties in the placeholders:
+
+     git.branch=${git.branch}
+
+     git.build.user.name=${git.build.user.name}
+     git.build.user.email=${git.build.user.email}
+     git.build.time=${git.build.time}
+
+     git.commit.id=${git.commit.id}
+     git.commit.user.name=${git.commit.user.name}
+     git.commit.user.email=${git.commit.user.email}
+     git.commit.message.full=${git.commit.message.full}
+     git.commit.message.short=${git.commit.message.short}
+     git.commit.time=${git.commit.time}
+
+The `git` prefix may be configured in the plugin declaration above.
+
+Maven resource filtering + Spring = GitRepositoryState Bean
+-----------------------------------------------------------
+You'll most probably want to wire these plugins somehow to get easy access to them during runtime. We'll use spring as an example of doing this.
+Start out with with adding the above steps to your project, next paste this `git-bean.xml` into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
+
+    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+        <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
+            <property name="branch" value="${git.branch}"/>
+            <property name="commitId" value="${git.commit.id}"/>
+            <property name="commitTime" value="${git.commit.time}"/>
+            <property name="buildUserName" value="${git.build.user.name}"/>
+            <property name="buildUserEmail" value="${git.build.user.email}"/>
+            <property name="commitMessageFull" value="${git.commit.message.full}"/>
+            <property name="commitMessageShort" value="${git.commit.message.short}"/>
+            <property name="commitUserName" value="${git.commit.user.name}"/>
+            <property name="commitUserEmail" value="${git.commit.user.email}"/>
+        </bean>
+
+    </beans>
+
+And here's the source of the bean we're binding here:
+
+    package pl.project13.maven.example.git;
+
+    import org.codehaus.jackson.annotate.JsonWriteNullProperties;
+
+    /**
+     * A spring controlled bean that will be injected
+     * with properties about the repository state at build time.
+     * This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
+     *
+     * @author Konrad Malawski
+     */
+    @JsonWriteNullProperties(true)
+    public class GitRepositoryState {
+      String branch;                  // =${git.branch}
+      String commitId;                // =${git.commit.id}
+      String buildUserName;           // =${git.build.user.name}
+      String buildUserEmail;          // =${git.build.user.email}
+      String buildTime;               // =${git.build.time}
+      String commitUserName;          // =${git.commit.user.name}
+      String commitUserEmail;         // =${git.commit.user.email}
+      String commitMessageFull;       // =${git.commit.message.full}
+      String commitMessageShort;      // =${git.commit.message.short}
+      String commitTime;              // =${git.commit.time}
+
+      public GitRepositoryState() {
+      }
+
+      /* Generate setters and getters here */
+
+      /**
+       * If you need it as json but don't have jackson installed etc
+       * @return the JSON representation of this resource
+       */
+      public String toJson() {
+        StringBuilder sb = new StringBuilder("{");
+        appendProperty(sb, "branch", branch);
+
+        appendProperty(sb, "commitId", commitId);
+        appendProperty(sb, "commitTime", commitTime);
+        appendProperty(sb, "commitUserName", commitUserName);
+        appendProperty(sb, "commitUserEmail", commitUserEmail);
+        appendProperty(sb, "commitMessageShort", commitMessageShort);
+        appendProperty(sb, "commitMessageFull", commitMessageFull);
+
+        appendProperty(sb, "buildTime", buildTime);
+        appendProperty(sb, "buildUserName", buildUserName);
+        appendProperty(sb, "buildUserEmail", buildUserEmail);
+
+        return sb.append("}").toString();
+      }
+
+      private void appendProperty(StringBuilder sb, String label, String value) {
+        sb.append(String.format("\"%s\" = \"%s\",", label, value));
+      }
+    }
+
+The source for it is also on the repo of this plugin. Of course, feel free to drop out the *jackson* annotation if you won't be using it.
+The last configuretion related thing we need to do is to load up this bean in your appContext, so open up your `applicationContext.xml`
+or whatever you call it in your project and add these lines in the <beans/> section:
+
+    <context:property-placeholder location="classpath:*.properties" />
+    <import resource="classpath:/git-bean.xml"/>
+
+Of course, you may adjust the paths and file locations as you please, no problems here... :-)
+Now you're ready to use your GitRepositoryState Bean! Let's create an sample Spring MVC controller to test it out:
+
+     @Controller
+     @RequestMapping("/git")
+     public class GitService extends BaseWebService {
+
+         @Autowired
+         GitRepositoryState gitRepoState;
+
+         @RequestMapping("/status")
+         public ModelAndView checkGitRevision() throws WebServiceAuthenticationException {
+           ServerResponse<GitRepositoryState> response = new ServerResponse<GitRepositoryState>(gitRepoState);
+           return createMAV(response);
+         }
+     }
+
+Don't mind the createMAV and responses stuff, it's just example code. And feel free to use constructor injection, it's actually a better idea ;-)
+In the end this is what this service would return:
+
+     {
+         "branch" : "testing-maven-git-plugin",
+         "commitTime" : "06.01.1970 @ 16:16:26 CET",
+         "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
+         "commitUserName" : "Konrad Malawski",
+         "commitUserEmail" : "konrad.malawski@java.pl",
+         "commitMessageFull" : "releasing my fun plugin :-)
+                                + fixed some typos
+                                + cleaned up directory structure
+                                + added license etc",
+         "commitMessageShort" : "releasing my fun plugin :-)",
+         "buildTime" : "06.01.1970 @ 16:17:53 CET",
+         "buildUserName" : "Konrad Malawski",
+         "buildUserEmail" : "konrad.malawski@java.pl"
+     }
+
+That's all folks! *Happy hacking!*
+
+Configuration details
+=====================
+Just a short recap of the available parameters...
+
+Required parameters:
+* dotGitDirectory - (required) the location of your .git folder. Try to use ${}
+
+
+Optional parameters:
+* prefix - (default: git) is the "namespace" for all exposed properties
+* dateFormat - (default: dd.MM.yyyy '@' HH:mm:ss z) is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* true - (default: false) if true the plugin will print a summary of all collected properties when it's done
+                           <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory> <!-- required, you have to specify this path -->
+
+License
+=======
+I'm releasing this plugin under the *GNU Lesser General Public License 3.0*.
+You're free to use it as you wish, the license text is attached in the LICENSE file.
+You may contact me if you want this to be released on a different license, just send me an email konrad.malawski@java.pl :-)
