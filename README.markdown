@@ -11,8 +11,19 @@ This scenario keeps repeating sometimes, thus you can state which commit fixes/c
 
 Usage
 =====
-Maven plugin installation
--------------------------
+Getting the plugin
+------------------
+I'll be trying to get this plugin out to sonatype for others to use if more simply,
+for now it's quickest to just:
+
+      git clone git://github.com/ktoso/maven-git-commit-id-plugin.git maven-git-commit-id-plugin
+      cd maven-git-commit-id-plugin
+      maven install
+
+and you're ready to use it ;-) I'm also thinking about making this github repo a maven repository, which would make the above step not needed - but first let's wait if sonatype let me in with this project, k? ;-)
+
+Using the plugin
+----------------
 It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
 
        <?xml version="1.0" encoding="UTF-8"?>
