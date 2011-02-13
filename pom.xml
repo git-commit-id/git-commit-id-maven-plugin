@@ -56,7 +56,7 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/ktoso/maven-git-commit-id-plugin</url>
+        <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
         <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
         <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
     </scm>
