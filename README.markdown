@@ -225,4 +225,4 @@ License
 I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
 You're free to use it as you wish, the license text is attached in the LICENSE file.
-You may contact me if you want this to be released on a different license, just send me an email konrad.malawski@java.pl :-)
+You may contact me if you want this to be released on a different license, just send me an email *konrad.malawski@java.pl* :-)
