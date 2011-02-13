@@ -7,6 +7,32 @@
     <packaging>maven-plugin</packaging>
     <version>1.0-SNAPSHOT</version>
     <name>Git Commit Id Plugin Maven Mojo</name>
+    <description>
+        git-commit-id-plugin is a plugin quite similar to
+        https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber
+        only supports svn (which is very sad) and cvs (which is even more sad).
+        This plugin makes basic repository information available through maven resources. This can be used to display
+        "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
+        it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
+        developers life easier.
+
+        The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
+        {
+           "branch" : "testing-maven-git-plugin",
+           "commitTime" : "06.01.1970 @ 16:16:26 CET",
+           "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
+           "commitUserName" : "Konrad Malawski",
+           "commitUserEmail" : "konrad.malawski@java.pl",
+           "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added license etc",
+           "commitMessageShort" : "releasing my fun plugin :-)",
+           "buildTime" : "06.01.1970 @ 16:17:53 CET",
+           "buildUserName" : "Konrad Malawski",
+           "buildUserEmail" : "konrad.malawski@java.pl"
+        }
+
+        Note that the data is exported via maven resource filtering and is really easy to use with spring -
+        which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
+    </description>
     <url>http://www.project13.pl</url>
 
     <developers>
@@ -21,6 +47,19 @@
     <prerequisites>
         <maven>2.2.1</maven>
     </prerequisites>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License 3.0</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/ktoso/maven-git-commit-id-plugin</url>
+        <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
+        <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

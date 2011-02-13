@@ -123,7 +123,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       getLog().info(logPrefix + "Using maven project properties...");
       properties = project.getProperties();
     } else {
-      throw new MojoExecutionException("Maven project WAS NULL! Created blank properties...");
+      properties = new Properties();
+//      throw new MojoExecutionException("Maven project WAS NULL! Created blank properties...");
     }
   }
 
