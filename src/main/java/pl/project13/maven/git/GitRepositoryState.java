@@ -120,9 +120,9 @@ public class GitRepositoryState {
     appendProperty(sb, "commitMessageShort", commitMessageShort);
     appendProperty(sb, "commitMessageFull", commitMessageFull);
 
+    appendProperty(sb, "buildTime", buildTime);
     appendProperty(sb, "buildUserName", buildUserName);
     appendProperty(sb, "buildUserEmail", buildUserEmail);
-    appendProperty(sb, "buildUserEmail", buildTime);
 
     return sb.append("}").toString();
   }
