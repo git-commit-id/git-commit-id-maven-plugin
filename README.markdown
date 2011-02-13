@@ -18,7 +18,7 @@ for now it's quickest to just:
 
       git clone git://github.com/ktoso/maven-git-commit-id-plugin.git maven-git-commit-id-plugin
       cd maven-git-commit-id-plugin
-      maven install
+      mvn install
 
 and you're ready to use it ;-) I'm also thinking about making this github repo a maven repository, which would make the above step not needed - but first let's wait if sonatype let me in with this project, k? ;-)
 
