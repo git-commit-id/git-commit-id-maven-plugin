@@ -7,7 +7,8 @@ package pl.project13.maven.git;
  * with properties about the repository state at build time.
  * This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
  *
- * @author Konrad Malawski
+ * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ * @since 1.0
  */
 //@JsonWriteNullProperties(true)
 public class GitRepositoryState {

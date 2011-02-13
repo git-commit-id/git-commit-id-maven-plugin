@@ -37,6 +37,7 @@ import java.util.Properties;
  * Goal which touches a timestamp file.
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ * @since 1.0
  *
  * @goal revision
  * @phase initialize
@@ -75,8 +76,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    * The root directory of the repository we want to check
    *
    * @parameter
+   * @required
    */
-  private File basedir;
+  private File dotGitDirectory;
 
   /**
    * The prefix to expose the properties on, for example 'git' would allow you to access '${git.branch}'
@@ -98,7 +100,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String logPrefix = "[GitCommitIdMojo] ";
 
   public void execute() throws MojoExecutionException {
-    getLog().info(logPrefix + "Running on '" + basedir.getAbsolutePath() + "' repository...");
+    getLog().info(logPrefix + "Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
     try {
       initProperties();
@@ -198,13 +200,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     Repository repository = null;
 
     FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-    if (basedir == null) {
-      basedir = project.getBasedir();
+    if (dotGitDirectory == null) {
+      dotGitDirectory = project.getBasedir();
     }
 
     try {
       repository = repositoryBuilder
-          .setGitDir(basedir)
+          .setGitDir(dotGitDirectory)
           .readEnvironment() // scan environment GIT_* variables
               // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
           .findGitDir() // scan up the file system tree
@@ -214,7 +216,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     if (repository == null) {
-      throw new MojoExecutionException("Could not create git repository. Are you sure '" + basedir + "' is the valid Git root for your project?");
+      throw new MojoExecutionException("Could not create git repository. Are you sure '" + dotGitDirectory + "' is the valid Git root for your project?");
     }
 
     return repository;
@@ -245,8 +247,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.verbose = verbose;
   }
 
-  public void setBasedir(File basedir) {
-    this.basedir = basedir;
+  public void setDotGitDirectory(File dotGitDirectory) {
+    this.dotGitDirectory = dotGitDirectory;
   }
 
   public void setPrefix(String prefix) {
