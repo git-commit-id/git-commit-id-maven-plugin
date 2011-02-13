@@ -1,12 +1,13 @@
 Maven plugin: git-commit-id-plugin
 ==================================
-git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example
-but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop
-an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
+git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
+
+Sample scenario why this plugin is useful
+-----------------------------------------
 
 If you develop your maven project inside an git repository (which you hopefully already are docing) you may want to know exactly
-what changeset is currently deployed online. Why is this useful? Well, the tester won't come to you screaming "heeey that bug ain't fixed"
-of course you'd reply "but I fixed it this morning!" and after some searching you notice "oh... it'll be online after the next deployment, sorry tester... :-(".
+what changeset is currently deployed online. Why is this useful? Well, the tester won't come to you screaming "heeey that bug ain't fixed" of course you'd reply "but I fixed it this morning!" and after some searching you notice "oh... it'll be online after the next deployment, sorry tester... :-(".
+
 This scenario keeps repeating sometimes, thus you can state which commit fixes/closes the bug, note this in JIRA etc and then the tester will know if it's already online (by the commit date for example).
 
 Usage
@@ -145,32 +146,6 @@ And here's the source of the bean we're binding here:
       }
 
       /* Generate setters and getters here */
-
-      /**
-       * If you need it as json but don't have jackson installed etc
-       * @return the JSON representation of this resource
-       */
-      public String toJson() {
-        StringBuilder sb = new StringBuilder("{");
-        appendProperty(sb, "branch", branch);
-
-        appendProperty(sb, "commitId", commitId);
-        appendProperty(sb, "commitTime", commitTime);
-        appendProperty(sb, "commitUserName", commitUserName);
-        appendProperty(sb, "commitUserEmail", commitUserEmail);
-        appendProperty(sb, "commitMessageShort", commitMessageShort);
-        appendProperty(sb, "commitMessageFull", commitMessageFull);
-
-        appendProperty(sb, "buildTime", buildTime);
-        appendProperty(sb, "buildUserName", buildUserName);
-        appendProperty(sb, "buildUserEmail", buildUserEmail);
-
-        return sb.append("}").toString();
-      }
-
-      private void appendProperty(StringBuilder sb, String label, String value) {
-        sb.append(String.format("\"%s\" = \"%s\",", label, value));
-      }
     }
 
 The source for it is also on the repo of this plugin. Of course, feel free to drop out the *jackson* annotation if you won't be using it.
@@ -181,7 +156,7 @@ or whatever you call it in your project and add these lines in the <beans/> sect
     <import resource="classpath:/git-bean.xml"/>
 
 Of course, you may adjust the paths and file locations as you please, no problems here... :-)
-Now you're ready to use your GitRepositoryState Bean! Let's create an sample Spring MVC controller to test it out:
+_Now you're ready to use your GitRepositoryState Bean!_ Let's create an sample Spring MVC controller to test it out:
 
      @Controller
      @RequestMapping("/git")
@@ -223,13 +198,15 @@ Configuration details
 Just a short recap of the available parameters...
 
 Required parameters:
+
 * dotGitDirectory - (required) the location of your .git folder. Try to use ${project.basedir} as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
 
 
 Optional parameters:
-* prefix - (default: git) is the "namespace" for all exposed properties
-* dateFormat - (default: dd.MM.yyyy '@' HH:mm:ss z) is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
-* verbose - (default: false) if true the plugin will print a summary of all collected properties when it's done
+
+* *prefix* - (default: git) is the "namespace" for all exposed properties
+* *dateFormat* - (default: dd.MM.yyyy '@' HH:mm:ss z) is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* *verbose* - (default: false) if true the plugin will print a summary of all collected properties when it's done
 
 License
 =======
