@@ -20,7 +20,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -43,6 +42,15 @@ import java.util.Properties;
  */
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitHashMojo extends AbstractMojo {
+
+  // these properties will be exposed to maven
+  public final String BRANCH               = "branch";
+  public final String COMMIT_ID            = "commit.id";
+  public final String COMMIT_AUTHOR_NAME   = "commit.author.name";
+  public final String COMMIT_AUTHOR_EMAIL  = "commit.author.email";
+  public final String COMMIT_MESSAGE_FULL  = "commit.message.full";
+  public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
+  public final String COMMIT_TIME          = "commit.time";
 
   /**
    * The maven project.
@@ -74,6 +82,11 @@ public class GitCommitHashMojo extends AbstractMojo {
   private String prefix;
 
   /**
+   * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
+   */
+  private String dateFormat;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties = new Properties();
@@ -94,51 +107,48 @@ public class GitCommitHashMojo extends AbstractMojo {
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
-    properties.put(prefixDot + "build.author.name", userName);
+    put(properties, prefixDot + "build.author.name", userName);
 
     // git.user.email
     String userEmail = git.getConfig().getString("user", null, "email");
-    properties.put(prefixDot + "build.author.email", userEmail);
+    String s1 = "build.author.email";
+    put(properties, prefixDot + s1, userEmail);
 
     // more details parsed out bellow
-//    ObjectId objectId = git.resolve(Constants.HEAD);
-    Ref HEAD = git.getRef("refs/heads/master");
-    ObjectId objectId = HEAD.getObjectId();
-    String objectHash = objectId.getName();
-
+    Ref HEAD = git.getRef(Constants.HEAD);
     RevWalk revWalk = new RevWalk(git);
-    RevCommit headCommit = revWalk.parseCommit(objectId);
+    RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
     revWalk.markStart(headCommit);
-    revWalk.markUninteresting(headCommit.getParent(1));
+//    revWalk.markUninteresting(headCommit.getParent(1));
 
     // git.branch
     try {
       String branch = git.getBranch();
-      properties.put(prefixDot + "branch", branch);
+      put(properties, prefixDot + BRANCH, branch);
 
-      // git.commit.hash
-      properties.put(prefixDot + "commit.hash", objectHash);
+      // git.commit.id
+      put(properties, prefixDot + COMMIT_ID, headCommit.getName());
 
       // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
-      properties.put(prefixDot + "commit.author.name", commitAuthor);
+      put(properties, prefixDot + COMMIT_AUTHOR_NAME, commitAuthor);
 
       // git.commit.author.email
       String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-      properties.put(prefixDot + "commit.author.email", commitEmail);
+      put(properties, prefixDot + COMMIT_AUTHOR_EMAIL, commitEmail);
 
       // git commit.message.full
       String fullMessage = headCommit.getFullMessage();
-      properties.put(prefixDot + "commit.message.full", fullMessage);
+      put(properties, prefixDot + COMMIT_MESSAGE_FULL, fullMessage);
 
       // git commit.message.short
       String shortMessage = headCommit.getShortMessage();
-      properties.put(prefixDot + "commit.message.short", shortMessage);
+      put(properties, prefixDot + COMMIT_MESSAGE_SHORT, shortMessage);
 
       int timeSinceEpoch = headCommit.getCommitTime();
-      Date commitDate = new Date(timeSinceEpoch);
-      SimpleDateFormat smf = new SimpleDateFormat("dd.MM.yyyy '@' HH:mm:ss z"); // todo extract as plugin property
-      properties.put(prefixDot + "commit.time", smf.format(commitDate));
+      Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
+      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+      put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
     } finally {
       revWalk.dispose();
     }
@@ -171,11 +181,18 @@ public class GitCommitHashMojo extends AbstractMojo {
   }
 
   private void exposeProperties(MavenProject mavenProject, Properties properties) {
-    mavenProject.getProperties().putAll(properties);
+    if (mavenProject != null) {
+      mavenProject.getProperties().putAll(properties);
+    } else {
+      getLog().debug("Could not inject properties into mavenProject as it was null.");
+    }
   }
 
-  // TEST SETTERS ----------------------------------------------------
+  private void put(Properties properties, String key, String value) {
+    properties.put(key, value);
+  }
 
+  // SETTERS FOR TESTS ----------------------------------------------------
 
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
@@ -187,5 +204,13 @@ public class GitCommitHashMojo extends AbstractMojo {
 
   public void setPrefix(String prefix) {
     this.prefix = prefix;
+  }
+
+  public void setDateFormat(String dateFormat) {
+    this.dateFormat = dateFormat;
+  }
+
+  public Properties getProperties() {
+    return properties;
   }
 }
