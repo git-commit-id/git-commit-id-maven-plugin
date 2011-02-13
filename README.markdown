@@ -13,7 +13,7 @@ Usage
 =====
 Maven plugin installation
 -------------------------
-It's really simple to setup this plugin, here's a sample pom that you may base your *pom.xml* on:
+It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
 
        <?xml version="1.0" encoding="UTF-8"?>
        <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -74,7 +74,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
 Based on the above part of a working POM you should be able to figure out the rest, I mean you are a maven user after all... ;-)
 Note that the resources filtering is important for this plugin to work, don't omit it!
 
-Now you just have to include such a properties file in your project under `/src/main/resources` (and call it *git.properties* for example) and maven will put the appropriate properties in the placeholders:
+Now you just have to include such a properties file in your project under `/src/main/resources` (and call it **git.properties** for example) and maven will put the appropriate properties in the placeholders:
 
      git.branch=${git.branch}
 
@@ -94,7 +94,7 @@ The `git` prefix may be configured in the plugin declaration above.
 Maven resource filtering + Spring = GitRepositoryState Bean
 -----------------------------------------------------------
 You'll most probably want to wire these plugins somehow to get easy access to them during runtime. We'll use spring as an example of doing this.
-Start out with with adding the above steps to your project, next paste this *git-bean.xml* into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
+Start out with with adding the above steps to your project, next paste this **git-bean.xml** into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
 
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
@@ -147,15 +147,15 @@ And here's the source of the bean we're binding here:
       /* Generate setters and getters here */
     }
 
-The source for it is also on the repo of this plugin. Of course, _feel free to drop out the jackson annotation_ if you won't be using it.
+The source for it is also on the repo of this plugin. Of course, *feel free to drop out the jackson annotation* if you won't be using it.
 
-The last configuration related thing we need to do is to load up this bean in your appContext, so open up your *applicationContext.xml* or whatever you call it in your project and add these lines in the <beans/> section:
+The last configuration related thing we need to do is to load up this bean in your appContext, so open up your **applicationContext.xml** or whatever you call it in your project and add these lines in the <beans/> section:
 
     <context:property-placeholder location="classpath:*.properties" />
     <import resource="classpath:/git-bean.xml"/>
 
 Of course, you may adjust the paths and file locations as you please, no problems here... :-)
-_Now you're ready to use your GitRepositoryState Bean!_ Let's create an sample *pring MVC Controller* to test it out:
+*Now you're ready to use your GitRepositoryState Bean!* Let's create an sample **Spring MVC Controller** to test it out:
 
      @Controller
      @RequestMapping("/git")
@@ -172,7 +172,8 @@ _Now you're ready to use your GitRepositoryState Bean!_ Let's create an sample *
      }
 
 Don't mind the createMAV and responses stuff, it's just example code. And feel free to use constructor injection, it's actually a better idea ;-)
-In the end this is what this service would return:
+
+In the end *this is what this service would return*:
 
      {
          "branch" : "testing-maven-git-plugin",
@@ -190,7 +191,7 @@ In the end this is what this service would return:
          "buildUserEmail" : "konrad.malawski@java.pl"
      }
 
-That's all folks! *Happy hacking!*
+That's all folks! **Happy hacking!**
 
 Configuration details
 =====================
@@ -198,17 +199,17 @@ Just a short recap of the available parameters...
 
 Required parameters:
 
-* dotGitDirectory - (required) the location of your .git folder. Try to use ${project.basedir} as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
+* *dotGitDirectory* - (required) the location of your .git folder. Try to use ${project.basedir} as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
 
 
 Optional parameters:
 
-* *prefix* - (default: git) is the "namespace" for all exposed properties
-* *dateFormat* - (default: dd.MM.yyyy '@' HH:mm:ss z) is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
-* *verbose* - (default: false) if true the plugin will print a summary of all collected properties when it's done
+* **prefix** - (default: git) is the "namespace" for all exposed properties
+* **dateFormat** - (default: dd.MM.yyyy '@' HH:mm:ss z) is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* **verbose** - (default: false) if true the plugin will print a summary of all collected properties when it's done
 
 License
 =======
-I'm releasing this plugin under the *GNU Lesser General Public License 3.0*.
+I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 You're free to use it as you wish, the license text is attached in the LICENSE file.
 You may contact me if you want this to be released on a different license, just send me an email konrad.malawski@java.pl :-)
