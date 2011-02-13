@@ -21,6 +21,7 @@ public class GitCommitHashMojoTest extends PlexusTestCase {
     mojo.setBasedir(new File("/home/ktoso/coding/maven-plugins/git-commit-hash-plugin/.git/"));
     mojo.setPrefix("git");
     mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
+    mojo.setVerbose(true);
 
     super.setUp();
   }
@@ -30,6 +31,14 @@ public class GitCommitHashMojoTest extends PlexusTestCase {
 
     Properties properties = mojo.getProperties();
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
   }
 
 }

@@ -18,6 +18,7 @@ package pl.project13.maven;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
@@ -46,8 +47,10 @@ public class GitCommitHashMojo extends AbstractMojo {
   // these properties will be exposed to maven
   public final String BRANCH               = "branch";
   public final String COMMIT_ID            = "commit.id";
-  public final String COMMIT_AUTHOR_NAME   = "commit.author.name";
-  public final String COMMIT_AUTHOR_EMAIL  = "commit.author.email";
+  public final String BUILD_AUTHOR_NAME    = "build.user.name";
+  public final String BUILD_AUTHOR_EMAIL   = "build.user.email";
+  public final String COMMIT_AUTHOR_NAME   = "commit.user.name";
+  public final String COMMIT_AUTHOR_EMAIL  = "commit.user.email";
   public final String COMMIT_MESSAGE_FULL  = "commit.message.full";
   public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public final String COMMIT_TIME          = "commit.time";
@@ -96,8 +99,21 @@ public class GitCommitHashMojo extends AbstractMojo {
       loadGitData(properties);
 
       exposeProperties(project, properties);
+      logProperties(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
+    }
+  }
+
+  private void logProperties(Properties properties) {
+    if (verbose) {
+      Log log = getLog();
+      log.info("------------------git properties loaded------------------");
+
+      for (Object key : properties.keySet()) {
+        log.info(key + " = " + properties.getProperty((String) key));
+      }
+      log.info("---------------------------------------------------------");
     }
   }
 
@@ -107,12 +123,11 @@ public class GitCommitHashMojo extends AbstractMojo {
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
-    put(properties, prefixDot + "build.author.name", userName);
+    put(properties, prefixDot + BUILD_AUTHOR_NAME, userName);
 
     // git.user.email
     String userEmail = git.getConfig().getString("user", null, "email");
-    String s1 = "build.author.email";
-    put(properties, prefixDot + s1, userEmail);
+    put(properties, prefixDot + BUILD_AUTHOR_EMAIL, userEmail);
 
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
