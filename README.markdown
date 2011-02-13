@@ -4,7 +4,6 @@ git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/b
 
 Sample scenario why this plugin is useful
 -----------------------------------------
-
 If you develop your maven project inside an git repository (which you hopefully already are docing) you may want to know exactly
 what changeset is currently deployed online. Why is this useful? Well, the tester won't come to you screaming "heeey that bug ain't fixed" of course you'd reply "but I fixed it this morning!" and after some searching you notice "oh... it'll be online after the next deployment, sorry tester... :-(".
 
@@ -14,7 +13,7 @@ Usage
 =====
 Maven plugin installation
 -------------------------
-It's really simple to setup this plugin, here's a sample pom that you may base your pom on:
+It's really simple to setup this plugin, here's a sample pom that you may base your *pom.xml* on:
 
        <?xml version="1.0" encoding="UTF-8"?>
        <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -75,7 +74,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
 Based on the above part of a working POM you should be able to figure out the rest, I mean you are a maven user after all... ;-)
 Note that the resources filtering is important for this plugin to work, don't omit it!
 
-Now you just have to include such a properties file in your project under `/src/main/resources` and maven will put the appropriate properties in the placeholders:
+Now you just have to include such a properties file in your project under `/src/main/resources` (and call it *git.properties* for example) and maven will put the appropriate properties in the placeholders:
 
      git.branch=${git.branch}
 
@@ -95,7 +94,7 @@ The `git` prefix may be configured in the plugin declaration above.
 Maven resource filtering + Spring = GitRepositoryState Bean
 -----------------------------------------------------------
 You'll most probably want to wire these plugins somehow to get easy access to them during runtime. We'll use spring as an example of doing this.
-Start out with with adding the above steps to your project, next paste this `git-bean.xml` into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
+Start out with with adding the above steps to your project, next paste this *git-bean.xml* into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
 
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
@@ -148,15 +147,15 @@ And here's the source of the bean we're binding here:
       /* Generate setters and getters here */
     }
 
-The source for it is also on the repo of this plugin. Of course, feel free to drop out the *jackson* annotation if you won't be using it.
-The last configuretion related thing we need to do is to load up this bean in your appContext, so open up your `applicationContext.xml`
-or whatever you call it in your project and add these lines in the <beans/> section:
+The source for it is also on the repo of this plugin. Of course, _feel free to drop out the jackson annotation_ if you won't be using it.
+
+The last configuration related thing we need to do is to load up this bean in your appContext, so open up your *applicationContext.xml* or whatever you call it in your project and add these lines in the <beans/> section:
 
     <context:property-placeholder location="classpath:*.properties" />
     <import resource="classpath:/git-bean.xml"/>
 
 Of course, you may adjust the paths and file locations as you please, no problems here... :-)
-_Now you're ready to use your GitRepositoryState Bean!_ Let's create an sample Spring MVC controller to test it out:
+_Now you're ready to use your GitRepositoryState Bean!_ Let's create an sample *pring MVC Controller* to test it out:
 
      @Controller
      @RequestMapping("/git")
