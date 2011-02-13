@@ -1,4 +1,4 @@
-package pl.project13.maven;
+package pl.project13.maven.git;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -84,6 +84,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="git"
    */
   private String prefix;
+  private String prefixDot;
 
   /**
    * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
@@ -101,10 +102,12 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     try {
       initProperties();
-      loadGitData(properties);
+      prefixDot = prefix + ".";
 
-//      exposeProperties(project, properties);
-      logProperties(properties);
+      loadGitData(properties);
+      loadBuildTimeData(properties);
+
+      logPropertiesIfVerbose(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     }
@@ -121,7 +124,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void logProperties(Properties properties) {
+  private void logPropertiesIfVerbose(Properties properties) {
     if (verbose) {
       Log log = getLog();
       log.info(logPrefix + "------------------git properties loaded------------------");
@@ -133,10 +136,15 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
+  private void loadBuildTimeData(Properties properties) {
+      Date commitDate = new Date();
+      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+      put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+  }
+
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
     getLog().info(logPrefix +"Loading data from git repository...");
     Repository git = getGitRepository();
-    String prefixDot = prefix + ".";
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");

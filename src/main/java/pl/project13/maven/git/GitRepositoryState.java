@@ -1,4 +1,4 @@
-package pl.project13.maven;
+package pl.project13.maven.git;
 
 //import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 
