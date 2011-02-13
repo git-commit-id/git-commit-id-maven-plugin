@@ -37,6 +37,7 @@ import java.util.Properties;
  * Goal which touches a timestamp file.
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ *
  * @goal revision
  * @phase initialize
  * @requiresProject
@@ -55,13 +56,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public final String COMMIT_TIME          = "commit.time";
 
-  /**
-   * The maven project.
-   *
-   * @paremeter expression="${project}"
-   * @readonly
-   */
-  private MavenProject project;
+      /**
+     * The maven project.
+     *
+     * @parameter expression="${project}"
+     * @readonly
+     */
+    private MavenProject project;
 
   /**
    * Specifies whether the goal runs in verbose mode.
@@ -92,32 +93,48 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The properties we store our data in and then expose them
    */
-  private Properties properties = new Properties();
+  private Properties properties;
+  public final String logPrefix = "[GitCommitIdMojo] ";
 
   public void execute() throws MojoExecutionException {
+    getLog().info(logPrefix + "Running on '" + basedir.getAbsolutePath() + "' repository...");
+
     try {
+      initProperties();
       loadGitData(properties);
 
-      exposeProperties(project, properties);
+//      exposeProperties(project, properties);
       logProperties(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
+    }
+    getLog().info(logPrefix + "Finished running.");
+  }
+
+  private void initProperties() throws MojoExecutionException {
+    getLog().info(logPrefix + "initializing properties...");
+    if (project != null) {
+      getLog().info(logPrefix + "Using maven project properties...");
+      properties = project.getProperties();
+    } else {
+      throw new MojoExecutionException("Maven project WAS NULL! Created blank properties...");
     }
   }
 
   private void logProperties(Properties properties) {
     if (verbose) {
       Log log = getLog();
-      log.info("------------------git properties loaded------------------");
+      log.info(logPrefix + "------------------git properties loaded------------------");
 
       for (Object key : properties.keySet()) {
-        log.info(key + " = " + properties.getProperty((String) key));
+        log.info(logPrefix + key + " = " + properties.getProperty((String) key));
       }
-      log.info("---------------------------------------------------------");
+      log.info(logPrefix + "---------------------------------------------------------");
     }
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
+    getLog().info(logPrefix +"Loading data from git repository...");
     Repository git = getGitRepository();
     String prefixDot = prefix + ".";
 
@@ -185,7 +202,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           .findGitDir() // scan up the file system tree
           .build();
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new MojoExecutionException("Could not initialize repository...", e);
     }
 
     if (repository == null) {
@@ -195,15 +212,22 @@ public class GitCommitIdMojo extends AbstractMojo {
     return repository;
   }
 
-  private void exposeProperties(MavenProject mavenProject, Properties properties) {
-    if (mavenProject != null) {
-      mavenProject.getProperties().putAll(properties);
-    } else {
-      getLog().debug("Could not inject properties into mavenProject as it was null.");
-    }
-  }
+//  private void exposeProperties(MavenProject mavenProject, Properties properties) {
+//    if (mavenProject != null) {
+//      Properties propz = mavenProject.getProperties();
+//      for (Object key : properties.keySet()) {
+//        String value = properties.getProperty((String) key);
+//        getLog().info(logPrefix + "Exposing " + key + "...");
+//        propz.setProperty((String) key, value);
+//      }
+//
+//    } else {
+//      getLog().debug(logPrefix + "Could not inject properties into mavenProject as it was null.");
+//    }
+//  }
 
   private void put(Properties properties, String key, String value) {
+    getLog().info(logPrefix + "Storing: " + key + " = " + value);
     properties.put(key, value);
   }
 
