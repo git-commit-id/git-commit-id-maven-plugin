@@ -2,6 +2,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>6</version>
+    </parent>
+
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin</artifactId>
     <packaging>maven-plugin</packaging>
@@ -18,16 +24,17 @@
 
         The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
         {
-           "branch" : "testing-maven-git-plugin",
-           "commitTime" : "06.01.1970 @ 16:16:26 CET",
-           "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
-           "commitUserName" : "Konrad Malawski",
-           "commitUserEmail" : "konrad.malawski@java.pl",
-           "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added license etc",
-           "commitMessageShort" : "releasing my fun plugin :-)",
-           "buildTime" : "06.01.1970 @ 16:17:53 CET",
-           "buildUserName" : "Konrad Malawski",
-           "buildUserEmail" : "konrad.malawski@java.pl"
+        "branch" : "testing-maven-git-plugin",
+        "commitTime" : "06.01.1970 @ 16:16:26 CET",
+        "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
+        "commitUserName" : "Konrad Malawski",
+        "commitUserEmail" : "konrad.malawski@java.pl",
+        "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added
+        license etc",
+        "commitMessageShort" : "releasing my fun plugin :-)",
+        "buildTime" : "06.01.1970 @ 16:17:53 CET",
+        "buildUserName" : "Konrad Malawski",
+        "buildUserEmail" : "konrad.malawski@java.pl"
         }
 
         Note that the data is exported via maven resource filtering and is really easy to use with spring -
@@ -120,6 +127,21 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
+            </plugin>
+
+            <!-- GPG -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
