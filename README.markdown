@@ -18,11 +18,13 @@ Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use thi
         <dependency>
             <groupId>pl.project13.maven</groupId>
             <artifactId>git-commit-id-plugin</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
-If you want to check out what the latest version is, you can go here: https://oss.sonatype.org/index.html#nexus-search;quick~git-commit
-Generally, don't be afraid of released SNAPSHOTs, they're most probably save to use. With stable versions, well - they're stable :-)
+To see what versions are currently deployed you may go to: https://oss.sonatype.org/index.html#nexus-search;quick~git-commit (or just use IntelliJ IDEA ;-))
+
+Also, don't be afraid to use SNAPSHOT versions as they've passed the testing process and really shouldn't break anything in your code :-)
+Of course, use STABLE releases if you want to be sure of it, I'm also updating them each major improvement or bugfix.
 
 Using the plugin
 ----------------
