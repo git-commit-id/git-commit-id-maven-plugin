@@ -15,6 +15,20 @@ Getting the plugin
 ------------------
 Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
+        <!-- use this repo for releases -->
+        <repository>
+            <id>sonatype-releases</id>
+            <name>Sonatype Releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+        <!-- OR this repo for snapshots -->
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+        <!-- The plugin will also soon be available from maven central... :-) -->
+
         <dependency>
             <groupId>pl.project13.maven</groupId>
             <artifactId>git-commit-id-plugin</artifactId>
