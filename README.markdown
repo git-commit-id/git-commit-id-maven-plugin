@@ -34,7 +34,7 @@ or use this one for it's **snapshots**:
 It'll soon be available from maven central, I hope by the way... :-)
 You don't need to add it as a *dependency*, just use the plugin as described bellow.
 
-To see what versions are currently deployed you may go to: https://oss.sonatype.org/index.html#nexus-search;quick~git-commit (or just use IntelliJ IDEA ;-))
+To see what versions are currently deployed you may go to: <a href="https://oss.sonatype.org/index.html#nexus-search;quick~git-commit">https://oss.sonatype.org</a> (or just use IntelliJ IDEA ;-))
 
 Also, don't be afraid to use SNAPSHOT versions as they've passed the testing process and really shouldn't break anything in your code :-)
 Of course, use STABLE releases if you want to be sure of it, I'm also updating them each major improvement or bugfix.
