@@ -15,25 +15,24 @@ Getting the plugin
 ------------------
 Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
-        <!-- use this repo for releases -->
+Add this repository for **releases** of this plugin:
+
         <repository>
             <id>sonatype-releases</id>
             <name>Sonatype Releases</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
         </repository>
-        <!-- OR this repo for snapshots -->
+
+or use this one for it's **snapshots**:
+
         <repository>
             <id>sonatype-snapshots</id>
             <name>Sonatype Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
-        <!-- The plugin will also soon be available from maven central... :-) -->
 
-        <dependency>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>1.0</version>
-        </dependency>
+It'll soon be available from maven central, I hope by the way... :-)
+You don't need to add it as a *dependency*, just use the plugin as described bellow.
 
 To see what versions are currently deployed you may go to: https://oss.sonatype.org/index.html#nexus-search;quick~git-commit (or just use IntelliJ IDEA ;-))
 
@@ -78,7 +77,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                    <plugin>
                        <groupId>pl.project13.maven</groupId>
                        <artifactId>git-commit-id-plugin</artifactId>
-                       <version>1.0-SNAPSHOT</version>
+                       <version>1.0</version>
                        <executions>
                            <execution>
                                <goals>
