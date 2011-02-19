@@ -13,14 +13,16 @@ Usage
 =====
 Getting the plugin
 ------------------
-I'll be trying to get this plugin out to sonatype for others to use if more simply,
-for now it's quickest to just:
+Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
-      git clone git://github.com/ktoso/maven-git-commit-id-plugin.git maven-git-commit-id-plugin
-      cd maven-git-commit-id-plugin
-      mvn install
+        <dependency>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
-and you're ready to use it ;-) I'm also thinking about making this github repo a maven repository, which would make the above step not needed - but first let's wait if sonatype let me in with this project, k? ;-)
+If you want to check out what the latest version is, you can go here: https://oss.sonatype.org/index.html#nexus-search;quick~git-commit
+Generally, don't be afraid of released SNAPSHOTs, they're most probably save to use. With stable versions, well - they're stable :-)
 
 Using the plugin
 ----------------
