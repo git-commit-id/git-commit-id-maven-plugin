@@ -226,10 +226,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     Repository repository = null;
 
     FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-    if (dotGitDirectory == null) {
-      dotGitDirectory = project.getBasedir();
-    }
-
     try {
       repository = repositoryBuilder
           .setGitDir(dotGitDirectory)
