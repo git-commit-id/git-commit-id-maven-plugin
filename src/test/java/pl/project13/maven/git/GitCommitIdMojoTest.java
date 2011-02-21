@@ -35,7 +35,7 @@ public class GitCommitIdMojoTest extends PlexusTestCase {
 
   public void setUp() throws Exception {
     mojo = new GitCommitIdMojo();
-    mojo.setDotGitDirectory(new File("/home/ktoso/coding/maven-plugins/git-commit-id-plugin/.git/"));
+    mojo.setDotGitDirectory(new File(".git/"));
     mojo.setPrefix("git");
     mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
     mojo.setVerbose(true);
