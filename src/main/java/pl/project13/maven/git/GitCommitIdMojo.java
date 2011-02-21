@@ -77,7 +77,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    * The root directory of the repository we want to check
    *
    * @parameter
-   * @required
    */
   private File dotGitDirectory;
 
@@ -101,6 +100,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String logPrefix = "[GitCommitIdMojo] ";
 
   public void execute() throws MojoExecutionException {
+    dotGitDirectory = lookupGitDirectory();
+
     getLog().info(logPrefix + "Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
     try {
@@ -117,7 +118,30 @@ public class GitCommitIdMojo extends AbstractMojo {
     getLog().info(logPrefix + "Finished running.");
   }
 
-  private void initProperties() throws MojoExecutionException {
+    private File lookupGitDirectory()
+    {
+        if (dotGitDirectory != null && dotGitDirectory.exists())
+        {
+            return dotGitDirectory;
+        }
+
+        if(project == null)
+        {
+            dotGitDirectory = new File(".git");
+            if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
+        }
+
+        dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
+
+        if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
+
+        dotGitDirectory = new File(project.getParent().getBasedir().getAbsolutePath() + "/.git");
+
+        if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
+        return dotGitDirectory;
+    }
+
+    private void initProperties() throws MojoExecutionException {
     getLog().info(logPrefix + "initializing properties...");
     if (project != null) {
       getLog().info(logPrefix + "Using maven project properties...");
