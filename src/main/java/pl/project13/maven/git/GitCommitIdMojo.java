@@ -120,24 +120,27 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     private File lookupGitDirectory()
     {
-        if (dotGitDirectory != null && dotGitDirectory.exists())
-        {
-            return dotGitDirectory;
+        if (dotGitDirectory == null || !dotGitDirectory.exists()) {
+
+            if(project == null)
+            {
+                dotGitDirectory = new File(".git");
+                if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                {
+                    return dotGitDirectory;
+                }
+            }
+
+            dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
+            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                return dotGitDirectory;
+
+            File basedir = project.getBasedir();
+            dotGitDirectory = new File(basedir.getParent() + "/.git");
+            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                return dotGitDirectory;
         }
 
-        if(project == null)
-        {
-            dotGitDirectory = new File(".git");
-            if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
-        }
-
-        dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
-
-        if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
-
-        dotGitDirectory = new File(project.getParent().getBasedir().getAbsolutePath() + "/.git");
-
-        if(dotGitDirectory.exists() && !dotGitDirectory.isFile()) { return dotGitDirectory; }
         return dotGitDirectory;
     }
 
