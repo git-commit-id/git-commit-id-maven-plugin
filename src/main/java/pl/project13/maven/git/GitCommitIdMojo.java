@@ -118,6 +118,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     getLog().info(logPrefix + "Finished running.");
   }
 
+  /**
+   * Find the git directory of the currently used project.
+   * If it's not already specified, this method will try to find it.
+   * @return the File representation of the .git directory
+   */
     private File lookupGitDirectory()
     {
         if (dotGitDirectory == null || !dotGitDirectory.exists()) {
