@@ -38,10 +38,11 @@ import java.util.Properties;
  * Goal which touches a timestamp file.
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ * @since 1.0
+ *
  * @goal revision
  * @phase initialize
  * @requiresProject
- * @since 1.0
  */
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitIdMojo extends AbstractMojo {
@@ -57,13 +58,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public final String COMMIT_TIME          = "commit.time";
 
-  /**
-   * The maven project.
-   *
-   * @parameter expression="${project}"
-   * @readonly
-   */
-  private MavenProject project;
+      /**
+     * The maven project.
+     *
+     * @parameter expression="${project}"
+     * @readonly
+     */
+    private MavenProject project;
 
   /**
    * Specifies whether the goal runs in verbose mode.
@@ -117,33 +118,33 @@ public class GitCommitIdMojo extends AbstractMojo {
     getLog().info(logPrefix + "Finished running.");
   }
 
-  private File lookupGitDirectory() {
-    if (dotGitDirectory != null && dotGitDirectory.exists()) {
-      return dotGitDirectory;
-    }
+    private File lookupGitDirectory()
+    {
+        if (dotGitDirectory == null || !dotGitDirectory.exists()) {
 
-    if (project == null) {
-      dotGitDirectory = new File(".git");
-      if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+            if(project == null)
+            {
+                dotGitDirectory = new File(".git");
+                if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                {
+                    return dotGitDirectory;
+                }
+            }
+
+            dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
+            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                return dotGitDirectory;
+
+            File basedir = project.getBasedir();
+            dotGitDirectory = new File(basedir.getParent() + "/.git");
+            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
+                return dotGitDirectory;
+        }
+
         return dotGitDirectory;
-      }
     }
 
-    dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
-
-    if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
-      return dotGitDirectory;
-    }
-
-    dotGitDirectory = new File(project.getParent().getBasedir().getAbsolutePath() + "/.git");
-
-    if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
-      return dotGitDirectory;
-    }
-    return dotGitDirectory;
-  }
-
-  private void initProperties() throws MojoExecutionException {
+    private void initProperties() throws MojoExecutionException {
     getLog().info(logPrefix + "initializing properties...");
     if (project != null) {
       getLog().info(logPrefix + "Using maven project properties...");
@@ -167,13 +168,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void loadBuildTimeData(Properties properties) {
-    Date commitDate = new Date();
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+      Date commitDate = new Date();
+      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+      put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
-    getLog().info(logPrefix + "Loading data from git repository...");
+    getLog().info(logPrefix +"Loading data from git repository...");
     Repository git = getGitRepository();
 
     // git.user.name
@@ -232,7 +233,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       repository = repositoryBuilder
           .setGitDir(dotGitDirectory)
           .readEnvironment() // scan environment GIT_* variables
-                             // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
+              // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
           .findGitDir() // scan up the file system tree
           .build();
     } catch (IOException e) {
@@ -245,6 +246,20 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     return repository;
   }
+
+//  private void exposeProperties(MavenProject mavenProject, Properties properties) {
+//    if (mavenProject != null) {
+//      Properties propz = mavenProject.getProperties();
+//      for (Object key : properties.keySet()) {
+//        String value = properties.getProperty((String) key);
+//        getLog().info(logPrefix + "Exposing " + key + "...");
+//        propz.setProperty((String) key, value);
+//      }
+//
+//    } else {
+//      getLog().debug(logPrefix + "Could not inject properties into mavenProject as it was null.");
+//    }
+//  }
 
   private void put(Properties properties, String key, String value) {
     getLog().info(logPrefix + "Storing: " + key + " = " + value);
