@@ -247,20 +247,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     return repository;
   }
 
-//  private void exposeProperties(MavenProject mavenProject, Properties properties) {
-//    if (mavenProject != null) {
-//      Properties propz = mavenProject.getProperties();
-//      for (Object key : properties.keySet()) {
-//        String value = properties.getProperty((String) key);
-//        getLog().info(logPrefix + "Exposing " + key + "...");
-//        propz.setProperty((String) key, value);
-//      }
-//
-//    } else {
-//      getLog().debug(logPrefix + "Could not inject properties into mavenProject as it was null.");
-//    }
-//  }
-
   private void put(Properties properties, String key, String value) {
     getLog().info(logPrefix + "Storing: " + key + " = " + value);
     properties.put(key, value);
