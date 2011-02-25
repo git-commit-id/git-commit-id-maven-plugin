@@ -38,11 +38,10 @@ import java.util.Properties;
  * Goal which touches a timestamp file.
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
- * @since 1.0
- *
  * @goal revision
  * @phase initialize
  * @requiresProject
+ * @since 1.0
  */
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitIdMojo extends AbstractMojo {
@@ -58,13 +57,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public final String COMMIT_TIME          = "commit.time";
 
-      /**
-     * The maven project.
-     *
-     * @parameter expression="${project}"
-     * @readonly
-     */
-    private MavenProject project;
+  /**
+   * The maven project.
+   *
+   * @parameter expression="${project}"
+   * @readonly
+   */
+  private MavenProject project;
 
   /**
    * Specifies whether the goal runs in verbose mode.
@@ -121,35 +120,35 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Find the git directory of the currently used project.
    * If it's not already specified, this method will try to find it.
+   *
    * @return the File representation of the .git directory
    */
-    private File lookupGitDirectory()
-    {
-        if (dotGitDirectory == null || !dotGitDirectory.exists()) {
+  private File lookupGitDirectory() {
+    if (dotGitDirectory == null || !dotGitDirectory.exists()) {
 
-            if(project == null)
-            {
-                dotGitDirectory = new File(".git");
-                if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
-                {
-                    return dotGitDirectory;
-                }
-            }
-
-            dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
-            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
-                return dotGitDirectory;
-
-            File basedir = project.getBasedir();
-            dotGitDirectory = new File(basedir.getParent() + "/.git");
-            if(dotGitDirectory.exists() && !dotGitDirectory.isFile())
-                return dotGitDirectory;
+      if (project == null) {
+        dotGitDirectory = new File(".git");
+        if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+          return dotGitDirectory;
         }
+      }
 
+      dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
+      if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
         return dotGitDirectory;
+      }
+
+      File basedir = project.getBasedir();
+      dotGitDirectory = new File(basedir.getParent() + "/.git");
+      if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+        return dotGitDirectory;
+      }
     }
 
-    private void initProperties() throws MojoExecutionException {
+    return dotGitDirectory;
+  }
+
+  private void initProperties() throws MojoExecutionException {
     getLog().info(logPrefix + "initializing properties...");
     if (project != null) {
       getLog().info(logPrefix + "Using maven project properties...");
@@ -173,13 +172,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void loadBuildTimeData(Properties properties) {
-      Date commitDate = new Date();
-      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-      put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+    Date commitDate = new Date();
+    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
-    getLog().info(logPrefix +"Loading data from git repository...");
+    getLog().info(logPrefix + "Loading data from git repository...");
     Repository git = getGitRepository();
 
     // git.user.name
