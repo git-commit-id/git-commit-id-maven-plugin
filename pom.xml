@@ -142,14 +142,17 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <prefix>git</prefix>
+                    <!--<prefix>git</prefix>-->
                     <!-- that's the default value -->
+
                     <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
                     <!-- that's the default value -->
+
                     <verbose>true</verbose>
                     <!-- false is default for this -->
-                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
-                    <!-- required, you have to specify this path -->
+
+                    <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
+                    <!-- that's the default value -->
                 </configuration>
             </plugin>
             <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->

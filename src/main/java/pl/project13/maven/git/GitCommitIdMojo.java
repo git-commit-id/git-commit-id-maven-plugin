@@ -76,7 +76,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The root directory of the repository we want to check
    *
-   * @parameter
+   * @parameter default-value="${project.basedir}/.git"
    */
   private File dotGitDirectory;
 
@@ -128,26 +128,29 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @return the File representation of the .git directory
    */
-  private File lookupGitDirectory() {
-    if (dotGitDirectory == null || !dotGitDirectory.exists()) {
+  private File lookupGitDirectory() throws MojoExecutionException {
+    if (dotGitDirectory == null || !dotGitDirectory.exists()) { // given dotGitDirectory is not valid
 
-      if (project == null) {
+      if (project == null) { // we're running from an unit test
         dotGitDirectory = new File(Constants.DOT_GIT);
-        if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+        if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
           return dotGitDirectory;
         }
       }
 
+      // guess the .git location as the basedir of the project
       dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + Constants.DOT_GIT);
-      if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+      if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
         return dotGitDirectory;
       }
 
       File basedir = project.getBasedir();
       dotGitDirectory = new File(basedir.getParent() + Constants.DOT_GIT);
-      if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
+      if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
         return dotGitDirectory;
       }
+
+      throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
     }
 
     return dotGitDirectory;
@@ -195,6 +198,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
+    if(HEAD == null){
+      throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
+    }
     RevWalk revWalk = new RevWalk(git);
     RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
     revWalk.markStart(headCommit);
@@ -234,7 +240,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private Repository getGitRepository() throws MojoExecutionException {
-    Repository repository = null;
+    Repository repository;
 
     FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
     try {
