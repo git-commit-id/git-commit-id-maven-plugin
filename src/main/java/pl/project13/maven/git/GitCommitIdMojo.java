@@ -67,6 +67,8 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * Specifies whether the goal runs in verbose mode.
+   * To be more specific, this means more info being printed out while scanning for paths and also
+   * it will make git-commit-id "eat it's own dog food" :-)
    *
    * @parameter default-value="false"
    */
@@ -155,8 +157,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       getLog().info(logPrefix + "Using maven project properties...");
       properties = project.getProperties();
     } else {
-      properties = new Properties();
-//      throw new MojoExecutionException("Maven project WAS NULL! Created blank properties...");
+      properties = new Properties(); // that's ok for unit tests
     }
   }
 

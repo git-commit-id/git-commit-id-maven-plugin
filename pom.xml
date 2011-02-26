@@ -1,10 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>org.sonatype.oss</groupId>
-      <artifactId>oss-parent</artifactId>
-      <version>6</version>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>6</version>
     </parent>
 
     <groupId>pl.project13.maven</groupId>
@@ -116,7 +117,43 @@
     </dependencies>
 
     <build>
+        <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <prefix>git</prefix>
+                    <!-- that's the default value -->
+                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+                    <!-- that's the default value -->
+                    <verbose>true</verbose>
+                    <!-- false is default for this -->
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                    <!-- required, you have to specify this path -->
+                </configuration>
+            </plugin>
+            <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
+
             <!-- Setting built-in java compiler properties -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
