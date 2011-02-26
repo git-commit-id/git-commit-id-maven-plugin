@@ -130,19 +130,19 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (dotGitDirectory == null || !dotGitDirectory.exists()) {
 
       if (project == null) {
-        dotGitDirectory = new File(".git");
+        dotGitDirectory = new File(Constants.DOT_GIT);
         if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
           return dotGitDirectory;
         }
       }
 
-      dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + "/.git");
+      dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + Constants.DOT_GIT);
       if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
         return dotGitDirectory;
       }
 
       File basedir = project.getBasedir();
-      dotGitDirectory = new File(basedir.getParent() + "/.git");
+      dotGitDirectory = new File(basedir.getParent() + Constants.DOT_GIT);
       if (dotGitDirectory.exists() && !dotGitDirectory.isFile()) {
         return dotGitDirectory;
       }
@@ -242,7 +242,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       repository = repositoryBuilder
           .setGitDir(dotGitDirectory)
           .readEnvironment() // scan environment GIT_* variables
-              // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
+                             // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
           .findGitDir() // scan up the file system tree
           .build();
     } catch (IOException e) {
