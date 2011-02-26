@@ -96,6 +96,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * The properties we store our data in and then expose them
    */
   private Properties properties;
+
   public final String logPrefix = "[GitCommitIdMojo] ";
 
   public void execute() throws MojoExecutionException {
@@ -165,7 +166,10 @@ public class GitCommitIdMojo extends AbstractMojo {
       log.info(logPrefix + "------------------git properties loaded------------------");
 
       for (Object key : properties.keySet()) {
-        log.info(logPrefix + key + " = " + properties.getProperty((String) key));
+        String keyString = key.toString();
+        if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
+          log.info(logPrefix + key + " = " + properties.getProperty((String) key));
+        }
       }
       log.info(logPrefix + "---------------------------------------------------------");
     }
