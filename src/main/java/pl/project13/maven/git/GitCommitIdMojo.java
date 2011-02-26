@@ -19,7 +19,6 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
@@ -90,6 +89,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   private String prefixDot;
 
   /**
+   * The date format to be used for any dates exported by this plugin.
+   * It should be a valid SimpleDateFormat string.
+   *
    * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
    */
   private String dateFormat;
@@ -104,7 +106,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     dotGitDirectory = lookupGitDirectory();
 
-    getLog().info(logPrefix + "Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
+    log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
     try {
       initProperties();
@@ -113,11 +115,11 @@ public class GitCommitIdMojo extends AbstractMojo {
       loadGitData(properties);
       loadBuildTimeData(properties);
 
-      logPropertiesIfVerbose(properties);
+      logProperties(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     }
-    getLog().info(logPrefix + "Finished running.");
+    log("Finished running.");
   }
 
   /**
@@ -152,26 +154,25 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void initProperties() throws MojoExecutionException {
-    getLog().info(logPrefix + "initializing properties...");
+    log("Initializing properties...");
     if (project != null) {
-      getLog().info(logPrefix + "Using maven project properties...");
+      log("Using maven project properties...");
       properties = project.getProperties();
     } else {
       properties = new Properties(); // that's ok for unit tests
     }
   }
 
-  private void logPropertiesIfVerbose(Properties properties) {
-    Log log = getLog();
-    log.info(logPrefix + "------------------git properties loaded------------------");
+  private void logProperties(Properties properties) {
+    log("------------------git properties loaded------------------");
 
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
-        log.info(logPrefix + key + " = " + properties.getProperty((String) key));
+        log(key + " = " + properties.getProperty((String) key));
       }
     }
-    log.info(logPrefix + "---------------------------------------------------------");
+    log("---------------------------------------------------------");
   }
 
   private void loadBuildTimeData(Properties properties) {
@@ -181,7 +182,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
-    getLog().info(logPrefix + "Loading data from git repository...");
+    log("Loading data from git repository...");
     Repository git = getGitRepository();
 
     // git.user.name
@@ -255,10 +256,15 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void put(Properties properties, String key, String value) {
     if (verbose) {
-      getLog().info(logPrefix + "Storing: " + key + " = " + value);
+      String s = "Storing: " + key + " = " + value;
+      log(s);
     }
 
     properties.put(key, value);
+  }
+
+  private void log(String message) {
+    getLog().info(logPrefix + message);
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------
