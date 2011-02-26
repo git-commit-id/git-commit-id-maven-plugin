@@ -226,7 +226,7 @@ Configuration details
 Just a short recap of the available parameters...
 
 Optional parameters:
-* **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. Try to use `${project.basedir}` as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
+* **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. `${project.basedir}/.git` is the default value and will most probably be ok for single module projects, in other cases please use `../` to get higher up in the dir tree. An example would be: `${project.basedir}/../.git` which I'm currently using in my projects :-)
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
