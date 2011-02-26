@@ -162,18 +162,16 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void logPropertiesIfVerbose(Properties properties) {
-    if (verbose) {
-      Log log = getLog();
-      log.info(logPrefix + "------------------git properties loaded------------------");
+    Log log = getLog();
+    log.info(logPrefix + "------------------git properties loaded------------------");
 
-      for (Object key : properties.keySet()) {
-        String keyString = key.toString();
-        if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
-          log.info(logPrefix + key + " = " + properties.getProperty((String) key));
-        }
+    for (Object key : properties.keySet()) {
+      String keyString = key.toString();
+      if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
+        log.info(logPrefix + key + " = " + properties.getProperty((String) key));
       }
-      log.info(logPrefix + "---------------------------------------------------------");
     }
+    log.info(logPrefix + "---------------------------------------------------------");
   }
 
   private void loadBuildTimeData(Properties properties) {
@@ -242,7 +240,6 @@ public class GitCommitIdMojo extends AbstractMojo {
       repository = repositoryBuilder
           .setGitDir(dotGitDirectory)
           .readEnvironment() // scan environment GIT_* variables
-                             // user.email etc. can be overridden by the GIT_AUTHOR_EMAIL, GIT_COMMITTER_EMAIL, and EMAIL environment variables
           .findGitDir() // scan up the file system tree
           .build();
     } catch (IOException e) {
@@ -257,7 +254,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void put(Properties properties, String key, String value) {
-    getLog().info(logPrefix + "Storing: " + key + " = " + value);
+    if (verbose) {
+      getLog().info(logPrefix + "Storing: " + key + " = " + value);
+    }
+
     properties.put(key, value);
   }
 
