@@ -77,7 +77,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                    <plugin>
                        <groupId>pl.project13.maven</groupId>
                        <artifactId>git-commit-id-plugin</artifactId>
-                       <version>1.0</version>
+                       <version>1.1</version>
                        <executions>
                            <execution>
                                <goals>
