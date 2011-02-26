@@ -89,7 +89,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                            <prefix>git</prefix> <!-- that's the default value -->
                            <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat> <!-- that's the default value -->
                            <verbose>true</verbose> <!-- false is default for this -->
-                           <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory> <!-- required, you have to specify this path -->
+                           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory> <!-- that's the default value, you may really want to change this sometimes (in multi module projects) :-) -->
                        </configuration>
                    </plugin>
                    <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
@@ -225,13 +225,8 @@ Configuration details
 =====================
 Just a short recap of the available parameters...
 
-Required parameters:
-
-* **dotGitDirectory** - `(required)` the location of your .git folder. Try to use `${project.basedir}` as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
-
-
 Optional parameters:
-
+* **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. Try to use `${project.basedir}` as root for this, and navigate using ../ to higher up folder to easily use this plugin in multi module enviroments etc. An example would be: `${project.basedir}/../.git`
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
