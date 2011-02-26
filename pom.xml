@@ -145,7 +145,7 @@
                     <!--<prefix>git</prefix>-->
                     <!-- that's the default value -->
 
-                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+                    <!--<dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>-->
                     <!-- that's the default value -->
 
                     <verbose>true</verbose>
