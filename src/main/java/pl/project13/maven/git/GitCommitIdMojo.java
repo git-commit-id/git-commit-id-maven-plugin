@@ -266,7 +266,15 @@ public class GitCommitIdMojo extends AbstractMojo {
       log(s);
     }
 
-    properties.put(key, value);
+    if (isNotEmpty(value)) {
+      properties.put(key, value);
+    } else {
+      properties.put(key, "Unknown"); //todo think if just omitting it would not be better
+    }
+  }
+
+  private boolean isNotEmpty(String value) {
+    return null != value && !"".equals(value.replace(" ", ""));
   }
 
   private void log(String message) {
