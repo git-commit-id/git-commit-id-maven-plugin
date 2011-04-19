@@ -16,7 +16,7 @@ Getting the plugin
 Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
 Add this repository for **releases** of this plugin:
-```xml
+``` xml
         <repository>
             <id>sonatype-releases</id>
             <name>Sonatype Releases</name>
