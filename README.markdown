@@ -145,36 +145,36 @@ Start out with with adding the above steps to your project, next paste this **gi
 
 And here's the source of the bean we're binding here:
 
-    package pl.project13.maven.example.git;
+``` java
+package pl.project13.maven.example.git;
 
-    import org.codehaus.jackson.annotate.JsonWriteNullProperties;
+import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 
-    /**
-     * A spring controlled bean that will be injected
-     * with properties about the repository state at build time.
-     * This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
-     *
-     * @author Konrad Malawski
-     */
-    @JsonWriteNullProperties(true)
-    public class GitRepositoryState {
-      String branch;                  // =${git.branch}
-      String commitId;                // =${git.commit.id}
-      String buildUserName;           // =${git.build.user.name}
-      String buildUserEmail;          // =${git.build.user.email}
-      String buildTime;               // =${git.build.time}
-      String commitUserName;          // =${git.commit.user.name}
-      String commitUserEmail;         // =${git.commit.user.email}
-      String commitMessageFull;       // =${git.commit.message.full}
-      String commitMessageShort;      // =${git.commit.message.short}
-      String commitTime;              // =${git.commit.time}
+/**
+ * A spring controlled bean that will be injected
+ * with properties about the repository state at build time.
+ * This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
+ *
+ * @author Konrad Malawski
+ */
+@JsonWriteNullProperties(true)
+public class GitRepositoryState {
+  String branch;                  // =${git.branch}
+  String commitId;                // =${git.commit.id}
+  String buildUserName;           // =${git.build.user.name}
+  String buildUserEmail;          // =${git.build.user.email}
+  String buildTime;               // =${git.build.time}
+  String commitUserName;          // =${git.commit.user.name}
+  String commitUserEmail;         // =${git.commit.user.email}
+  String commitMessageFull;       // =${git.commit.message.full}
+  String commitMessageShort;      // =${git.commit.message.short}
+  String commitTime;              // =${git.commit.time}
 
-      public GitRepositoryState() {
-      }
-
-      /* Generate setters and getters here */
-    }
-
+  public GitRepositoryState() {
+  }
+  /* Generate setters and getters here */
+}
+```
 The source for it is also on the repo of this plugin. Of course, *feel free to drop out the jackson annotation* if you won't be using it.
 
 The last configuration related thing we need to do is to load up this bean in your appContext, so open up your **applicationContext.xml** or whatever you call it in your project and add these lines in the <beans/> section:
