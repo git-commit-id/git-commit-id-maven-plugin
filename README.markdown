@@ -16,13 +16,13 @@ Getting the plugin
 Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
 Add this repository for **releases** of this plugin:
-
+```xml
         <repository>
             <id>sonatype-releases</id>
             <name>Sonatype Releases</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
         </repository>
-
+```
 or use this one for it's **snapshots**:
 
         <repository>
