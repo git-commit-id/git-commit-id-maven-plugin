@@ -31,6 +31,7 @@ package pl.project13.maven.git;
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
   String commitId;                // =${git.commit.id}
+  String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String buildUserName;           // =${git.build.user.name}
   String buildUserEmail;          // =${git.build.user.email}
   String buildTime;               // =${git.build.time}
@@ -57,6 +58,14 @@ public class GitRepositoryState {
 
   public void setCommitId(String commitId) {
     this.commitId = commitId;
+  }
+
+  public void setCommitIdAbbrev(String commitIdAbbrev) {
+    this.commitIdAbbrev = commitIdAbbrev;
+  }
+
+  public String getCommitIdAbbrev() {
+    return commitIdAbbrev;
   }
 
   public String getBuildUserName() {
@@ -132,6 +141,7 @@ public class GitRepositoryState {
     appendProperty(sb, "branch", branch);
 
     appendProperty(sb, "commitId", commitId);
+    appendProperty(sb, "commitIdAbbrev", commitIdAbbrev);
     appendProperty(sb, "commitTime", commitTime);
     appendProperty(sb, "commitUserName", commitUserName);
     appendProperty(sb, "commitUserEmail", commitUserEmail);
@@ -148,4 +158,5 @@ public class GitRepositoryState {
   private void appendProperty(StringBuilder sb, String label, String value) {
     sb.append(String.format("\"%s\" = \"%s\",", label, value));
   }
+
 }
