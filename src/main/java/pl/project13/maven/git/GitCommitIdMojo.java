@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -45,9 +46,12 @@ import java.util.Properties;
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitIdMojo extends AbstractMojo {
 
+  private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
+  
   // these properties will be exposed to maven
   public final String BRANCH               = "branch";
   public final String COMMIT_ID            = "commit.id";
+  public final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
   public final String BUILD_AUTHOR_NAME    = "build.user.name";
   public final String BUILD_AUTHOR_EMAIL   = "build.user.email";
   public final String COMMIT_AUTHOR_NAME   = "commit.user.name";
@@ -188,6 +192,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Loading data from git repository...");
     Repository git = getGitRepository();
 
+    int abbrevLength = DEFAULT_COMMIT_ABBREV_LENGTH;
+    
+    StoredConfig config = git.getConfig();
+        
+    if (config != null) {
+       abbrevLength = config.getInt("core", "abbrev", DEFAULT_COMMIT_ABBREV_LENGTH);
+    }
+    
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
     put(properties, prefixDot + BUILD_AUTHOR_NAME, userName);
@@ -214,7 +226,10 @@ public class GitCommitIdMojo extends AbstractMojo {
       // git.commit.id
       put(properties, prefixDot + COMMIT_ID, headCommit.getName());
 
-      // git.commit.author.name
+      // git.commit.id.abbrev
+      put(properties, prefixDot + COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
+
+     // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
       put(properties, prefixDot + COMMIT_AUTHOR_NAME, commitAuthor);
 
