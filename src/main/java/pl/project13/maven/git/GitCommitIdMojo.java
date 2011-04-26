@@ -47,7 +47,7 @@ import java.util.Properties;
 public class GitCommitIdMojo extends AbstractMojo {
 
   private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
-  
+
   // these properties will be exposed to maven
   public final String BRANCH               = "branch";
   public final String COMMIT_ID            = "commit.id";
@@ -144,17 +144,17 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       //Walk up the project parent hierarchy seeking the .git directory
       MavenProject mavenProject = project;
-      while(mavenProject != null) {
+      while (mavenProject != null) {
         dotGitDirectory = new File(mavenProject.getBasedir(), Constants.DOT_GIT);
         if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
           return dotGitDirectory;
         }
         // If we've reached the top-level parent and not found the .git directory, look one level further up
         if (mavenProject.getParent() == null) {
-            dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
-            if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-              return dotGitDirectory;
-            }
+          dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
+          if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
+            return dotGitDirectory;
+          }
         }
         mavenProject = mavenProject.getParent();
       }
@@ -198,13 +198,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     Repository git = getGitRepository();
 
     int abbrevLength = DEFAULT_COMMIT_ABBREV_LENGTH;
-    
+
     StoredConfig config = git.getConfig();
-        
+
     if (config != null) {
-       abbrevLength = config.getInt("core", "abbrev", DEFAULT_COMMIT_ABBREV_LENGTH);
+      abbrevLength = config.getInt("core", "abbrev", DEFAULT_COMMIT_ABBREV_LENGTH);
     }
-    
+
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
     put(properties, prefixDot + BUILD_AUTHOR_NAME, userName);
@@ -215,7 +215,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
-    if(HEAD == null){
+    if (HEAD == null) {
       throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
     }
     RevWalk revWalk = new RevWalk(git);
@@ -234,7 +234,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       // git.commit.id.abbrev
       put(properties, prefixDot + COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
 
-     // git.commit.author.name
+      // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
       put(properties, prefixDot + COMMIT_AUTHOR_NAME, commitAuthor);
 
