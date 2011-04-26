@@ -142,16 +142,21 @@ public class GitCommitIdMojo extends AbstractMojo {
         }
       }
 
-      // guess the .git location as the basedir of the project
-      dotGitDirectory = new File(project.getBasedir().getAbsolutePath() + Constants.DOT_GIT);
-      if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-        return dotGitDirectory;
-      }
-
-      File basedir = project.getBasedir();
-      dotGitDirectory = new File(basedir.getParent() + Constants.DOT_GIT);
-      if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-        return dotGitDirectory;
+      //Walk up the project parent hierarchy seeking the .git directory
+      MavenProject mavenProject = project;
+      while(mavenProject != null) {
+        dotGitDirectory = new File(mavenProject.getBasedir(), Constants.DOT_GIT);
+        if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
+          return dotGitDirectory;
+        }
+        // If we've reached the top-level parent and not found the .git directory, look one level further up
+        if (mavenProject.getParent() == null) {
+            dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
+            if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
+              return dotGitDirectory;
+            }
+        }
+        mavenProject = mavenProject.getParent();
       }
 
       throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
