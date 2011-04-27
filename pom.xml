@@ -43,6 +43,7 @@
 
     <developers>
         <developer>
+            <id>ktoso</id>
             <name>Konrad Malawski</name>
             <email>konrad.malawski@project13.pl</email>
             <organization>Project13.pl</organization>
