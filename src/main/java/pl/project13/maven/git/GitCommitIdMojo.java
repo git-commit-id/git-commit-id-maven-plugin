@@ -37,7 +37,7 @@ import java.util.Properties;
 /**
  * Goal which touches a timestamp file.
  *
- * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @goal revision
  * @phase initialize
  * @requiresProject
