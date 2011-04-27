@@ -274,7 +274,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private boolean isNotEmpty(String value) {
-    return null != value && !"".equals(value.replace(" ", ""));
+    return null != value && !" ".equals(value.trim().replace(" ", ""));
   }
 
   private void log(String message) {
