@@ -250,7 +250,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       String shortMessage = headCommit.getShortMessage();
       put(properties, prefixDot + COMMIT_MESSAGE_SHORT, shortMessage);
 
-      int timeSinceEpoch = headCommit.getCommitTime();
+      long timeSinceEpoch = headCommit.getCommitTime();
       Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
       SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
       put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
