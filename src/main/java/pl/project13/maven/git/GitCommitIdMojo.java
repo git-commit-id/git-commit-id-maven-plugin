@@ -54,6 +54,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
   public final String BUILD_AUTHOR_NAME    = "build.user.name";
   public final String BUILD_AUTHOR_EMAIL   = "build.user.email";
+  public final String BUILD_TIME           = "build.time";
   public final String COMMIT_AUTHOR_NAME   = "commit.user.name";
   public final String COMMIT_AUTHOR_EMAIL  = "commit.user.email";
   public final String COMMIT_MESSAGE_FULL  = "commit.message.full";
@@ -190,7 +191,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   private void loadBuildTimeData(Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+    put(properties, prefixDot + BUILD_TIME, smf.format(commitDate));
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
