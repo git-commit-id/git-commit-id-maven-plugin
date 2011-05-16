@@ -15,21 +15,30 @@ Getting the plugin
 ------------------
 Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
 
-Add this repository for **releases** of this plugin:
+Add this plugin repository for **releases** of this plugin:
 
-        <repository>
-            <id>sonatype-releases</id>
-            <name>Sonatype Releases</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
+```
+<pluginRepositories>
+    <pluginRepository>
+        <id>sonatype-releases</id>
+        <name>Sonatype Releases</name>
+        <url>https://oss.sonatype.org/content/repositories/releases/</url>
+    </pluginRepository>
+</pluginRepositories>
+```
 
 or use this one for it's **snapshots**:
 
-        <repository>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
+```
+<pluginRepositories>
+    <pluginRepository>
+        <id>sonatype-snapshots</id>
+        <name>Sonatype Snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </pluginRepository>
+</pluginRepositories>
+
+```
 
 It'll soon be available from maven central, I hope by the way... :-)
 You don't need to add it as a *dependency*, just use the plugin as described bellow.
