@@ -67,6 +67,14 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
 
            <parent/>
 
+           <pluginRepositories>
+               <pluginRepository>
+                   <id>sonatype-releases</id>
+                   <name>Sonatype Releases</name>
+                   <url>https://oss.sonatype.org/content/repositories/releases/</url>
+               </pluginRepository>
+           </pluginRepositories>
+
            <dependencies />
 
            <build>
