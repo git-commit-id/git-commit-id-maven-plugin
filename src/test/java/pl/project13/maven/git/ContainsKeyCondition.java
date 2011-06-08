@@ -24,7 +24,7 @@ import java.util.Map;
 /**
 * Date: 2/13/11
 *
-* @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+* @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
 */
 class ContainsKeyCondition extends Condition<Map<?, ?>> {
 

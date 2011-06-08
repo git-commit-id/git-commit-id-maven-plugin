@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -36,7 +37,7 @@ import java.util.Properties;
 /**
  * Goal which touches a timestamp file.
  *
- * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
+ * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @goal revision
  * @phase initialize
  * @requiresProject
@@ -45,11 +46,15 @@ import java.util.Properties;
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitIdMojo extends AbstractMojo {
 
+  private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
+
   // these properties will be exposed to maven
   public final String BRANCH               = "branch";
   public final String COMMIT_ID            = "commit.id";
+  public final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
   public final String BUILD_AUTHOR_NAME    = "build.user.name";
   public final String BUILD_AUTHOR_EMAIL   = "build.user.email";
+  public final String BUILD_TIME           = "build.time";
   public final String COMMIT_AUTHOR_NAME   = "commit.user.name";
   public final String COMMIT_AUTHOR_EMAIL  = "commit.user.email";
   public final String COMMIT_MESSAGE_FULL  = "commit.message.full";
@@ -140,17 +145,17 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       //Walk up the project parent hierarchy seeking the .git directory
       MavenProject mavenProject = project;
-      while(mavenProject != null) {
+      while (mavenProject != null) {
         dotGitDirectory = new File(mavenProject.getBasedir(), Constants.DOT_GIT);
         if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
           return dotGitDirectory;
         }
         // If we've reached the top-level parent and not found the .git directory, look one level further up
         if (mavenProject.getParent() == null) {
-            dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
-            if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-              return dotGitDirectory;
-            }
+          dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
+          if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
+            return dotGitDirectory;
+          }
         }
         mavenProject = mavenProject.getParent();
       }
@@ -186,12 +191,20 @@ public class GitCommitIdMojo extends AbstractMojo {
   private void loadBuildTimeData(Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+    put(properties, prefixDot + BUILD_TIME, smf.format(commitDate));
   }
 
   private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
     log("Loading data from git repository...");
     Repository git = getGitRepository();
+
+    int abbrevLength = DEFAULT_COMMIT_ABBREV_LENGTH;
+
+    StoredConfig config = git.getConfig();
+
+    if (config != null) {
+      abbrevLength = config.getInt("core", "abbrev", DEFAULT_COMMIT_ABBREV_LENGTH);
+    }
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
@@ -203,7 +216,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
-    if(HEAD == null){
+    if (HEAD == null) {
       throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
     }
     RevWalk revWalk = new RevWalk(git);
@@ -218,6 +231,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       // git.commit.id
       put(properties, prefixDot + COMMIT_ID, headCommit.getName());
+
+      // git.commit.id.abbrev
+      put(properties, prefixDot + COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
 
       // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
@@ -235,7 +251,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       String shortMessage = headCommit.getShortMessage();
       put(properties, prefixDot + COMMIT_MESSAGE_SHORT, shortMessage);
 
-      int timeSinceEpoch = headCommit.getCommitTime();
+      long timeSinceEpoch = headCommit.getCommitTime();
       Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
       SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
       put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
@@ -279,7 +295,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private boolean isNotEmpty(String value) {
-    return null != value && !"".equals(value.replace(" ", ""));
+    return null != value && !" ".equals(value.trim().replace(" ", ""));
   }
 
   private void log(String message) {

@@ -10,7 +10,7 @@
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.6-SNAPSHOT</version>
     <name>Git Commit Id Plugin Maven Mojo</name>
     <description>
         git-commit-id-plugin is a plugin quite similar to
@@ -43,6 +43,7 @@
 
     <developers>
         <developer>
+            <id>ktoso</id>
             <name>Konrad Malawski</name>
             <email>konrad.malawski@project13.pl</email>
             <organization>Project13.pl</organization>
@@ -129,10 +130,11 @@
         </resources>
 
         <plugins>
+            <!--  SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>1.2-SNAPSHOT</version>
+                <version>1.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -141,20 +143,16 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <!--<prefix>git</prefix>-->
-                    <!-- that's the default value -->
+                    <prefix>git</prefix>
 
-                    <!--<dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>-->
-                    <!-- that's the default value -->
+                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
 
                     <verbose>true</verbose>
-                    <!-- false is default for this -->
 
-                    <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
-                    <!-- that's the default value -->
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
                 </configuration>
             </plugin>
-            <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
+            END OF SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION -->
 
             <!-- Setting built-in java compiler properties -->
             <plugin>
