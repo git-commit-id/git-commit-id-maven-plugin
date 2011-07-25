@@ -52,7 +52,7 @@
     </developers>
 
     <prerequisites>
-        <maven>[2.2.1.)</maven>
+        <maven>[2.2.1,)</maven>
     </prerequisites>
 
     <licenses>
