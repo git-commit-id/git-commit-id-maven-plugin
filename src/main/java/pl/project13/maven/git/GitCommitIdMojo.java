@@ -151,7 +151,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           return dotGitDirectory;
         }
         // If we've reached the top-level parent and not found the .git directory, look one level further up
-        if (mavenProject.getParent() == null) {
+        if (mavenProject.getParent() == null && mavenProject.getBasedir() != null) {
           dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
           if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
             return dotGitDirectory;
