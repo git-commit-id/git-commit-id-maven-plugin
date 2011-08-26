@@ -163,6 +163,7 @@ Start out with with adding the above steps to your project, next paste this **gi
     </beans>
 
 And here's the source of the bean we're binding here:
+
 ```java
 package pl.project13.maven.example.git;
   
