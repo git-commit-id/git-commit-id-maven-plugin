@@ -17,7 +17,7 @@ Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use thi
 
 Add this plugin repository for **releases** of this plugin:
 
-```
+```xml
 <pluginRepositories>
     <pluginRepository>
         <id>sonatype-releases</id>
@@ -29,7 +29,7 @@ Add this plugin repository for **releases** of this plugin:
 
 or use this one for it's **snapshots**:
 
-```
+```xml
 <pluginRepositories>
     <pluginRepository>
         <id>sonatype-snapshots</id>
