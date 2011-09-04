@@ -37,7 +37,6 @@ or use this one for it's **snapshots**:
         <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </pluginRepository>
 </pluginRepositories>
-
 ```
 
 It'll soon be available from maven central, I hope by the way... :-)
