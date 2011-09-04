@@ -130,7 +130,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     -->
 
                     <!-- this is false by default, forces the plugin to generate the git.properties file -->
-                    <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
                     <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
                     <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
@@ -346,6 +346,8 @@ Optional parameters:
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
+* **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
+* **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 
 License
 =======
