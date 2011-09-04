@@ -287,7 +287,7 @@ There's another way to use the plugin, it's a little bit easier I guess. First, 
                         <configuration>
                             <!-- ... -->
 
-                            <!-- this is false by default, forces the plugin to generate the git.properties file>
+                            <!-- this is false by default, forces the plugin to generate the git.properties file -->
                             <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
 
                             <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
