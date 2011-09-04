@@ -52,112 +52,120 @@ Using the plugin
 ----------------
 It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
 
-       <?xml version="1.0" encoding="UTF-8"?>
-       <project xmlns="http://maven.apache.org/POM/4.0.0"
-                xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
-                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-           <modelVersion>4.0.0</modelVersion>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-           <groupId>pl.project13.maven</groupId>
-           <artifactId>my-git-plugin-sample-app</artifactId>
-           <packaging>war</packaging>
-           <version>0.1</version>
-           <name>my-git-plugin-sample-app</name>
-           <url>http://www.blog.project13.pl</url>
+    <groupId>pl.project13.maven</groupId>
+    <artifactId>my-git-plugin-sample-app</artifactId>
+    <packaging>war</packaging>
+    <version>0.1</version>
+    <name>my-git-plugin-sample-app</name>
+    <url>http://www.blog.project13.pl</url>
 
-           <parent/>
+    <parent/>
 
-           <pluginRepositories>
-               <pluginRepository>
-                   <id>sonatype-releases</id>
-                   <name>Sonatype Releases</name>
-                   <url>https://oss.sonatype.org/content/repositories/releases/</url>
-               </pluginRepository>
-           </pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>sonatype-releases</id>
+            <name>Sonatype Releases</name>
+            <url>https://oss.sonatype.org/content/repositories/releases/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
-           <dependencies />
+    <dependencies />
 
-           <build>
-               <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
-               <resources>
-                   <resource>
-                       <directory>src/main/resources</directory>
-                       <filtering>true</filtering>
-                       <includes>
-                           <include>**/*.properties</include>
-                           <include>**/*.xml</include>
-                       </includes>
-                   </resource>
-               </resources>
+    <build>
+        <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
 
-               <plugins>
-                   <plugin>
-                       <groupId>pl.project13.maven</groupId>
-                       <artifactId>git-commit-id-plugin</artifactId>
-                       <version>1.5</version>
-                       <executions>
-                           <execution>
-                               <goals>
-                                   <goal>revision</goal>
-                               </goals>
-                           </execution>
-                       </executions>
+        <!-- SKIP SETTING UP FILTERING LIKE THIS IF YOU USE THE GENERATE FILE MODE :-) -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
 
-                       <configuration>
-                           <!-- that's the default value, you don't have to set it -->
-                           <prefix>git</prefix>
-                           
-                           <!-- that's the default value -->
-                           <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+        <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                         </goals>
+                    </execution>
+                </executions>
 
-                           <!-- false is default here, it prints some more information during the build -->
-                           <verbose>true</verbose>
+                <configuration>
+                    <!-- that's the default value, you don't have to set it -->
+                    <prefix>git</prefix>
 
-                           <!-- If you'd like to tell the plugin where your .git directory is,
-                                use this setting, otherwise we'll perform a search trying to
-                                figure out the right directory. It's better to add it explicite IMHO. -->
-                           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <!-- that's the default value -->
+                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
 
-                           <!-- ALTERNATE SETUP - GENERATE FILE -->
-                           <!--
-                                If you want to keep git information, even in your WAR file etc,
-                                use this mode, which will generate a properties file (with filled out values)
-                                which you can then normally read using new Properties().load(/**/)
-                           -->
+                    <!-- false is default here, it prints some more information during the build -->
+                    <verbose>true</verbose>
 
-                           <!-- this is false by default, forces the plugin to generate the git.properties file>
-                           <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
+                    <!--
+                        If you'd like to tell the plugin where your .git directory is,
+                        use this setting, otherwise we'll perform a search trying to
+                        figure out the right directory. It's better to add it explicite IMHO.
+                    -->
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
-                           <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-                           <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
-                       </configuration>
+                    <!-- ALTERNATE SETUP - GENERATE FILE -->
+                    <!--
+                        If you want to keep git information, even in your WAR file etc,
+                        use this mode, which will generate a properties file (with filled out values)
+                        which you can then normally read using new Properties().load(/**/)
+                    -->
 
-                   </plugin>
-                   <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
+                    <!-- this is false by default, forces the plugin to generate the git.properties file>
+                    <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
 
-                   <!-- other plugins -->
-               </plugins>
-           </build>
-       </project>
+                    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+                    <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
+                </configuration>
+
+            </plugin>
+            <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
+
+            <!-- other plugins -->
+        </plugins>
+    </build>
+</project>
+```
 
 Based on the above part of a working POM you should be able to figure out the rest, I mean you are a maven user after all... ;-)
 Note that the resources filtering is important for this plugin to work, don't omit it!
 
 Now you just have to include such a properties file in your project under `/src/main/resources` (and call it **git.properties** for example) and maven will put the appropriate properties in the placeholders:
 
-     git.branch=${git.branch}
+```
+git.branch=${git.branch}
 
-     git.build.user.name=${git.build.user.name}
-     git.build.user.email=${git.build.user.email}
-     git.build.time=${git.build.time}
+git.build.user.name=${git.build.user.name}
+git.build.user.email=${git.build.user.email}
+git.build.time=${git.build.time}
 
-     git.commit.id=${git.commit.id}
-     git.commit.id.abbrev=${commit.id.abbrev}
-     git.commit.user.name=${git.commit.user.name}
-     git.commit.user.email=${git.commit.user.email}
-     git.commit.message.full=${git.commit.message.full}
-     git.commit.message.short=${git.commit.message.short}
-     git.commit.time=${git.commit.time}
+git.commit.id=${git.commit.id}
+git.commit.id.abbrev=${commit.id.abbrev}
+git.commit.user.name=${git.commit.user.name}
+git.commit.user.email=${git.commit.user.email}
+git.commit.message.full=${git.commit.message.full}
+git.commit.message.short=${git.commit.message.short}
+git.commit.time=${git.commit.time}
+```
 
 The `git` prefix may be configured in the plugin declaration above.
 
@@ -166,33 +174,34 @@ Maven resource filtering + Spring = GitRepositoryState Bean
 You'll most probably want to wire these plugins somehow to get easy access to them during runtime. We'll use spring as an example of doing this.
 Start out with with adding the above steps to your project, next paste this **git-bean.xml** into the `/src/main/resources/` directory (or any other, just adjust the paths later on):
 
-    <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-    <beans xmlns="http://www.springframework.org/schema/beans"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-        <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
-            <property name="branch" value="${git.branch}"/>
-            <property name="commitId" value="${git.commit.id}"/>
-            <property name="commitIdAbbrev" value="${commit.id.abbrev}"/>
-            <property name="commitTime" value="${git.commit.time}"/>
-            <property name="buildUserName" value="${git.build.user.name}"/>
-            <property name="buildUserEmail" value="${git.build.user.email}"/>
-            <property name="commitMessageFull" value="${git.commit.message.full}"/>
-            <property name="commitMessageShort" value="${git.commit.message.short}"/>
-            <property name="commitUserName" value="${git.commit.user.name}"/>
-            <property name="commitUserEmail" value="${git.commit.user.email}"/>
-        </bean>
-
-    </beans>
+    <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
+        <property name="branch" value="${git.branch}"/>
+        <property name="commitId" value="${git.commit.id}"/>
+        <property name="commitIdAbbrev" value="${commit.id.abbrev}"/>
+        <property name="commitTime" value="${git.commit.time}"/>
+        <property name="buildUserName" value="${git.build.user.name}"/>
+        <property name="buildUserEmail" value="${git.build.user.email}"/>
+        <property name="commitMessageFull" value="${git.commit.message.full}"/>
+        <property name="commitMessageShort" value="${git.commit.message.short}"/>
+        <property name="commitUserName" value="${git.commit.user.name}"/>
+        <property name="commitUserEmail" value="${git.commit.user.email}"/>
+    </bean>
+</beans>
+```
 
 And here's the source of the bean we're binding here:
 
 ```java
 package pl.project13.maven.example.git;
-  
+
 import org.codehaus.jackson.annotate.JsonWriteNullProperties;
-    
+
 /**
 * A spring controlled bean that will be injected
 * with properties about the repository state at build time.
@@ -250,6 +259,7 @@ Don't mind the createMAV and responses stuff, it's just example code. And feel f
 
 In the end *this is what this service would return*:
 
+```json
      {
          "branch" : "testing-maven-git-plugin",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
@@ -266,6 +276,7 @@ In the end *this is what this service would return*:
          "buildUserName" : "Konrad Malawski",
          "buildUserEmail" : "konrad.malawski@java.pl"
      }
+```
 
 That's all folks! **Happy hacking!**
 
@@ -280,8 +291,8 @@ There's another way to use the plugin, it's a little bit easier I guess. First, 
                             <!-- this is false by default, forces the plugin to generate the git.properties file>
                             <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
 
-                            <!-- The path for the to be generated properties file, it's relative to ${project.base    dir} -->
-                            <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitProperties    Filename>
+                            <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+                            <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
                         </configuration>
 ```
 
