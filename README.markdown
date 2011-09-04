@@ -102,12 +102,36 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                                </goals>
                            </execution>
                        </executions>
+
                        <configuration>
-                           <prefix>git</prefix> <!-- that's the default value -->
-                           <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat> <!-- that's the default value -->
-                           <verbose>true</verbose> <!-- false is default for this -->
-                           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory> <!-- that's the default value, you may really want to change this sometimes (in multi module projects) :-) -->
+                           <!-- that's the default value, you don't have to set it -->
+                           <prefix>git</prefix>
+                           
+                           <!-- that's the default value -->
+                           <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+
+                           <!-- false is default here, it prints some more information during the build -->
+                           <verbose>true</verbose>
+
+                           <!-- If you'd like to tell the plugin where your .git directory is,
+                                use this setting, otherwise we'll perform a search trying to
+                                figure out the right directory. It's better to add it explicite IMHO. -->
+                           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+
+                           <!-- ALTERNATE SETUP - GENERATE FILE -->
+                           <!--
+                                If you want to keep git information, even in your WAR file etc,
+                                use this mode, which will generate a properties file (with filled out values)
+                                which you can then normally read using new Properties().load(/**/)
+                           -->
+
+                           <!-- this is false by default, forces the plugin to generate the git.properties file>
+                           <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
+
+                           <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+                           <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
                        </configuration>
+
                    </plugin>
                    <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->
 
@@ -244,6 +268,63 @@ In the end *this is what this service would return*:
      }
 
 That's all folks! **Happy hacking!**
+
+The easier way: generate git.properties
+=======================================
+There's another way to use the plugin, it's a little bit easier I guess. First, configure it to generate a properties file on each run, goto the pom.xml and set:
+
+```xml
+                        <configuration>
+                            <!-- ... -->
+
+                            <!-- this is false by default, forces the plugin to generate the git.properties file>
+                            <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
+
+                            <!-- The path for the to be generated properties file, it's relative to ${project.base    dir} -->
+                            <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitProperties    Filename>
+                        </configuration>
+```
+
+Remember to add this file to your .gitignore as it's quite some garbage changes to your repository if you don't ignore it. Open .gitignore and add:
+
+```
+src/main/resources/git.properties
+```
+
+Then run the project as you would normally, the file will be created for you. And you may access it as you'd access any other properties file, for example like this:
+
+```java
+public GitRepositoryState getGitRepositoryState() throws IOException
+{
+   if (gitRepositoryState == null)
+   {
+      Properties properties = new Properties();
+      properties.load(getClass().getClassLoader().getResourceAsStream("git.properties"));
+
+      gitRepositoryState = new GitRepositoryState(properties);
+   }
+   return gitRepositoryState;
+}
+```
+
+You'd have to add such an constructor to your GitRepositoryState bean:
+
+```java
+public GitRepositoryState(Properties properties)
+{
+   this.branch = properties.get("git.branch").toString();
+   this.commitId = properties.get("git.commit.id").toString();
+   this.buildUserName = properties.get("git.build.user.name").toString();
+   this.buildUserEmail = properties.get("git.build.user.email").toString();
+   this.buildTime = properties.get("git.build.time").toString();
+   this.commitUserName = properties.get("git.commit.user.name").toString();
+   this.commitUserEmail = properties.get("git.commit.user.email").toString();
+   this.commitMessageShort = properties.get("git.commit.message.short").toString();
+   this.commitMessageFull = properties.get("git.commit.message.full").toString();
+   this.commitTime = properties.get("git.commit.time").toString();
+}
+```
+
 
 Configuration details
 =====================
