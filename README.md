@@ -129,7 +129,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                         which you can then normally read using new Properties().load(/**/)
                     -->
 
-                    <!-- this is false by default, forces the plugin to generate the git.properties file>
+                    <!-- this is false by default, forces the plugin to generate the git.properties file -->
                     <generateGitPropertiesFile>true</>enerateGitPropertiesFile>
 
                     <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
