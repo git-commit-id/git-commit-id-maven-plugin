@@ -13,21 +13,13 @@ Usage
 =====
 Getting the plugin
 ------------------
-Yeah! I got access to the **Sonatype** Maven Repo, so now you're able to use this plugin just by adding this to your POM:
+The plugin is available from **Maven Central**! So you don't need to add any repositories etc to your pom to start using it.
+See the detailed description bellow in *Using the plugin* to learn how to use it - also, if you have any problems, let me know! :-)
 
-Add this plugin repository for **releases** of this plugin:
-
-```xml
-<pluginRepositories>
-    <pluginRepository>
-        <id>sonatype-releases</id>
-        <name>Sonatype Releases</name>
-        <url>https://oss.sonatype.org/content/repositories/releases/</url>
-    </pluginRepository>
-</pluginRepositories>
-```
-
-or use this one for it's **snapshots**:
+Getting SNAPSHOT versions of the plugin
+---------------------------------------
+If you really want to use snapshots, here's the repository they are deployed to. 
+But I highly recommend using only stable versions, from maven central... :-)
 
 ```xml
 <pluginRepositories>
@@ -38,15 +30,6 @@ or use this one for it's **snapshots**:
     </pluginRepository>
 </pluginRepositories>
 ```
-
-It'll soon be available from maven central, I hope by the way... :-)
-You don't need to add it as a *dependency*, just use the plugin as described bellow.
-
-To see what versions are currently deployed you may go to: <a href="https://oss.sonatype.org/index.html#nexus-search;quick~git-commit">https://oss.sonatype.org</a> (or just use IntelliJ IDEA ;-))
-
-Also, don't be afraid to use SNAPSHOT versions as they've passed the testing process and really shouldn't break anything in your code :-)
-Of course, use STABLE releases if you want to be sure of it, I'm also updating them each major improvement or bugfix.
-
 Using the plugin
 ----------------
 It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
@@ -64,16 +47,6 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
     <version>0.1</version>
     <name>my-git-plugin-sample-app</name>
     <url>http://www.blog.project13.pl</url>
-
-    <parent/>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>sonatype-releases</id>
-            <name>Sonatype Releases</name>
-            <url>https://oss.sonatype.org/content/repositories/releases/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies />
 
