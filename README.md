@@ -13,7 +13,7 @@ Usage
 =====
 Getting the plugin
 ------------------
-The plugin is available from **Maven Central**! So you don't need to add any repositories etc to your pom to start using it.
+The plugin is available from **Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>)! So you don't need to add any repositories etc to your pom to start using it.
 See the detailed description bellow in *Using the plugin* to learn how to use it - also, if you have any problems, let me know! :-)
 
 Getting SNAPSHOT versions of the plugin
