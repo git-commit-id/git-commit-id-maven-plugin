@@ -133,6 +133,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     dotGitDirectory = lookupGitDirectory();
 
     log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
+    
+    if (project.getPackaging().equalsIgnoreCase("pom")) {
+      log("Skipping the execution as it is a project with packaging type: 'pom'");
+      return;
+    }
 
     try {
       properties = initProperties();
