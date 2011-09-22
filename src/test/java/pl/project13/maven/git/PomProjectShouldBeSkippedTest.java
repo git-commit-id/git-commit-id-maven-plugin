@@ -21,19 +21,15 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusTestCase;
 
 import java.io.File;
-import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Date: 2/13/11
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
  */
-public class GitCommitIdMojoTest extends PlexusTestCase {
+public class PomProjectShouldBeSkippedTest extends PlexusTestCase {
 
   GitCommitIdMojo mojo;
 
@@ -46,25 +42,21 @@ public class GitCommitIdMojoTest extends PlexusTestCase {
 
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
-    when(mojo.project.getPackaging()).thenReturn("jar");
-
+    when(mojo.project.getPackaging()).thenReturn("pom");
+    
     super.setUp();
   }
 
   public void testExecute() throws Exception {
+    // given
+    mojo = spy(mojo);
+
+    // when
     mojo.execute();
 
-    Properties properties = mojo.getProperties();
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+    // then
+    verify(mojo).isPomProject(mojo.project);
+    verify(mojo, times(2)).log(anyString());
   }
 
 }
