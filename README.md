@@ -106,7 +106,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
                     <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-                    <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
                 </configuration>
 
             </plugin>
