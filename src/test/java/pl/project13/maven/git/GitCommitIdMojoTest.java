@@ -17,12 +17,16 @@
 
 package pl.project13.maven.git;
 
+import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusTestCase;
 
 import java.io.File;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Date: 2/13/11
@@ -39,6 +43,10 @@ public class GitCommitIdMojoTest extends PlexusTestCase {
     mojo.setPrefix("git");
     mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
     mojo.setVerbose(true);
+
+    mojo.runningTests = true;
+    mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    when(mojo.project.getPackaging()).thenReturn("jar");
 
     super.setUp();
   }

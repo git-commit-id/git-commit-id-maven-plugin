@@ -29,6 +29,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,17 +50,17 @@ public class GitCommitIdMojo extends AbstractMojo {
   private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
 
   // these properties will be exposed to maven
-  public final String BRANCH               = "branch";
-  public final String COMMIT_ID            = "commit.id";
-  public final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
-  public final String BUILD_AUTHOR_NAME    = "build.user.name";
-  public final String BUILD_AUTHOR_EMAIL   = "build.user.email";
-  public final String BUILD_TIME           = "build.time";
-  public final String COMMIT_AUTHOR_NAME   = "commit.user.name";
-  public final String COMMIT_AUTHOR_EMAIL  = "commit.user.email";
-  public final String COMMIT_MESSAGE_FULL  = "commit.message.full";
+  public final String BRANCH = "branch";
+  public final String COMMIT_ID = "commit.id";
+  public final String COMMIT_ID_ABBREV = "commit.id.abbrev";
+  public final String BUILD_AUTHOR_NAME = "build.user.name";
+  public final String BUILD_AUTHOR_EMAIL = "build.user.email";
+  public final String BUILD_TIME = "build.time";
+  public final String COMMIT_AUTHOR_NAME = "commit.user.name";
+  public final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
+  public final String COMMIT_MESSAGE_FULL = "commit.message.full";
   public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
-  public final String COMMIT_TIME          = "commit.time";
+  public final String COMMIT_TIME = "commit.time";
 
   /**
    * The maven project.
@@ -67,7 +68,8 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter expression="${project}"
    * @readonly
    */
-  private MavenProject project;
+  //@VisibleForTesting
+  MavenProject project;
 
   /**
    * Specifies whether the goal runs in verbose mode.
@@ -77,6 +79,26 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="false"
    */
   private boolean verbose;
+
+  /**
+   * Specifies whether the goal runs in verbose mode.
+   * To be more specific, this means more info being printed out while scanning for paths and also
+   * it will make git-commit-id "eat it's own dog food" :-)
+   *
+   * @parameter default-value="false"
+   */
+  private boolean generateGitPropertiesFile;
+
+  /**
+   * Decide where to generate the git.properties file. By default, the src/main/resources/git.properties
+   * file will be updated - of course you must first set generateGitPropertiesFile = true to force git-commit-id
+   * into generateFile mode.
+   * <p/>
+   * The path here is relative to your projects src directory.
+   *
+   * @parameter default-value="src/main/resources/git.properties"
+   */
+  private String generateGitPropertiesFilename;
 
   /**
    * The root directory of the repository we want to check
@@ -108,22 +130,35 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public final String logPrefix = "[GitCommitIdMojo] ";
 
+  // @VisibleForTesting
+  boolean runningTests = false;
+
   public void execute() throws MojoExecutionException {
     dotGitDirectory = lookupGitDirectory();
 
     log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
+    if (isPomProject(project)) {
+      log("Skipping the execution as it is a project with packaging type: 'pom'");
+      return;
+    }
+
     try {
-      initProperties();
+      properties = initProperties();
       prefixDot = prefix + ".";
 
       loadGitData(properties);
       loadBuildTimeData(properties);
 
+      if (generateGitPropertiesFile) {
+        generatePropertiesFile(properties, generateGitPropertiesFilename);
+      }
+
       logProperties(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     }
+
     log("Finished running.");
   }
 
@@ -151,7 +186,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           return dotGitDirectory;
         }
         // If we've reached the top-level parent and not found the .git directory, look one level further up
-        if (mavenProject.getParent() == null) {
+        if (mavenProject.getParent() == null && mavenProject.getBasedir() != null) {
           dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
           if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
             return dotGitDirectory;
@@ -166,13 +201,16 @@ public class GitCommitIdMojo extends AbstractMojo {
     return dotGitDirectory;
   }
 
-  private void initProperties() throws MojoExecutionException {
+  private Properties initProperties() throws MojoExecutionException {
     log("Initializing properties...");
-    if (project != null) {
+    if (generateGitPropertiesFile) {
+      log("Using clean properties...");
+      return properties = new Properties();
+    } else if (!runningTests) {
       log("Using maven project properties...");
-      properties = project.getProperties();
+      return properties = project.getProperties();
     } else {
-      properties = new Properties(); // that's ok for unit tests
+      return properties = new Properties(); // that's ok for unit tests
     }
   }
 
@@ -182,19 +220,19 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
-        log(key + " = " + properties.getProperty((String) key));
+        log(String.format("%s = %s", key, properties.getProperty(keyString)));
       }
     }
     log("---------------------------------------------------------");
   }
 
-  private void loadBuildTimeData(Properties properties) {
+  void loadBuildTimeData(Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, prefixDot + BUILD_TIME, smf.format(commitDate));
   }
 
-  private void loadGitData(Properties properties) throws IOException, MojoExecutionException {
+  void loadGitData(Properties properties) throws IOException, MojoExecutionException {
     log("Loading data from git repository...");
     Repository git = getGitRepository();
 
@@ -260,6 +298,19 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
+  void generatePropertiesFile(Properties properties, String generateGitPropertiesFilename) throws IOException {
+    String filename = project.getBasedir().getAbsolutePath() + File.separatorChar + generateGitPropertiesFilename;
+    File gitPropsFile = new File(filename);
+    
+    SmallFilesUtil.createParentDirs(gitPropsFile);
+
+    properties.store(new FileWriter(gitPropsFile), "Generated by Git-Commit-Id-Plugin");
+  }
+
+  boolean isPomProject(MavenProject project) {
+    return project.getPackaging().equalsIgnoreCase("pom");
+  }
+
   private Repository getGitRepository() throws MojoExecutionException {
     Repository repository;
 
@@ -295,10 +346,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private boolean isNotEmpty(String value) {
-    return null != value && !" ".equals(value.trim().replace(" ", ""));
+    return null != value && !" ".equals(value.trim().replaceAll(" ", ""));
   }
 
-  private void log(String message) {
+  void log(String message) {
     getLog().info(logPrefix + message);
   }
 
