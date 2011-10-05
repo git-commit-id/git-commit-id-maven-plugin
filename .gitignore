@@ -4,3 +4,12 @@
 
 out
 target
+
+# IntelliJ IDEA configuration #
+###############################
+*.iml
+*.ipr
+*.iws
+.idea
+.idea/*
+.idea/libraries/*.xml
