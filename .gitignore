@@ -2,5 +2,11 @@
 *.tmp
 *~
 
+# intellij
+.idea
+*.iml
+*.ipr
+*.iws
+
 out
 target
