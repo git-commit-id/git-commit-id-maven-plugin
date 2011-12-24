@@ -90,7 +90,8 @@
         <dependency>
             <groupId>com.madgag</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>0.9.9.5-UNOFFICIAL-ROBERTO-RELEASE</version>
+            <version>1.0.99.0.7-UNOFFICIAL-ROBERTO-RELEASE</version>
+            <!--<version>0.9.9.5-UNOFFICIAL-ROBERTO-RELEASE</version>-->
         </dependency>
 
         <!-- Test stuff -->
