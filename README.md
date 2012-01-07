@@ -102,6 +102,14 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                         which you can then normally read using new Properties().load(/**/)
                     -->
 
+                    <!--
+                        this is true by default; You may want to set this to false, if the plugin should run inside a
+                        <packaging>pom</packaging> project. Most projects won't need to override this property.
+
+                        For an use-case for this kind of behaviour see: https://github.com/ktoso/maven-git-commit-id-plugin/issues/21
+                    -->
+                    <skipPomProjects>true</skipPomProjects>
+
                     <!-- this is false by default, forces the plugin to generate the git.properties file -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
@@ -321,6 +329,7 @@ Optional parameters:
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
+* **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 
 License
 =======
