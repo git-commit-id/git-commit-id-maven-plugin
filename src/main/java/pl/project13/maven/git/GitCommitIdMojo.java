@@ -142,14 +142,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean runningTests = false;
 
   public void execute() throws MojoExecutionException {
-    dotGitDirectory = lookupGitDirectory();
-
-    log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
-
     if (isPomProject(project) && skipPoms) {
       log("Skipping the execution as it is a project with packaging type: 'pom'");
       return;
     }
+
+    dotGitDirectory = lookupGitDirectory();
+
+    log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
     try {
       properties = initProperties();
