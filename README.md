@@ -9,6 +9,10 @@ what changeset is currently deployed online. Why is this useful? Well, the teste
 
 This scenario keeps repeating sometimes, thus you can state which commit fixes/closes the bug, note this in JIRA etc and then the tester will know if it's already online (by the commit date for example).
 
+Travis-CI status
+================
+[![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.png?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
+
 Usage
 =====
 Getting the plugin
