@@ -116,7 +116,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
                     <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
 
-                    <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution ->
+                    <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
 
