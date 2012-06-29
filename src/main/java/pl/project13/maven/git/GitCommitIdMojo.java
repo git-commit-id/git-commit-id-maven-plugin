@@ -132,6 +132,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   private String dateFormat;
 
   /**
+   * Specifies whether the plugin should fail if it can't find the .git directory. The default 
+   * value is true.
+   *
+   * @parameter default-value="true"
+   */
+  private boolean failOnNoGitDirectory;
+  
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -148,7 +156,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     dotGitDirectory = lookupGitDirectory();
-
+    if (dotGitDirectory == null) {
+        log(".git directory could not be found, skipping execution");
+        return;
+    }
+    
     log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
 
     try {
@@ -203,7 +215,10 @@ public class GitCommitIdMojo extends AbstractMojo {
         mavenProject = mavenProject.getParent();
       }
 
-      throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
+      if (failOnNoGitDirectory) {
+          throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
+      }
+      return null;
     }
 
     return dotGitDirectory;
