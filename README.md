@@ -69,7 +69,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>1.9</version>
+                <version>2.0.4</version>
                 <executions>
                     <execution>
                         <goals>
@@ -117,6 +117,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
 
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
+                    <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
 
@@ -333,7 +334,7 @@ Optional parameters:
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
-* **failOnNoGitDirectory** - `(default: true)` - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git
+* **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git
 directory is found the plugin will skip execution.
 
 License
