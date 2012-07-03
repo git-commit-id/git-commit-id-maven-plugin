@@ -8,5 +8,10 @@
 *.ipr
 *.iws
 
+#eclipse
+.classpath
+.project
+.settings/
+
 out
 target
