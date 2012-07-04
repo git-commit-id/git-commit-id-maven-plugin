@@ -133,7 +133,6 @@ public class GitCommitIdMojoIntegrationTest {
 			.create(CleanUp.CLEANUP_FIRST);
 		MavenProject targetProject = mavenSandbox.getChildProject();
 		setProjectContextForMojo(targetProject);
-		alterSettings("skipPoms", false);
 		
 		// when
 		mojo.execute();
@@ -161,10 +160,29 @@ public class GitCommitIdMojoIntegrationTest {
 			.create(CleanUp.CLEANUP_FIRST);
 		MavenProject targetProject = mavenSandbox.getChildProject();
 		setProjectContextForMojo(targetProject);
-		alterSettings("skipPoms", false);
 		
 		// when
 		mojo.execute();
+	}
+	
+	@Test
+	public void shouldGenerateCustomPropertiesFile() throws Exception {
+		// given
+		mavenSandbox.withParentProject("my-pom-project", "pom")
+			.withChildProject("my-jar-module", "jar")
+			.withGitRepoInChild()
+			.create(CleanUp.CLEANUP_FIRST);
+		MavenProject targetProject = mavenSandbox.getChildProject();
+		setProjectContextForMojo(targetProject);
+		alterSettings("generateGitPropertiesFile", true);
+		alterSettings("generateGitPropertiesFilename", "src/main/resources/custom-git.properties");
+		
+		// when
+		mojo.execute();
+		
+		File expectedFile = new File(targetProject.getBasedir(), "src/main/resources/custom-git.properties");
+		assertThat(expectedFile).exists();
+		
 	}
 	
 	
