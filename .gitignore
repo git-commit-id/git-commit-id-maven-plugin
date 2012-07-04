@@ -12,6 +12,7 @@
 .classpath
 .project
 .settings/
+bin/
 
 out
 target
