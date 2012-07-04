@@ -89,10 +89,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean skipPoms;
 
   /**
-   * Specifies whether the goal runs in verbose mode.
-   * To be more specific, this means more info being printed out while scanning for paths and also
-   * it will make git-commit-id "eat it's own dog food" :-)
-   *
+   * Specifies whether plugin should generate properties file.
+   * By default it will not generate any additional file, 
+   * just add properties to maven project's properties for further filtering
+   * If set to "true" properties will be fully generated with no placeholders inside.
    * @parameter default-value="false"
    */
   private boolean generateGitPropertiesFile;
