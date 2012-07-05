@@ -159,7 +159,8 @@ public class GitCommitIdMojo extends AbstractMojo {
 			return;
 		}
 
-		dotGitDirectory = lookupGitDirectory(project, dotGitDirectory);
+		dotGitDirectory = lookupGitDirectory();
+		throwExceptionWhenNotFoundIfConfigured(dotGitDirectory);
 		if (!isExistingDirectory(dotGitDirectory)) {
 			log(".git directory could not be found, skipping execution");
 			return;
@@ -189,42 +190,20 @@ public class GitCommitIdMojo extends AbstractMojo {
 	/**
 	 * Find the git directory of the currently used project. If it's not already
 	 * specified, this method will try to find it.
-	 * @param currentProject TODO
-	 * @param configuredGitDir TODO
-	 * 
 	 * @return the File representation of the .git directory
 	 */
-	private File lookupGitDirectory(MavenProject currentProject, File configuredGitDir) throws MojoExecutionException {
-		if (isExistingDirectory(configuredGitDir)) {
-			return configuredGitDir;
-		}
-		MavenProject mavenProject = currentProject;
-		File dir = null;
-		while (mavenProject != null) {
-			dir = currentProjectGitDir(mavenProject);
-			if (isExistingDirectory(dir)) {
-				return dir;
-			}
-			if (mavenProject.getBasedir() != null) {
-				dir = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
-				if (isExistingDirectory(dir)) {
-					return dir;
-				}
-			}
-			mavenProject = mavenProject.getParent();
-		}
-		throwExceptionWhenNotFoundIfConfigured(dir);
-		return null;
+	private File lookupGitDirectory() throws MojoExecutionException {
+		return getGitLocator().lookupGitDirectory(project, dotGitDirectory);
+	}
+
+	protected GitDirLocator getGitLocator() {
+		return new GitDirLocator();
 	}
 
 	private void throwExceptionWhenNotFoundIfConfigured(File gitDirectory) throws MojoExecutionException {
 		if (!isExistingDirectory(gitDirectory) && failOnNoGitDirectory) {
 			throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
 		}
-	}
-
-	private File currentProjectGitDir(MavenProject mavenProject) {
-		return new File(mavenProject.getBasedir(), Constants.DOT_GIT);
 	}
 
 	private boolean isExistingDirectory(File fileLocation) {
