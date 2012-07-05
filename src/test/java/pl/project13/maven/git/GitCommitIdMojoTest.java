@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -34,6 +35,7 @@ import org.junit.Test;
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
  */
+@Ignore
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;

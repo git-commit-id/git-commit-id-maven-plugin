@@ -167,6 +167,33 @@ public class GitCommitIdMojoIntegrationTest {
 		mojo.execute();
 	}
 	
+	@Test
+	public void shouldRunWithGitRepoAboveParent() throws Exception {
+		// given
+		mavenSandbox.withParentProject("my-pom-project", "pom")
+			.withChildProject("my-jar-module", "jar")
+			.withGitRepoAboveParent()
+			.create(CleanUp.CLEANUP_FIRST);
+		MavenProject targetProject = mavenSandbox.getChildProject();
+		setProjectContextForMojo(targetProject);
+		
+		// when
+		mojo.execute();
+
+		// then
+		Properties properties = targetProject.getProperties();
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
+	    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+		
+	}
 	
 	private void alterSettings(String parameterName, Object parameterValue) {
 		setInternalState(mojo, parameterName, parameterValue);
