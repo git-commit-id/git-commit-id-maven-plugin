@@ -4,14 +4,12 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,11 +25,6 @@ public class GitCommitIdMojoIntegrationTest {
 		mavenSandbox = new FileSystemMavenSandbox("target/sandbox");
 		mojo = new GitCommitIdMojo();
 		initializeWithDefaults(mojo);
-	}
-	
-	@After
-	public void cleanUp() throws IOException {
-		mavenSandbox.cleanup();
 	}
 	
 	@Test
@@ -182,7 +175,6 @@ public class GitCommitIdMojoIntegrationTest {
 		
 		File expectedFile = new File(targetProject.getBasedir(), "src/main/resources/custom-git.properties");
 		assertThat(expectedFile).exists();
-		
 	}
 	
 	
