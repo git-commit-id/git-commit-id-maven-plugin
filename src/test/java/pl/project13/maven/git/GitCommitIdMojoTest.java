@@ -17,26 +17,28 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.PlexusTestCase;
-
-import java.io.File;
-import java.util.Properties;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.Properties;
+
+import org.apache.maven.project.MavenProject;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Date: 2/13/11
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
  */
-public class GitCommitIdMojoTest extends PlexusTestCase {
+public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
 
+  @Before
   public void setUp() throws Exception {
     mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(new File(".git/"));
@@ -47,10 +49,9 @@ public class GitCommitIdMojoTest extends PlexusTestCase {
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
-
-    super.setUp();
   }
 
+  @Test
   public void testExecute() throws Exception {
     mojo.execute();
 
