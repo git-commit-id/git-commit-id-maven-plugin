@@ -144,6 +144,7 @@ public class GitRepositoryState {
 
   /**
    * If you need it as json but don't have jackson installed etc
+   *
    * @return the JSON representation of this resource
    */
   public String toJson() {

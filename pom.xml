@@ -1,199 +1,210 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>6</version>
-    </parent>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>6</version>
+  </parent>
 
-    <groupId>pl.project13.maven</groupId>
-    <artifactId>git-commit-id-plugin</artifactId>
-    <packaging>maven-plugin</packaging>
-    <version>2.0.5-SNAPSHOT</version>
-    <name>Git Commit Id Plugin Maven Mojo</name>
-    <description>
-        git-commit-id-plugin is a plugin quite similar to
-        https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber
-        only supports svn (which is very sad) and cvs (which is even more sad).
-        This plugin makes basic repository information available through maven resources. This can be used to display
-        "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
-        it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
-        developers life easier.
+  <groupId>pl.project13.maven</groupId>
+  <artifactId>git-commit-id-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <version>2.0.5-SNAPSHOT</version>
+  <name>Git Commit Id Plugin Maven Mojo</name>
+  <description>
+    git-commit-id-plugin is a plugin quite similar to
+    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber
+    only supports svn (which is very sad) and cvs (which is even more sad).
+    This plugin makes basic repository information available through maven resources. This can be used to display
+    "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
+    it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
+    developers life easier.
 
-        The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
-        {
-        "branch" : "testing-maven-git-plugin",
-        "commitTime" : "06.01.1970 @ 16:16:26 CET",
-        "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
-        "commitUserName" : "Konrad Malawski",
-        "commitUserEmail" : "konrad.malawski@java.pl",
-        "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added
-        license etc",
-        "commitMessageShort" : "releasing my fun plugin :-)",
-        "buildTime" : "06.01.1970 @ 16:17:53 CET",
-        "buildUserName" : "Konrad Malawski",
-        "buildUserEmail" : "konrad.malawski@java.pl"
-        }
+    The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
+    {
+    "branch" : "testing-maven-git-plugin",
+    "commitTime" : "06.01.1970 @ 16:16:26 CET",
+    "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
+    "commitUserName" : "Konrad Malawski",
+    "commitUserEmail" : "konrad.malawski@java.pl",
+    "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added
+    license etc",
+    "commitMessageShort" : "releasing my fun plugin :-)",
+    "buildTime" : "06.01.1970 @ 16:17:53 CET",
+    "buildUserName" : "Konrad Malawski",
+    "buildUserEmail" : "konrad.malawski@java.pl"
+    }
 
-        Note that the data is exported via maven resource filtering and is really easy to use with spring -
-        which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
-    </description>
-    <url>http://www.project13.pl</url>
+    Note that the data is exported via maven resource filtering and is really easy to use with spring -
+    which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
+  </description>
+  <url>http://www.project13.pl</url>
 
-    <developers>
-        <developer>
-            <id>ktoso</id>
-            <name>Konrad Malawski</name>
-            <email>konrad.malawski@project13.pl</email>
-            <organization>Project13.pl</organization>
-            <url>http://blog.project13.pl</url>
-        </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>ktoso</id>
+      <name>Konrad Malawski</name>
+      <email>konrad.malawski@project13.pl</email>
+      <organization>Project13.pl</organization>
+      <url>http://blog.project13.pl</url>
+    </developer>
+  </developers>
 
-    <prerequisites>
-        <maven>[2.2.1,)</maven>
-    </prerequisites>
+  <prerequisites>
+    <maven>[${maven-plugin-api.version},)</maven>
+  </prerequisites>
 
-    <licenses>
-        <license>
-            <name>GNU Lesser General Public License 3.0</name>
-            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
-        </license>
-    </licenses>
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License 3.0</name>
+      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+    </license>
+  </licenses>
 
-    <scm>
-        <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
-        <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
-        <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
-    </scm>
+  <scm>
+    <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
+    <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
+    <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+  </scm>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
+  <properties>
+    <maven-plugin-api.version>2.2.1</maven-plugin-api.version>
 
-    <dependencies>
-        <!-- MAVEN -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-project</artifactId>
-            <version>2.2.1</version>
-        </dependency>
+    <jgit.version>2.0.0.201206130900-r</jgit.version>
+    <junit.version>4.10</junit.version>
+    <mockito.version>1.9.0</mockito.version>
 
-        <!-- JGit -->
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>2.0.0.201206130900-r</version>
-        </dependency>
+    <java.target>1.6</java.target>
+    <sourceEncoding>UTF-8</sourceEncoding>
+    <outputEncoding>UTF-8</outputEncoding>
+    <fest-assert.version>1.4</fest-assert.version>
+  </properties>
 
-        <!-- Test stuff -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
+  <dependencies>
+    <!-- MAVEN -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>${maven-plugin-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>${maven-plugin-api.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-assert</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
+    <!-- JGit -->
 
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>2.0.5</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0-rc1</version>
-            <scope>test</scope>
-        </dependency>
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+    </dependency>
 
-        <dependency>
-        	<groupId>org.apache.commons</groupId>
-        	<artifactId>commons-io</artifactId>
-        	<version>1.3.2</version>
-        	<type>jar</type>
-        	<scope>test</scope>
-        </dependency>
-    </dependencies>
+    <!-- Test stuff -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-    <build>
-        <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-        </resources>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <version>${fest-assert.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-        <plugins>
-            <!--  SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>{project.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <prefix>git</prefix>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>2.0.5</version>
+      <scope>test</scope>
+    </dependency>
 
-                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
 
-                    <verbose>true</verbose>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.2</version>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                </configuration>
-            </plugin>
-            END OF SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION -->
+  <build>
+    <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
 
-            <!-- Setting built-in java compiler properties -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
+    <plugins>
+      <!--  SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <version>${project.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <prefix>git</prefix>
 
-            <!-- GPG -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+          <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+
+          <verbose>true</verbose>
+
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+        </configuration>
+      </plugin>
+      END OF SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION -->
+
+      <!-- Setting built-in java compiler properties -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>${java.target}</source>
+          <target>${java.target}</target>
+        </configuration>
+      </plugin>
+
+      <!-- GPG -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
 </project>
