@@ -41,6 +41,8 @@ public class GitRepositoryState {
   String commitMessageShort;      // =${git.commit.message.short}
   String commitTime;              // =${git.commit.time}
 
+  String mavenProjectVersion;     // =${maven.project.version}
+
   public GitRepositoryState() {
   }
 
@@ -132,6 +134,14 @@ public class GitRepositoryState {
     this.buildTime = buildTime;
   }
 
+  public String getMavenProjectVersion() {
+    return mavenProjectVersion;
+  }
+
+  public void setMavenProjectVersion(String mavenProjectVersion) {
+    this.mavenProjectVersion = mavenProjectVersion;
+  }
+
   /**
    * If you need it as json but don't have jackson installed etc
    * @return the JSON representation of this resource
@@ -151,6 +161,8 @@ public class GitRepositoryState {
     appendProperty(sb, "buildTime", buildTime);
     appendProperty(sb, "buildUserName", buildUserName);
     appendProperty(sb, "buildUserEmail", buildUserEmail);
+
+    appendProperty(sb, "mavenProjectVersion", mavenProjectVersion);
 
     return sb.append("}").toString();
   }

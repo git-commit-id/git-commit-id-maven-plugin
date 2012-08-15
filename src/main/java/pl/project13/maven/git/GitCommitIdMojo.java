@@ -50,17 +50,17 @@ public class GitCommitIdMojo extends AbstractMojo {
   private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
 
   // these properties will be exposed to maven
-  public final String BRANCH = "branch";
-  public final String COMMIT_ID = "commit.id";
-  public final String COMMIT_ID_ABBREV = "commit.id.abbrev";
-  public final String BUILD_AUTHOR_NAME = "build.user.name";
-  public final String BUILD_AUTHOR_EMAIL = "build.user.email";
-  public final String BUILD_TIME = "build.time";
-  public final String COMMIT_AUTHOR_NAME = "commit.user.name";
-  public final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
-  public final String COMMIT_MESSAGE_FULL = "commit.message.full";
-  public final String COMMIT_MESSAGE_SHORT = "commit.message.short";
-  public final String COMMIT_TIME = "commit.time";
+  public static final String BRANCH               = "branch";
+  public static final String COMMIT_ID            = "commit.id";
+  public static final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
+  public static final String BUILD_AUTHOR_NAME    = "build.user.name";
+  public static final String BUILD_AUTHOR_EMAIL   = "build.user.email";
+  public static final String BUILD_TIME           = "build.time";
+  public static final String COMMIT_AUTHOR_NAME   = "commit.user.name";
+  public static final String COMMIT_AUTHOR_EMAIL  = "commit.user.email";
+  public static final String COMMIT_MESSAGE_FULL  = "commit.message.full";
+  public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
+  public static final String COMMIT_TIME          = "commit.time";
 
   /**
    * The maven project.
@@ -138,7 +138,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="true"
    */
   private boolean failOnNoGitDirectory;
-  
+
   /**
    * The properties we store our data in and then expose them
    */
@@ -242,17 +242,21 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
-      if (keyString.startsWith(this.prefix)) { // only print OUR properties ;-)
+      if (isOurProperty(keyString)) {
         log(String.format("%s = %s", key, properties.getProperty(keyString)));
       }
     }
     log("---------------------------------------------------------");
   }
 
+  private boolean isOurProperty(String keyString) {
+    return keyString.startsWith(prefixDot);
+  }
+
   void loadBuildTimeData(Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    put(properties, prefixDot + BUILD_TIME, smf.format(commitDate));
+    put(properties, BUILD_TIME, smf.format(commitDate));
   }
 
   void loadGitData(Properties properties) throws IOException, MojoExecutionException {
@@ -269,11 +273,11 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
-    put(properties, prefixDot + BUILD_AUTHOR_NAME, userName);
+    put(properties, BUILD_AUTHOR_NAME, userName);
 
     // git.user.email
     String userEmail = git.getConfig().getString("user", null, "email");
-    put(properties, prefixDot + BUILD_AUTHOR_EMAIL, userEmail);
+    put(properties, BUILD_AUTHOR_EMAIL, userEmail);
 
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
@@ -288,34 +292,34 @@ public class GitCommitIdMojo extends AbstractMojo {
     // git.branch
     try {
       String branch = git.getBranch();
-      put(properties, prefixDot + BRANCH, branch);
+      put(properties, BRANCH, branch);
 
       // git.commit.id
-      put(properties, prefixDot + COMMIT_ID, headCommit.getName());
+      put(properties, COMMIT_ID, headCommit.getName());
 
       // git.commit.id.abbrev
-      put(properties, prefixDot + COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
+      put(properties, COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
 
       // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
-      put(properties, prefixDot + COMMIT_AUTHOR_NAME, commitAuthor);
+      put(properties, COMMIT_AUTHOR_NAME, commitAuthor);
 
       // git.commit.author.email
       String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-      put(properties, prefixDot + COMMIT_AUTHOR_EMAIL, commitEmail);
+      put(properties, COMMIT_AUTHOR_EMAIL, commitEmail);
 
       // git commit.message.full
       String fullMessage = headCommit.getFullMessage();
-      put(properties, prefixDot + COMMIT_MESSAGE_FULL, fullMessage);
+      put(properties, COMMIT_MESSAGE_FULL, fullMessage);
 
       // git commit.message.short
       String shortMessage = headCommit.getShortMessage();
-      put(properties, prefixDot + COMMIT_MESSAGE_SHORT, shortMessage);
+      put(properties, COMMIT_MESSAGE_SHORT, shortMessage);
 
       long timeSinceEpoch = headCommit.getCommitTime();
       Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
       SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-      put(properties, prefixDot + COMMIT_TIME, smf.format(commitDate));
+      put(properties, COMMIT_TIME, smf.format(commitDate));
     } finally {
       revWalk.dispose();
     }
@@ -327,7 +331,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     SmallFilesUtil.createParentDirs(gitPropsFile);
 
-    properties.store(new FileWriter(gitPropsFile), "Generated by Git-Commit-Id-Plugin");
+    properties.store(new FileWriter(gitPropsFile), "Generated by git-commit-id-plugin");
   }
 
   boolean isPomProject(MavenProject project) {
@@ -356,15 +360,20 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void put(Properties properties, String key, String value) {
+    putWithoutPrefix(properties, prefixDot + key, value);
+
+  }
+
+  private void putWithoutPrefix(Properties properties, String key, String value) {
     if (verbose) {
-      String s = "Storing: " + key + " = " + value;
+      String s = String.format("Storing: %s = %s", key, value);
       log(s);
     }
 
     if (isNotEmpty(value)) {
       properties.put(key, value);
     } else {
-      properties.put(key, "Unknown"); //todo think if just omitting it would not be better
+      properties.put(key, "Unknown");
     }
   }
 
