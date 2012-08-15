@@ -38,7 +38,7 @@ class ContainsKeyCondition extends Condition<Map<?, ?>> {
   public boolean matches(Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
     if (!containsKey) {
-      throw new RuntimeException(String.format("Map did not contain [%s] key!", key));
+      throw new RuntimeException(String.format("Map did not contain [%s] key! Map is: %s", key, map));
     }
     return containsKey;
   }
