@@ -342,5 +342,9 @@ License
 <img style="float:right; padding:3px; " src="https://github.com/ktoso/maven-git-commit-id-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3"/>
 I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
-You're free to use it as you wish, the license text is attached in the LICENSE file.
-You may contact me if you want this to be released on a different license, just send me an email `konrad.malawski@java.pl` :-)
+You're free to use it as you wish, the full license text is attached in the LICENSE file.
+
+The best way to ask for features / improvements is via the <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues"Issues</a> section on github - it's better than email because I won't loose when I have a "million emails inbox" day,
+and maybe someone else has some idea or would like to upvote your issue.
+
+In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
