@@ -17,17 +17,15 @@
 
 package pl.project13.maven.git;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.maven.project.MavenProject;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import org.apache.maven.project.MavenProject;
-import org.junit.Before;
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 /**
  * Date: 2/13/11
