@@ -90,9 +90,11 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * Specifies whether plugin should generate properties file.
-   * By default it will not generate any additional file, 
-   * just add properties to maven project's properties for further filtering
+   * By default it will not generate any additional file,
+   * and only add properties to maven project's properties for further filtering
+   *
    * If set to "true" properties will be fully generated with no placeholders inside.
+   *
    * @parameter default-value="false"
    */
   private boolean generateGitPropertiesFile;
@@ -146,7 +148,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public final String logPrefix = "[GitCommitIdMojo] ";
 
-  // @VisibleForTesting
   boolean runningTests = false;
 
   public void execute() throws MojoExecutionException {
@@ -156,12 +157,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     dotGitDirectory = lookupGitDirectory();
-    if (dotGitDirectory == null) {
-        log(".git directory could not be found, skipping execution");
-        return;
-    }
-    
-    log("Running on '" + dotGitDirectory.getAbsolutePath() + "' repository...");
+    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+
+    log("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
 
     try {
       properties = initProperties();
@@ -182,6 +180,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Finished running.");
   }
 
+  private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
+    if (required && directoryDoesNotExits(dotGitDirectory)) {
+      throw new MojoExecutionException(message);
+    }
+  }
+
   /**
    * Find the git directory of the currently used project.
    * If it's not already specified, this method will try to find it.
@@ -189,39 +193,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @return the File representation of the .git directory
    */
   private File lookupGitDirectory() throws MojoExecutionException {
-    if (dotGitDirectory == null || !dotGitDirectory.exists()) { // given dotGitDirectory is not valid
+    return getGitDirLocator().lookupGitDirectory(project, dotGitDirectory);
+  }
 
-      if (project == null) { // we're running from an unit test
-        dotGitDirectory = new File(Constants.DOT_GIT);
-        if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-          return dotGitDirectory;
-        }
-      }
-
-      //Walk up the project parent hierarchy seeking the .git directory
-      MavenProject mavenProject = project;
-      while (mavenProject != null) {
-        dotGitDirectory = new File(mavenProject.getBasedir(), Constants.DOT_GIT);
-        if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-          return dotGitDirectory;
-        }
-        // If we've reached the top-level parent and not found the .git directory, look one level further up
-        if (mavenProject.getParent() == null && mavenProject.getBasedir() != null) {
-          dotGitDirectory = new File(mavenProject.getBasedir().getParentFile(), Constants.DOT_GIT);
-          if (dotGitDirectory.exists() && dotGitDirectory.isDirectory()) {
-            return dotGitDirectory;
-          }
-        }
-        mavenProject = mavenProject.getParent();
-      }
-
-      if (failOnNoGitDirectory) {
-          throw new MojoExecutionException("Could not find .git directory. Please specify a valid dotGitDirectory in your pom.xml");
-      }
-      return null;
-    }
-
-    return dotGitDirectory;
+  GitDirLocator getGitDirLocator() {
+    return new GitDirLocator();
   }
 
   private Properties initProperties() throws MojoExecutionException {
