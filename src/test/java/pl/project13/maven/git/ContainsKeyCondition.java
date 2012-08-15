@@ -22,10 +22,10 @@ import org.fest.assertions.Condition;
 import java.util.Map;
 
 /**
-* Date: 2/13/11
-*
-* @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
-*/
+ * Date: 2/13/11
+ *
+ * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
+ */
 class ContainsKeyCondition extends Condition<Map<?, ?>> {
 
   private String key;
@@ -36,6 +36,11 @@ class ContainsKeyCondition extends Condition<Map<?, ?>> {
 
   @Override
   public boolean matches(Map<?, ?> map) {
-    return map.containsKey(key);
+    boolean containsKey = map.containsKey(key);
+    if (!containsKey) {
+      throw new RuntimeException(String.format("Map did not contain [%s] key!", key));
+    }
+    return containsKey;
   }
+
 }
