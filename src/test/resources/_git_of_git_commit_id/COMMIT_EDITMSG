@@ -1,0 +1,33 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is ahead of 'origin/master' by 2 commits.
+#
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	new file:   src/main/java/pl/project13/jgit/DescribeCommand.java
+#	new file:   src/main/java/pl/project13/jgit/DescribeResult.java
+#	new file:   src/test/java/pl/project13/jgit/DescribeCommandTest.java
+#	new file:   src/test/java/pl/project13/jgit/DescribeResultTest.java
+#	new file:   src/test/java/pl/project13/maven/git/GitIntegrationTest.java
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   src/main/java/pl/project13/jgit/DescribeCommand.java
+#	modified:   src/main/java/pl/project13/jgit/DescribeResult.java
+#	modified:   src/main/java/pl/project13/maven/git/GitCommitIdMojo.java
+#	modified:   src/test/java/pl/project13/jgit/DescribeCommandTest.java
+#	modified:   src/test/java/pl/project13/jgit/DescribeResultTest.java
+#	modified:   src/test/java/pl/project13/maven/git/FileSystemMavenSandbox.java
+#	modified:   src/test/java/pl/project13/maven/git/GitCommitIdMojoIntegrationTest.java
+#	modified:   src/test/java/pl/project13/maven/git/GitIntegrationTest.java
+#	modified:   src/test/java/pl/project13/maven/git/TemporaryMavenProject.java
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	src/test/resources/_got/

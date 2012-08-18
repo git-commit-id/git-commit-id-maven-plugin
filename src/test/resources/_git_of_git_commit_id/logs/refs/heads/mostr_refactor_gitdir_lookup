@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 33ad86f74c66323455de935ea5ab63082b248204 Konrad Malawski <konrad.malawski@project13.pl> 1345064742 +0200	branch: Created from mostr/refactor_gitdir_lookup
+33ad86f74c66323455de935ea5ab63082b248204 3c7dbd226418ad742b89ce73d86900b18d41dbb2 Konrad Malawski <konrad.malawski@project13.pl> 1345064877 +0200	commit: global reformat, to fit projects formatting
+3c7dbd226418ad742b89ce73d86900b18d41dbb2 82648ff591d5e40c7c39473f92e566c093ff5fc5 Konrad Malawski <konrad.malawski@project13.pl> 1345065596 +0200	rebase finished: refs/heads/mostr_refactor_gitdir_lookup onto c8ff632df6d6ab362ec02cc1b20a527f69ca741d
