@@ -18,15 +18,15 @@ public class FileSystemMavenSandbox {
 
   private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
+  private MavenProject childProject;
+  private String rootSandboxPath;
+  private MavenProject parentProject;
+
   /**
    * Sample git repository location to use as source in integration tests
    * Test should copy content of this folder to ".git" in correct destination
    */
-  private static final String PROROTYPE_GIT_REPO_PATH = "src/test/resources/_git";
-
-  private MavenProject parentProject;
-  private MavenProject childProject;
-  private String rootSandboxPath;
+  private File gitRepoSourceDir;
   private File gitRepoTargetDir;
 
   public FileSystemMavenSandbox(String rootSandboxPath) {
@@ -49,17 +49,20 @@ public class FileSystemMavenSandbox {
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoInParent() {
+  public FileSystemMavenSandbox withGitRepoInParent(AvailableGitTestRepo repo) {
+    gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = parentProject.getBasedir();
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoInChild() {
+  public FileSystemMavenSandbox withGitRepoInChild(AvailableGitTestRepo repo) {
+    gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = childProject.getBasedir();
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoAboveParent() {
+  public FileSystemMavenSandbox withGitRepoAboveParent(AvailableGitTestRepo repo) {
+    gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = new File(rootSandboxPath);
     return this;
   }
@@ -69,17 +72,22 @@ public class FileSystemMavenSandbox {
     return this;
   }
 
-  public FileSystemMavenSandbox create(CleanUp cleanupMode) throws IOException {
-    cleanupIfRequired(cleanupMode);
-    createParentDir();
-    createChildDirIfRequired();
-    createGitRepoIfRequired();
-    return this;
+  public FileSystemMavenSandbox create(CleanUp cleanupMode) throws RuntimeException {
+    try {
+      cleanupIfRequired(cleanupMode);
+      createParentDir();
+      createChildDirIfRequired();
+      createGitRepoIfRequired();
+
+      return this;
+    } catch (Exception ex) {
+      throw new RuntimeException(String.format("Failed creating %s...", getClass().getSimpleName()), ex);
+    }
   }
 
   private void createGitRepoIfRequired() throws IOException {
     if (gitRepoTargetDir != null) {
-      FileUtils.copyDirectory(new File(PROROTYPE_GIT_REPO_PATH), new File(gitRepoTargetDir, ".git"));
+      FileUtils.copyDirectory(gitRepoSourceDir, new File(gitRepoTargetDir, ".git"));
     }
   }
 
@@ -99,8 +107,12 @@ public class FileSystemMavenSandbox {
     }
   }
 
-  public void cleanup() throws IOException {
-    FileUtils.deleteDirectory(new File(rootSandboxPath));
+  public void cleanup() {
+    try {
+      FileUtils.deleteDirectory(new File(rootSandboxPath));
+    } catch (IOException e) {
+      System.out.println("Unable to delete the directory: " + rootSandboxPath);
+    }
   }
 
   public MavenProject getParentProject() {
@@ -118,7 +130,7 @@ public class FileSystemMavenSandbox {
     return project;
   }
 
-  enum CleanUp {
+  public static enum CleanUp {
     CLEANUP_FIRST,
     NO_CLEANUP
   }

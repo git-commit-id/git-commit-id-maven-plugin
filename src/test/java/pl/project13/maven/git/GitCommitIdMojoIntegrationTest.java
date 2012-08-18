@@ -2,40 +2,20 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
-public class GitCommitIdMojoIntegrationTest {
-
-  private GitCommitIdMojo mojo;
-  private FileSystemMavenSandbox mavenSandbox;
-
-  @Before
-  public void setUp() {
-    mavenSandbox = new FileSystemMavenSandbox("target/sandbox");
-    mojo = new GitCommitIdMojo();
-    initializeWithDefaults(mojo);
-  }
-
-  @After
-  public void cleanUp() throws IOException {
-    mavenSandbox.cleanup();
-  }
+public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject() throws Exception {
-    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -49,7 +29,7 @@ public class GitCommitIdMojoIntegrationTest {
   @Test
   public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -63,7 +43,7 @@ public class GitCommitIdMojoIntegrationTest {
   @Test
   public void shouldRunWhenPackagingPomAndSkipPomsFalse() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -78,7 +58,7 @@ public class GitCommitIdMojoIntegrationTest {
   @Test
   public void shouldUseParentProjectRepoWhenInvokedFromChild() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -93,7 +73,7 @@ public class GitCommitIdMojoIntegrationTest {
   @Test
   public void shouldUseChildProjectRepoIfInvokedFromChild() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInChild().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -124,20 +104,6 @@ public class GitCommitIdMojoIntegrationTest {
   private void setProjectToExecuteMojoIn(MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
-  }
-
-  private void initializeWithDefaults(GitCommitIdMojo mojo) {
-    Map<String, Object> mojoDefaults = new HashMap<String, Object>();
-    mojoDefaults.put("verbose", false);
-    mojoDefaults.put("skipPoms", true);
-    mojoDefaults.put("generateGitPropertiesFile", false);
-    mojoDefaults.put("generateGitPropertiesFilename", "src/main/resources/git.properties");
-    mojoDefaults.put("prefix", "git");
-    mojoDefaults.put("dateFormat", "dd.MM.yyyy '@' HH:mm:ss z");
-    mojoDefaults.put("failOnNoGitDirectory", true);
-    for (Map.Entry<String, Object> entry : mojoDefaults.entrySet()) {
-      setInternalState(mojo, entry.getKey(), entry.getValue());
-    }
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {
