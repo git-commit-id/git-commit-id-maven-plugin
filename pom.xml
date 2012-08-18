@@ -95,6 +95,13 @@
       <version>${maven-plugin-api.version}</version>
     </dependency>
 
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>13.0</version>
+    </dependency>
+
     <!-- JGit -->
 
     <dependency>
@@ -208,3 +215,4 @@
     </plugins>
   </build>
 </project>
+
