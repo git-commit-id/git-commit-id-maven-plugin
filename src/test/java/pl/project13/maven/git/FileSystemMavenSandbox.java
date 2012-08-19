@@ -67,6 +67,8 @@ public class FileSystemMavenSandbox {
   }
 
   public FileSystemMavenSandbox withGitRepoInParent(AvailableGitTestRepo repo) {
+    System.out.println("TEST: Will prepare sandbox repository based on: [" + repo.getDir() + "]");
+
     gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = parentProject.getBasedir();
     return this;

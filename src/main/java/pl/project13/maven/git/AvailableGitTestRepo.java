@@ -33,7 +33,7 @@ public enum AvailableGitTestRepo {
    */
   ON_A_ANNOT_TAG_DIRTY("src/test/resources/_git_on_a_annotated_tag_dirty");
 
-  String dir;
+  private String dir;
 
   AvailableGitTestRepo(String dir) {
     this.dir = dir;

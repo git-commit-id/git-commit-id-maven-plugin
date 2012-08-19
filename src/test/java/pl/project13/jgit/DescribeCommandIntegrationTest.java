@@ -19,6 +19,8 @@ package pl.project13.jgit;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -107,9 +109,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(res).isNotNull();
+    assertThat(res.toString()).isEqualTo("v2.0.4");
 
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + HEAD.getName()); // G as in dirtyG
+//    RevCommit HEAD = git().log().call().iterator().next();
+//    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + HEAD.getName()); // G as in dirtyG
   }
 
   @Test
@@ -144,6 +147,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
@@ -166,6 +170,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
+
+    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
@@ -208,5 +214,17 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(isATag).isTrue();
+  }
+
+  @Test
+  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
+    // given
+    String fullName = "refs/tags/v1.0.0";
+
+    // when
+    String simpleName = DescribeCommand.trimFullTagName(fullName);
+
+    // then
+    assertThat(simpleName).isEqualTo("v1.0.0");
   }
 }

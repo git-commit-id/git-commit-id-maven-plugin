@@ -20,6 +20,7 @@ package pl.project13.jgit;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import org.eclipse.jgit.lib.ObjectId;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -45,11 +46,11 @@ public class DescribeResult {
     this.commitId = Optional.of(commitId);
   }
 
-  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId) {
+  public DescribeResult(String tagName, int commitsAwayFromTag, @Nullable ObjectId commitId) {
     this(tagName, commitsAwayFromTag, commitId, false, null);
   }
 
-  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, String dirtyMarker) {
+  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, @Nullable String dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.commitsAwayFromTag = commitsAwayFromTag;
     this.commitId = Optional.fromNullable(commitId);
