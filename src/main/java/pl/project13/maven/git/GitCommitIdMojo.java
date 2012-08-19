@@ -54,6 +54,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String BRANCH               = "branch";
   public static final String COMMIT_ID            = "commit.id";
   public static final String COMMIT_ID_ABBREV     = "commit.id.abbrev";
+  public static final String COMMIT_DESCRIBE      = "commit.id.describe";
   public static final String BUILD_AUTHOR_NAME    = "build.user.name";
   public static final String BUILD_AUTHOR_EMAIL   = "build.user.email";
   public static final String BUILD_TIME           = "build.time";
@@ -270,6 +271,9 @@ public class GitCommitIdMojo extends AbstractMojo {
       String branch = git.getBranch();
       put(properties, BRANCH, branch);
 
+      // git.describe
+      putGitDescribe(properties, git, headCommit);
+
       // git.commit.id
       put(properties, COMMIT_ID, headCommit.getName());
 
@@ -299,6 +303,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     } finally {
       revWalk.dispose();
     }
+  }
+
+  private void putGitDescribe(Properties properties, Repository git, RevCommit commit) {
+
+
+    String val = "";
+    put(properties, COMMIT_DESCRIBE, val);
   }
 
   void generatePropertiesFile(Properties properties, String generateGitPropertiesFilename) throws IOException {
