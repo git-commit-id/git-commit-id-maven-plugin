@@ -28,6 +28,9 @@ import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
@@ -39,18 +42,43 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGiveTheCommitIdWhenNothingElseCanBeFound() throws Exception {
+  public void shouldGiveTheCommitIdAndDirtyMarkerWhenNothingElseCanBeFound() throws Exception {
     // given
     mavenSandbox
-      .withParentProject(PROJECT_NAME, "jar")
-      .withNoChildProject()
-      .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo(HEAD.getName() + "-DEV");
+  }
+
+  @Test
+  public void shouldGiveTheCommitIdWhenNothingElseCanBeFound() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = spy(DescribeCommand.on(repo));
+    doReturn(false).when(command).findDirtyState(any(Repository.class));
+
     command.setVerbose(true);
     DescribeResult res = command.call();
 
@@ -65,10 +93,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   public void shouldGiveTagWithDistanceToCurrentCommitAndItsId() throws Exception {
     // given
     mavenSandbox
-      .withParentProject(PROJECT_NAME, "jar")
-      .withNoChildProject()
-      .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
 
@@ -88,10 +116,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   public void shouldGiveTag() throws Exception {
     // given
     mavenSandbox
-      .withParentProject(PROJECT_NAME, "jar")
-      .withNoChildProject()
-      .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
 
@@ -110,10 +138,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   public void shouldGiveAnnotatedTagWithDirtyMarker() throws Exception {
     // given
     mavenSandbox
-      .withParentProject(PROJECT_NAME, "jar")
-      .withNoChildProject()
-      .withGitRepoInParent(AvailableGitTestRepo.ON_A_ANNOT_TAG_DIRTY)
-      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_ANNOT_TAG_DIRTY)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
 
@@ -132,10 +160,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   public void shouldGiveLightweightTagWithDirtyMarker() throws Exception {
     // given
     mavenSandbox
-      .withParentProject(PROJECT_NAME, "jar")
-      .withNoChildProject()
-      .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
 

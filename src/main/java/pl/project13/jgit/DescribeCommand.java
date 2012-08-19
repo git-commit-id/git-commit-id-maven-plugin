@@ -17,6 +17,7 @@
 
 package pl.project13.jgit;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -125,12 +126,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return new DescribeResult(tagName);
     }
 
-    log("Found [%s] tags: %s", tagObjectIdToName.size(), tagObjectIdToName.values());
+    if(foundZeroTags(tagObjectIdToName)) {
+      return new DescribeResult(headCommit.getId(), dirty, dirtyOption);
+    }
 
     // get commits, up until the nearest tag
     List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
-
-    log("commits = ", commits);
 
     // check how far away from a tag we are
     Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, headCommit, tagObjectIdToName);
@@ -149,9 +150,23 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private boolean findDirtyState(Repository repo) throws GitAPIException {
+  private boolean foundZeroTags(Map<ObjectId, String> tags) {
+    return tags.isEmpty();
+  }
+
+  @VisibleForTesting
+  boolean findDirtyState(Repository repo) throws GitAPIException {
     Git git = Git.wrap(repo);
     Status status = git.status().call();
+
+    System.out.println("add  = " + status.getAdded());
+    System.out.println("chng = " + status.getChanged());
+    System.out.println("conf = " + status.getConflicting());
+    System.out.println("miss = " + status.getMissing());
+    System.out.println("mod  = " + status.getModified());
+    System.out.println("rm   = " + status.getRemoved());
+    System.out.println("un   = " + status.getUntracked());
+
     boolean isDirty = !status.isClean();
 
     log("Repo is in dirty state = [%s] ", isDirty);
@@ -170,15 +185,16 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         }
       });
 
-      int minDistance = Integer.MAX_VALUE;
-      String found = "";
+      int minDistance = 0;
+      String found = null;
       for (RevTag tagCommit : tagCommits) {
-        System.out.println("tagCommit = " + tagCommit);
+        log("tagCommit = ", tagCommit);
 
         RevCommit taggedCommit = revWalk.lookupCommit(tagCommit.getObject().getId());
         int maybeMin = distanceBetween(repo, headCommit, taggedCommit);
 
-        if (maybeMin < minDistance) {
+        if (found == null || maybeMin < minDistance) {
+          minDistance = maybeMin;
           found = tagCommit.getTagName();
         }
       }
@@ -186,7 +202,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       System.out.println("found = " + found);
       System.out.println("minDistance = " + minDistance);
 
-      return Pair.of(minDistance, found);
+      return Pair.of(minDistance < 0 ? 0 : minDistance, found);
     } finally {
       revWalk.dispose();
     }
@@ -211,7 +227,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  static List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, Map<ObjectId, String> tagObjectIdToName) {
+  List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, Map<ObjectId, String> tagObjectIdToName) {
     RevWalk revWalk = new RevWalk(repo);
 
     Queue<RevCommit> q = newLinkedList();
@@ -245,6 +261,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     revWalk.dispose();
+
+    log("Tagged commits are ", taggedcommits);
 
     return taggedcommits;
   }
@@ -324,7 +342,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  static Map<ObjectId, String> findTagObjectIds(Repository repo) {
+  Map<ObjectId, String> findTagObjectIds(Repository repo) {
     Map<String, Ref> tags = repo.getTags();
     Map<ObjectId, String> refToName = newHashMap();
 
@@ -332,7 +350,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       refToName.put(stringRefEntry.getValue().getObjectId(), stringRefEntry.getKey());
     }
 
-    return ImmutableMap.copyOf(refToName);
+
+    ImmutableMap<ObjectId, String> res = ImmutableMap.copyOf(refToName);
+    log("Found [%s] tags: %s", res.size(), res.values());
+    return res;
   }
 }
 
