@@ -109,10 +109,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(res).isNotNull();
-    assertThat(res.toString()).isEqualTo("v2.0.4");
-
-//    RevCommit HEAD = git().log().call().iterator().next();
-//    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + HEAD.getName()); // G as in dirtyG
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-" + HEAD.getName());
   }
 
   @Test

@@ -21,7 +21,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
-import org.eclipse.jgit.api.*;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.GitCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
@@ -130,15 +132,23 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
     // check how far away from a tag we are
-    RevWalk walk = new RevWalk(repo);
-    RevCommit commit;
-    try {
-      commit = walk.parseCommit(commits.get(0));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    walk.dispose();
-    Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, commit, tagObjectIdToName);
+//    RevWalk walk = new RevWalk(repo);
+//    RevCommit commit;
+//    try {
+//    commit = walk.parseCommit(repo.resolve("HEAD"));
+//      commit = walk.parseCommit(commits.get(0));
+//    } catch (Exception e) {
+//      throw new RuntimeException(e);
+//    }
+//    walk.dispose();
+//
+//    Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, commit, tagObjectIdToName);
+
+    int distance = distanceBetween(repo, headCommit, commits.get(0));
+    String tagName = tagObjectIdToName.get(commits.get(0));
+    Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
+
+    System.out.println("howFarFromWhichTag = " + howFarFromWhichTag);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
     if (howFarFromWhichTag == null) {
@@ -250,42 +260,57 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, Map<ObjectId, String> tagObjectIdToName) {
+    System.out.println("repo = [" + repo + "], head = [" + head + "], tagObjectIdToName = [" + tagObjectIdToName + "]");
     RevWalk revWalk = new RevWalk(repo);
     try {
-      Queue<RevCommit> q = newLinkedList();
-      RevCommit parsedHead = revWalk.parseCommit(head);
-      q.add(parsedHead);
-
-      List<RevCommit> taggedcommits = newLinkedList();
-      Set<ObjectId> seen = newHashSet();
-
-      while (!q.isEmpty()) {
-        RevCommit commit = q.remove();
-        if (tagObjectIdToName.containsKey(commit.getId())) {
-          taggedcommits.add(commit);
-          // don't consider commits that are farther away than this tag
-          continue;
-        }
-
-        if (commit.getParentCount() == 0) {
-          continue;
-        }
-
-        for (ObjectId oid : commit.getParents()) {
-          if (!seen.contains(oid)) {
-            seen.add(oid);
-            q.add(revWalk.parseCommit(oid));
-          }
+      revWalk.markStart(head);
+      for (RevCommit commit : revWalk) {
+        String lookup = tagObjectIdToName.get(commit.getId());
+        if(lookup != null) {
+          return Collections.singletonList(commit);
         }
       }
 
-      log("Tagged commits are %s", taggedcommits);
-      return taggedcommits;
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    } finally {
-      revWalk.dispose();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+//    try {
+//      revWalk.markStart(head);
+//      Queue<RevCommit> q = newLinkedList();
+//      RevCommit parsedHead = revWalk.parseCommit(head);
+//      q.add(parsedHead);
+//
+//      List<RevCommit> taggedcommits = newLinkedList();
+//      Set<ObjectId> seen = newHashSet();
+//
+//      while (!q.isEmpty()) {
+//        RevCommit commit = q.remove();
+//        if (tagObjectIdToName.containsKey(commit.getId())) {
+//          taggedcommits.add(commit);
+//          // don't consider commits that are farther away than this tag
+//          continue;
+//        }
+//
+//        if (commit.getParentCount() == 0) {
+//          continue;
+//        }
+//
+//        for (ObjectId oid : commit.getParents()) {
+//          if (!seen.contains(oid)) {
+//            seen.add(oid);
+//            q.add(revWalk.parseCommit(oid));
+//          }
+//        }
+//      }
+//
+//      log("Tagged commits are %s", taggedcommits);
+//      return taggedcommits;
+//    } catch (Exception ex) {
+//      throw new RuntimeException(ex);
+//    } finally {
+//      revWalk.dispose();
+//    }
+    return Collections.emptyList();
   }
 
   /**
@@ -371,14 +396,22 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Map<ObjectId, String> commitIdsToTagNames = newHashMap();
 
     try {
+      RevWalk walk = new RevWalk(repo);
+      walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
+
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
 
       for (Ref tagRef : tagRefs) {
-        String tagName = tagRef.getName();
-        ObjectId taggedCommitId = tagRef.getObjectId();
+        RevTag revTag = walk.parseTag(tagRef.getObjectId());
+
+//        String tagName = tagRef.getName();
+//        ObjectId taggedCommitId = tagRef.getObjectId();
+        String tagName = revTag.getTagName();
+        ObjectId taggedCommitId = revTag.getObject().getId();
 
         log("TAG: [%s] -> [%s] ", tagName, taggedCommitId);
-        commitIdsToTagNames.put(taggedCommitId, trimFullTagName(tagName));
+//        commitIdsToTagNames.put(taggedCommitId, trimFullTagName(tagName));
+        commitIdsToTagNames.put(taggedCommitId, tagName);
       }
 
       return commitIdsToTagNames;
