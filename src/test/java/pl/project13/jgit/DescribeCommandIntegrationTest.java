@@ -18,6 +18,8 @@
 package pl.project13.jgit;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
@@ -102,5 +104,81 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     assertThat(res.toString()).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void shouldGiveAnnotatedTagWithDirtyMarker() throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject(PROJECT_NAME, "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.ON_A_ANNOT_TAG_DIRTY)
+      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void shouldGiveLightweightTagWithDirtyMarker() throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject(PROJECT_NAME, "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void isATag_shouldProperlyDetectIfACommitIsATag() throws Exception {
+    // given
+    String tagName = "v1";
+    String commitHash = "de4db35917b268089c81c9ab1b52541bb778f5a0";
+
+    ObjectId oid = ObjectId.fromString(commitHash);
+
+    // when
+    boolean isATag = DescribeCommand.isATag(oid, ImmutableMap.of(oid, tagName));
+
+    // then
+    assertThat(isATag).isTrue();
+  }
+
+  @Test
+  public void isATag_shouldProperlyDetectIfACommitIsANotTag() throws Exception {
+    // given
+    String tagName = "v1";
+    String tagHash = "de4db35917b268089c81c9ab1b52541bb778f5a0";
+    ObjectId tagOid = ObjectId.fromString(tagHash);
+
+    String commitHash = "de4db35917b268089c81c9ab1b52541bb778f5a0";
+    ObjectId oid = ObjectId.fromString(commitHash);
+
+    // when
+    boolean isATag = DescribeCommand.isATag(oid, ImmutableMap.of(tagOid, tagName));
+
+    // then
+    assertThat(isATag).isTrue();
   }
 }

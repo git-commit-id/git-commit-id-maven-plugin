@@ -22,9 +22,18 @@ import java.io.File;
 public enum AvailableGitTestRepo {
   WITH_ONE_COMMIT("src/test/resources/_git_one_commit"),
   GIT_COMMIT_ID("src/test/resources/_git_of_git_commit_id"),
-  ON_A_TAG("src/test/resources/_git_on_a_tag");
+  ON_A_TAG("src/test/resources/_git_on_a_tag"),
+  ON_A_TAG_DIRTY("src/test/resources/_git_on_a_tag_dirty"),
+  /**
+   * <pre>
+   * de4db35 - (HEAD, v1.0.0, master) isecond line (38 minutes ago) <Konrad Malawski>
+   * 245e5b2 - initial commit (38 minutes ago) <Konrad Malawski>
+   * </pre>
+   */
+  ON_A_ANNOT_TAG_DIRTY("src/test/resources/_git_on_a_annotated_tag_dirty");
 
   String dir;
+
   AvailableGitTestRepo(String dir) {
     this.dir = dir;
   }

@@ -178,7 +178,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return Pair.of(nearestDistance, distancesFromTagsMap.get(nearestDistance));
   }
 
-  static boolean isATag(RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
+  static boolean isATag(ObjectId headCommit, Map<ObjectId, String> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
