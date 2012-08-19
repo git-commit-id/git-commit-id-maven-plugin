@@ -64,6 +64,12 @@ public class DescribeResult {
     this.dirtyMarker = dirtyMarker.or("DEV");
   }
 
+  public DescribeResult(String tagName, boolean dirty) {
+    this.tagName = Optional.of(tagName);
+    this.dirty = dirty;
+    this.dirtyMarker = "DEV";
+  }
+
 
   @Override
   public String toString() {

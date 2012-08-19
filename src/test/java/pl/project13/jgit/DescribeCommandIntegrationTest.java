@@ -123,6 +123,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
@@ -133,6 +134,26 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     assertThat(res.toString()).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void shouldGiveDirtyTag() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res.toString()).isEqualTo("v1.0.0-DEV");
   }
 
   @Test

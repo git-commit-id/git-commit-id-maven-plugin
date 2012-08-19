@@ -121,7 +121,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       String tagName = tagObjectIdToName.get(headCommit);
       log("The commit we're on is a Tag ([%s]), returning.", tagName);
 
-      return new DescribeResult(tagName);
+      return new DescribeResult(tagName, dirty);
     }
 
     if (foundZeroTags(tagObjectIdToName)) {
@@ -264,13 +264,21 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     RevWalk revWalk = new RevWalk(repo);
     try {
       revWalk.markStart(head);
+
       for (RevCommit commit : revWalk) {
-        String lookup = tagObjectIdToName.get(commit.getId());
-        if(lookup != null) {
+//        ObjectId objectId = tagObjectIdToName.keySet().toArray(new ObjectId[0])[0];
+//        RevTag tag = revWalk.parseTag(objectId);
+//        System.out.println("tag[" + tag + "] ----> " + tag.getObject().getId());
+
+        ObjectId objId = commit.getId();
+        System.out.println("objId = " + objId);
+        String lookup = tagObjectIdToName.get(objId);
+        if (lookup != null) {
           return Collections.singletonList(commit);
         }
       }
 
+      throw new RuntimeException("Did not find any commits until some tag");
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -310,7 +318,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //    } finally {
 //      revWalk.dispose();
 //    }
-    return Collections.emptyList();
   }
 
   /**
@@ -395,28 +402,39 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   private Map<ObjectId, String> findTagObjectIds(Repository repo) {
     Map<ObjectId, String> commitIdsToTagNames = newHashMap();
 
+    RevWalk walk = new RevWalk(repo);
     try {
-      RevWalk walk = new RevWalk(repo);
       walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
 
+
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
+      System.out.println("tagRefs = " + tagRefs);
 
       for (Ref tagRef : tagRefs) {
-        RevTag revTag = walk.parseTag(tagRef.getObjectId());
+        walk.reset();
+        String name = tagRef.getName();
+        ObjectId resolvedCommitId = repo.resolve(name);
 
-//        String tagName = tagRef.getName();
-//        ObjectId taggedCommitId = tagRef.getObjectId();
-        String tagName = revTag.getTagName();
-        ObjectId taggedCommitId = revTag.getObject().getId();
+        // todo that's a bit of a hack... FIX ME
+        try {
+          RevTag revTag = walk.parseTag(resolvedCommitId);
+          ObjectId taggedCommitId = revTag.getObject().getId();
 
-        log("TAG: [%s] -> [%s] ", tagName, taggedCommitId);
-//        commitIdsToTagNames.put(taggedCommitId, trimFullTagName(tagName));
-        commitIdsToTagNames.put(taggedCommitId, tagName);
+          commitIdsToTagNames.put(taggedCommitId, trimFullTagName(name));
+          log("TAG: [%s] taged as [%s] ", taggedCommitId, name);
+        } catch (Exception ex) {
+          // ignore
+        }
+
+        commitIdsToTagNames.put(resolvedCommitId, trimFullTagName(name));
+        log("TAG: [%s] taged as [%s] ", resolvedCommitId, name);
       }
 
       return commitIdsToTagNames;
     } catch (Exception e) {
       log("Unable to locate tags\n[%s]", Throwables.getStackTraceAsString(e));
+    } finally {
+      walk.release();
     }
 
     return Collections.emptyMap();
