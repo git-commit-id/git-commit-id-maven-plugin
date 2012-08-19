@@ -35,6 +35,8 @@ public class DescribeResult {
   private boolean dirty;
   private String dirtyMarker;
 
+  public static final DescribeResult EMPTY = new DescribeResult("");
+
   public DescribeResult(String tagName) {
     this(tagName, 0, null);
   }

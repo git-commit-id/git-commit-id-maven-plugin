@@ -21,7 +21,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
-import com.sun.tools.javac.util.Pair;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -31,6 +30,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.jetbrains.annotations.Nullable;
+import pl.project13.maven.git.util.Pair;
 
 import java.io.IOException;
 import java.util.*;
@@ -70,7 +70,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //  Optional<Integer> abbrevOption = Optional.absent();
 //  Optional<Integer> candidatesOption = Optional.of(10);
 //  boolean exactMatchFlag = false;
-  boolean alwaysFlag = false;
+  boolean alwaysFlag = true;
   //  Optional<String> matchOption = Optional.absent();
   Optional<String> dirtyOption = Optional.absent();
 
@@ -112,16 +112,16 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, headCommit, tagObjectIdToName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
-    if(howFarFromWhichTag == null) {
+    if (howFarFromWhichTag == null) {
       return new DescribeResult(headCommit);
-    }
-
-    if(howFarFromWhichTag.fst > 0) {
-      return new DescribeResult(howFarFromWhichTag.snd, howFarFromWhichTag.fst, headCommit.getId()); // we're a bit away from a tag
-    } else if(howFarFromWhichTag.fst == 0) {
-      return new DescribeResult(howFarFromWhichTag.snd); // we're ON a tag
-    } else {
+    } else if (howFarFromWhichTag.first > 0) {
+      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId()); // we're a bit away from a tag
+    } else if (howFarFromWhichTag.first == 0) {
+      return new DescribeResult(howFarFromWhichTag.second); // we're ON a tag
+    } else if(alwaysFlag) {
       return new DescribeResult(headCommit.getId()); // we have no tags! display the commit
+    } else {
+      return DescribeResult.EMPTY;
     }
   }
 
@@ -142,7 +142,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       }
     });
 
-    if(distancesFromTags.isEmpty()) {
+    if (distancesFromTags.isEmpty()) {
       return null;
     }
 
@@ -150,7 +150,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     Map<Integer, String> distancesFromTagsMap = newHashMap();
     for (Pair<Integer, String> distancesFromTag : distancesFromTags) {
-      distancesFromTagsMap.put(distancesFromTag.fst, distancesFromTag.snd);
+      distancesFromTagsMap.put(distancesFromTag.first, distancesFromTag.second);
     }
 
     Integer nearestDistance = Collections.min(distancesFromTagsMap.keySet());
