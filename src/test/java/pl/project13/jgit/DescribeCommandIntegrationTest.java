@@ -47,9 +47,9 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     Repository repo = git().getRepository();
 
-    DescribeCommand command = DescribeCommand.on(repo);
-
     // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
     DescribeResult res = command.call();
 
     // then
@@ -70,17 +70,37 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     Repository repo = git().getRepository();
 
-    DescribeCommand command = DescribeCommand.on(repo);
-
     // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
     DescribeResult res = command.call();
 
     // then
     assertThat(res).isNotNull();
 
-    Thread.sleep(3433L);
-
     RevCommit HEAD = git().log().call().iterator().next();
     assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + HEAD.getName()); // G as in dirtyG
+  }
+
+  @Test
+  public void shouldGiveTag() throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject(PROJECT_NAME, "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).isEqualTo("v1.0.0");
   }
 }

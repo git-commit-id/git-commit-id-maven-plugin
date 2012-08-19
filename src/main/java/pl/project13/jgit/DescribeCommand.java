@@ -63,6 +63,8 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
+  boolean verbose = false;
+
   //  boolean containsFlag = false;
 //  boolean allFlag = false;
 //  boolean tagsFlag = false;
@@ -92,6 +94,16 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     super(repo);
   }
 
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
+  }
+
+  private void log(String msg, Object... interpolations) {
+    if (verbose) {
+      System.out.println(String.format(msg, interpolations));
+    }
+  }
+
   @Override
   public DescribeResult call() throws GitAPIException {
     // get tags
@@ -102,11 +114,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     if (isATag(headCommit, tagObjectIdToName)) {
       String tagName = tagObjectIdToName.get(headCommit);
+      log("The commit we're on is a Tag ([%s]), returning.", tagName);
+
       return new DescribeResult(tagName);
     }
 
+    log("Found [%s] tags: %s", tagObjectIdToName.size(), tagObjectIdToName.values());
+
     // get commits, up until the nearest tag
     List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+
+    System.out.println("commits = " + commits);
 
     // check how far away from a tag we are
     Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, headCommit, tagObjectIdToName);
@@ -118,7 +136,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId()); // we're a bit away from a tag
     } else if (howFarFromWhichTag.first == 0) {
       return new DescribeResult(howFarFromWhichTag.second); // we're ON a tag
-    } else if(alwaysFlag) {
+    } else if (alwaysFlag) {
       return new DescribeResult(headCommit.getId()); // we have no tags! display the commit
     } else {
       return DescribeResult.EMPTY;
@@ -126,7 +144,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   @Nullable
-  private Pair<Integer, String> findDistanceFromTag(final Repository repo, final RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
+  Pair<Integer, String> findDistanceFromTag(final Repository repo, final RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
     final RevWalk revWalk = new RevWalk(repo);
 
     Collection<Pair<Integer, String>> distancesFromTags = Collections2.transform(tagObjectIdToName.entrySet(), new Function<Map.Entry<ObjectId, String>, Pair<Integer, String>>() {
@@ -153,16 +171,18 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       distancesFromTagsMap.put(distancesFromTag.first, distancesFromTag.second);
     }
 
+    log("Distances from tags: [%s]", distancesFromTagsMap);
+
     Integer nearestDistance = Collections.min(distancesFromTagsMap.keySet());
 
     return Pair.of(nearestDistance, distancesFromTagsMap.get(nearestDistance));
   }
 
-  boolean isATag(RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
+  static boolean isATag(RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
-  RevCommit findHeadObjectId(Repository repo) throws RuntimeException {
+  static RevCommit findHeadObjectId(Repository repo) throws RuntimeException {
     try {
       ObjectId headId = repo.resolve("HEAD");
 
@@ -214,6 +234,77 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return taggedcommits;
   }
 
+  /**
+   * @param child
+   * @param parent
+   * @return distance (number of commits) between the given commits
+   * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
+   */
+  private static int distanceBetween(Repository repo, RevCommit child, RevCommit parent) {
+    RevWalk revWalk = new RevWalk(repo);
+
+    try {
+
+      Set<ObjectId> seena = newHashSet();
+      Set<ObjectId> seenb = newHashSet();
+      Queue<RevCommit> q = newLinkedList();
+
+      q.add(child);
+      int distance = 0;
+      ObjectId parentId = parent.getId();
+
+      while (q.size() > 0) {
+        RevCommit commit = q.remove();
+        ObjectId commitId = commit.getId();
+
+        if (seena.contains(commitId)) {
+          continue;
+        }
+        seena.add(commitId);
+
+        if (parentId.equals(commitId)) {
+          // don't consider commits that are included in this commit
+          seeAllParents(revWalk, commit, seenb);
+          // remove things we shouldn't have included
+          for (ObjectId oid : seenb) {
+            if (seena.contains(oid)) {
+              distance--;
+            }
+          }
+          seena.addAll(seenb);
+          continue;
+        }
+
+        for (ObjectId oid : commit.getParents()) {
+          if (!seena.contains(oid)) {
+            q.add(revWalk.lookupCommit(oid));
+          }
+        }
+        distance++;
+      }
+
+      return distance;
+
+    } finally {
+      revWalk.dispose();
+    }
+  }
+
+  private static void seeAllParents(RevWalk revWalk, RevCommit child, Set<ObjectId> seen) {
+    Queue<RevCommit> q = newLinkedList();
+    q.add(child);
+
+    while (q.size() > 0) {
+      RevCommit commit = q.remove();
+      for (ObjectId oid : commit.getParents()) {
+        if (seen.contains(oid)) {
+          continue;
+        }
+        seen.add(oid);
+        q.add(revWalk.lookupCommit(oid));
+      }
+    }
+  }
 
   static Map<ObjectId, String> findTagObjectIds(Repository repo) {
     Map<String, Ref> tags = repo.getTags();
