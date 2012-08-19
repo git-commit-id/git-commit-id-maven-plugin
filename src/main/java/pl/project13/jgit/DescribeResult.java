@@ -57,6 +57,12 @@ public class DescribeResult {
     this.dirtyMarker = dirtyMarker;
   }
 
+  public DescribeResult(ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
+    this.commitId = Optional.of(commitId);
+    this.dirty = dirty;
+    this.dirtyMarker = dirtyMarker.or("DEV");
+  }
+
 
   @Override
   public String toString() {

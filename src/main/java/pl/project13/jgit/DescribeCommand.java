@@ -19,16 +19,19 @@ package pl.project13.jgit;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.jetbrains.annotations.Nullable;
 import pl.project13.maven.git.util.Pair;
 
@@ -112,6 +115,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     // get current commit
     RevCommit headCommit = findHeadObjectId(repo);
 
+    // check if dirty
+    boolean dirty = findDirtyState(repo);
+
     if (isATag(headCommit, tagObjectIdToName)) {
       String tagName = tagObjectIdToName.get(headCommit);
       log("The commit we're on is a Tag ([%s]), returning.", tagName);
@@ -124,14 +130,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     // get commits, up until the nearest tag
     List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
-    System.out.println("commits = " + commits);
+    log("commits = ", commits);
 
     // check how far away from a tag we are
     Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, headCommit, tagObjectIdToName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
     if (howFarFromWhichTag == null) {
-      return new DescribeResult(headCommit);
+      return new DescribeResult(headCommit.getId(), dirty, dirtyOption);
     } else if (howFarFromWhichTag.first > 0) {
       return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId()); // we're a bit away from a tag
     } else if (howFarFromWhichTag.first == 0) {
@@ -143,46 +149,54 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
+  private boolean findDirtyState(Repository repo) throws GitAPIException {
+    Git git = Git.wrap(repo);
+    Status status = git.status().call();
+    boolean isDirty = !status.isClean();
+
+    log("Repo is in dirty state = [%s] ", isDirty);
+    return isDirty;
+  }
+
   @Nullable
   Pair<Integer, String> findDistanceFromTag(final Repository repo, final RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
     final RevWalk revWalk = new RevWalk(repo);
 
-    Collection<Pair<Integer, String>> distancesFromTags = Collections2.transform(tagObjectIdToName.entrySet(), new Function<Map.Entry<ObjectId, String>, Pair<Integer, String>>() {
-      @Override
-      public Pair<Integer, String> apply(Map.Entry<ObjectId, String> input) {
-        RevCommit endCommit = revWalk.lookupCommit(input.getKey());
-        try {
-          revWalk.markUninteresting(endCommit);
-          return Pair.of(RevWalkUtils.count(revWalk, headCommit, endCommit), input.getValue());
-        } catch (IOException e) {
-          return Pair.of(Integer.MAX_VALUE, input.getValue());
+    try {
+      Collection<RevTag> tagCommits = Collections2.transform(tagObjectIdToName.keySet(), new Function<ObjectId, RevTag>() {
+        @Override
+        public RevTag apply(ObjectId input) {
+          return revWalk.lookupTag(input);
+        }
+      });
+
+      int minDistance = Integer.MAX_VALUE;
+      String found = "";
+      for (RevTag tagCommit : tagCommits) {
+        System.out.println("tagCommit = " + tagCommit);
+
+        RevCommit taggedCommit = revWalk.lookupCommit(tagCommit.getObject().getId());
+        int maybeMin = distanceBetween(repo, headCommit, taggedCommit);
+
+        if (maybeMin < minDistance) {
+          found = tagCommit.getTagName();
         }
       }
-    });
 
-    if (distancesFromTags.isEmpty()) {
-      return null;
+      System.out.println("found = " + found);
+      System.out.println("minDistance = " + minDistance);
+
+      return Pair.of(minDistance, found);
+    } finally {
+      revWalk.dispose();
     }
-
-    // I want Scala collections back -_-
-
-    Map<Integer, String> distancesFromTagsMap = newHashMap();
-    for (Pair<Integer, String> distancesFromTag : distancesFromTags) {
-      distancesFromTagsMap.put(distancesFromTag.first, distancesFromTag.second);
-    }
-
-    log("Distances from tags: [%s]", distancesFromTagsMap);
-
-    Integer nearestDistance = Collections.min(distancesFromTagsMap.keySet());
-
-    return Pair.of(nearestDistance, distancesFromTagsMap.get(nearestDistance));
   }
 
   static boolean isATag(ObjectId headCommit, Map<ObjectId, String> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
-  static RevCommit findHeadObjectId(Repository repo) throws RuntimeException {
+  RevCommit findHeadObjectId(Repository repo) throws RuntimeException {
     try {
       ObjectId headId = repo.resolve("HEAD");
 
@@ -190,6 +204,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       RevCommit headCommit = walk.lookupCommit(headId);
       walk.dispose();
 
+      log("HEAD is [%s] ", headCommit);
       return headCommit;
     } catch (IOException ex) {
       throw new RuntimeException("Unable to obtain HEAD commit!", ex);
@@ -241,6 +256,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
    */
   private static int distanceBetween(Repository repo, RevCommit child, RevCommit parent) {
+    Preconditions.checkNotNull(child, "Child commit must not be null.");
+    Preconditions.checkNotNull(parent, "Parent commit must not be null.");
+
     RevWalk revWalk = new RevWalk(repo);
 
     try {
