@@ -102,6 +102,13 @@
       <version>13.0</version>
     </dependency>
 
+    <!-- IntelliJ Annotations -->
+    <dependency>
+      <groupId>com.intellij</groupId>
+      <artifactId>annotations</artifactId>
+      <version>9.0.4</version>
+    </dependency>
+
     <!-- JGit -->
 
     <dependency>
