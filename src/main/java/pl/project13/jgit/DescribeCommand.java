@@ -83,7 +83,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  static DescribeCommand on(Repository repo) {
+  public static DescribeCommand on(Repository repo) {
     return new DescribeCommand(repo);
   }
 
@@ -96,8 +96,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     super(repo);
   }
 
-  public void setVerbose(boolean verbose) {
+  public DescribeCommand setVerbose(boolean verbose) {
     this.verbose = verbose;
+    return this;
   }
 
   private void log(String msg, Object... interpolations) {

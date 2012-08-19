@@ -20,6 +20,7 @@ package pl.project13.maven.git;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -28,6 +29,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FileUtils;
+import pl.project13.jgit.DescribeCommand;
+import pl.project13.jgit.DescribeResult;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -305,11 +308,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void putGitDescribe(Properties properties, Repository git, RevCommit commit) {
+  private void putGitDescribe(Properties properties, Repository repository, RevCommit commit) throws MojoExecutionException {
+    try {
+      DescribeResult describeResult = DescribeCommand.on(repository).setVerbose(verbose).call();
 
-
-    String val = "";
-    put(properties, COMMIT_DESCRIBE, val);
+      put(properties, COMMIT_DESCRIBE, describeResult.toString());
+    } catch (GitAPIException ex) {
+      throw new MojoExecutionException("Unable to obtain git.describe information", ex);
+    }
   }
 
   void generatePropertiesFile(Properties properties, String generateGitPropertiesFilename) throws IOException {
