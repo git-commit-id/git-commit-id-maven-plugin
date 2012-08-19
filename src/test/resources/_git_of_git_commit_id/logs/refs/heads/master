@@ -24,3 +24,10 @@ c8ff632df6d6ab362ec02cc1b20a527f69ca741d 01468eddbf23a8331fe91380b888d8a62457cec
 a3575137db7559e64e252c9d87e64b31bdd6ec3e b806407dc2442bcbe63b0b1b4d414f553648ade6 Konrad Malawski <konrad.malawski@project13.pl> 1345069067 +0200	rebase -i (finish): refs/heads/master onto 5a0239b
 b806407dc2442bcbe63b0b1b4d414f553648ade6 060ad61aedb23bb0c7c7551f4bcccc9ccd49afe0 Konrad Malawski <konrad.malawski@project13.pl> 1345308176 +0200	commit: i just can't live without Optionals ;-)
 060ad61aedb23bb0c7c7551f4bcccc9ccd49afe0 d2f3939f870f570ab7aa39f8b53be98467114969 Konrad Malawski <konrad.malawski@project13.pl> 1345323994 +0200	commit: should be public
+d2f3939f870f570ab7aa39f8b53be98467114969 11fd252e20b7e420eca67a672d06abf24bdae5ae Konrad Malawski <konrad.malawski@project13.pl> 1345331175 +0200	commit: example git repositories, for multiple cases
+11fd252e20b7e420eca67a672d06abf24bdae5ae ea2668c79e9410f97da99cdd94f8309aef024b32 Konrad Malawski <konrad.malawski@project13.pl> 1345332538 +0200	commit: reworked integration tests to run on multiple git repositories when needed
+ea2668c79e9410f97da99cdd94f8309aef024b32 e8785cceaac786e13bd0dbaf3118f12ed032a369 Konrad Malawski <konrad.malawski@project13.pl> 1345334943 +0200	commit: Initial work on #31, with integration tests
+e8785cceaac786e13bd0dbaf3118f12ed032a369 db9cb5757f4af835425c4c6a91b8fa2717533255 Konrad Malawski <konrad.malawski@project13.pl> 1345334958 +0200	commit: include intellij annotations, MUST HAVE @Nullable
+db9cb5757f4af835425c4c6a91b8fa2717533255 ace7067505011e6a4ac069732c9ecd9e8c54b23a Konrad Malawski <konrad.malawski@project13.pl> 1345335058 +0200	commit: license headers
+ace7067505011e6a4ac069732c9ecd9e8c54b23a e7a1e817341a1d8c959ffe205a0fa064188ac368 Konrad Malawski <konrad.malawski@project13.pl> 1345335636 +0200	commit: our own Pair + using `--always`
+e7a1e817341a1d8c959ffe205a0fa064188ac368 7181832b7d9afdeb86c32cf51214abfca63625be Konrad Malawski <konrad.malawski@project13.pl> 1345335647 +0200	commit (amend): our own Pair + using `--always`

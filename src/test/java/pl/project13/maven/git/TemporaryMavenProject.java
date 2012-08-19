@@ -14,7 +14,7 @@ import java.io.IOException;
  *
  * @author mostr
  */
-class TemporaryMavenProject {
+public class TemporaryMavenProject {
 
   private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 

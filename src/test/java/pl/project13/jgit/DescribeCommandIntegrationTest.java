@@ -27,7 +27,7 @@ import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DescribeCommandTest extends GitIntegrationTest {
+public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
   final String PROJECT_NAME = "my-jar-project";
 
@@ -37,7 +37,7 @@ public class DescribeCommandTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGiceTheCommitIdWhenNothingElseCanBeFound() throws Exception {
+  public void shouldGiveTheCommitIdWhenNothingElseCanBeFound() throws Exception {
     // given
     mavenSandbox
       .withParentProject(PROJECT_NAME, "jar")
@@ -56,6 +56,31 @@ public class DescribeCommandTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.commitId()).isEqualTo(HEAD.getName());
+    assertThat(res.toString()).isEqualTo(HEAD.getName());
+  }
+
+  @Test
+  public void shouldGiveTagWithDistanceToCurrentCommitAndItsId() throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject(PROJECT_NAME, "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
+      .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    DescribeCommand command = DescribeCommand.on(repo);
+
+    // when
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    Thread.sleep(3433L);
+
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + HEAD.getName()); // G as in dirtyG
   }
 }
