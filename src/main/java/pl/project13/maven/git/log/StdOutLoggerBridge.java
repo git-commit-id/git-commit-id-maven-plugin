@@ -32,8 +32,4 @@ public class StdOutLoggerBridge implements LoggerBridge {
     }
   }
 
-  @Override
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
 }

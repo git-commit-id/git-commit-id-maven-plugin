@@ -18,16 +18,11 @@
 package pl.project13.maven.git.log;
 
 import org.apache.maven.plugin.logging.Log;
-import pl.project13.maven.git.log.LoggerBridge;
 
 public class MavenLoggerBridge implements LoggerBridge {
 
   private final Log logger;
-  private boolean verbose = false;
-
-  public MavenLoggerBridge(Log logger) {
-    this.logger = logger;
-  }
+  private final boolean verbose;
 
   public MavenLoggerBridge(Log logger, boolean verbose) {
     this.logger = logger;
@@ -41,8 +36,4 @@ public class MavenLoggerBridge implements LoggerBridge {
     }
   }
 
-  @Override
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
 }
