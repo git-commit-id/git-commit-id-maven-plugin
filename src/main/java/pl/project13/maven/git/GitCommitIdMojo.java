@@ -31,6 +31,8 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FileUtils;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.MavenLoggerBridge;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -154,6 +156,8 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean runningTests = false;
 
+  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
+
   public void execute() throws MojoExecutionException {
     if (isPomProject(project) && skipPoms) {
       log("Skipping the execution as it is a project with packaging type: 'pom'");
@@ -275,7 +279,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       put(properties, BRANCH, branch);
 
       // git.describe
-      putGitDescribe(properties, git, headCommit);
+      putGitDescribe(properties, git);
 
       // git.commit.id
       put(properties, COMMIT_ID, headCommit.getName());
@@ -308,7 +312,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void putGitDescribe(Properties properties, Repository repository, RevCommit commit) throws MojoExecutionException {
+  private void putGitDescribe(Properties properties, Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand.on(repository).setVerbose(verbose).call();
 
@@ -354,7 +358,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void put(Properties properties, String key, String value) {
     putWithoutPrefix(properties, prefixDot + key, value);
-
   }
 
   private void putWithoutPrefix(Properties properties, String key, String value) {
@@ -375,7 +378,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void log(String message, String... interpolations) {
-    getLog().info(String.format(logPrefix + message, interpolations));
+    loggerBridge.log(logPrefix + message, interpolations);
   }
 
   private boolean directoryExists(File fileLocation) {

@@ -32,7 +32,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.Nullable;
+import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.Pair;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,7 +67,8 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
-  boolean verbose = false;
+  private boolean verbose = false;
+  private LoggerBridge loggerBridge;
 
   //  boolean containsFlag = false;
 //  boolean allFlag = false;
@@ -94,17 +97,21 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   protected DescribeCommand(Repository repo) {
     super(repo);
+    initDefaultLoggerBridge(verbose);
+  }
+
+  private void initDefaultLoggerBridge(boolean verbose) {
+    loggerBridge = new StdOutLoggerBridge(verbose);
   }
 
   public DescribeCommand setVerbose(boolean verbose) {
     this.verbose = verbose;
+    initDefaultLoggerBridge(verbose);
     return this;
   }
 
   private void log(String msg, Object... interpolations) {
-    if (verbose) {
-      System.out.println(String.format(msg, interpolations));
-    }
+    loggerBridge.log(msg, interpolations);
   }
 
   @Override
@@ -267,12 +274,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       revWalk.markStart(head);
 
       for (RevCommit commit : revWalk) {
-//        ObjectId objectId = tagObjectIdToName.keySet().toArray(new ObjectId[0])[0];
-//        RevTag tag = revWalk.parseTag(objectId);
-//        System.out.println("tag[" + tag + "] ----> " + tag.getObject().getId());
-
         ObjectId objId = commit.getId();
-        System.out.println("objId = " + objId);
         String lookup = tagObjectIdToName.get(objId);
         if (lookup != null) {
           return Collections.singletonList(commit);
@@ -283,42 +285,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-//    try {
-//      revWalk.markStart(head);
-//      Queue<RevCommit> q = newLinkedList();
-//      RevCommit parsedHead = revWalk.parseCommit(head);
-//      q.add(parsedHead);
-//
-//      List<RevCommit> taggedcommits = newLinkedList();
-//      Set<ObjectId> seen = newHashSet();
-//
-//      while (!q.isEmpty()) {
-//        RevCommit commit = q.remove();
-//        if (tagObjectIdToName.containsKey(commit.getId())) {
-//          taggedcommits.add(commit);
-//          // don't consider commits that are farther away than this tag
-//          continue;
-//        }
-//
-//        if (commit.getParentCount() == 0) {
-//          continue;
-//        }
-//
-//        for (ObjectId oid : commit.getParents()) {
-//          if (!seen.contains(oid)) {
-//            seen.add(oid);
-//            q.add(revWalk.parseCommit(oid));
-//          }
-//        }
-//      }
-//
-//      log("Tagged commits are %s", taggedcommits);
-//      return taggedcommits;
-//    } catch (Exception ex) {
-//      throw new RuntimeException(ex);
-//    } finally {
-//      revWalk.dispose();
-//    }
   }
 
   /**
