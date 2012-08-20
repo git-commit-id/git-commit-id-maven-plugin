@@ -22,7 +22,7 @@ import org.apache.maven.plugin.logging.Log;
 public class MavenLoggerBridge implements LoggerBridge {
 
   private final Log logger;
-  private final boolean verbose;
+  private boolean verbose;
 
   public MavenLoggerBridge(Log logger, boolean verbose) {
     this.logger = logger;
@@ -34,6 +34,11 @@ public class MavenLoggerBridge implements LoggerBridge {
     if(verbose) {
       logger.info(String.format(msg, interpolations));
     }
+  }
+
+  @Override
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 
 }

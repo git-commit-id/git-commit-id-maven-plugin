@@ -19,7 +19,7 @@ package pl.project13.maven.git.log;
 
 public class StdOutLoggerBridge implements LoggerBridge {
 
-  private boolean verbose = false;
+  private boolean verbose;
 
   public StdOutLoggerBridge(boolean verbose) {
     this.verbose = verbose;
@@ -30,6 +30,11 @@ public class StdOutLoggerBridge implements LoggerBridge {
     if (verbose) {
       System.out.println("LOG: " + String.format(msg, interpolations));
     }
+  }
+
+  @Override
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 
 }

@@ -314,7 +314,11 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void putGitDescribe(Properties properties, Repository repository) throws MojoExecutionException {
     try {
-      DescribeResult describeResult = DescribeCommand.on(repository).setVerbose(verbose).call();
+      DescribeResult describeResult = DescribeCommand
+          .on(repository)
+          .withLoggerBridge(loggerBridge)
+          .setVerbose(verbose)
+          .call();
 
       put(properties, COMMIT_DESCRIBE, describeResult.toString());
     } catch (GitAPIException ex) {

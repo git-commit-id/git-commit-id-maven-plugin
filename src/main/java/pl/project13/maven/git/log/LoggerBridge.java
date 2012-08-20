@@ -19,4 +19,5 @@ package pl.project13.maven.git.log;
 
 public interface LoggerBridge {
   void log(String msg, Object... interpolations);
+  void setVerbose(boolean verbose);
 }

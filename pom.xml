@@ -198,6 +198,8 @@
           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
+
+          <verbose>true</verbose>
         </configuration>
       </plugin>
       <!-- END OF SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION -->

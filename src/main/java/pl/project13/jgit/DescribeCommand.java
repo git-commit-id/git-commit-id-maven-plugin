@@ -67,7 +67,6 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
-  private boolean verbose = false;
   private LoggerBridge loggerBridge;
 
   //  boolean containsFlag = false;
@@ -95,9 +94,15 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  protected DescribeCommand(Repository repo) {
+  public DescribeCommand(Repository repo) {
+    super(repo);
+    initDefaultLoggerBridge(true);
+  }
+
+  public DescribeCommand(Repository repo, boolean verbose) {
     super(repo);
     initDefaultLoggerBridge(verbose);
+    setVerbose(verbose);
   }
 
   private void initDefaultLoggerBridge(boolean verbose) {
@@ -105,13 +110,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   public DescribeCommand setVerbose(boolean verbose) {
-    this.verbose = verbose;
-    initDefaultLoggerBridge(verbose);
+    loggerBridge.setVerbose(verbose);
     return this;
   }
 
   private void log(String msg, Object... interpolations) {
     loggerBridge.log(msg, interpolations);
+  }
+
+  public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
+    this.loggerBridge = bridge;
+    return this;
   }
 
   @Override
@@ -144,8 +153,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     int distance = distanceBetween(repo, headCommit, commits.get(0));
     String tagName = tagObjectIdToName.get(commits.get(0));
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
-
-    System.out.println("howFarFromWhichTag = " + howFarFromWhichTag);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
     if (howFarFromWhichTag == null) {
@@ -257,7 +264,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, Map<ObjectId, String> tagObjectIdToName) {
-    System.out.println("repo = [" + repo + "], head = [" + head + "], tagObjectIdToName = [" + tagObjectIdToName + "]");
     RevWalk revWalk = new RevWalk(repo);
     try {
       revWalk.markStart(head);
@@ -364,7 +370,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
 
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
-      System.out.println("tagRefs = " + tagRefs);
 
       for (Ref tagRef : tagRefs) {
         walk.reset();
@@ -377,13 +382,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
           ObjectId taggedCommitId = revTag.getObject().getId();
 
           commitIdsToTagNames.put(taggedCommitId, trimFullTagName(name));
-          log("TAG: [%s] taged as [%s] ", taggedCommitId, name);
         } catch (Exception ex) {
           // ignore
         }
 
         commitIdsToTagNames.put(resolvedCommitId, trimFullTagName(name));
-        log("TAG: [%s] taged as [%s] ", resolvedCommitId, name);
       }
 
       return commitIdsToTagNames;
