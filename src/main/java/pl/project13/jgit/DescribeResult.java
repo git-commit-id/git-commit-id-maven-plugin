@@ -28,6 +28,8 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class DescribeResult {
 
+  public static final String DEFAULT_DIRTY_MARKER = "DEV";
+
   private Optional<String> tagName = Optional.absent();
 
   private Optional<ObjectId> commitId = Optional.absent();
@@ -47,29 +49,32 @@ public class DescribeResult {
   }
 
   public DescribeResult(String tagName, int commitsAwayFromTag, @Nullable ObjectId commitId) {
-    this(tagName, commitsAwayFromTag, commitId, false, null);
+    this(tagName, commitsAwayFromTag, commitId, false, Optional.<String>absent());
   }
 
-  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, @Nullable String dirtyMarker) {
+  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, String dirtyMarker) {
+    this(tagName, commitsAwayFromTag, commitId, dirty, Optional.of(dirtyMarker));
+  }
+
+  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.commitsAwayFromTag = commitsAwayFromTag;
     this.commitId = Optional.fromNullable(commitId);
     this.dirty = dirty;
-    this.dirtyMarker = dirtyMarker;
+    this.dirtyMarker = dirtyMarker.or(DEFAULT_DIRTY_MARKER);
   }
 
   public DescribeResult(ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
     this.commitId = Optional.of(commitId);
     this.dirty = dirty;
-    this.dirtyMarker = dirtyMarker.or("DEV");
+    this.dirtyMarker = dirtyMarker.or(DEFAULT_DIRTY_MARKER);
   }
 
   public DescribeResult(String tagName, boolean dirty) {
     this.tagName = Optional.of(tagName);
     this.dirty = dirty;
-    this.dirtyMarker = "DEV";
+    this.dirtyMarker = DEFAULT_DIRTY_MARKER;
   }
-
 
   @Override
   public String toString() {

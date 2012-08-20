@@ -140,17 +140,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
     // check how far away from a tag we are
-//    RevWalk walk = new RevWalk(repo);
-//    RevCommit commit;
-//    try {
-//    commit = walk.parseCommit(repo.resolve("HEAD"));
-//      commit = walk.parseCommit(commits.get(0));
-//    } catch (Exception e) {
-//      throw new RuntimeException(e);
-//    }
-//    walk.dispose();
-//
-//    Pair<Integer, String> howFarFromWhichTag = findDistanceFromTag(repo, commit, tagObjectIdToName);
 
     int distance = distanceBetween(repo, headCommit, commits.get(0));
     String tagName = tagObjectIdToName.get(commits.get(0));
@@ -162,7 +151,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     if (howFarFromWhichTag == null) {
       return new DescribeResult(headCommit.getId(), dirty, dirtyOption);
     } else if (howFarFromWhichTag.first > 0) {
-      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId()); // we're a bit away from a tag
+      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId(), dirty, dirtyOption); // we're a bit away from a tag
     } else if (howFarFromWhichTag.first == 0) {
       return new DescribeResult(howFarFromWhichTag.second); // we're ON a tag
     } else if (alwaysFlag) {

@@ -92,6 +92,28 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  public void shouldGiveTagWithDistanceToCurrentCommitAndItsIdAndDirtyMarker() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand.on(repo);
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-" + HEAD.getName() + "-DEV");
+  }
+
+  @Test
   public void shouldGiveTagWithDistanceToCurrentCommitAndItsId() throws Exception {
     // given
     mavenSandbox
@@ -101,6 +123,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
+    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
