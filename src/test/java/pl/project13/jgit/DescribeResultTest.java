@@ -25,7 +25,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DescribeResultTest {
 
   String VERSION = "v2.5";
-  String ZEROES_COMMIT_ID = "0000000000000000000000000000000000000000";
+  String DEFAULT_ABBREV_COMMIT_ID = "0000000";
+  String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
+  String FULL_COMMIT_ID = "0000000000000000000000000000000000000000";
+  String G_FULL_COMMIT_ID = "g" + FULL_COMMIT_ID;
   String DIRTY_MARKER = "DEV";
 
   @Test
@@ -50,7 +53,19 @@ public class DescribeResultTest {
     String s = res.toString();
 
     // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + ZEROES_COMMIT_ID + "-" + DIRTY_MARKER);
+    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID + "-" + DIRTY_MARKER);
+  }
+
+  @Test
+  public void shouldToStringForDirtyTagAnd10Abbrev() throws Exception {
+    // given
+    DescribeResult res = new DescribeResult(VERSION, 2, ObjectId.zeroId(), true, DIRTY_MARKER).withCommitIdAbbrev(10);
+    String expectedHash = "g0000000000";
+    // when
+    String s = res.toString();
+
+    // then
+    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + expectedHash + "-" + DIRTY_MARKER);
   }
 
   @Test
@@ -62,7 +77,7 @@ public class DescribeResultTest {
     String s = res.toString();
 
     // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + ZEROES_COMMIT_ID);
+    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID);
   }
 
   @Test
@@ -74,6 +89,6 @@ public class DescribeResultTest {
     String s = res.toString();
 
     // then
-    assertThat(s).isEqualTo(ZEROES_COMMIT_ID);
+    assertThat(s).isEqualTo(DEFAULT_ABBREV_COMMIT_ID);
   }
 }

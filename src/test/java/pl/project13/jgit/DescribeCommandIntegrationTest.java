@@ -36,6 +36,7 @@ import static org.mockito.Mockito.spy;
 
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
+  public static final int DEFAULT_ABBREV_LEN = 7;
   final String PROJECT_NAME = "my-jar-project";
 
   @Override
@@ -55,15 +56,16 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .setVerbose(true)
+        .call();
 
     // then
     assertThat(res).isNotNull();
 
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(HEAD.getName() + "-DEV");
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()) + "-DEV");
   }
 
   @Test
@@ -88,7 +90,36 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(HEAD.getName());
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+  }
+
+
+  @Test
+  public void shouldGiveTheCommitIdWhenNothingElseCanBeFoundAndUseAbbrevVersionOfIt() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    int abbrevLength = 10;
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = spy(DescribeCommand.on(repo));
+    doReturn(false).when(command).findDirtyState(any(Repository.class));
+
+    command
+        .setVerbose(true)
+        .abbrev(abbrevLength);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
   }
 
   @Test
@@ -110,7 +141,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-" + HEAD.getName() + "-DEV");
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + "-DEV");
   }
 
   @Test
@@ -133,7 +164,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-" + HEAD.getName());
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
   }
 
   @Test
@@ -268,5 +299,13 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(simpleName).isEqualTo("v1.0.0");
+  }
+
+  String abbrev(String id) {
+    return abbrev(id, DEFAULT_ABBREV_LEN);
+  }
+
+  String abbrev(String id, int n) {
+    return id.substring(0, n);
   }
 }
