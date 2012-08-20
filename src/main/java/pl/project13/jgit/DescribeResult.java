@@ -27,6 +27,11 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * Represents the result of a <code>git describe</code> command.
+ *
+ * See {@link pl.project13.jgit.DescribeResult#toString()} for a detailed information how this result looks like.
+ */
 public class DescribeResult {
 
   public static final String DEFAULT_DIRTY_MARKER = "DEV";
