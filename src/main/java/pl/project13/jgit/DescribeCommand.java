@@ -73,7 +73,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //  boolean allFlag = false;
 //  boolean tagsFlag = false;
 //  boolean longFlag = false;
-//  Optional<Integer> abbrevOption = Optional.absent();
+  /** How many chars of the commit hash should be displayed? 7 is the default used by git. */
+  int abbrev = 7;
 //  Optional<Integer> candidatesOption = Optional.of(10);
 //  boolean exactMatchFlag = false;
   boolean alwaysFlag = true;
@@ -95,8 +96,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
   public DescribeCommand(Repository repo) {
-    super(repo);
-    initDefaultLoggerBridge(true);
+    this(repo, true);
   }
 
   public DescribeCommand(Repository repo, boolean verbose) {
@@ -114,12 +114,35 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return this;
   }
 
-  private void log(String msg, Object... interpolations) {
-    loggerBridge.log(msg, interpolations);
-  }
-
   public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
     this.loggerBridge = bridge;
+    return this;
+  }
+
+  /**
+   * <pre>--always</pre>
+   *
+   * Show uniquely abbreviated commit object as fallback.
+   *
+   * <pre>true</pre> by default.
+   */
+  public DescribeCommand always(boolean always) {
+    this.alwaysFlag = always;
+    log("--always [%s]", always);
+    return this;
+  }
+
+  /**
+   * <pre>--abbrev=N</pre>
+   *
+   * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
+   * use <b>N</b> digits, or as many digits as needed to form a unique object name.
+   *
+   * An <n> of 0 will suppress long format, only showing the closest tag.
+   */
+  public DescribeCommand abbrev(int n) {
+    Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
+    abbrev = n;
     return this;
   }
 
@@ -130,6 +153,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     // get current commit
     RevCommit headCommit = findHeadObjectId(repo);
+    ObjectId headCommitId = headCommit.getId();
 
     // check if dirty
     boolean dirty = findDirtyState(repo);
@@ -142,7 +166,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     if (foundZeroTags(tagObjectIdToName)) {
-      return new DescribeResult(headCommit.getId(), dirty, dirtyOption);
+      return new DescribeResult(headCommitId, dirty, dirtyOption)
+          .withCommitIdAbbrev(abbrev);
     }
 
     // get commits, up until the nearest tag
@@ -156,16 +181,28 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
     if (howFarFromWhichTag == null) {
-      return new DescribeResult(headCommit.getId(), dirty, dirtyOption);
+      return new DescribeResult(headCommitId, dirty, dirtyOption)
+          .withCommitIdAbbrev(abbrev);
+
     } else if (howFarFromWhichTag.first > 0) {
-      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommit.getId(), dirty, dirtyOption); // we're a bit away from a tag
+      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommitId, dirty, dirtyOption)
+          .withCommitIdAbbrev(abbrev); // we're a bit away from a tag
+
     } else if (howFarFromWhichTag.first == 0) {
-      return new DescribeResult(howFarFromWhichTag.second); // we're ON a tag
+      return new DescribeResult(howFarFromWhichTag.second)
+          .withCommitIdAbbrev(abbrev); // we're ON a tag
+
     } else if (alwaysFlag) {
-      return new DescribeResult(headCommit.getId()); // we have no tags! display the commit
+      return new DescribeResult(headCommitId)
+          .withCommitIdAbbrev(abbrev); // we have no tags! display the commit
+
     } else {
       return DescribeResult.EMPTY;
     }
+  }
+
+  String applyAbbrev(ObjectId commitId) {
+    return commitId.getName().substring(0, abbrev);
   }
 
   private boolean foundZeroTags(Map<ObjectId, String> tags) {
@@ -402,6 +439,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @VisibleForTesting
   static String trimFullTagName(String tagName) {
     return tagName.replaceFirst("refs/tags/", "");
+  }
+
+  private void log(String msg, Object... interpolations) {
+    loggerBridge.log(msg, interpolations);
   }
 }
 
