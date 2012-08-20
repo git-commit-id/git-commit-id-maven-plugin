@@ -1,5 +1,7 @@
 Maven plugin: git-commit-id-plugin
 ==================================
+[![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.png?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
+
 git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
 
 Sample scenario why this plugin is useful
@@ -8,10 +10,6 @@ If you develop your maven project inside an git repository (which you hopefully 
 what changeset is currently deployed online. Why is this useful? Well, the tester won't come to you screaming "heeey that bug ain't fixed" of course you'd reply "but I fixed it this morning!" and after some searching you notice "oh... it'll be online after the next deployment, sorry tester... :-(".
 
 This scenario keeps repeating sometimes, thus you can state which commit fixes/closes the bug, note this in JIRA etc and then the tester will know if it's already online (by the commit date for example).
-
-TravisCI Status
-===============
-[![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.png?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
 
 Usage
 =====
