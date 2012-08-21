@@ -18,6 +18,13 @@ Getting the plugin
 The plugin is available from **Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>)! So you don't need to add any repositories etc to your pom to start using it.
 See the detailed description bellow in *Using the plugin* to learn how to use it - also, if you have any problems, let me know! :-)
 
+Versions
+--------
+The current version is **2.0.4**. **2.1.0** will include a "`git describe`" implementation as well as integration tests on real git repositories.
+To track progress on **2.1.0**, visit this link: Progress on <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/milestones">2.1.0</a>.
+
+The next release should be released before the end of August (self motivation - posted online deadline works better ;-)).
+
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
 If you really want to use snapshots, here's the repository they are deployed to. 
