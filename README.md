@@ -411,11 +411,10 @@ v1.0.4-14-g2414721-DEV
 
 Other outputs may look like:   
 
-```
-v1.0.4     - if the repository is "on a tag"
-v1.0.4-DEV - if the repository is "on a tag", but in "dirty" state
-2414721    - a plain commit id hash if not tags were defined (of determined "near" this commit).
-             It does NOT include the "g" prefix, that is used in the "full" describe output format!
+* **v1.0.4** - if the repository is "on a tag"
+* **v1.0.4-DEV** - if the repository is "on a tag", but in "dirty" state
+* **2414721** - a plain commit id hash if not tags were defined (of determined "near" this commit). 
+                It does NOT include the "g" prefix, that is used in the "full" describe output format!
 ```
 
 For more details (on when what output will be returned etc), see <code>man git-describe</code>.
