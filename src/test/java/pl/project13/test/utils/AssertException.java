@@ -17,6 +17,7 @@
 
 package pl.project13.test.utils;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 
 import static pl.project13.test.utils.AssertException.ExceptionMatch.EXCEPTION_CLASS_MUST_EQUAL;
@@ -113,7 +114,7 @@ public class AssertException {
     }
 
     public static <T extends Throwable> T intercept(ExceptionMatch.Strategy matchStrategy,
-                                                    Class<T> expectedThrowableClass, String expectedMessage,
+                                                    Class<T> expectedThrowableClass, @Nullable String expectedMessage,
                                                     Runnable block) {
         try {
             block.run();
@@ -122,8 +123,6 @@ public class AssertException {
             return null; // make compiler happy
 
         } catch (Throwable thr) {
-            Class<? extends Throwable> gotThrowableClass = thr.getClass();
-
             boolean gotExpectedException = matchStrategy.matchesExpected(expectedThrowableClass, thr, expectedMessage);
             if (gotExpectedException) {
                 return expectedThrowableClass.cast(thr);

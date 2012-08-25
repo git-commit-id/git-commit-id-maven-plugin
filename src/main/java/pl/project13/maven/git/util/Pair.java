@@ -44,6 +44,7 @@ public class Pair<A, B> {
     if (first != null ? !first.equals(pair.first) : pair.first != null) {
       return false;
     }
+    //noinspection RedundantIfStatement
     if (second != null ? !second.equals(pair.second) : pair.second != null) {
       return false;
     }
