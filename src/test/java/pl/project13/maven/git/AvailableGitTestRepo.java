@@ -29,13 +29,6 @@ public enum AvailableGitTestRepo {
   ON_A_TAG_DIRTY("src/test/resources/_git_on_a_tag_dirty"),
   /**
    * <pre>
-   * de4db35 - (HEAD, v1.0.0, master) isecond line (38 minutes ago) <Konrad Malawski>
-   * 245e5b2 - initial commit (38 minutes ago) <Konrad Malawski>
-   * </pre>
-   */
-  ON_A_ANNOT_TAG_DIRTY("src/test/resources/_git_on_a_annotated_tag_dirty"),
-  /**
-   * <pre>
    * b6a73ed - (HEAD, master) third addition (4 minutes ago) <Konrad Malawski>
    * d37a598 - (lightweight-tag) second line (6 minutes ago) <Konrad Malawski>
    * 9597545 - (annotated-tag) initial commit (6 minutes ago) <Konrad Malawski>

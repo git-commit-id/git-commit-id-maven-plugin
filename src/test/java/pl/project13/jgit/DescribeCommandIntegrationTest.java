@@ -248,21 +248,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
-        .withGitRepoInParent(AvailableGitTestRepo.ON_A_ANNOT_TAG_DIRTY)
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
     Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .abbrev(0)
+        .setVerbose(true)
+        .call();
 
     // then
     assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+    assertThat(res.toString()).isEqualTo("annotated-tag-dirty");
   }
 
   @Test
