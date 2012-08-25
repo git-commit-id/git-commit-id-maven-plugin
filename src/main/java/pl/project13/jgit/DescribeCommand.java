@@ -208,6 +208,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   /**
+   * <pre>--dirty[=mark]</pre>
+   * Describe the working tree. It means describe HEAD and appends mark (<pre>-dirty</pre> by default) if the
+   * working tree is dirty.
+   *
    * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
    * @return itself, to allow fluent configuration
    */
@@ -215,7 +219,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     if (dirtyMarker != null && dirtyMarker.length() > 0) {
       log("--dirty = \"-%s\"", dirtyMarker);
-      this.dirtyOption = Optional.fromNullable(dirtyMarker);
+      this.dirtyOption = Optional.of(dirtyMarker);
     }
     return this;
   }

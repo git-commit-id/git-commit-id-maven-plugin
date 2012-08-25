@@ -35,7 +35,7 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class DescribeResult {
 
-  public static final String DEFAULT_DIRTY_MARKER = "DEV";
+  public static final String DEFAULT_DIRTY_MARKER = "dirty";
   private Optional<String> tagName = Optional.absent();
 
   private Optional<ObjectId> commitId = Optional.absent();
