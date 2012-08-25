@@ -191,8 +191,6 @@
 
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
 
-          <verbose>true</verbose>
-
           <gitDescribe>
             <always>false</always>
             <abbrev>7</abbrev>

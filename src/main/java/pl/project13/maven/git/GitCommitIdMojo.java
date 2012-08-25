@@ -30,6 +30,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FileUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -76,6 +78,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter expression="${project}"
    * @readonly
    */
+  @SuppressWarnings("UnusedDeclaration")
   MavenProject project;
 
   /**
@@ -85,6 +88,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="false"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private boolean verbose;
 
   /**
@@ -93,6 +97,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter expression="${git.skipPoms}" default-value="true"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private boolean skipPoms;
 
   /**
@@ -104,6 +109,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="false"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private boolean generateGitPropertiesFile;
 
   /**
@@ -115,6 +121,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="src/main/resources/git.properties"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private String generateGitPropertiesFilename;
 
   /**
@@ -122,11 +129,18 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="${project.basedir}/.git"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private File dotGitDirectory;
 
   /**
+   * Configuration for the <pre>git-describe</pre> command.
+   * You can modify the dirty marker, abbrev length and other options here.
+   *
+   * If not specified, default values will be used.
+   *
    * @parameter
    */
+  @SuppressWarnings("UnusedDeclaration")
   private GitDescribeConfig gitDescribe;
 
   /**
@@ -134,6 +148,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="git"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private String prefix;
   private String prefixDot;
 
@@ -143,6 +158,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private String dateFormat;
 
   /**
@@ -151,6 +167,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @parameter default-value="true"
    */
+  @SuppressWarnings("UnusedDeclaration")
   private boolean failOnNoGitDirectory;
 
   /**
@@ -162,6 +179,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean runningTests = false;
 
+  @NotNull
   LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
 
   public void execute() throws MojoExecutionException {
@@ -210,6 +228,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     return getGitDirLocator().lookupGitDirectory(project, dotGitDirectory);
   }
 
+  @NotNull
   GitDirLocator getGitDirLocator() {
     return new GitDirLocator();
   }
@@ -227,7 +246,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void logProperties(Properties properties) {
+  private void logProperties(@NotNull Properties properties) {
     log("------------------git properties loaded------------------");
 
     for (Object key : properties.keySet()) {
@@ -239,17 +258,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("---------------------------------------------------------");
   }
 
-  private boolean isOurProperty(String keyString) {
+  private boolean isOurProperty(@NotNull String keyString) {
     return keyString.startsWith(prefixDot);
   }
 
-  void loadBuildTimeData(Properties properties) {
+  void loadBuildTimeData(@NotNull Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(commitDate));
   }
 
-  void loadGitData(Properties properties) throws IOException, MojoExecutionException {
+  void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
     log("Loading data from git repository...");
     Repository git = getGitRepository();
 
@@ -277,10 +296,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     RevWalk revWalk = new RevWalk(git);
     RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
     revWalk.markStart(headCommit);
-//    revWalk.markUninteresting(headCommit.getParent(1));
 
-    // git.branch
     try {
+      // git.branch
       String branch = git.getBranch();
       put(properties, BRANCH, branch);
 
@@ -319,7 +337,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @VisibleForTesting
-  void putGitDescribe(Properties properties, Repository repository) throws MojoExecutionException {
+  void putGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(repository)
@@ -334,7 +352,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void generatePropertiesFile(Properties properties, String generateGitPropertiesFilename) throws IOException {
+  void generatePropertiesFile(@NotNull Properties properties, String generateGitPropertiesFilename) throws IOException {
     String filename = project.getBasedir().getAbsolutePath() + File.separatorChar + generateGitPropertiesFilename;
     File gitPropsFile = new File(filename);
 
@@ -343,10 +361,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     properties.store(new FileWriter(gitPropsFile), "Generated by git-commit-id-plugin");
   }
 
-  boolean isPomProject(MavenProject project) {
+  boolean isPomProject(@NotNull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
   }
 
+  @NotNull
   private Repository getGitRepository() throws MojoExecutionException {
     Repository repository;
 
@@ -368,11 +387,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     return repository;
   }
 
-  private void put(Properties properties, String key, String value) {
+  private void put(@NotNull Properties properties, String key, String value) {
     putWithoutPrefix(properties, prefixDot + key, value);
   }
 
-  private void putWithoutPrefix(Properties properties, String key, String value) {
+  private void putWithoutPrefix(@NotNull Properties properties, String key, String value) {
     if (verbose) {
       String s = String.format("Storing: %s = %s", key, value);
       log(s);
@@ -385,7 +404,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private boolean isNotEmpty(String value) {
+  private boolean isNotEmpty(@Nullable String value) {
     return null != value && !" ".equals(value.trim().replaceAll(" ", ""));
   }
 
@@ -393,7 +412,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     loggerBridge.log(logPrefix + message, interpolations);
   }
 
-  private boolean directoryExists(File fileLocation) {
+  private boolean directoryExists(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 

@@ -19,6 +19,8 @@ package pl.project13.maven.git;
 
 //import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * A spring controlled bean that will be injected
  * with properties about the repository state at build time.
@@ -168,7 +170,7 @@ public class GitRepositoryState {
     return sb.append("}").toString();
   }
 
-  private void appendProperty(StringBuilder sb, String label, String value) {
+  private void appendProperty(@NotNull StringBuilder sb, String label, String value) {
     sb.append(String.format("\"%s\" = \"%s\",", label, value));
   }
 

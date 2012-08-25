@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import com.google.common.base.Optional;
 import org.eclipse.jgit.api.Git;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 
 import java.io.File;
@@ -55,7 +56,8 @@ public abstract class GitIntegrationTest {
     return Optional.absent();
   }
 
-  protected File dotGitDir(Optional<String> projectDir) {
+  @NotNull
+  protected File dotGitDir(@NotNull Optional<String> projectDir) {
     if (projectDir.isPresent()) {
       return new File(SANDBOX_DIR + File.separator + projectDir.get() + File.separator + ".git");
     } else {

@@ -90,6 +90,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
+  @NotNull
   public static DescribeCommand on(Repository repo) {
     return new DescribeCommand(repo);
   }
@@ -113,11 +114,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     loggerBridge = new StdOutLoggerBridge(verbose);
   }
 
+  @NotNull
   public DescribeCommand setVerbose(boolean verbose) {
     loggerBridge.setVerbose(verbose);
     return this;
   }
 
+  @NotNull
   public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
     this.loggerBridge = bridge;
     return this;
@@ -130,6 +133,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * <p/>
    * <pre>true</pre> by default.
    */
+  @NotNull
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
     log("--always = %s", always);
@@ -144,6 +148,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * <p/>
    * An <n> of 0 will suppress long format, only showing the closest tag.
    */
+  @NotNull
   public DescribeCommand abbrev(@Nullable Integer n) {
     if (n != null) {
       Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
@@ -159,6 +164,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
    * @return itself, after applying the settings
    */
+  @NotNull
   public DescribeCommand apply(@Nullable GitDescribeConfig config) {
     if (config != null) {
       always(config.isAlways());
@@ -173,6 +179,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
    * @return itself, to allow fluent configuration
    */
+  @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     if (dirtyMarker != null && dirtyMarker.length() > 0) {
       log("--dirty = \"-%s\"", dirtyMarker);
@@ -225,7 +232,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * The exact logic is following what <pre>git-describe</pre> would do.
    */
-  private DescribeResult createDescribeResult(ObjectId headCommitId, boolean dirty, Pair<Integer, String> howFarFromWhichTag) {
+  private DescribeResult createDescribeResult(ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {
     if (howFarFromWhichTag == null) {
       return new DescribeResult(headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
@@ -247,7 +254,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private static boolean foundZeroTags(Map<ObjectId, String> tags) {
+  private static boolean foundZeroTags(@NotNull Map<ObjectId, String> tags) {
     return tags.isEmpty();
   }
 
@@ -263,11 +270,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   @VisibleForTesting
-  static boolean isATag(ObjectId headCommit, Map<ObjectId, String> tagObjectIdToName) {
+  static boolean isATag(ObjectId headCommit, @NotNull Map<ObjectId, String> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
-  RevCommit findHeadObjectId(Repository repo) throws RuntimeException {
+  RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
     try {
       ObjectId headId = repo.resolve("HEAD");
 
@@ -282,7 +289,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, Map<ObjectId, String> tagObjectIdToName) {
+  List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, String> tagObjectIdToName) {
     RevWalk revWalk = new RevWalk(repo);
     try {
       revWalk.markStart(head);
@@ -361,7 +368,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private static void seeAllParents(RevWalk revWalk, RevCommit child, Set<ObjectId> seen) throws IOException {
+  private static void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
     Queue<RevCommit> q = newLinkedList();
     q.add(child);
 
@@ -378,7 +385,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   // git commit id -> its tag
-  private Map<ObjectId, String> findTagObjectIds(Repository repo) {
+  private Map<ObjectId, String> findTagObjectIds(@NotNull Repository repo) {
     Map<ObjectId, String> commitIdsToTagNames = newHashMap();
 
     RevWalk walk = new RevWalk(repo);
@@ -417,7 +424,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   @VisibleForTesting
-  static String trimFullTagName(String tagName) {
+  static String trimFullTagName(@NotNull String tagName) {
     return tagName.replaceFirst("refs/tags/", "");
   }
 

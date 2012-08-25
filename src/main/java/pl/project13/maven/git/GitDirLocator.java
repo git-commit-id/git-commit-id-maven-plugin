@@ -20,6 +20,8 @@ package pl.project13.maven.git;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -29,6 +31,7 @@ import java.io.File;
  */
 public class GitDirLocator {
 
+  @Nullable
   public File lookupGitDirectory(MavenProject project, File manualyConfiguredDir) throws MojoExecutionException {
 
     if (isExistingDirectory(manualyConfiguredDir)) {
@@ -56,11 +59,12 @@ public class GitDirLocator {
     return null;
   }
 
-  private File currentProjectGitDir(MavenProject mavenProject) {
+  @NotNull
+  private File currentProjectGitDir(@NotNull MavenProject mavenProject) {
     return new File(mavenProject.getBasedir(), Constants.DOT_GIT);
   }
 
-  public static boolean isExistingDirectory(File fileLocation) {
+  public static boolean isExistingDirectory(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 

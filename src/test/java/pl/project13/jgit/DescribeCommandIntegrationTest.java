@@ -24,6 +24,7 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.FileSystemMavenSandbox;
@@ -301,11 +302,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(simpleName).isEqualTo("v1.0.0");
   }
 
-  String abbrev(String id) {
+  String abbrev(@NotNull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
 
-  String abbrev(String id, int n) {
+  String abbrev(@NotNull String id, int n) {
     return id.substring(0, n);
   }
 }

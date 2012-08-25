@@ -19,6 +19,8 @@ package pl.project13.maven.git;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,29 +46,34 @@ public class FileSystemMavenSandbox {
    * Test should copy content of this folder to ".git" in correct destination
    */
   private File gitRepoSourceDir;
+  @Nullable
   private File gitRepoTargetDir;
 
   public FileSystemMavenSandbox(String rootSandboxPath) {
     this.rootSandboxPath = rootSandboxPath;
   }
 
+  @NotNull
   public FileSystemMavenSandbox withParentProject(String parentProjectDirName, String packaging) {
     parentProject = createProject(new File(rootSandboxPath + FILE_SEPARATOR + parentProjectDirName), packaging);
     return this;
   }
 
+  @NotNull
   public FileSystemMavenSandbox withNoChildProject() {
     // no-op: marker for better tests readability
     return this;
   }
 
+  @NotNull
   public FileSystemMavenSandbox withChildProject(String childProjectDirName, String packaging) {
     childProject = createProject(new File(parentProject.getBasedir(), childProjectDirName), packaging);
     childProject.setParent(parentProject);
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoInParent(AvailableGitTestRepo repo) {
+  @NotNull
+  public FileSystemMavenSandbox withGitRepoInParent(@NotNull AvailableGitTestRepo repo) {
     System.out.println("TEST: Will prepare sandbox repository based on: [" + repo.getDir() + "]");
 
     gitRepoSourceDir = repo.getDir();
@@ -74,23 +81,27 @@ public class FileSystemMavenSandbox {
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoInChild(AvailableGitTestRepo repo) {
+  @NotNull
+  public FileSystemMavenSandbox withGitRepoInChild(@NotNull AvailableGitTestRepo repo) {
     gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = childProject.getBasedir();
     return this;
   }
 
-  public FileSystemMavenSandbox withGitRepoAboveParent(AvailableGitTestRepo repo) {
+  @NotNull
+  public FileSystemMavenSandbox withGitRepoAboveParent(@NotNull AvailableGitTestRepo repo) {
     gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = new File(rootSandboxPath);
     return this;
   }
 
+  @NotNull
   public FileSystemMavenSandbox withNoGitRepoAvailable() {
     gitRepoTargetDir = null;
     return this;
   }
 
+  @NotNull
   public FileSystemMavenSandbox create(CleanUp cleanupMode) throws RuntimeException {
     try {
       cleanupIfRequired(cleanupMode);
@@ -142,6 +153,7 @@ public class FileSystemMavenSandbox {
     return childProject;
   }
 
+  @NotNull
   private MavenProject createProject(File basedir, String packaging) {
     MavenProject project = new MavenProject();
     project.setBasedir(basedir);

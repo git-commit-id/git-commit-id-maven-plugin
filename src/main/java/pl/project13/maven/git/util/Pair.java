@@ -17,6 +17,9 @@
 
 package pl.project13.maven.git.util;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class Pair<A, B> {
   public final A first;
   public final B second;
@@ -26,12 +29,13 @@ public class Pair<A, B> {
     this.second = second;
   }
 
+  @NotNull
   public static <A, B> Pair<A, B> of(A first, B second) {
     return new Pair<A, B>(first, second);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -59,6 +63,7 @@ public class Pair<A, B> {
     return result;
   }
 
+  @NotNull
   @Override
   public String toString() {
     return "Pair(" +

@@ -18,17 +18,24 @@
 package pl.project13.jgit;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DescribeResultTest {
 
+  @NotNull
   String VERSION = "v2.5";
+  @NotNull
   String DEFAULT_ABBREV_COMMIT_ID = "0000000";
+  @NotNull
   String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
+  @NotNull
   String FULL_COMMIT_ID = "0000000000000000000000000000000000000000";
+  @NotNull
   String G_FULL_COMMIT_ID = "g" + FULL_COMMIT_ID;
+  @NotNull
   String DIRTY_MARKER = "DEV";
 
   @Test

@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.eclipse.jgit.lib.ObjectId;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -62,13 +63,14 @@ public class DescribeResult {
     this(tagName, commitsAwayFromTag, commitId, dirty, Optional.of(dirtyMarker));
   }
 
+  @NotNull
   public DescribeResult withCommitIdAbbrev(int n) {
     Preconditions.checkArgument(n >= 0, String.format("The --abbrev parameter must be >= 0, but it was: [%s]", n));
     abbrev = n;
     return this;
   }
 
-  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
+  public DescribeResult(String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, @NotNull Optional<String> dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.commitsAwayFromTag = commitsAwayFromTag;
     this.commitId = Optional.fromNullable(commitId);
@@ -76,7 +78,7 @@ public class DescribeResult {
     this.dirtyMarker = dirtyMarker.or(DEFAULT_DIRTY_MARKER);
   }
 
-  public DescribeResult(ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
+  public DescribeResult(ObjectId commitId, boolean dirty, @NotNull Optional<String> dirtyMarker) {
     this.commitId = Optional.of(commitId);
     this.dirty = dirty;
     this.dirtyMarker = dirtyMarker.or(DEFAULT_DIRTY_MARKER);

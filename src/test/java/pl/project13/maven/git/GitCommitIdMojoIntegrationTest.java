@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
@@ -118,7 +119,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setInternalState(mojo, parameterName, parameterValue);
   }
 
-  private void setProjectToExecuteMojoIn(MavenProject project) {
+  private void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
   }
