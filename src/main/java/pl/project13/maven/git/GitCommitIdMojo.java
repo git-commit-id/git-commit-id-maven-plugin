@@ -303,7 +303,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       put(properties, BRANCH, branch);
 
       // git.describe
-      putGitDescribe(properties, git);
+      maybePutGitDescribe(properties, git);
 
       // git.commit.id
       put(properties, COMMIT_ID, headCommit.getName());
@@ -333,6 +333,12 @@ public class GitCommitIdMojo extends AbstractMojo {
       put(properties, COMMIT_TIME, smf.format(commitDate));
     } finally {
       revWalk.dispose();
+    }
+  }
+
+  void maybePutGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
+    if(gitDescribe == null || !gitDescribe.isSkip()) {
+      putGitDescribe(properties, repository);
     }
   }
 
@@ -440,5 +446,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public void setGitDescribe(GitDescribeConfig gitDescribe) {
+    this.gitDescribe = gitDescribe;
   }
 }

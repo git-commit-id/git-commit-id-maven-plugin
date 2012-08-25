@@ -68,6 +68,24 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+
+    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+  }
+
+  @Test
+  public void shouldSkipDescribeWhenConfiguredToDoSo() throws Exception {
+    // given
+    GitDescribeConfig config = new GitDescribeConfig();
+    config.setSkip(true);
+
+    // when
+    mojo.setGitDescribe(config);
+    mojo.execute();
+
+    // then
+    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+    verify(mojo, never()).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
 }
