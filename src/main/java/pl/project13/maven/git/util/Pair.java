@@ -17,14 +17,23 @@
 
 package pl.project13.maven.git.util;
 
+import com.google.common.base.Preconditions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Pair<A, B> {
+
+  @NotNull
   public final A first;
+
+  @NotNull
   public final B second;
 
+  @SuppressWarnings("ConstantConditions")
   public Pair(A first, B second) {
+    Preconditions.checkArgument(first != null, "The first parameter must not be null.");
+    Preconditions.checkArgument(second != null, "The second parameter must not be null.");
+
     this.first = first;
     this.second = second;
   }
@@ -45,11 +54,11 @@ public class Pair<A, B> {
 
     Pair pair = (Pair) o;
 
-    if (first != null ? !first.equals(pair.first) : pair.first != null) {
+    if (!first.equals(pair.first)) {
       return false;
     }
     //noinspection RedundantIfStatement
-    if (second != null ? !second.equals(pair.second) : pair.second != null) {
+    if (!second.equals(pair.second)) {
       return false;
     }
 
@@ -58,17 +67,14 @@ public class Pair<A, B> {
 
   @Override
   public int hashCode() {
-    int result = first != null ? first.hashCode() : 0;
-    result = 31 * result + (second != null ? second.hashCode() : 0);
+    int result = first.hashCode();
+    result = 31 * result + (second.hashCode());
     return result;
   }
 
   @NotNull
   @Override
   public String toString() {
-    return "Pair(" +
-        "" + first +
-        ", " + second +
-        ')';
+    return String.format("Pair(%s, %s)", first, second);
   }
 }
