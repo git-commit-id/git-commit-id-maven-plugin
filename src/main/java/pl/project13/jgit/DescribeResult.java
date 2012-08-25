@@ -116,8 +116,19 @@ public class DescribeResult {
    */
   @Override
   public String toString() {
-    List<String> parts = newArrayList(tag(), commitsAwayFromTag(), prefixedCommitId(), dirtyMarker());
+    List<String> parts;
+
+    if(abbrevZeroHidesCommitsPartOfDescribe()) {
+      parts = newArrayList(tag(), dirtyMarker());
+    } else {
+      parts = newArrayList(tag(), commitsAwayFromTag(), prefixedCommitId(), dirtyMarker());
+    }
+
     return Joiner.on("-").skipNulls().join(parts);
+  }
+
+  private boolean abbrevZeroHidesCommitsPartOfDescribe() {
+    return abbrev == 0;
   }
 
   @Nullable

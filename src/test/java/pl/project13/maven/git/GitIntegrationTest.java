@@ -43,11 +43,6 @@ public abstract class GitIntegrationTest {
     initializeMojoWithDefaults(mojo);
   }
 
-//  @After
-//  public void cleanUp() throws IOException {
-//    mavenSandbox.cleanup();
-//  }
-
   protected Git git() throws IOException, InterruptedException {
     return Git.open(dotGitDir(projectDir()));
   }

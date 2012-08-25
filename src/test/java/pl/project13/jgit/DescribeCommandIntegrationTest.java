@@ -324,6 +324,34 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  public void shouldReturnJustTheNearestTagWhenAbbrevIsZero() throws Exception {
+    // given
+    int zeroAbbrev = 0;
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    // when
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .abbrev(zeroAbbrev)
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res.toString()).isEqualTo("annotated-tag");
+
+    ObjectId objectId = res.commitObjectId();
+    assert objectId != null;
+    assertThat(objectId.getName()).isNotEmpty();
+  }
+
+  @Test
   public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
     // given
     String fullName = "refs/tags/v1.0.0";

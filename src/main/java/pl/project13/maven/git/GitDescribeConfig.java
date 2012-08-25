@@ -35,6 +35,11 @@ public class GitDescribeConfig {
   private boolean skip;
 
   /**
+   * <pre>--always</pre>
+   * <p>Show uniquely abbreviated commit object as fallback.</p>
+   *
+   * <b>true</b> by default. (Doesn't really make much sense to disable this option).
+   *
    * @parameter default-value=true
    */
   private boolean always;
@@ -45,6 +50,29 @@ public class GitDescribeConfig {
   private String dirty;
 
   /**
+   * <pre>--abbrev=N</pre>
+   * <p>
+   * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
+   * use <b>N</b> digits, or as many digits as needed to form a unique object name.
+   * </p>
+   *
+   * <p><em>
+   *   An N of 0 will suppress long format, only showing the closest tag.
+   * </em></p>
+   *
+   * Example:
+   *
+   * <pre>
+   * > git describe
+   *    some-tag-2-gb6a7335
+   *
+   * > git describe --abbrev=0
+   *   some-tag
+   *
+   * > git describe --abbrev=40
+   *   some-tag-2-gb6a73ed747dd8dc98642d731ddbf09824efb9d48
+   * </pre>
+   *
    * @parameter default-value=7
    */
   private int abbrev;
