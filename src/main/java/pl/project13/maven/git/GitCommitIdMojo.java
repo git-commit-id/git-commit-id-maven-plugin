@@ -124,6 +124,11 @@ public class GitCommitIdMojo extends AbstractMojo {
   private File dotGitDirectory;
 
   /**
+   * @parameter
+   */
+  private GitDescribeConfig gitDescribe;
+
+  /**
    * The prefix to expose the properties on, for example 'git' would allow you to access '${git.branch}'
    *
    * @parameter default-value="git"
@@ -318,6 +323,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           .on(repository)
           .withLoggerBridge(loggerBridge)
           .setVerbose(verbose)
+          .apply(gitDescribe)
           .call();
 
       put(properties, COMMIT_DESCRIBE, describeResult.toString());

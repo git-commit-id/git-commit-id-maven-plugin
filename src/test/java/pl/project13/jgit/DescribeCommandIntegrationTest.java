@@ -28,11 +28,11 @@ import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.test.utils.AssertException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
@@ -299,6 +299,42 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(simpleName).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void abbrev_shouldVerifyLengthContract_failOn41() throws Exception {
+    // given
+    final Repository repo = mock(Repository.class);
+    final int length = 41;
+
+    // when
+    Runnable block = new Runnable() {
+      @Override
+      public void run() {
+        DescribeCommand.on(repo).abbrev(length);
+      }
+    };
+
+    // then
+    AssertException.thrown(IllegalArgumentException.class, block);
+  }
+
+  @Test
+  public void abbrev_shouldVerifyLengthContract_failOnMinus12() throws Exception {
+    // given
+    final Repository repo = mock(Repository.class);
+    final int length = -12;
+
+    // when
+    Runnable block = new Runnable() {
+      @Override
+      public void run() {
+        DescribeCommand.on(repo).abbrev(length);
+      }
+    };
+
+    // then
+    AssertException.thrown(IllegalArgumentException.class, block);
   }
 
   String abbrev(String id) {

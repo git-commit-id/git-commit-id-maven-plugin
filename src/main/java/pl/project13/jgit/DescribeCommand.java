@@ -32,9 +32,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.Nullable;
+import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.util.Pair;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
+import pl.project13.maven.git.util.Pair;
 
 import java.io.IOException;
 import java.util.*;
@@ -73,9 +74,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //  boolean allFlag = false;
 //  boolean tagsFlag = false;
 //  boolean longFlag = false;
-  /** How many chars of the commit hash should be displayed? 7 is the default used by git. */
+  /**
+   * How many chars of the commit hash should be displayed? 7 is the default used by git.
+   */
   int abbrev = 7;
-//  Optional<Integer> candidatesOption = Optional.of(10);
+  //  Optional<Integer> candidatesOption = Optional.of(10);
 //  boolean exactMatchFlag = false;
   boolean alwaysFlag = true;
   //  Optional<String> matchOption = Optional.absent();
@@ -121,9 +124,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * <pre>--always</pre>
-   *
+   * <p/>
    * Show uniquely abbreviated commit object as fallback.
-   *
+   * <p/>
    * <pre>true</pre> by default.
    */
   public DescribeCommand always(boolean always) {
@@ -134,15 +137,18 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * <pre>--abbrev=N</pre>
-   *
+   * <p/>
    * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
    * use <b>N</b> digits, or as many digits as needed to form a unique object name.
-   *
+   * <p/>
    * An <n> of 0 will suppress long format, only showing the closest tag.
    */
-  public DescribeCommand abbrev(int n) {
-    Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
-    abbrev = n;
+  public DescribeCommand abbrev(@Nullable Integer n) {
+    if (n != null) {
+      Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
+      Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
+      abbrev = n;
+    }
     return this;
   }
 
@@ -444,5 +450,22 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   private void log(String msg, Object... interpolations) {
     loggerBridge.log(msg, interpolations);
   }
+
+  public DescribeCommand apply(@Nullable GitDescribeConfig config) {
+    if (config != null) {
+      always(config.isAlways());
+      dirty(config.getDirty());
+    }
+    return this;
+  }
+
+  public DescribeCommand dirty(@Nullable String dirtyMarker) {
+    if (dirtyMarker != null && dirtyMarker.length() > 0) {
+      log("--dirty=-%s", dirtyMarker);
+      this.dirtyOption = Optional.fromNullable(dirtyMarker);
+    }
+    return this;
+  }
+
 }
 

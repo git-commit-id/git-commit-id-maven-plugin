@@ -169,7 +169,6 @@
     </resources>
 
     <plugins>
-      <!--  SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION
       <plugin>
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin</artifactId>
@@ -193,9 +192,13 @@
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
 
           <verbose>true</verbose>
+
+          <gitDescribe>
+            <always>false</always>
+          </gitDescribe>
+
         </configuration>
       </plugin>
-      END OF SAMPLE GIT COMMIT ID PLUGIN CONFIGURATION -->
 
       <!-- Setting built-in java compiler properties -->
       <plugin>
