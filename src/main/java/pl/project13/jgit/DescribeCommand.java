@@ -153,6 +153,33 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return this;
   }
 
+  /**
+   * Apply all configuration options passed in with {@param config}.
+   * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
+   * @return itself, after applying the settings
+   */
+  public DescribeCommand apply(@Nullable GitDescribeConfig config) {
+    if (config != null) {
+      always(config.isAlways());
+      dirty(config.getDirty());
+      abbrev(config.getAbbrev());
+    }
+    return this;
+  }
+
+  /**
+   *
+   * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
+   * @return itself, to allow fluent configuration
+   */
+  public DescribeCommand dirty(@Nullable String dirtyMarker) {
+    if (dirtyMarker != null && dirtyMarker.length() > 0) {
+      log("--dirty = \"-%s\"", dirtyMarker);
+      this.dirtyOption = Optional.fromNullable(dirtyMarker);
+    }
+    return this;
+  }
+
   @Override
   public DescribeResult call() throws GitAPIException {
     // get tags
@@ -187,6 +214,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
+    return createDescribeResult(headCommitId, dirty, howFarFromWhichTag);
+  }
+
+  /**
+   * Prepares the final result of this command.
+   * It tries to put as much information as possible into the result,
+   * and will fallback to a plain commit hash if nothing better is returnable.
+   *
+   * The exact logic is following what <pre>git-describe</pre> would do.
+   */
+  private DescribeResult createDescribeResult(ObjectId headCommitId, boolean dirty, Pair<Integer, String> howFarFromWhichTag) {
     if (howFarFromWhichTag == null) {
       return new DescribeResult(headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
@@ -450,23 +488,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private void log(String msg, Object... interpolations) {
     loggerBridge.log(msg, interpolations);
-  }
-
-  public DescribeCommand apply(@Nullable GitDescribeConfig config) {
-    if (config != null) {
-      always(config.isAlways());
-      dirty(config.getDirty());
-      abbrev(config.getAbbrev());
-    }
-    return this;
-  }
-
-  public DescribeCommand dirty(@Nullable String dirtyMarker) {
-    if (dirtyMarker != null && dirtyMarker.length() > 0) {
-      log("--dirty = \"-%s\"", dirtyMarker);
-      this.dirtyOption = Optional.fromNullable(dirtyMarker);
-    }
-    return this;
   }
 
 }
