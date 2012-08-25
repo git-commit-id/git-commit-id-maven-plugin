@@ -45,7 +45,13 @@ public class GitDescribeConfig {
   private boolean always;
 
   /**
-   * @parameter default-value="DEV"
+   * <pre>--dirty[=mark]</pre>
+   * Describe the working tree. It means describe HEAD and appends mark (<pre>-dirty</pre> by default) if the
+   * working tree is dirty.
+   *
+   * <b>-devel</b> by default, following git's behaviour.
+   *
+   * @parameter default-value="devel"
    */
   private String dirty;
 
