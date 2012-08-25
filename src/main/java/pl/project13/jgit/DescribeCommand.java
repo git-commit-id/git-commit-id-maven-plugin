@@ -325,7 +325,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, String> tagObjectIdToName) {
+  private List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, String> tagObjectIdToName) {
     RevWalk revWalk = new RevWalk(repo);
     try {
       revWalk.markStart(head);

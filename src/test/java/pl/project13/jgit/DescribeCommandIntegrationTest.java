@@ -38,6 +38,7 @@ import static org.mockito.Mockito.spy;
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
   public static final int DEFAULT_ABBREV_LEN = 7;
+  public static final String DIRTY_SUFFIX = "-dirty";
   final String PROJECT_NAME = "my-jar-project";
 
   @Override
@@ -66,7 +67,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()) + "-DEV");
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()) + DIRTY_SUFFIX);
   }
 
   @Test
@@ -142,7 +143,33 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + "-DEV");
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+  }
+
+  @Test
+  public void shouldGiveTagWithDistanceToCurrentCommitAndItsIdAndCustomDirtyMarker() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    String customDirtySuffix = "DEV";
+
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = DescribeCommand
+        .on(repo)
+        .dirty(customDirtySuffix)
+        .setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + "-" + customDirtySuffix);
   }
 
   @Test
@@ -208,7 +235,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     DescribeResult res = command.call();
 
     // then
-    assertThat(res.toString()).isEqualTo("v1.0.0-DEV");
+    assertThat(res.toString()).isEqualTo("v1.0.0" + DIRTY_SUFFIX);
   }
 
   @Test
