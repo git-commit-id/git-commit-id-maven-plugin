@@ -30,11 +30,18 @@ public class GitDescribeConfig {
    */
   private String dirty;
 
+  /**
+   * @parameter default-value=7
+   */
+  private Integer abbrev;
+
   public GitDescribeConfig() {
   }
 
-  public static GitDescribeConfig initial() {
-    return new GitDescribeConfig();
+  public GitDescribeConfig(boolean always, String dirty, Integer abbrev) {
+    this.always = always;
+    this.dirty = dirty;
+    this.abbrev = abbrev;
   }
 
   public boolean isAlways() {
@@ -51,5 +58,13 @@ public class GitDescribeConfig {
 
   public void setDirty(String dirty) {
     this.dirty = dirty;
+  }
+
+  public Integer getAbbrev() {
+    return abbrev;
+  }
+
+  public void setAbbrev(Integer abbrev) {
+    this.abbrev = abbrev;
   }
 }

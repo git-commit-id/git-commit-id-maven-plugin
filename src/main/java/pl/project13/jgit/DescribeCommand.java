@@ -131,7 +131,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
-    log("--always [%s]", always);
+    log("--always = %s", always);
     return this;
   }
 
@@ -147,6 +147,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     if (n != null) {
       Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
       Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
+      log("--abbrev = %s", n);
       abbrev = n;
     }
     return this;
@@ -455,13 +456,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     if (config != null) {
       always(config.isAlways());
       dirty(config.getDirty());
+      abbrev(config.getAbbrev());
     }
     return this;
   }
 
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     if (dirtyMarker != null && dirtyMarker.length() > 0) {
-      log("--dirty=-%s", dirtyMarker);
+      log("--dirty = \"-%s\"", dirtyMarker);
       this.dirtyOption = Optional.fromNullable(dirtyMarker);
     }
     return this;
