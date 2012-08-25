@@ -33,7 +33,15 @@ public enum AvailableGitTestRepo {
    * 245e5b2 - initial commit (38 minutes ago) <Konrad Malawski>
    * </pre>
    */
-  ON_A_ANNOT_TAG_DIRTY("src/test/resources/_git_on_a_annotated_tag_dirty");
+  ON_A_ANNOT_TAG_DIRTY("src/test/resources/_git_on_a_annotated_tag_dirty"),
+  /**
+   * <pre>
+   * b6a73ed - (HEAD, master) third addition (4 minutes ago) <Konrad Malawski>
+   * d37a598 - (lightweight-tag) second line (6 minutes ago) <Konrad Malawski>
+   * 9597545 - (annotated-tag) initial commit (6 minutes ago) <Konrad Malawski>
+   * </pre>
+   */
+  WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag");
 
   private String dir;
 

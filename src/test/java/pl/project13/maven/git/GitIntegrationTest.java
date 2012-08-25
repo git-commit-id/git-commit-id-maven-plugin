@@ -37,7 +37,7 @@ public abstract class GitIntegrationTest {
   protected FileSystemMavenSandbox mavenSandbox;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
     mavenSandbox = new FileSystemMavenSandbox(SANDBOX_DIR);
     mojo = new GitCommitIdMojo();
     initializeMojoWithDefaults(mojo);

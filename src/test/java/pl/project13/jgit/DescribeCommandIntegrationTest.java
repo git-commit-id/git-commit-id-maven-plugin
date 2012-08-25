@@ -208,9 +208,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     git().reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
 
     // then
     assertThat(res).isNotNull();
@@ -230,9 +232,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
 
     // then
     assertThat(res.toString()).isEqualTo("v1.0.0" + DIRTY_SUFFIX);
@@ -275,9 +279,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
 
     // then
     assertThat(res).isNotNull();

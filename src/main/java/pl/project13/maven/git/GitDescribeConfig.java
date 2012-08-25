@@ -26,7 +26,7 @@ public class GitDescribeConfig {
 
   /**
    * If you don't use describe, you can always disable it and make the build a bit faster.
-   *
+   * <p/>
    * Although it's highly recommended to use <pre>git-describe</pre> to identify your build state,
    * so think twice before disabeling it.
    *
@@ -50,6 +50,39 @@ public class GitDescribeConfig {
   private int abbrev;
 
   /**
+   * <pre>--tags</pre>
+   * <p>
+   * Instead of using only the annotated tags, use any tag found in .git/refs/tags.
+   * This option enables matching a lightweight (non-annotated) tag.
+   * </p>
+   *
+   * <p>Searching for lightweight tags is <b>false</b> by default.</p>
+   * <p/>
+   *
+   * Example:
+   * <pre>
+   *    b6a73ed - (HEAD, master)
+   *    d37a598 - (v1.0-fixed-stuff) - a lightweight tag (with no message)
+   *    9597545 - (v1.0) - an annotated tag
+   *
+   *  > git describe
+   *    annotated-tag-2-gb6a73ed     # the nearest "annotated" tag is found
+   *
+   *  > git describe --tags
+   *    lightweight-tag-1-gb6a73ed   # the nearest tag (including lightweights) is found
+   * </pre>
+   *
+   * <p>
+   * Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
+   * things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
+   * tags to be included in the search, enable this option.
+   * </p>
+   *
+   * @parameter
+   */
+  private Boolean tags;
+
+  /**
    * <pre>--long</pre>
    * <p/>
    * Always output the long format (the tag, the number of commits and the abbreviated commit name)
@@ -58,7 +91,7 @@ public class GitDescribeConfig {
    * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
    * since tag v1.2 that points at object deadbee....).
    * <p/>
-   *
+   * <p/>
    * <pre>false</pre> by default.
    */
   private Boolean forceLongFormat;
@@ -66,11 +99,12 @@ public class GitDescribeConfig {
   public GitDescribeConfig() {
   }
 
-  public GitDescribeConfig(boolean always, String dirty, Integer abbrev, boolean forceLongFormat) {
+  public GitDescribeConfig(boolean always, String dirty, Integer abbrev, boolean forceLongFormat, boolean tags) {
     this.always = always;
     this.dirty = dirty;
     this.abbrev = abbrev;
     this.forceLongFormat = forceLongFormat;
+    this.tags = tags;
   }
 
   public boolean isAlways() {
@@ -111,5 +145,13 @@ public class GitDescribeConfig {
 
   public void setForceLongFormat(Boolean forceLongFormat) {
     this.forceLongFormat = forceLongFormat;
+  }
+
+  public Boolean getTags() {
+    return tags;
+  }
+
+  public void setTags(Boolean tags) {
+    this.tags = tags;
   }
 }

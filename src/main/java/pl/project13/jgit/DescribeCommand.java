@@ -25,6 +25,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -83,6 +84,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * How many chars of the commit hash should be displayed? 7 is the default used by git.
    */
   private int abbrev = 7;
+
+  /**
+   * Skipping lightweight tags by default - that's how git-describe works by default.
+   * {@link DescribeCommand#tags(Boolean)} for more details.
+   */
+  private boolean tagsFlag = false;
 
   private boolean alwaysFlag = true;
 
@@ -191,6 +198,50 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   /**
+   * <pre>--tags</pre>
+   * <p>
+   *   Instead of using only the annotated tags, use any tag found in .git/refs/tags.
+   *   This option enables matching a lightweight (non-annotated) tag.
+   * </p>
+   *
+   * <p>Searching for lightweight tags is <b>false</b> by default.</p>
+   *
+   * Example:
+   * <pre>
+   *    b6a73ed - (HEAD, master)
+   *    d37a598 - (v1.0-fixed-stuff) - a lightweight tag (with no message)
+   *    9597545 - (v1.0) - an annotated tag
+   *
+   *  > git describe
+   *    annotated-tag-2-gb6a73ed     # the nearest "annotated" tag is found
+   *
+   *  > git describe --tags
+   *    lightweight-tag-1-gb6a73ed   # the nearest tag (including lightweights) is found
+   * </pre>
+   *
+   * <p>
+   *   Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
+   *   things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
+   *   tags to be included in the search, enable this option.
+   * </p>
+   */
+  @NotNull
+  public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
+    if(includeLightweightTagsInSearch != null) {
+      tagsFlag = includeLightweightTagsInSearch;
+      log("--tags %s", includeLightweightTagsInSearch);
+    }
+    return this;
+  }
+
+  /**
+   * Alias for {@link DescribeCommand#tags(Boolean)} with <b>true</b> value
+   */
+  public DescribeCommand tags() {
+    return tags(true);
+  }
+
+  /**
    * Apply all configuration options passed in with {@param config}.
    * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
    *
@@ -203,6 +254,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       dirty(config.getDirty());
       abbrev(config.getAbbrev());
       forceLongFormat(config.getForceLongFormat());
+      tags(config.getTags());
     }
     return this;
   }
@@ -227,7 +279,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @Override
   public DescribeResult call() throws GitAPIException {
     // get tags
-    Map<ObjectId, String> tagObjectIdToName = findTagObjectIds(repo);
+    Map<ObjectId, String> tagObjectIdToName = findTagObjectIds(repo, tagsFlag);
 
     // get current commit
     RevCommit headCommit = findHeadObjectId(repo);
@@ -420,7 +472,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   // git commit id -> its tag
-  private Map<ObjectId, String> findTagObjectIds(@NotNull Repository repo) {
+  private Map<ObjectId, String> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
     Map<ObjectId, String> commitIdsToTagNames = newHashMap();
 
     RevWalk walk = new RevWalk(repo);
@@ -435,17 +487,24 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         String name = tagRef.getName();
         ObjectId resolvedCommitId = repo.resolve(name);
 
-        // todo that's a bit of a hack... FIX ME
+        // todo that's a bit of a hack...
         try {
           RevTag revTag = walk.parseTag(resolvedCommitId);
           ObjectId taggedCommitId = revTag.getObject().getId();
 
           commitIdsToTagNames.put(taggedCommitId, trimFullTagName(name));
-        } catch (Exception ex) {
-          // ignore
+        } catch (IncorrectObjectTypeException ex) {
+          // it's an lightweight tag! (yeah, really)
+          if(tagsFlag) {
+            // --tags means "include lightweight tags"
+            log("Including lightweight tag [%s]", name);
+            commitIdsToTagNames.put(resolvedCommitId, trimFullTagName(name));
+          }
+        } catch (Exception ignored) {
+          log("Failed while parsing [%s] -- %s", tagRef, ignored);
         }
 
-        commitIdsToTagNames.put(resolvedCommitId, trimFullTagName(name));
+        System.out.println();
       }
 
       return commitIdsToTagNames;
