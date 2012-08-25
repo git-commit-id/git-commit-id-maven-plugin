@@ -125,7 +125,6 @@ public class GitDescribeConfig {
    * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
    * since tag v1.2 that points at object deadbee....).
    * <p/>
-   * <p/>
    * <pre>false</pre> by default.
    */
   private Boolean forceLongFormat;
