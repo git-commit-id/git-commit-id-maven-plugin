@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+import org.fest.util.Files;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
@@ -113,6 +114,34 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // when
     mojo.execute();
+  }
+
+  @Test
+  public void shouldGenerateCustomPropertiesFile() throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
+                .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    String targetFilePath = "src/main/resources/custom-git.properties";
+    File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
+
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("generateGitPropertiesFile", true);
+    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
+
+    // when
+    try {
+      mojo.execute();
+
+      // then
+      assertThat(expectedFile).exists();
+    } finally {
+      Files.delete(expectedFile);
+    }
   }
 
   private void alterMojoSettings(String parameterName, Object parameterValue) {
