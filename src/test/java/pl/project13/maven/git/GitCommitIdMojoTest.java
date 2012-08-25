@@ -18,8 +18,8 @@
 package pl.project13.maven.git;
 
 import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,11 +29,10 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
- * Date: 2/13/11
+ * I'm not a big fan of this test - let's move to integration test from now on.
  *
  * @author <a href="mailto:konrad.malawski@project13.pl">Konrad 'ktoso' Malawski</a>
  */
-@Ignore("Makes things difficult to evolve, go for integration tests instead")
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
@@ -49,10 +48,13 @@ public class GitCommitIdMojoTest {
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
+
+    mojo = spy(mojo);
+    doNothing().when(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
   @Test
-  public void testExecute() throws Exception {
+  public void shouldIncludeExpectedProperties() throws Exception {
     mojo.execute();
 
     Properties properties = mojo.getProperties();

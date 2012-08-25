@@ -246,11 +246,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  String applyAbbrev(ObjectId commitId) {
-    return commitId.getName().substring(0, abbrev);
-  }
-
-  private boolean foundZeroTags(Map<ObjectId, String> tags) {
+  private static boolean foundZeroTags(Map<ObjectId, String> tags) {
     return tags.isEmpty();
   }
 
@@ -258,14 +254,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   boolean findDirtyState(Repository repo) throws GitAPIException {
     Git git = Git.wrap(repo);
     Status status = git.status().call();
-
-//    System.out.println("add  = " + status.getAdded());
-//    System.out.println("chng = " + status.getChanged());
-//    System.out.println("conf = " + status.getConflicting());
-//    System.out.println("miss = " + status.getMissing());
-//    System.out.println("mod  = " + status.getModified());
-//    System.out.println("rm   = " + status.getRemoved());
-//    System.out.println("un   = " + status.getUntracked());
 
     boolean isDirty = !status.isClean();
 

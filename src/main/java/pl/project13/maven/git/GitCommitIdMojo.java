@@ -17,6 +17,7 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -317,7 +318,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void putGitDescribe(Properties properties, Repository repository) throws MojoExecutionException {
+  @VisibleForTesting
+  void putGitDescribe(Properties properties, Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(repository)
