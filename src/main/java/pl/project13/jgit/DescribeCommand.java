@@ -503,8 +503,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         } catch (Exception ignored) {
           log("Failed while parsing [%s] -- %s", tagRef, ignored);
         }
-
-        System.out.println();
       }
 
       return commitIdsToTagNames;

@@ -110,7 +110,6 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
 
-    System.out.println("res.toString() = " + res.toString());
     assertThat(res.toString()).contains("lightweight-tag");
   }
 }

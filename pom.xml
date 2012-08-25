@@ -192,9 +192,11 @@
           <generateGitPropertiesFile>false</generateGitPropertiesFile>
 
           <gitDescribe>
+            <skip>false</skip>
             <always>false</always>
             <abbrev>7</abbrev>
             <dirty>DEVEL</dirty>
+            <forceLongFormat>false</forceLongFormat>
           </gitDescribe>
 
         </configuration>
