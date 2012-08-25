@@ -169,38 +169,38 @@
     </resources>
 
     <plugins>
-      <plugin>
-        <groupId>pl.project13.maven</groupId>
-        <artifactId>git-commit-id-plugin</artifactId>
-        <version>${project.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <prefix>git</prefix>
+      <!--<plugin>-->
+        <!--<groupId>pl.project13.maven</groupId>-->
+        <!--<artifactId>git-commit-id-plugin</artifactId>-->
+        <!--<version>${project.version}</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<goals>-->
+              <!--<goal>revision</goal>-->
+            <!--</goals>-->
+          <!--</execution>-->
+        <!--</executions>-->
+        <!--<configuration>-->
+          <!--<prefix>git</prefix>-->
 
-          <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+          <!--<dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>-->
 
-          <verbose>true</verbose>
+          <!--<verbose>true</verbose>-->
 
-          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+          <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
 
-          <generateGitPropertiesFile>false</generateGitPropertiesFile>
+          <!--<generateGitPropertiesFile>false</generateGitPropertiesFile>-->
 
-          <gitDescribe>
-            <skip>false</skip>
-            <always>false</always>
-            <abbrev>7</abbrev>
-            <dirty>DEVEL</dirty>
-            <forceLongFormat>false</forceLongFormat>
-          </gitDescribe>
+          <!--<gitDescribe>-->
+            <!--<skip>false</skip>-->
+            <!--<always>false</always>-->
+            <!--<abbrev>7</abbrev>-->
+            <!--<dirty>DEVEL</dirty>-->
+            <!--<forceLongFormat>false</forceLongFormat>-->
+          <!--</gitDescribe>-->
 
-        </configuration>
-      </plugin>
+        <!--</configuration>-->
+      <!--</plugin>-->
 
       <!-- Setting built-in java compiler properties -->
       <plugin>
