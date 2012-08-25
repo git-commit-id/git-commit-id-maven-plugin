@@ -52,9 +52,9 @@ public class DescribeCommandOptionsTest {
     final int length = 41;
 
     // when
-    Runnable block = new Runnable() {
+    AssertException.CodeBlock block = new AssertException.CodeBlock() {
       @Override
-      public void run() {
+      public void run() throws Exception {
         DescribeCommand.on(repo).abbrev(length);
       }
     };
@@ -70,7 +70,7 @@ public class DescribeCommandOptionsTest {
     final int length = -12;
 
     // when
-    Runnable block = new Runnable() {
+    AssertException.CodeBlock block = new AssertException.CodeBlock() {
       @Override
       public void run() {
         DescribeCommand.on(repo).abbrev(length);

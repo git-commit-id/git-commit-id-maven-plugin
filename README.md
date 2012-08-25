@@ -1,31 +1,39 @@
-Maven plugin: git-commit-id-plugin
+maven git commit id plugin
 ==================================
 [![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.png?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
 
 git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
 
-Sample scenario why this plugin is useful
------------------------------------------
-If you develop your maven project inside an git repository (which you hopefully already are docing) you may want to know exactly
-what changeset is currently deployed online. Why is this useful? Well, the tester won't come to you screaming "heeey that bug ain't fixed" of course you'd reply "but I fixed it this morning!" and after some searching you notice "oh... it'll be online after the next deployment, sorry tester... :-(".
+Use cases
+=========
+Which version had the bug? Is that deployed already?
+----------------------------------------------------
+If you develop your maven project inside an git repository you may want to know exactly what changeset is currently deployed. Why is this useful? 
 
-This scenario keeps repeating sometimes, thus you can state which commit fixes/closes the bug, note this in JIRA etc and then the tester will know if it's already online (by the commit date for example).
+I worked in a team where the testers would come up to the development team and say: "hey, feature X is still broken!", to which a dev would reply "But I fixed it this morning!". Then they'd investigate a bit, only to see that the next version which would be deployed very soon included the needed fix, yet the developer already marked it as "ready for testing".
 
-Usage
-=====
+The fix here is obvious: include the version you fixed some bug in the issue comment where you mark it as "ready for testing". You can eiter do this via smart tooling (recommended), or just manually put in a comment like "fixed in v1.4.3-324-g45xhbghv" (that's a git-describe output - explained in detail bellow), so the testing crew knows it doesn't make sense to pickup testing of this feature untill at least "324" (or greater) is included in the version output (it means "number of commits away from the mentioned tag" - readup on git-describe to understand how it works).
+
+Make your distributed deployment aware of versions
+---------------------------------------------
+<!-- Let's say you have a large distrubuted deployment where the servers need to talk to each other using some protocol. You have them configured to keep talking with servers of the same major + minor version number. So a server running "3.3.233" may still talk with one that has "3.3.120" - the protocol is guaranteed to not have changed in these versions.
+
+And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking wiht each other until only the "new" nodes are left.
+
+Using this plugin, you can easily expose the information needed - based on git tags for example. -->
+...
+
 Getting the plugin
-------------------
-The plugin is available from **Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>)! So you don't need to add any repositories etc to your pom to start using it.
-See the detailed description bellow in *Using the plugin* to learn how to use it - also, if you have any problems, let me know! :-)
+==================
+The plugin is available from **Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
+
+A detailed description of using the pluing is available in the <a href="https://github.com/ktoso/maven-git-commit-id-plugin#using-the-plugin">Using the plugin</a> section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml` - more advanced configurations are also explained so... read on!
 
 Versions
 --------
-The current version is **2.0.4**. 
+The current version is **2.1.0**.
 
-**2.1.0** will include a "`git describe`" implementation as well as integration tests on real git repositories.
-To track progress on **2.1.0**, visit this link: Progress on <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/milestones">2.1.0</a>.
-
-The next release should be released before the end of August (self motivation - posted online deadline works better ;-)).
+You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
@@ -80,7 +88,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.0.4</version>
+                <version>2.1.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -130,6 +138,40 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    
+                    <!-- @since 2.1.0 -->
+                    <!-- 
+                        read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
+                        and the recommended way to use git-commit-id-plugin. The configuration bellow is optional, 
+                        by default describe will run "just like git-describe on the command line", even though it's a JGit reimplementation.
+                    -->
+                    <gitDescribe>
+                        
+                        <!-- don't generate the describe property -->
+                        <skip>false</skip>
+                        
+                        <!-- 
+                            if no tag was found "near" this commit, just print the commit's id instead, 
+                            helpful when you always expect this field to be not-empty 
+                        -->
+                        <always>true</always>
+                        <!--
+                             how many chars should be displayed as the commit object id? 
+                             7 is git's default, 
+                             0 has a special meaning (see end of this README.md), 
+                             and 40 is the maximum value here 
+                        -->
+                        <abbrev>7</abbrev>
+                        
+                        <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
+                        <dirty>DEVEL</dirty>
+                                                
+                        <!-- 
+                             always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
+                             The distance will always be 0 if you're "on" the tag. 
+                        -->
+                        <forceLongFormat>false</forceLongFormat>
+                    </gitDescribe>
                 </configuration>
 
             </plugin>
@@ -148,6 +190,8 @@ Now you just have to include such a properties file in your project under `/src/
 
 ```
 git.branch=${git.branch}
+
+git.describe=${git.describe}
 
 git.build.user.name=${git.build.user.name}
 git.build.user.email=${git.build.user.email}
@@ -177,6 +221,7 @@ Start out with with adding the above steps to your project, next paste this **gi
 
     <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
         <property name="branch" value="${git.branch}"/>
+        <property name="describe" value="${git.describe}"/>
         <property name="commitId" value="${git.commit.id}"/>
         <property name="commitIdAbbrev" value="${commit.id.abbrev}"/>
         <property name="commitTime" value="${git.commit.time}"/>
@@ -205,6 +250,7 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
+  String describe;                // =${git.describe}
   String commitId;                // =${git.commit.id}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String buildUserName;           // =${git.build.user.name}
@@ -255,6 +301,7 @@ In the end *this is what this service would return*:
 ```json
      {
          "branch" : "testing-maven-git-plugin",
+         "describe" : "v2.1.0-2-g2346463",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
          "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
          "commitIdAbbrev" : "787e39f",
@@ -278,15 +325,15 @@ The easier way: generate git.properties
 There's another way to use the plugin, it's a little bit easier I guess. First, configure it to generate a properties file on each run, goto the pom.xml and set:
 
 ```xml
-                        <configuration>
-                            <!-- ... -->
+<configuration>
+    <!-- ... -->
 
-                            <!-- this is false by default, forces the plugin to generate the git.properties file -->
-                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+    <!-- this is false by default, forces the plugin to generate the git.properties file -->
+    <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
-                            <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-                            <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
-                        </configuration>
+    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+    <generateGitPropertiesFilename>src/main/resources/git.properties<generateGitPropertiesFilename>
+</configuration>
 ```
 
 Remember to add this file to your .gitignore as it's quite some garbage changes to your repository if you don't ignore it. Open .gitignore and add:
@@ -317,6 +364,7 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 public GitRepositoryState(Properties properties)
 {
    this.branch = properties.get("git.branch").toString();
+   this.describe = properties.get("git.describe").toString();
    this.commitId = properties.get("git.commit.id").toString();
    this.buildUserName = properties.get("git.build.user.name").toString();
    this.buildUserEmail = properties.get("git.build.user.email").toString();
@@ -329,6 +377,49 @@ public GitRepositoryState(Properties properties)
 }
 ```
 
+Git describe - short intro to an awesome command
+==================================================
+Git's [describe command](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html) is the best way to really see "where" a commit is in the repositories "timeline". 
+
+In svn you could easily determine by looking at two revisions (their numbers) which one is "newer" (they look like that `r239`, `r240` ...). Since git is using SHA-1 checksums to identify commits, it's hard to tell which one is "newer" (or can you tell me? `b6a73ed` or `9597545`?). Using describe you can get a part of this back, and even more - you can know the "nearest" tag for a commit. And as tags are used for versioning most of the time that's super useful to track development progress.
+
+Let's get an example to explain git-describe on it:
+
+```
+* b6a73ed - (HEAD, master) third addition (8 hours ago) <Konrad Malawski>
+| d37a598 - second line (8 hours ago) <Konrad Malawski>
+| 9597545 - (v1.0) initial commit (8 hours ago) <Konrad Malawski>
+```
+
+Running git-describe when you're on the HEAD here, will yield:
+
+```
+> git describe
+  v.1.0-2-b6a73ed
+```
+
+The format of a describe result is defined as:
+
+```
+v1.0.4-14-g2414721-DEV
+   ^    ^    ^       ^
+   |    |    |       |-- if a dirtyMarker was given, it will appear here if the repository is in "dirty" state
+   |    |    |---------- the "g" prefixed commit id. The prefix is compatible with what git-describe would return - weird, but true.
+   |    |--------------- the number of commits away from the found tag. So "2414721" is 14 commits ahead of "v1.0.4", in this example.
+   |-------------------- the "nearest" tag, to the mentioned commit.
+```
+
+Other outputs may look like:   
+
+```
+v1.0.4     - if the repository is "on a tag"
+v1.0.4-DEV - if the repository is "on a tag", but in "dirty" state
+2414721    - a plain commit id hash if not tags were defined (of determined "near" this commit).
+             It does NOT include the "g" prefix, that is used in the "full" describe output format!
+```
+
+For more details (on when what output will be returned etc), see <code>man git-describe</code>.
+In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.
 
 Configuration details
 =====================
@@ -343,8 +434,28 @@ Optional parameters:
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
-* **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git
-directory is found the plugin will skip execution.
+* **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
+
+**gitDescribe**:
+Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html), you probably can skip this section, as it just explains the same options that git provides.
+
+* **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git bevaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
+* **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
+* **dirty** - `(default: "devel")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure the suffix to be anything you want, "DEV" being a nice example.
+* **tags** - `(default: false)`
+* **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.
+* **always** - `(default: true)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
+* **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
+
+
+All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
+
+Notable contributions
+=====================
+I'd like to give a big thanks to some of these folks, for their suggestions and / or pull requests that helped make this plugin as popular as it is today:
+
+* @mostr - for bugfixes and a framework to do integration testing,
+* ... you! - for using the plugin :-)
 
 License
 =======
@@ -353,7 +464,7 @@ I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
 You're free to use it as you wish, the full license text is attached in the LICENSE file.
 
-The best way to ask for features / improvements is via the <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues"Issues</a> section on github - it's better than email because I won't loose when I have a "million emails inbox" day,
+The best way to ask for features / improvements is [via the Issues section on github - it's better than email](https://github.com/ktoso/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
 and maybe someone else has some idea or would like to upvote your issue.
 
 In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)

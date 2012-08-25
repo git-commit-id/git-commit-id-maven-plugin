@@ -35,110 +35,114 @@ import static pl.project13.test.utils.AssertException.ExceptionMatch.EXCEPTION_C
  */
 public class AssertException {
 
-    public static abstract class ExceptionMatch {
+  public static interface CodeBlock {
+    void run() throws Exception;
+  }
 
-        public static final ExceptionMatch.Strategy EXCEPTION_CLASS_MUST_EQUAL = new Strategy() {
-            @Override
-            public boolean matchesExpected(Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
-                return got.getClass().equals(expectedClass);
-            }
+  public static abstract class ExceptionMatch {
 
-            public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
-                Assert.fail(String.format("Expected [%s] to be thrown but got [%s]", expectedClass.getSimpleName(), got.getClass().getSimpleName()));
-            }
-        };
+    public static final ExceptionMatch.Strategy EXCEPTION_CLASS_MUST_EQUAL = new Strategy() {
+      @Override
+      public boolean matchesExpected(Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
+        return got.getClass().equals(expectedClass);
+      }
 
-        /**
-         * Please use EXCEPTION_CLASS_MUST_EQUAL instead
-         */
-        @Deprecated
-        public static final ExceptionMatch.Strategy EXCEPTION_MUST_EQUAL = EXCEPTION_CLASS_MUST_EQUAL;
+      public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
+        Assert.fail(String.format("Expected [%s] to be thrown but got [%s]", expectedClass.getSimpleName(), got.getClass().getSimpleName()));
+      }
+    };
 
-        public static final ExceptionMatch.Strategy EXCEPTION_MAY_BE_SUBCLASS_OF = new Strategy() {
-            @Override
-            public boolean matchesExpected(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
-                return expectedClass.isAssignableFrom(got.getClass());
-            }
+    /**
+     * Please use EXCEPTION_CLASS_MUST_EQUAL instead
+     */
+    @Deprecated
+    public static final ExceptionMatch.Strategy EXCEPTION_MUST_EQUAL = EXCEPTION_CLASS_MUST_EQUAL;
 
-            public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got,String expectedMessage) {
-                Assert.fail(String.format("Expected subclass of [%s] to be thrown but got [%s]", expectedClass.getSimpleName(), got.getClass().getSimpleName()));
-            }
-        };
+    public static final ExceptionMatch.Strategy EXCEPTION_MAY_BE_SUBCLASS_OF = new Strategy() {
+      @Override
+      public boolean matchesExpected(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
+        return expectedClass.isAssignableFrom(got.getClass());
+      }
 
-        public static final ExceptionMatch.Strategy EXCEPTION_CLASS_AND_MESSAGE_MUST_EQUAL = new Strategy() {
-            @Override
-            public boolean matchesExpected(Class<? extends Throwable> expectedClass, @NotNull Throwable got, @NotNull String expectedMessage) {
-                return got.getClass().equals(expectedClass) && expectedMessage.equals(got.getMessage());
-            }
+      public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
+        Assert.fail(String.format("Expected subclass of [%s] to be thrown but got [%s]", expectedClass.getSimpleName(), got.getClass().getSimpleName()));
+      }
+    };
 
-            public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
-                Assert.fail(String.format("Expected [%s] to be thrown with message [%s] but got [%s] with message [%s]", expectedClass.getSimpleName(),
-                        expectedMessage, got.getClass().getSimpleName(), got.getMessage()));
-            }
-        };
+    public static final ExceptionMatch.Strategy EXCEPTION_CLASS_AND_MESSAGE_MUST_EQUAL = new Strategy() {
+      @Override
+      public boolean matchesExpected(Class<? extends Throwable> expectedClass, @NotNull Throwable got, @NotNull String expectedMessage) {
+        return got.getClass().equals(expectedClass) && expectedMessage.equals(got.getMessage());
+      }
 
-        static interface Strategy {
-            boolean matchesExpected(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
+      public void failWithExpectedButGot(@NotNull Class<? extends Throwable> expectedClass, @NotNull Throwable got, String expectedMessage) {
+        Assert.fail(String.format("Expected [%s] to be thrown with message [%s] but got [%s] with message [%s]", expectedClass.getSimpleName(),
+                                  expectedMessage, got.getClass().getSimpleName(), got.getMessage()));
+      }
+    };
 
-            void failWithExpectedButGot(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
-        }
+    static interface Strategy {
+      boolean matchesExpected(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
+
+      void failWithExpectedButGot(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
     }
+  }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public static <T extends Throwable> void thrown(@NotNull ExceptionMatch.Strategy matchStrategy,
-                                                    @NotNull Class<T> expectedThrowableClass,
-                                                    @NotNull Runnable block) {
-        intercept(matchStrategy, expectedThrowableClass, block);
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  public static <T extends Throwable> void thrown(@NotNull ExceptionMatch.Strategy matchStrategy,
+                                                  @NotNull Class<T> expectedThrowableClass,
+                                                  @NotNull CodeBlock block) {
+    intercept(matchStrategy, expectedThrowableClass, block);
+  }
+
+  @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+  public static <T extends Throwable> void thrownWithMessage(@NotNull ExceptionMatch.Strategy matchStrategy,
+                                                             @NotNull Class<T> expectedThrowableClass, String expectedMessage,
+                                                             @NotNull CodeBlock block) {
+    intercept(matchStrategy, expectedThrowableClass, expectedMessage, block);
+  }
+
+  public static <T extends Throwable> void thrown(@NotNull Class<T> expectedThrowableClass,
+                                                  @NotNull CodeBlock block) {
+    thrown(EXCEPTION_CLASS_MUST_EQUAL, expectedThrowableClass, block);
+  }
+
+  @Nullable
+  public static <T extends Throwable> T intercept(@NotNull Class<T> expectedThrowableClass,
+                                                  @NotNull CodeBlock block) {
+    return intercept(EXCEPTION_CLASS_MUST_EQUAL, expectedThrowableClass, block);
+  }
+
+  @Nullable
+  public static <T extends Throwable> T intercept(@NotNull ExceptionMatch.Strategy matchStrategy,
+                                                  @NotNull Class<T> expectedThrowableClass,
+                                                  @NotNull CodeBlock block) {
+    return intercept(matchStrategy, expectedThrowableClass, null, block);
+  }
+
+  @Nullable
+  public static <T extends Throwable> T intercept(@NotNull ExceptionMatch.Strategy matchStrategy,
+                                                  @NotNull Class<T> expectedThrowableClass, @Nullable String expectedMessage,
+                                                  @NotNull CodeBlock block) {
+    try {
+      block.run();
+
+      failWithExpectedButGotNothing(expectedThrowableClass); // will throw
+      return null; // make compiler happy
+
+    } catch (Throwable thr) {
+      boolean gotExpectedException = matchStrategy.matchesExpected(expectedThrowableClass, thr, expectedMessage);
+      if (gotExpectedException) {
+        return expectedThrowableClass.cast(thr);
+      } else {
+        matchStrategy.failWithExpectedButGot(expectedThrowableClass, thr, expectedMessage);
+        return null; // make compiler happy
+      }
     }
+  }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public static <T extends Throwable> void thrownWithMessage(@NotNull ExceptionMatch.Strategy matchStrategy,
-                                                               @NotNull Class<T> expectedThrowableClass, String expectedMessage,
-                                                               @NotNull Runnable block) {
-        intercept(matchStrategy, expectedThrowableClass, expectedMessage, block);
-    }
-
-    public static <T extends Throwable> void thrown(@NotNull Class<T> expectedThrowableClass,
-                                                    @NotNull Runnable block) {
-        thrown(EXCEPTION_CLASS_MUST_EQUAL, expectedThrowableClass, block);
-    }
-
-    @Nullable
-    public static <T extends Throwable> T intercept(@NotNull Class<T> expectedThrowableClass,
-                                                    @NotNull Runnable block) {
-        return intercept(EXCEPTION_CLASS_MUST_EQUAL, expectedThrowableClass, block);
-    }
-
-    @Nullable
-    public static <T extends Throwable> T intercept(@NotNull ExceptionMatch.Strategy matchStrategy,
-                                                    @NotNull Class<T> expectedThrowableClass,
-                                                    @NotNull Runnable block) {
-        return intercept(matchStrategy, expectedThrowableClass, null, block);
-    }
-
-    @Nullable
-    public static <T extends Throwable> T intercept(@NotNull ExceptionMatch.Strategy matchStrategy,
-                                                    @NotNull Class<T> expectedThrowableClass, @Nullable String expectedMessage,
-                                                    @NotNull Runnable block) {
-        try {
-            block.run();
-
-            failWithExpectedButGotNothing(expectedThrowableClass); // will throw
-            return null; // make compiler happy
-
-        } catch (Throwable thr) {
-            boolean gotExpectedException = matchStrategy.matchesExpected(expectedThrowableClass, thr, expectedMessage);
-            if (gotExpectedException) {
-                return expectedThrowableClass.cast(thr);
-            } else {
-                matchStrategy.failWithExpectedButGot(expectedThrowableClass, thr, expectedMessage);
-                return null; // make compiler happy
-            }
-        }
-    }
-
-    private static void failWithExpectedButGotNothing(@NotNull Class<?> expected) {
-        Assert.fail(String.format("Expected [%s] to be thrown but no exception was thrown.", expected.getSimpleName()));
-    }
+  private static void failWithExpectedButGotNothing(@NotNull Class<?> expected) {
+    Assert.fail(String.format("Expected [%s] to be thrown but no exception was thrown.", expected.getSimpleName()));
+  }
 
 }

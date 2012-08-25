@@ -23,6 +23,7 @@ import org.fest.util.Files;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
+import pl.project13.test.utils.AssertException;
 
 import java.io.File;
 import java.util.Properties;
@@ -104,16 +105,27 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test(expected = MojoExecutionException.class)
   public void shouldFailWithExceptionWhenNoGitRepoFound() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withNoGitRepoAvailable().create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withNoGitRepoAvailable()
+                .create(CleanUp.CLEANUP_FIRST);
+
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
 
     // when
-    mojo.execute();
+    AssertException.CodeBlock block = new AssertException.CodeBlock() {
+      @Override
+      public void run() throws Exception {
+        mojo.execute();
+      }
+    };
+
+    // then
+    AssertException.thrown(MojoExecutionException.class, block);
   }
 
   @Test
