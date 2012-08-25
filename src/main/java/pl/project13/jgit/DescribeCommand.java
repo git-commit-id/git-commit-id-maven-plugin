@@ -75,14 +75,25 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //  private boolean containsFlag = false;
 //  private boolean allFlag = false;
 //  private boolean tagsFlag = false;
-//  private boolean longFlag = false;
 //  private Optional<Integer> candidatesOption = Optional.of(10);
 //  private boolean exactMatchFlag = false;
 //  private Optional<String> matchOption = Optional.absent();
 
-  /** How many chars of the commit hash should be displayed? 7 is the default used by git. */
+  /**
+   * How many chars of the commit hash should be displayed? 7 is the default used by git.
+   */
   private int abbrev = 7;
+
   private boolean alwaysFlag = true;
+
+  /**
+   * Corresponds to <pre>--long</pre>. Always use the <pre>TAG-N-HASH</pre> format, even when ON a tag.
+   */
+  private boolean forceLongFormat = false;
+
+  /**
+   * The string marker (such as "DEV") to be suffixed to the describe result when the working directory is dirty
+   */
   private Optional<String> dirtyOption = Optional.absent();
 
   /**
@@ -141,6 +152,26 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   /**
+   * <pre>--long</pre>
+   * <p/>
+   * Always output the long format (the tag, the number of commits and the abbreviated commit name)
+   * even when it matches a tag. This is useful when you want to see parts of the commit object name
+   * in "describe" output, even when the commit in question happens to be a tagged version. Instead
+   * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
+   * since tag v1.2 that points at object deadbee....).
+   * <p/>
+   * <pre>false</pre> by default.
+   */
+  @NotNull
+  public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
+    if (forceLongFormat != null) {
+      this.forceLongFormat = forceLongFormat;
+      log("--long = %s", forceLongFormat);
+    }
+    return this;
+  }
+
+  /**
    * <pre>--abbrev=N</pre>
    * <p/>
    * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
@@ -162,6 +193,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * Apply all configuration options passed in with {@param config}.
    * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
+   *
    * @return itself, after applying the settings
    */
   @NotNull
@@ -170,12 +202,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       always(config.isAlways());
       dirty(config.getDirty());
       abbrev(config.getAbbrev());
+      forceLongFormat(config.getForceLongFormat());
     }
     return this;
   }
 
   /**
-   *
    * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
    * @return itself, to allow fluent configuration
    */
@@ -229,7 +261,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Prepares the final result of this command.
    * It tries to put as much information as possible into the result,
    * and will fallback to a plain commit hash if nothing better is returnable.
-   *
+   * <p/>
    * The exact logic is following what <pre>git-describe</pre> would do.
    */
   private DescribeResult createDescribeResult(ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {
@@ -237,7 +269,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return new DescribeResult(headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
 
-    } else if (howFarFromWhichTag.first > 0) {
+    } else if (howFarFromWhichTag.first > 0 || forceLongFormat) {
       return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev); // we're a bit away from a tag
 
@@ -310,7 +342,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * Calculates the distance (number of commits) between the given parent and child commits.
-   *
    *
    * @return distance (number of commits) between the given commits
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>

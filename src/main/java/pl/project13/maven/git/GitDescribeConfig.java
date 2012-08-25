@@ -17,8 +17,22 @@
 
 package pl.project13.maven.git;
 
+/**
+ * Represents options passed in via maven configuration,
+ * corresponds to options of git-describe.
+ */
 @SuppressWarnings("JavaDoc")
 public class GitDescribeConfig {
+
+  /**
+   * If you don't use describe, you can always disable it and make the build a bit faster.
+   *
+   * Although it's highly recommended to use <pre>git-describe</pre> to identify your build state,
+   * so think twice before disabeling it.
+   *
+   * @parameter default-value=false
+   */
+  private boolean skip;
 
   /**
    * @parameter default-value=true
@@ -33,15 +47,30 @@ public class GitDescribeConfig {
   /**
    * @parameter default-value=7
    */
-  private Integer abbrev;
+  private int abbrev;
+
+  /**
+   * <pre>--long</pre>
+   * <p/>
+   * Always output the long format (the tag, the number of commits and the abbreviated commit name)
+   * even when it matches a tag. This is useful when you want to see parts of the commit object name
+   * in "describe" output, even when the commit in question happens to be a tagged version. Instead
+   * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
+   * since tag v1.2 that points at object deadbee....).
+   * <p/>
+   *
+   * <pre>false</pre> by default.
+   */
+  private Boolean forceLongFormat;
 
   public GitDescribeConfig() {
   }
 
-  public GitDescribeConfig(boolean always, String dirty, Integer abbrev) {
+  public GitDescribeConfig(boolean always, String dirty, Integer abbrev, boolean forceLongFormat) {
     this.always = always;
     this.dirty = dirty;
     this.abbrev = abbrev;
+    this.forceLongFormat = forceLongFormat;
   }
 
   public boolean isAlways() {
@@ -60,11 +89,27 @@ public class GitDescribeConfig {
     this.dirty = dirty;
   }
 
-  public Integer getAbbrev() {
+  public int getAbbrev() {
     return abbrev;
   }
 
-  public void setAbbrev(Integer abbrev) {
+  public void setAbbrev(int abbrev) {
     this.abbrev = abbrev;
+  }
+
+  public boolean isSkip() {
+    return skip;
+  }
+
+  public void setSkip(boolean skip) {
+    this.skip = skip;
+  }
+
+  public Boolean getForceLongFormat() {
+    return forceLongFormat;
+  }
+
+  public void setForceLongFormat(Boolean forceLongFormat) {
+    this.forceLongFormat = forceLongFormat;
   }
 }

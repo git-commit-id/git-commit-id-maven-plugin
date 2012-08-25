@@ -86,9 +86,8 @@ public class DescribeCommandOptionsTest {
     // given
     final String DEVEL = "DEVEL";
     final int ABBREV = 12;
-    final boolean ALWAYS = true;
 
-    GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, ABBREV);
+    GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, ABBREV, true);
 
     Repository repo = mock(Repository.class);
     DescribeCommand command = DescribeCommand.on(repo);
@@ -98,8 +97,9 @@ public class DescribeCommandOptionsTest {
     spiedCommand.apply(config);
 
     // then
-    verify(spiedCommand).always(Matchers.eq(ALWAYS));
+    verify(spiedCommand).always(Matchers.eq(true));
     verify(spiedCommand).abbrev(Matchers.eq(ABBREV));
     verify(spiedCommand).dirty(Matchers.eq(DEVEL));
+    verify(spiedCommand).forceLongFormat(Matchers.eq(true));
   }
 }
