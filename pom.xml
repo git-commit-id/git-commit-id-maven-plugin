@@ -40,13 +40,13 @@
     Note that the data is exported via maven resource filtering and is really easy to use with spring -
     which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
   </description>
-  <url>http://www.project13.pl</url>
+  <url>http://www.blog.project13.pl</url>
 
   <developers>
     <developer>
       <id>ktoso</id>
       <name>Konrad Malawski</name>
-      <email>konrad.malawski@project13.pl</email>
+      <email>konrad.malawski@java.pl</email>
       <organization>Project13.pl</organization>
       <url>http://blog.project13.pl</url>
     </developer>
