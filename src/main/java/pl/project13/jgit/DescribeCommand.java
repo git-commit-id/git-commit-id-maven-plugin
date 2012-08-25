@@ -18,9 +18,9 @@
 package pl.project13.jgit;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.*;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.Status;
@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -70,19 +71,19 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private LoggerBridge loggerBridge;
 
-  //  boolean containsFlag = false;
-//  boolean allFlag = false;
-//  boolean tagsFlag = false;
-//  boolean longFlag = false;
-  /**
-   * How many chars of the commit hash should be displayed? 7 is the default used by git.
-   */
-  int abbrev = 7;
-  //  Optional<Integer> candidatesOption = Optional.of(10);
-//  boolean exactMatchFlag = false;
-  boolean alwaysFlag = true;
-  //  Optional<String> matchOption = Optional.absent();
-  Optional<String> dirtyOption = Optional.absent();
+//   todo not yet implemented options:
+//  private boolean containsFlag = false;
+//  private boolean allFlag = false;
+//  private boolean tagsFlag = false;
+//  private boolean longFlag = false;
+//  private Optional<Integer> candidatesOption = Optional.of(10);
+//  private boolean exactMatchFlag = false;
+//  private Optional<String> matchOption = Optional.absent();
+
+  /** How many chars of the commit hash should be displayed? 7 is the default used by git. */
+  private int abbrev = 7;
+  private boolean alwaysFlag = true;
+  private Optional<String> dirtyOption = Optional.absent();
 
   /**
    * Creates a new describe command which interacts with a single repository
@@ -98,11 +99,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  public DescribeCommand(Repository repo) {
+  private DescribeCommand(Repository repo) {
     this(repo, true);
   }
 
-  public DescribeCommand(Repository repo, boolean verbose) {
+  private DescribeCommand(Repository repo, boolean verbose) {
     super(repo);
     initDefaultLoggerBridge(verbose);
     setVerbose(verbose);
@@ -261,58 +262,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return isDirty;
   }
 
-  @Nullable
-  Pair<Integer, String> findDistanceFromTag(final Repository repo, final RevCommit headCommit, Map<ObjectId, String> tagObjectIdToName) {
-    final RevWalk revWalk = new RevWalk(repo);
-
-    try {
-      Collection<RevTag> tagCommits = Collections2.transform(tagObjectIdToName.values(), new Function<String, RevTag>() {
-        @Override
-        public RevTag apply(String input) {
-          try {
-            return revWalk.parseTag(repo.resolve(input));
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        }
-      });
-
-      System.out.println("tagCommits = " + tagCommits);
-
-      int minDistance = 0;
-      String found = null;
-      for (RevTag tagCommit : Iterables.filter(tagCommits, notNull())) {
-        log("tagCommit = [%s]", tagCommit);
-
-        RevCommit taggedCommit = revWalk.parseCommit(tagCommit.getObject().getId());
-        int maybeMin = distanceBetween(repo, headCommit, taggedCommit);
-
-        if (found == null || maybeMin < minDistance) {
-          minDistance = maybeMin;
-          found = tagCommit.getTagName();
-        }
-      }
-
-      System.out.println("found = " + found);
-      System.out.println("minDistance = " + minDistance);
-
-      return Pair.of(minDistance < 0 ? 0 : minDistance, found);
-    } catch (Exception ex) {
-      throw new RuntimeException("Unable to calculate distance from tags", ex);
-    } finally {
-      revWalk.dispose();
-    }
-  }
-
-  private Predicate<? super RevTag> notNull() {
-    return new Predicate<RevTag>() {
-      @Override
-      public boolean apply(RevTag input) {
-        return input != null;
-      }
-    };
-  }
-
   @VisibleForTesting
   static boolean isATag(ObjectId headCommit, Map<ObjectId, String> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
@@ -353,15 +302,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   /**
-   * @param child
-   * @param parent
+   * Calculates the distance (number of commits) between the given parent and child commits.
+   *
+   *
    * @return distance (number of commits) between the given commits
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
    */
-  private int distanceBetween(Repository repo, RevCommit child, RevCommit parent) {
-    Preconditions.checkNotNull(child, "Child commit must not be null.");
-    Preconditions.checkNotNull(parent, "Parent commit must not be null.");
-
+  private int distanceBetween(@NotNull Repository repo, @NotNull RevCommit child, @NotNull RevCommit parent) {
     RevWalk revWalk = new RevWalk(repo);
 
     try {
