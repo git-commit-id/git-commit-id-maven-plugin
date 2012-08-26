@@ -20,8 +20,7 @@
         <p class="header">A maven plugin which includes build-time git repository information into an java bean (or just plain properties). Make your apps tell you which version exactly they were built from! Priceless in large distributed deployments... :-)</p>
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/ktoso/maven-git-commit-id-plugin/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/ktoso/maven-git-commit-id-plugin/tarball/master">Download TAR</a></li>
+          <li class="download"><a class="buttons" href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22">View on Maven Central</a></li>
           <li><a class="buttons github" href="https://github.com/ktoso/maven-git-commit-id-plugin">View On GitHub</a></li>
         </ul>
 
@@ -52,7 +51,7 @@
 
 <p>And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking wiht each other until only the "new" nodes are left.</p>
 
-<p>Using this plugin, you can easily expose the information needed - based on git tags for example. 
+<p>Using this plugin, you can easily expose the information needed - based on git tags for example.
 One might say that this is usually accomplished by using <code>${project.version}</code> and I generally would agree, but maybe tags would fit your use case better than a plain version. :-)</p>
 
 <h2>Other</h2>
@@ -73,7 +72,7 @@ One might say that this is usually accomplished by using <code>${project.version
 
 <h2>Getting SNAPSHOT versions of the plugin</h2>
 
-<p>If you really want to use snapshots, here's the repository they are deployed to. 
+<p>If you really want to use snapshots, here's the repository they are deployed to.
 But I highly recommend using only stable versions, from maven central... :-)</p>
 
 <div class="highlight"><pre><span class="nt">&lt;pluginRepositories&gt;</span>
@@ -441,7 +440,7 @@ Start out with with adding the above steps to your project, next paste this <str
 <li>
 <strong>v1.0.4-DEV</strong> - if the repository is "on a tag", but in "dirty" state</li>
 <li>
-<strong>2414721</strong> - a plain commit id hash if not tags were defined (of determined "near" this commit). 
+<strong>2414721</strong> - a plain commit id hash if not tags were defined (of determined "near" this commit).
             <em>It does NOT include the "g" prefix, that is used in the "full" describe output format!</em>
 ```</li>
 </ul><p>For more details (on when what output will be returned etc), see <code>man git-describe</code> (or here: <a href="http://www.kernel.org/pub/software/scm/git/docs/git-describe.html">git-describe</a>). In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.</p>
