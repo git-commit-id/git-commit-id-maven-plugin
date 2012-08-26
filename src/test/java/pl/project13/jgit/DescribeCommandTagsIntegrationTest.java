@@ -112,4 +112,39 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
     assertThat(res.toString()).contains("lightweight-tag");
   }
+
+
+  /**
+   * <pre>
+   * > lg
+   *   * b6a73ed - (HEAD, master) third addition (32 hours ago) <Konrad Malawski>
+   *   * d37a598 - (newest-tag, lightweight-tag) second line (32 hours ago) <Konrad Malawski>
+   *   * 9597545 - (annotated-tag) initial commit (32 hours ago) <Konrad Malawski>
+   *
+   * > git describe
+   *   newest-tag-1-gb6a73ed
+   */
+  @Test
+  public void shouldFindNewerTagWhenACommitHasTwoOrMoreTags() throws Exception {
+    // given
+
+    // HEAD
+    // lightweight-tag
+    // annotated-tag
+
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    // when
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).contains("newest-tag");
+  }
 }
