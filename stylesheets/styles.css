@@ -411,3 +411,9 @@ footer {
     color:#444;
   }
 }
+
+.nopaddings {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
