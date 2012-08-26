@@ -42,6 +42,7 @@ public class GitCommitIdMojoTest {
     mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(new File(".git/"));
     mojo.setPrefix("git");
+    mojo.setAbbrevLength(7);
     mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
     mojo.setVerbose(true);
 

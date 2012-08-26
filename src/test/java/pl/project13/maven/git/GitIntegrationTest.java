@@ -60,10 +60,11 @@ public abstract class GitIntegrationTest {
     }
   }
 
-  void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
+  public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
     Map<String, Object> mojoDefaults = new HashMap<String, Object>();
     mojoDefaults.put("verbose", false);
     mojoDefaults.put("skipPoms", true);
+    mojoDefaults.put("abbrevLength", 7);
     mojoDefaults.put("generateGitPropertiesFile", false);
     mojoDefaults.put("generateGitPropertiesFilename", "src/main/resources/git.properties");
     mojoDefaults.put("prefix", "git");

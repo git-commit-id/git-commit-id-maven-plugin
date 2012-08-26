@@ -24,10 +24,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -46,7 +43,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- * Goal which touches a timestamp file.
+ * Goal which puts git build-time information into property files or maven's properties.
  *
  * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @goal revision
@@ -56,8 +53,6 @@ import java.util.Properties;
  */
 @SuppressWarnings({"JavaDoc"})
 public class GitCommitIdMojo extends AbstractMojo {
-
-  private static final int DEFAULT_COMMIT_ABBREV_LENGTH = 7;
 
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
@@ -143,6 +138,28 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   private GitDescribeConfig gitDescribe;
+
+  /**
+   * <p>
+   *   Configure the "git.commit.id.abbrev" property to be at least of length N.
+   *   N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
+   * </p>
+   *
+   * <p>
+   *   An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
+   *   To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
+   * </p>
+   *
+   * <b>Example:</b>
+   * <p>
+   *   You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
+   *   long abbrev version of the commit id. If your repository, on the other hand, has just 4 commits, you'll probably get a 2 char long abbrev.
+   * </p>
+   *
+   * @parameter default-value=7
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private int abbrevLength;
 
   /**
    * The prefix to expose the properties on, for example 'git' would allow you to access '${git.branch}'
@@ -272,14 +289,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
     log("Loading data from git repository...");
     Repository git = getGitRepository();
-
-    int abbrevLength = DEFAULT_COMMIT_ABBREV_LENGTH;
-
-    StoredConfig config = git.getConfig();
-
-    if (config != null) {
-      abbrevLength = config.getInt("core", "abbrev", DEFAULT_COMMIT_ABBREV_LENGTH);
-    }
+    ObjectReader objectReader = git.newObjectReader();
 
     // git.user.name
     String userName = git.getConfig().getString("user", null, "name");
@@ -310,7 +320,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       put(properties, COMMIT_ID, headCommit.getName());
 
       // git.commit.id.abbrev
-      put(properties, COMMIT_ID_ABBREV, headCommit.getName().substring(0, abbrevLength));
+      putAbbrevCommitId(objectReader, properties, headCommit, abbrevLength);
 
       // git.commit.author.name
       String commitAuthor = headCommit.getAuthorIdent().getName();
@@ -334,6 +344,21 @@ public class GitCommitIdMojo extends AbstractMojo {
       put(properties, COMMIT_TIME, smf.format(commitDate));
     } finally {
       revWalk.dispose();
+    }
+  }
+
+  private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
+    if(abbrevLength < 2 || abbrevLength > 40) {
+      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. " +
+                                           "Please fix your configuration (the <abbrevLength/> element).");
+    }
+
+    try {
+      AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
+      put(properties, COMMIT_ID_ABBREV, abbreviatedObjectId.name());
+    } catch (IOException e) {
+      throw new MojoExecutionException("Unable to abbreviate commit id! " +
+                                           "You may want to investigate the <abbrevLength/> element in your configuration.", e);
     }
   }
 
@@ -459,5 +484,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setGitDescribe(GitDescribeConfig gitDescribe) {
     this.gitDescribe = gitDescribe;
+  }
+
+  public void setAbbrevLength(int abbrevLength) {
+    this.abbrevLength = abbrevLength;
   }
 }
