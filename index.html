@@ -1,0 +1,567 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Maven-git-commit-id-plugin by ktoso</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Maven-git-commit-id-plugin</h1>
+        <p class="header">A maven plugin which includes build-time git repository information into an java bean (or just plain properties). Make your apps tell you which version exactly they were built from! Priceless in large distributed deployments... :-)</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/ktoso/maven-git-commit-id-plugin/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/ktoso/maven-git-commit-id-plugin/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/ktoso/maven-git-commit-id-plugin">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/ktoso">ktoso</a></p>
+
+
+      </header>
+      <section>
+        <h1>maven git commit id plugin</h1>
+
+<p><a href="http://travis-ci.org/ktoso/maven-git-commit-id-plugin"><img src="https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.png?branch=master" alt="Build Status"></a></p>
+
+<p>git-commit-id-plugin is a plugin quite similar to <a href="https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4">https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4</a> fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:</p>
+
+<h1>Use cases</h1>
+
+<h2>Which version had the bug? Is that deployed already?</h2>
+
+<p>If you develop your maven project inside an git repository you may want to know exactly what changeset is currently deployed. Why is this useful? </p>
+
+<p>I worked in a team where the testers would come up to the development team and say: "hey, feature X is still broken!", to which a dev would reply "But I fixed it this morning!". Then they'd investigate a bit, only to see that the next version which would be deployed very soon included the needed fix, yet the developer already marked it as "ready for testing".</p>
+
+<p>The fix here is obvious: include the version you fixed some bug in the issue comment where you mark it as "ready for testing". You can eiter do this via smart tooling (recommended), or just manually put in a comment like "fixed in v1.4.3-324-g45xhbghv" (that's a git-describe output - explained in detail bellow), so the testing crew knows it doesn't make sense to pickup testing of this feature untill at least "324" (or greater) is included in the version output (it means "number of commits away from the mentioned tag" - readup on git-describe to understand how it works).</p>
+
+<h2>Make your distributed deployment aware of versions</h2>
+
+<p>Let's say you have a large distrubuted deployment where the servers need to talk to each other using some protocol. You have them configured to keep talking with servers of the same major + minor version number. So a server running "3.3.233" may still talk with one that has "3.3.120" - the protocol is guaranteed to not have changed in these versions.</p>
+
+<p>And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking wiht each other until only the "new" nodes are left.</p>
+
+<p>Using this plugin, you can easily expose the information needed - based on git tags for example. 
+One might say that this is usually accomplished by using <code>${project.version}</code> and I generally would agree, but maybe tags would fit your use case better than a plain version. :-)</p>
+
+<h2>Other</h2>
+
+<p>If you have a nice use case to share, please do fork this file and file a pull request with your story :-)</p>
+
+<h1>Getting the plugin</h1>
+
+<p>The plugin is available from <strong>Maven Central</strong> (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.</p>
+
+<p>A detailed description of using the pluing is available in the <a href="https://github.com/ktoso/maven-git-commit-id-plugin#using-the-plugin">Using the plugin</a> section. All you need to do in the basic setup is to include that plugin definition in your <code>pom.xml</code> - more advanced configurations are also explained so... read on!</p>
+
+<h2>Versions</h2>
+
+<p>The current version is <strong>2.1.0</strong>.</p>
+
+<p>You can check the available versions by visiting <a href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22">search.maven.org</a>, though using the newest is obviously the best choice.</p>
+
+<h2>Getting SNAPSHOT versions of the plugin</h2>
+
+<p>If you really want to use snapshots, here's the repository they are deployed to. 
+But I highly recommend using only stable versions, from maven central... :-)</p>
+
+<div class="highlight"><pre><span class="nt">&lt;pluginRepositories&gt;</span>
+    <span class="nt">&lt;pluginRepository&gt;</span>
+        <span class="nt">&lt;id&gt;</span>sonatype-snapshots<span class="nt">&lt;/id&gt;</span>
+        <span class="nt">&lt;name&gt;</span>Sonatype Snapshots<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;url&gt;</span>https://oss.sonatype.org/content/repositories/snapshots/<span class="nt">&lt;/url&gt;</span>
+    <span class="nt">&lt;/pluginRepository&gt;</span>
+<span class="nt">&lt;/pluginRepositories&gt;</span>
+</pre></div>
+
+<h2>Using the plugin</h2>
+
+<p>It's really simple to setup this plugin, here's a sample pom that you may base your <strong>pom.xml</strong> on:</p>
+
+<div class="highlight"><pre><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;project</span> <span class="na">xmlns=</span><span class="s">"http://maven.apache.org/POM/4.0.0"</span>
+         <span class="na">xsi:schemaLocation=</span><span class="s">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"</span>
+         <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+
+    <span class="nt">&lt;groupId&gt;</span>pl.project13.maven<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>my-git-plugin-sample-app<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;packaging&gt;</span>war<span class="nt">&lt;/packaging&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.1<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;name&gt;</span>my-git-plugin-sample-app<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;url&gt;</span>http://www.blog.project13.pl<span class="nt">&lt;/url&gt;</span>
+
+    <span class="nt">&lt;dependencies</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;build&gt;</span>
+        <span class="c">&lt;!-- GIT COMMIT ID PLUGIN CONFIGURATION --&gt;</span>
+
+        <span class="c">&lt;!-- SKIP SETTING UP FILTERING LIKE THIS IF YOU USE THE GENERATE FILE MODE :-) --&gt;</span>
+        <span class="nt">&lt;resources&gt;</span>
+            <span class="nt">&lt;resource&gt;</span>
+                <span class="nt">&lt;directory&gt;</span>src/main/resources<span class="nt">&lt;/directory&gt;</span>
+                <span class="nt">&lt;filtering&gt;</span>true<span class="nt">&lt;/filtering&gt;</span>
+                <span class="nt">&lt;includes&gt;</span>
+                    <span class="nt">&lt;include&gt;</span>**/*.properties<span class="nt">&lt;/include&gt;</span>
+                    <span class="nt">&lt;include&gt;</span>**/*.xml<span class="nt">&lt;/include&gt;</span>
+                <span class="nt">&lt;/includes&gt;</span>
+            <span class="nt">&lt;/resource&gt;</span>
+        <span class="nt">&lt;/resources&gt;</span>
+
+        <span class="nt">&lt;plugins&gt;</span>
+            <span class="nt">&lt;plugin&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>pl.project13.maven<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>git-commit-id-plugin<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;version&gt;</span>2.1.0<span class="nt">&lt;/version&gt;</span>
+                <span class="nt">&lt;executions&gt;</span>
+                    <span class="nt">&lt;execution&gt;</span>
+                        <span class="nt">&lt;goals&gt;</span>
+                            <span class="nt">&lt;goal&gt;</span>revision<span class="nt">&lt;/goal&gt;</span>
+                         <span class="nt">&lt;/goals&gt;</span>
+                    <span class="nt">&lt;/execution&gt;</span>
+                <span class="nt">&lt;/executions&gt;</span>
+
+                <span class="nt">&lt;configuration&gt;</span>
+                    <span class="c">&lt;!-- that's the default value, you don't have to set it --&gt;</span>
+                    <span class="nt">&lt;prefix&gt;</span>git<span class="nt">&lt;/prefix&gt;</span>
+
+                    <span class="c">&lt;!-- that's the default value --&gt;</span>
+                    <span class="nt">&lt;dateFormat&gt;</span>dd.MM.yyyy '@' HH:mm:ss z<span class="nt">&lt;/dateFormat&gt;</span>
+
+                    <span class="c">&lt;!-- false is default here, it prints some more information during the build --&gt;</span>
+                    <span class="nt">&lt;verbose&gt;</span>true<span class="nt">&lt;/verbose&gt;</span>
+
+                    <span class="c">&lt;!--</span>
+<span class="c">                        If you'd like to tell the plugin where your .git directory is,</span>
+<span class="c">                        use this setting, otherwise we'll perform a search trying to</span>
+<span class="c">                        figure out the right directory. It's better to add it explicite IMHO.</span>
+<span class="c">                    --&gt;</span>
+                    <span class="nt">&lt;dotGitDirectory&gt;</span>${project.basedir}/.git<span class="nt">&lt;/dotGitDirectory&gt;</span>
+
+                    <span class="c">&lt;!-- ALTERNATE SETUP - GENERATE FILE --&gt;</span>
+                    <span class="c">&lt;!--</span>
+<span class="c">                        If you want to keep git information, even in your WAR file etc,</span>
+<span class="c">                        use this mode, which will generate a properties file (with filled out values)</span>
+<span class="c">                        which you can then normally read using new Properties().load(/**/)</span>
+<span class="c">                    --&gt;</span>
+
+                    <span class="c">&lt;!--</span>
+<span class="c">                        this is true by default; You may want to set this to false, if the plugin should run inside a</span>
+<span class="c">                        &lt;packaging&gt;pom&lt;/packaging&gt; project. Most projects won't need to override this property.</span>
+
+<span class="c">                        For an use-case for this kind of behaviour see: https://github.com/ktoso/maven-git-commit-id-plugin/issues/21</span>
+<span class="c">                    --&gt;</span>
+                    <span class="nt">&lt;skipPoms&gt;</span>true<span class="nt">&lt;/skipPoms&gt;</span>
+
+                    <span class="c">&lt;!-- this is false by default, forces the plugin to generate the git.properties file --&gt;</span>
+                    <span class="nt">&lt;generateGitPropertiesFile&gt;</span>true<span class="nt">&lt;/generateGitPropertiesFile&gt;</span>
+
+                    <span class="c">&lt;!-- The path for the to be generated properties file, it's relative to ${project.basedir} --&gt;</span>
+                    <span class="nt">&lt;generateGitPropertiesFilename&gt;</span>src/main/resources/git.properties<span class="nt">&lt;/generateGitPropertiesFilename&gt;</span>
+
+                    <span class="c">&lt;!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution --&gt;</span>
+                    <span class="c">&lt;!-- @since 2.0.4 --&gt;</span>
+                    <span class="nt">&lt;failOnNoGitDirectory&gt;</span>false<span class="nt">&lt;/failOnNoGitDirectory&gt;</span>
+
+                    <span class="c">&lt;!-- @since 2.1.0 --&gt;</span>
+                    <span class="c">&lt;!-- </span>
+<span class="c">                        read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper </span>
+<span class="c">                        and the recommended way to use git-commit-id-plugin. The configuration bellow is optional, </span>
+<span class="c">                        by default describe will run "just like git-describe on the command line", even though it's a JGit reimplementation.</span>
+<span class="c">                    --&gt;</span>
+                    <span class="nt">&lt;gitDescribe&gt;</span>
+
+                        <span class="c">&lt;!-- don't generate the describe property --&gt;</span>
+                        <span class="nt">&lt;skip&gt;</span>false<span class="nt">&lt;/skip&gt;</span>
+
+                        <span class="c">&lt;!-- </span>
+<span class="c">                            if no tag was found "near" this commit, just print the commit's id instead, </span>
+<span class="c">                            helpful when you always expect this field to be not-empty </span>
+<span class="c">                        --&gt;</span>
+                        <span class="nt">&lt;always&gt;</span>true<span class="nt">&lt;/always&gt;</span>
+                        <span class="c">&lt;!--</span>
+<span class="c">                             how many chars should be displayed as the commit object id? </span>
+<span class="c">                             7 is git's default, </span>
+<span class="c">                             0 has a special meaning (see end of this README.md), </span>
+<span class="c">                             and 40 is the maximum value here </span>
+<span class="c">                        --&gt;</span>
+                        <span class="nt">&lt;abbrev&gt;</span>7<span class="nt">&lt;/abbrev&gt;</span>
+
+                        <span class="c">&lt;!-- when the build is triggered while the repo is in "dirty state", append this suffix --&gt;</span>
+                        <span class="nt">&lt;dirty&gt;</span>DEVEL<span class="nt">&lt;/dirty&gt;</span>
+
+                        <span class="c">&lt;!-- </span>
+<span class="c">                             always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. </span>
+<span class="c">                             The distance will always be 0 if you're "on" the tag. </span>
+<span class="c">                        --&gt;</span>
+                        <span class="nt">&lt;forceLongFormat&gt;</span>false<span class="nt">&lt;/forceLongFormat&gt;</span>
+                    <span class="nt">&lt;/gitDescribe&gt;</span>
+                <span class="nt">&lt;/configuration&gt;</span>
+
+            <span class="nt">&lt;/plugin&gt;</span>
+            <span class="c">&lt;!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION --&gt;</span>
+
+            <span class="c">&lt;!-- other plugins --&gt;</span>
+        <span class="nt">&lt;/plugins&gt;</span>
+    <span class="nt">&lt;/build&gt;</span>
+<span class="nt">&lt;/project&gt;</span>
+</pre></div>
+
+<p>Based on the above part of a working POM you should be able to figure out the rest, I mean you are a maven user after all... ;-)
+Note that the resources filtering is important for this plugin to work, don't omit it!</p>
+
+<p>Now you just have to include such a properties file in your project under <code>/src/main/resources</code> (and call it <strong>git.properties</strong> for example) and maven will put the appropriate properties in the placeholders:</p>
+
+<pre><code>git.branch=${git.branch}
+
+git.describe=${git.describe}
+
+git.build.user.name=${git.build.user.name}
+git.build.user.email=${git.build.user.email}
+git.build.time=${git.build.time}
+
+git.commit.id=${git.commit.id}
+git.commit.id.abbrev=${commit.id.abbrev}
+git.commit.user.name=${git.commit.user.name}
+git.commit.user.email=${git.commit.user.email}
+git.commit.message.full=${git.commit.message.full}
+git.commit.message.short=${git.commit.message.short}
+git.commit.time=${git.commit.time}
+</code></pre>
+
+<p>The <code>git</code> prefix may be configured in the plugin declaration above.</p>
+
+<h2>Maven resource filtering + Spring = GitRepositoryState Bean</h2>
+
+<p>You'll most probably want to wire these plugins somehow to get easy access to them during runtime. We'll use spring as an example of doing this.
+Start out with with adding the above steps to your project, next paste this <strong>git-bean.xml</strong> into the <code>/src/main/resources/</code> directory (or any other, just adjust the paths later on):</p>
+
+<div class="highlight"><pre><span class="cp">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;</span>
+<span class="nt">&lt;beans</span> <span class="na">xmlns=</span><span class="s">"http://www.springframework.org/schema/beans"</span>
+       <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+       <span class="na">xsi:schemaLocation=</span><span class="s">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;bean</span> <span class="na">name=</span><span class="s">"gitRepositoryInformation"</span> <span class="na">class=</span><span class="s">"pl.project13.maven.example.git.GitRepositoryState"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"branch"</span> <span class="na">value=</span><span class="s">"${git.branch}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"describe"</span> <span class="na">value=</span><span class="s">"${git.describe}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitId"</span> <span class="na">value=</span><span class="s">"${git.commit.id}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitIdAbbrev"</span> <span class="na">value=</span><span class="s">"${commit.id.abbrev}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitTime"</span> <span class="na">value=</span><span class="s">"${git.commit.time}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"buildUserName"</span> <span class="na">value=</span><span class="s">"${git.build.user.name}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"buildUserEmail"</span> <span class="na">value=</span><span class="s">"${git.build.user.email}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitMessageFull"</span> <span class="na">value=</span><span class="s">"${git.commit.message.full}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitMessageShort"</span> <span class="na">value=</span><span class="s">"${git.commit.message.short}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitUserName"</span> <span class="na">value=</span><span class="s">"${git.commit.user.name}"</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"commitUserEmail"</span> <span class="na">value=</span><span class="s">"${git.commit.user.email}"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/bean&gt;</span>
+<span class="nt">&lt;/beans&gt;</span>
+</pre></div>
+
+<p>And here's the source of the bean we're binding here:</p>
+
+<div class="highlight"><pre><span class="kn">package</span> <span class="n">pl</span><span class="o">.</span><span class="na">project13</span><span class="o">.</span><span class="na">maven</span><span class="o">.</span><span class="na">example</span><span class="o">.</span><span class="na">git</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.codehaus.jackson.annotate.JsonWriteNullProperties</span><span class="o">;</span>
+
+<span class="cm">/**</span>
+<span class="cm">* A spring controlled bean that will be injected</span>
+<span class="cm">* with properties about the repository state at build time.</span>
+<span class="cm">* This information is supplied by my plugin - &lt;b&gt;pl.project13.maven.git-commit-id-plugin&lt;/b&gt;</span>
+<span class="cm">*/</span>
+<span class="nd">@JsonWriteNullProperties</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GitRepositoryState</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">branch</span><span class="o">;</span>                  <span class="c1">// =${git.branch}</span>
+  <span class="n">String</span> <span class="n">describe</span><span class="o">;</span>                <span class="c1">// =${git.describe}</span>
+  <span class="n">String</span> <span class="n">commitId</span><span class="o">;</span>                <span class="c1">// =${git.commit.id}</span>
+  <span class="n">String</span> <span class="n">commitIdAbbrev</span><span class="o">;</span>          <span class="c1">// =${git.commit.id.abbrev}</span>
+  <span class="n">String</span> <span class="n">buildUserName</span><span class="o">;</span>           <span class="c1">// =${git.build.user.name}</span>
+  <span class="n">String</span> <span class="n">buildUserEmail</span><span class="o">;</span>          <span class="c1">// =${git.build.user.email}</span>
+  <span class="n">String</span> <span class="n">buildTime</span><span class="o">;</span>               <span class="c1">// =${git.build.time}</span>
+  <span class="n">String</span> <span class="n">commitUserName</span><span class="o">;</span>          <span class="c1">// =${git.commit.user.name}</span>
+  <span class="n">String</span> <span class="n">commitUserEmail</span><span class="o">;</span>         <span class="c1">// =${git.commit.user.email}</span>
+  <span class="n">String</span> <span class="n">commitMessageFull</span><span class="o">;</span>       <span class="c1">// =${git.commit.message.full}</span>
+  <span class="n">String</span> <span class="n">commitMessageShort</span><span class="o">;</span>      <span class="c1">// =${git.commit.message.short}</span>
+  <span class="n">String</span> <span class="n">commitTime</span><span class="o">;</span>              <span class="c1">// =${git.commit.time}</span>
+
+  <span class="kd">public</span> <span class="nf">GitRepositoryState</span><span class="o">()</span> <span class="o">{</span>
+  <span class="o">}</span>
+  <span class="cm">/* Generate setters and getters here */</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>The source for it is also on the repo of this plugin. Of course, <em>feel free to drop out the jackson annotation</em> if you won't be using it.</p>
+
+<p>The last configuration related thing we need to do is to load up this bean in your appContext, so open up your <strong>applicationContext.xml</strong> or whatever you call it in your project and add these lines in the  section:</p>
+
+<pre><code>&lt;context:property-placeholder location="classpath:*.properties" /&gt;
+&lt;import resource="classpath:/git-bean.xml"/&gt;
+</code></pre>
+
+<p>Of course, you may adjust the paths and file locations as you please, no problems here... :-)
+<em>Now you're ready to use your GitRepositoryState Bean!</em> Let's create an sample <strong>Spring MVC Controller</strong> to test it out:</p>
+
+<div class="highlight"><pre><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/git"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GitService</span> <span class="kd">extends</span> <span class="n">BaseWebService</span> <span class="o">{</span>
+
+  <span class="nd">@Autowired</span>
+  <span class="n">GitRepositoryState</span> <span class="n">gitRepoState</span><span class="o">;</span>
+
+  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">"/status"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">checkGitRevision</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">WebServiceAuthenticationException</span> <span class="o">{</span>
+    <span class="n">ServerResponse</span><span class="o">&lt;</span><span class="n">GitRepositoryState</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServerResponse</span><span class="o">&lt;</span><span class="n">GitRepositoryState</span><span class="o">&gt;(</span><span class="n">gitRepoState</span><span class="o">);</span>
+    <span class="k">return</span> <span class="nf">createMAV</span><span class="o">(</span><span class="n">response</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>Don't mind the createMAV and responses stuff, it's just example code. And feel free to use constructor injection, it's actually a better idea ;-)</p>
+
+<p>In the end <em>this is what this service would return</em>:</p>
+
+<div class="highlight"><pre>     <span class="p">{</span>
+         <span class="nt">"branch"</span> <span class="p">:</span> <span class="s2">"testing-maven-git-plugin"</span><span class="p">,</span>
+         <span class="nt">"describe"</span> <span class="p">:</span> <span class="s2">"v2.1.0-2-g2346463"</span><span class="p">,</span>
+         <span class="nt">"commitTime"</span> <span class="p">:</span> <span class="s2">"06.01.1970 @ 16:16:26 CET"</span><span class="p">,</span>
+         <span class="nt">"commitId"</span> <span class="p">:</span> <span class="s2">"787e39f61f99110e74deed68ab9093088d64b969"</span><span class="p">,</span>
+         <span class="nt">"commitIdAbbrev"</span> <span class="p">:</span> <span class="s2">"787e39f"</span><span class="p">,</span>
+         <span class="nt">"commitUserName"</span> <span class="p">:</span> <span class="s2">"Konrad Malawski"</span><span class="p">,</span>
+         <span class="nt">"commitUserEmail"</span> <span class="p">:</span> <span class="s2">"konrad.malawski@java.pl"</span><span class="p">,</span>
+         <span class="nt">"commitMessageFull"</span> <span class="p">:</span> <span class="s2">"releasing my fun plugin :-)</span>
+<span class="s2">                                + fixed some typos</span>
+<span class="s2">                                + cleaned up directory structure</span>
+<span class="s2">                                + added license etc"</span><span class="p">,</span>
+         <span class="nt">"commitMessageShort"</span> <span class="p">:</span> <span class="s2">"releasing my fun plugin :-)"</span><span class="p">,</span>
+         <span class="nt">"buildTime"</span> <span class="p">:</span> <span class="s2">"06.01.1970 @ 16:17:53 CET"</span><span class="p">,</span>
+         <span class="nt">"buildUserName"</span> <span class="p">:</span> <span class="s2">"Konrad Malawski"</span><span class="p">,</span>
+         <span class="nt">"buildUserEmail"</span> <span class="p">:</span> <span class="s2">"konrad.malawski@java.pl"</span>
+     <span class="p">}</span>
+</pre></div>
+
+<p>That's all folks! <strong>Happy hacking!</strong></p>
+
+<h1>The easier way: generate git.properties</h1>
+
+<p>There's another way to use the plugin, it's a little bit easier I guess. First, configure it to generate a properties file on each run, goto the pom.xml and set:</p>
+
+<div class="highlight"><pre><span class="nt">&lt;configuration&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+
+    <span class="c">&lt;!-- this is false by default, forces the plugin to generate the git.properties file --&gt;</span>
+    <span class="nt">&lt;generateGitPropertiesFile&gt;</span>true<span class="nt">&lt;/generateGitPropertiesFile&gt;</span>
+
+    <span class="c">&lt;!-- The path for the to be generated properties file, it's relative to ${project.basedir} --&gt;</span>
+    <span class="nt">&lt;generateGitPropertiesFilename&gt;</span>src/main/resources/git.properties<span class="nt">&lt;generateGitPropertiesFilename&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+
+<p>Remember to add this file to your .gitignore as it's quite some garbage changes to your repository if you don't ignore it. Open .gitignore and add:</p>
+
+<pre><code>src/main/resources/git.properties
+</code></pre>
+
+<p>Then run the project as you would normally, the file will be created for you. And you may access it as you'd access any other properties file, for example like this:</p>
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="n">GitRepositoryState</span> <span class="nf">getGitRepositoryState</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span>
+<span class="o">{</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">gitRepositoryState</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+   <span class="o">{</span>
+      <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+      <span class="n">properties</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getClassLoader</span><span class="o">().</span><span class="na">getResourceAsStream</span><span class="o">(</span><span class="s">"git.properties"</span><span class="o">));</span>
+
+      <span class="n">gitRepositoryState</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GitRepositoryState</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+   <span class="o">}</span>
+   <span class="k">return</span> <span class="n">gitRepositoryState</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>You'd have to add such an constructor to your GitRepositoryState bean:</p>
+
+<div class="highlight"><pre><span class="kd">public</span> <span class="nf">GitRepositoryState</span><span class="o">(</span><span class="n">Properties</span> <span class="n">properties</span><span class="o">)</span>
+<span class="o">{</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">branch</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.branch"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">describe</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.describe"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitId</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.id"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">buildUserName</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.build.user.name"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">buildUserEmail</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.build.user.email"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">buildTime</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.build.time"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitUserName</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.user.name"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitUserEmail</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.user.email"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitMessageShort</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.message.short"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitMessageFull</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.message.full"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+   <span class="k">this</span><span class="o">.</span><span class="na">commitTime</span> <span class="o">=</span> <span class="n">properties</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"git.commit.time"</span><span class="o">).</span><span class="na">toString</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+
+<h1>Git describe - short intro to an awesome command</h1>
+
+<p>Git's <a href="http://www.kernel.org/pub/software/scm/git/docs/git-describe.html">describe command</a> is the best way to really see "where" a commit is in the repositories "timeline". </p>
+
+<p>In svn you could easily determine by looking at two revisions (their numbers) which one is "newer" (they look like that <code>r239</code>, <code>r240</code> ...). Since git is using SHA-1 checksums to identify commits, it's hard to tell which one is "newer" (or can you tell me? <code>b6a73ed</code> or <code>9597545</code>?). Using describe you can get a part of this back, and even more - you can know the "nearest" tag for a commit. And as tags are used for versioning most of the time that's super useful to track development progress.</p>
+
+<p>Let's get an example to explain git-describe on it:</p>
+
+<pre><code>* 2414721 - (HEAD, master) third addition (8 hours ago) &lt;Konrad Malawski&gt;
+| d37a598 - second line (8 hours ago) &lt;Konrad Malawski&gt;
+| 9597545 - (v1.0) initial commit (8 hours ago) &lt;Konrad Malawski&gt;
+</code></pre>
+
+<p>Running git-describe when you're on the HEAD here, will yield:</p>
+
+<pre><code>&gt; git describe
+  v.1.0-2-b2414721
+</code></pre>
+
+<p>The format of a describe result is defined as:</p>
+
+<pre><code>v1.0-2-g2414721-DEV
+ ^   ^  ^       ^
+ |   |  |       \-- if a dirtyMarker was given, it will appear here if the repository is in "dirty" state
+ |   |  \---------- the "g" prefixed commit id. The prefix is compatible with what git-describe would return - weird, but true.
+ |   \------------- the number of commits away from the found tag. So "2414721" is 2 commits ahead of "v1.0", in this example.
+ \----------------- the "nearest" tag, to the mentioned commit.
+</code></pre>
+
+<p>Other outputs may look like:   </p>
+
+<ul>
+<li>
+<strong>v1.0.4</strong> - if the repository is "on a tag"</li>
+<li>
+<strong>v1.0.4-DEV</strong> - if the repository is "on a tag", but in "dirty" state</li>
+<li>
+<strong>2414721</strong> - a plain commit id hash if not tags were defined (of determined "near" this commit). 
+            <em>It does NOT include the "g" prefix, that is used in the "full" describe output format!</em>
+```</li>
+</ul><p>For more details (on when what output will be returned etc), see <code>man git-describe</code> (or here: <a href="http://www.kernel.org/pub/software/scm/git/docs/git-describe.html">git-describe</a>). In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.</p>
+
+<h2>git-describe and a small "gotcha" with tags</h2>
+
+<p>You probably know that git has two kinds of tags:</p>
+
+<ul>
+<li>
+<strong>lightweight tags</strong> - which are only a pointer to some object,</li>
+<li>
+<strong>annotated tags</strong> - which are the same as a lightweight tag and contain additional information, such as a message linked with the tag.</li>
+</ul><p>Knowing this, I now can tell you that when you run git-describe, it (by default) looks only for <strong>annotated</strong> tags.
+What this means in a real life scenario can be explained on such repository:</p>
+
+<pre><code>b6a73ed - (HEAD, master)
+d37a598 - (v1.0-fixed-stuff) - a lightweight tag (with no message)
+9597545 - (v1.0) - an annotated tag
+</code></pre>
+
+<p>When you run git describe without any options (note that git-commit-id is "acting like" plain git, so all behaviour is as described here, unless you configure it to act otherwise (using the <code>&lt;tags&gt;true&lt;/tags&gt;</code> option)):</p>
+
+<pre><code>&gt; git describe
+  annotated-tag-2-gb6a73ed     # the nearest "annotated" tag is found
+</code></pre>
+
+<p>So it did not find the lightweight tag! Do not panic, there's a flag to help with that:</p>
+
+<pre><code>&gt; git describe --tags
+  lightweight-tag-1-gb6a73ed   # the nearest tag (including lightweights) is found
+</code></pre>
+
+<p>Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
+things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
+tags to be included in the search, enable this option.</p>
+
+<blockquote>
+If you're using maven's `release:prepare` and `release:perform` it's using annotated tags ;-)
+</blockquote>
+
+<h1>Configuration details</h1>
+
+<p>Just a short recap of the available parameters...</p>
+
+<p>Optional parameters:</p>
+
+<ul>
+<li>
+<strong>dotGitDirectory</strong> - <code>(default: ${project.basedir}/.git)</code> the location of your .git folder. <code>${project.basedir}/.git</code> is the default value and will most probably be ok for single module projects, in other cases please use <code>../</code> to get higher up in the dir tree. An example would be: <code>${project.basedir}/../.git</code> which I'm currently using in my projects :-)</li>
+<li>
+<strong>prefix</strong> - <code>(default: git)</code> is the "namespace" for all exposed properties</li>
+<li>
+<strong>dateFormat</strong> - <code>(default: dd.MM.yyyy '@' HH:mm:ss z)</code> is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time</li>
+<li>
+<strong>verbose</strong> - <code>(default: false)</code> if true the plugin will print a summary of all collected properties when it's done</li>
+<li>
+<strong>generateGitPropertiesFile</strong> -<code>(default: false)</code> this is false by default, forces the plugin to generate the git.properties file</li>
+<li>
+<strong>generateGitPropertiesFilename</strong> - <code>(default: src/main/resources/git.properties)</code> - The path for the to be generated properties file, it's relative to ${project.basedir}</li>
+<li>
+<strong>skipPoms</strong> - <code>(default: true)</code> - Force the plugin to run even if you're inside of an pom packaged project.</li>
+<li>
+<strong>failOnNoGitDirectory</strong> - <code>(default: true)</code> <em>(available since v2.0.4)</em> - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.</li>
+</ul><p><strong>gitDescribe</strong>:
+Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with <a href="http://www.kernel.org/pub/software/scm/git/docs/git-describe.html">git-describe</a>, you probably can skip this section, as it just explains the same options that git provides.</p>
+
+<ul>
+<li>
+<strong>abbrev</strong> - <code>(default: 7)</code> in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: <code>v2.1.0-1-gf5cd254</code>, where <code>-1-</code> means the number of commits away from the mentioned tag and the <code>-gf5cd254</code> part means the first 7 chars of the current commit's id <code>f5cd254</code>. <strong>Please note that the <code>g</code> prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id</strong> - <em>this is default git bevaviour, so we're doing the same</em>. You can set this to any value between 0 and 40 (inclusive). </li>
+<li>
+<strong>abbrev = 0</strong> is a special case. Setting <em>abbrev</em> to <code>0</code> has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead <code>tag-12-gaaaaaaa</code> with <code>abbrev = 0</code> you'd get <code>tag</code>).</li>
+<li>
+<strong>dirty</strong> - <code>(default: "devel")</code> when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: <code>v3.5-3-g2222222-devel</code>. You can configure the suffix to be anything you want, "DEV" being a nice example.</li>
+<li>
+<strong>tags</strong> - <code>(default: false)</code>
+</li>
+<li>
+<strong>long</strong> - <code>(default: false)</code> git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: <code>tagname-0-gc0ffebabe</code> - notice that the distance from the tag is 0 here, if you don't use <strong>forceLongFormat</strong> mode, the describe for such commit would look like this: <code>tagname</code>.</li>
+<li>
+<strong>always</strong> - <code>(default: true)</code> if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.</li>
+<li>
+<strong>skip</strong> - <code>(default: false)</code> when you don't use <code>git-describe</code> information in your build, you can opt to be calculate it.</li>
+</ul><p>All options are documented in the code, so just use <code>ctrl + q</code> (intellij @ linux) or <code>f1</code> (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).</p>
+
+<h1>Notable contributions</h1>
+
+<p>I'd like to give a big thanks to some of these folks, for their suggestions and / or pull requests that helped make this plugin as popular as it is today:</p>
+
+<ul>
+<li>
+<a href="https://github.com/mostr" class="user-mention">@mostr</a> - for bugfixes and a framework to do integration testing,</li>
+<li>... you! - for using the plugin :-)</li>
+</ul><h1>License</h1>
+
+<p><img src="https://github.com/ktoso/maven-git-commit-id-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3">
+I'm releasing this plugin under the <strong>GNU Lesser General Public License 3.0</strong>.</p>
+
+<p>You're free to use it as you wish, the full license text is attached in the LICENSE file.</p>
+
+<p>The best way to ask for features / improvements is <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues">via the Issues section on github - it's better than email</a> because I won't loose when I have a "million emails inbox" day,
+and maybe someone else has some idea or would like to upvote your issue.</p>
+
+<p>In all other cases, feel free to contact me by sending an email to <code>konrad.malawski@java.pl</code>, I'll definitely write back. :-)</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-2771927-18");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
