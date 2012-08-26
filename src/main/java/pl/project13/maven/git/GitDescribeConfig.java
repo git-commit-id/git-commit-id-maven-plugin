@@ -60,20 +60,32 @@ public class GitDescribeConfig {
    * <p>
    * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
    * use <b>N</b> digits, or as many digits as needed to form a unique object name.
+   * Valid values range form 2 to 40 (inclusive). With special treatment for 0 (see "Special values").
    * </p>
    *
-   * <p><em>
-   *   An N of 0 will suppress long format, only showing the closest tag.
-   * </em></p>
+   * <p>
+   *   <strong>Special values:</strong>
+   *   <ul>
+   *     <li>
+   *       0 - will suppress long format, only showing the closest tag. (Won't show anything about the commit's id).
+   *     </li>
+   *     <li>
+   *       <strong>1 - is invalid</strong>. Git's minimal abbrev lenght is 2 chars.
+   *       This will be silently ignored and you'll get a full commit id.
+   *     </li>
+   *   </ul>
+   * </p>
    *
-   * Example:
+   * Examples:
    *
    * <pre>
    * > git describe
-   *    some-tag-2-gb6a7335
+   *    some-tag-2-gb6a7335 # the default 7 kicked in
    *
    * > git describe --abbrev=0
    *   some-tag
+   * > git describe --abbrev=3
+   *   some-tag-2-gb6a73 # you specified 3, but git determined that it wouldn't be unique, and returned 5 chars instead!
    *
    * > git describe --abbrev=40
    *   some-tag-2-gb6a73ed747dd8dc98642d731ddbf09824efb9d48

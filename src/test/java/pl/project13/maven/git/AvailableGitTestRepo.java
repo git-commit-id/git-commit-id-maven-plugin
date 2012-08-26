@@ -26,6 +26,26 @@ public enum AvailableGitTestRepo {
   WITH_ONE_COMMIT_DIRTY("src/test/resources/_git_one_commit_dirty"),
   GIT_COMMIT_ID("src/test/resources/_git_of_git_commit_id"),
   ON_A_TAG("src/test/resources/_git_on_a_tag"),
+  /**
+   * <pre>
+   * > lg
+   *   * b6a73ed - (HEAD, master) third addition (32 hours ago) <Konrad Malawski>
+   *   * d37a598 - (newest-tag, lightweight-tag) second line (32 hours ago) <Konrad Malawski>
+   *   * 9597545 - (annotated-tag) initial commit (32 hours ago) <Konrad Malawski>
+   * </pre>
+   *
+   * Where the <b>newest-tag</b> was created latest:
+   * <pre>
+   * > tag -v newest-tag
+   * object d37a598a7a98531ad1375966642c6b1263129436
+   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1346017608 +0200
+   *
+   * > tag -v annotated-tag
+   * object 95975455ef2b1af048f2926b9ba7fb804e22171b
+   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1345901561 +0200
+   * </pre>
+   */
+  WITH_COMMIT_THAT_HAS_TWO_TAGS("src/test/resources/_git_with_commit_that_has_two_tags"),
   ON_A_TAG_DIRTY("src/test/resources/_git_on_a_tag_dirty"),
   /**
    * <pre>

@@ -27,6 +27,7 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -278,6 +279,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   @Override
   public DescribeResult call() throws GitAPIException {
+    // needed for abbrev id's calculation
+    ObjectReader objectReader = repo.newObjectReader();
+
     // get tags
     Map<ObjectId, String> tagObjectIdToName = findTagObjectIds(repo, tagsFlag);
 
@@ -296,7 +300,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     if (foundZeroTags(tagObjectIdToName)) {
-      return new DescribeResult(headCommitId, dirty, dirtyOption)
+      return new DescribeResult(objectReader, headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
     }
 
@@ -310,7 +314,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
-    return createDescribeResult(headCommitId, dirty, howFarFromWhichTag);
+    return createDescribeResult(objectReader, headCommitId, dirty, howFarFromWhichTag);
   }
 
   /**
@@ -320,13 +324,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * <p/>
    * The exact logic is following what <pre>git-describe</pre> would do.
    */
-  private DescribeResult createDescribeResult(ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {
+  private DescribeResult createDescribeResult(ObjectReader objectReader, ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {
     if (howFarFromWhichTag == null) {
-      return new DescribeResult(headCommitId, dirty, dirtyOption)
+      return new DescribeResult(objectReader, headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
 
     } else if (howFarFromWhichTag.first > 0 || forceLongFormat) {
-      return new DescribeResult(howFarFromWhichTag.second, howFarFromWhichTag.first, headCommitId, dirty, dirtyOption)
+      return new DescribeResult(objectReader, howFarFromWhichTag.second, howFarFromWhichTag.first, headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev); // we're a bit away from a tag
 
     } else if (howFarFromWhichTag.first == 0) {
@@ -334,7 +338,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
           .withCommitIdAbbrev(abbrev); // we're ON a tag
 
     } else if (alwaysFlag) {
-      return new DescribeResult(headCommitId)
+      return new DescribeResult(objectReader, headCommitId)
           .withCommitIdAbbrev(abbrev); // we have no tags! display the commit
 
     } else {

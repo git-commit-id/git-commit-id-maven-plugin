@@ -17,30 +17,51 @@
 
 package pl.project13.jgit;
 
+import com.google.common.base.Optional;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
-import org.jetbrains.annotations.NotNull;
+import org.eclipse.jgit.lib.Repository;
+import org.junit.Before;
 import org.junit.Test;
+import pl.project13.maven.git.AvailableGitTestRepo;
+import pl.project13.maven.git.FileSystemMavenSandbox;
+import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DescribeResultTest {
+public class DescribeResultTest extends GitIntegrationTest {
 
-  @NotNull
-  String VERSION = "v2.5";
-  @NotNull
-  String DEFAULT_ABBREV_COMMIT_ID = "0000000";
-  @NotNull
-  String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
-  @NotNull
-  String FULL_COMMIT_ID = "0000000000000000000000000000000000000000";
-  @NotNull
-  String G_FULL_COMMIT_ID = "g" + FULL_COMMIT_ID;
-  @NotNull
-  String DIRTY_MARKER = "DEV";
+  final static String PROJECT_NAME = "my-jar-project";
+
+  final static String VERSION = "v2.5";
+  final static String DEFAULT_ABBREV_COMMIT_ID = "b6a73ed";
+  final static String FULL_HEAD_COMMIT_ID = "b6a73ed747dd8dc98642d731ddbf09824efb9d48";
+  public static final ObjectId HEAD_OBJECT_ID = ObjectId.fromString(FULL_HEAD_COMMIT_ID);
+  final static String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
+  final static String DIRTY_MARKER = "DEV";
+
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+  }
+
+  @Override
+  protected Optional<String> projectDir() {
+    return Optional.of(PROJECT_NAME);
+  }
 
   @Test
   public void shouldToStringForTag() throws Exception {
     // given
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
     DescribeResult res = new DescribeResult(VERSION);
 
     // when
@@ -50,11 +71,13 @@ public class DescribeResultTest {
     assertThat(s).isEqualTo(VERSION);
   }
 
-
   @Test
   public void shouldToStringForDirtyTag() throws Exception {
     // given
-    DescribeResult res = new DescribeResult(VERSION, 2, ObjectId.zeroId(), true, DIRTY_MARKER);
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER);
 
     // when
     String s = res.toString();
@@ -66,8 +89,14 @@ public class DescribeResultTest {
   @Test
   public void shouldToStringForDirtyTagAnd10Abbrev() throws Exception {
     // given
-    DescribeResult res = new DescribeResult(VERSION, 2, ObjectId.zeroId(), true, DIRTY_MARKER).withCommitIdAbbrev(10);
-    String expectedHash = "g0000000000";
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER)
+        .withCommitIdAbbrev(10);
+
+    String expectedHash = "gb6a73ed747";
+
     // when
     String s = res.toString();
 
@@ -78,7 +107,10 @@ public class DescribeResultTest {
   @Test
   public void shouldToStringFor2CommitsAwayFromTag() throws Exception {
     // given
-    DescribeResult res = new DescribeResult(VERSION, 2, ObjectId.zeroId());
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID);
 
     // when
     String s = res.toString();
@@ -90,7 +122,11 @@ public class DescribeResultTest {
   @Test
   public void shouldToStringForNoTagJustACommit() throws Exception {
     // given
-    DescribeResult res = new DescribeResult(ObjectId.zeroId());
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    DescribeResult res = new DescribeResult(repo.newObjectReader(), HEAD_OBJECT_ID);
+
 
     // when
     String s = res.toString();
