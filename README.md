@@ -415,11 +415,10 @@ v1.0-2-g2414721-DEV
 
 Other outputs may look like:   
 
-* **v1.0.4** - if the repository is "on a tag"
-* **v1.0.4-DEV** - if the repository is "on a tag", but in "dirty" state
+* **v1.0** - if the repository is "on a tag" (though describe can be forced to print **v1.0.4-0-g2414721** instead if you want -- use the `full` config option),
+* **v1.0-DEV** - if the repository is "on a tag", but in "dirty" state. This dirty marker can, and will be included wherever possible,
 * **2414721** - a plain commit id hash if not tags were defined (of determined "near" this commit). 
                 *It does NOT include the "g" prefix, that is used in the "full" describe output format!*
-```
 
 For more details (on when what output will be returned etc), see <code>man git-describe</code> (or here: [git-describe](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html)). In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.
 
@@ -458,12 +457,13 @@ things like "i'll get back to that" etc - you don't need such tags to be exposed
 tags to be included in the search, enable this option.
 
 <blockquote>
-If you're using maven's `release:prepare` and `release:perform` it's using annotated tags ;-)
+TIP: If you're using maven's `release:prepare` and `release:perform` it's using <em>annotated</em> tags.
 </blockquote>
 
-Configuration details
-=====================
-Just a short recap of the available parameters...
+Configuration options in depth
+==============================
+An in depth recap of the available configuration parameters.
+Note that all of them are optional, though you will probably want to fine tune the plugin to act exactly the way you want.
 
 Optional parameters:
 
@@ -477,7 +477,7 @@ Optional parameters:
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
 
 **gitDescribe**:
-Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html), you probably can skip this section, as it just explains the same options that git provides.
+Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
 
 * **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git bevaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
 * **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
