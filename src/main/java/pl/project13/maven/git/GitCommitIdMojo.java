@@ -313,7 +313,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       String branch = git.getBranch();
       put(properties, BRANCH, branch);
 
-      // git.describe
+      // git.commit.id.describe
       maybePutGitDescribe(properties, git);
 
       // git.commit.id
@@ -380,7 +380,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       put(properties, COMMIT_DESCRIBE, describeResult.toString());
     } catch (GitAPIException ex) {
-      throw new MojoExecutionException("Unable to obtain git.describe information", ex);
+      throw new MojoExecutionException("Unable to obtain git.commit.id.describe information", ex);
     }
   }
 

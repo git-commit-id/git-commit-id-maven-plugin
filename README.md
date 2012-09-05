@@ -195,7 +195,7 @@ Now you just have to include such a properties file in your project under `/src/
 ```
 git.branch=${git.branch}
 
-git.describe=${git.describe}
+git.commit.id.describe=${git.commit.id.describe}
 
 git.build.user.name=${git.build.user.name}
 git.build.user.email=${git.build.user.email}
@@ -225,7 +225,7 @@ Start out with with adding the above steps to your project, next paste this **gi
 
     <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
         <property name="branch" value="${git.branch}"/>
-        <property name="describe" value="${git.describe}"/>
+        <property name="describe" value="${git.commit.id.describe}"/>
         <property name="commitId" value="${git.commit.id}"/>
         <property name="commitIdAbbrev" value="${commit.id.abbrev}"/>
         <property name="commitTime" value="${git.commit.time}"/>
@@ -254,7 +254,7 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
-  String describe;                // =${git.describe}
+  String describe;                // =${git.commit.id.describe}
   String commitId;                // =${git.commit.id}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String buildUserName;           // =${git.build.user.name}
@@ -368,7 +368,7 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 public GitRepositoryState(Properties properties)
 {
    this.branch = properties.get("git.branch").toString();
-   this.describe = properties.get("git.describe").toString();
+   this.describe = properties.get("git.commit.id.describe").toString();
    this.commitId = properties.get("git.commit.id").toString();
    this.buildUserName = properties.get("git.build.user.name").toString();
    this.buildUserEmail = properties.get("git.build.user.email").toString();
