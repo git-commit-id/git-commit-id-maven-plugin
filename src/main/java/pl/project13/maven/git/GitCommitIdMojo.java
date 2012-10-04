@@ -209,7 +209,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     dotGitDirectory = lookupGitDirectory();
     throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-    log("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
+    if(dotGitDirectory != null) {
+    	log("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
+    } else {
+    	log(".git directory could not be found, skipping execution");
+        return;
+    }
 
     try {
       properties = initProperties();
