@@ -17,30 +17,38 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.Closeables;
-import com.google.common.io.Files;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import pl.project13.jgit.DescribeCommand;
-import pl.project13.jgit.DescribeResult;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import pl.project13.jgit.DescribeCommand;
+import pl.project13.jgit.DescribeResult;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 
 /**
  * Goal which puts git build-time information into property files or maven's properties.
@@ -76,6 +84,14 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   MavenProject project;
+
+  /**
+   * Contains the full list of projects in the reactor.
+   *
+   * @parameter expression="${reactorProjects}"
+   * @readonly
+   */
+  private List reactorProjects;
 
   /**
    * Specifies whether the goal runs in verbose mode.
@@ -197,8 +213,11 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean runningTests = false;
 
+//  @NotNull
+//  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
+
   @NotNull
-  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
+  LoggerBridge loggerBridge = new StdOutLoggerBridge(verbose);
 
   public void execute() throws MojoExecutionException {
     if (isPomProject(project) && skipPoms) {
@@ -223,11 +242,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       loadGitData(properties);
       loadBuildTimeData(properties);
 
+      logProperties(properties);
+
       if (generateGitPropertiesFile) {
         generatePropertiesFile(properties, generateGitPropertiesFilename);
       }
 
-      logProperties(properties);
+      appendPropertiesToMaven(properties);
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     }
@@ -235,7 +256,30 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Finished running.");
   }
 
-  private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
+  private void appendPropertiesToMaven(@NotNull Properties properies) {
+    log("Appending to Maven properties");
+    
+    if (project != null) {
+      log("Project is ok");
+      
+      if (reactorProjects != null) {
+        log("Reactor is ok");
+        Iterator projIter = reactorProjects.iterator();
+        while (projIter.hasNext()) {
+          MavenProject nextProj = (MavenProject) projIter.next();
+          log("Storing for \"%s\" project", nextProj.getName());
+
+          for (Object key : properties.keySet()) {
+            String keyString = key.toString();
+            log("Appending key %s", keyString);
+            nextProj.getProperties().put(key, properties.get(key));
+          }
+        }
+      }
+    }
+  }
+
+private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
     if (required && directoryDoesNotExits(dotGitDirectory)) {
       throw new MojoExecutionException(message);
     }
