@@ -67,7 +67,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
   }
 
   @Test
@@ -137,6 +137,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     // when
     DescribeCommand command = DescribeCommand.on(repo);
+    command.dirty(DIRTY_SUFFIX);
     command.setVerbose(true);
     DescribeResult res = command.call();
 
@@ -155,7 +156,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
-    String customDirtySuffix = "DEV";
+    String customDirtySuffix = "-DEV";
 
     Repository repo = git().getRepository();
 
@@ -169,7 +170,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
     RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + "-" + customDirtySuffix);
+    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
   }
 
   @Test
@@ -221,7 +222,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGiveDirtyTag() throws Exception {
+  public void shouldNotGiveDirtyTagByDefault() throws Exception {
     // given
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
@@ -239,7 +240,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .call();
 
     // then
-    assertThat(res.toString()).isEqualTo("v1.0.0" + DIRTY_SUFFIX);
+    assertThat(res.toString()).isEqualTo("v1.0.0");
   }
 
   @Test
@@ -256,6 +257,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .dirty(DIRTY_SUFFIX)
         .abbrev(0)
         .setVerbose(true)
         .call();
@@ -263,7 +265,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("annotated-tag-dirty");
+    assertThat(res.toString()).isEqualTo("annotated-tag" + DIRTY_SUFFIX);
   }
 
   @Test

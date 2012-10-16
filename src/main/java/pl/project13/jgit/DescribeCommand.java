@@ -270,10 +270,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
-    if (dirtyMarker != null && dirtyMarker.length() > 0) {
-      log("--dirty = \"-%s\"", dirtyMarker);
-      this.dirtyOption = Optional.of(dirtyMarker);
-    }
+    Optional<String> option = Optional.fromNullable(dirtyMarker);
+    log("--dirty = \"-%s\"", option.or(""));
+    this.dirtyOption = option;
     return this;
   }
 

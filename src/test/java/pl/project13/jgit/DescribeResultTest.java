@@ -38,7 +38,7 @@ public class DescribeResultTest extends GitIntegrationTest {
   final static String FULL_HEAD_COMMIT_ID = "b6a73ed747dd8dc98642d731ddbf09824efb9d48";
   public static final ObjectId HEAD_OBJECT_ID = ObjectId.fromString(FULL_HEAD_COMMIT_ID);
   final static String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
-  final static String DIRTY_MARKER = "DEV";
+  final static String DIRTY_MARKER = "-DEV";
 
   @Override
   @Before
@@ -83,7 +83,7 @@ public class DescribeResultTest extends GitIntegrationTest {
     String s = res.toString();
 
     // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID + "-" + DIRTY_MARKER);
+    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID + DIRTY_MARKER);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class DescribeResultTest extends GitIntegrationTest {
     String s = res.toString();
 
     // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + expectedHash + "-" + DIRTY_MARKER);
+    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + expectedHash + DIRTY_MARKER);
   }
 
   @Test

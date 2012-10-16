@@ -38,7 +38,6 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class DescribeResult {
 
-  public static final String DEFAULT_DIRTY_MARKER = "dirty";
   private Optional<String> tagName = Optional.absent();
 
   private Optional<ObjectId> commitId = Optional.absent();
@@ -86,13 +85,13 @@ public class DescribeResult {
     this.abbreviatedObjectId = createAbbreviatedCommitId(objectReader, commitId, this.abbrev);
 
     this.dirty = dirty;
-    this.dirtyMarker = dirtyMarker.or(DEFAULT_DIRTY_MARKER);
+    this.dirtyMarker = dirtyMarker.or("");
   }
 
   public DescribeResult(String tagName, boolean dirty) {
     this.tagName = Optional.of(tagName);
     this.dirty = dirty;
-    this.dirtyMarker = DEFAULT_DIRTY_MARKER;
+    this.dirtyMarker = "";
   }
 
   @NotNull
@@ -132,12 +131,12 @@ public class DescribeResult {
     List<String> parts;
 
     if (abbrevZeroHidesCommitsPartOfDescribe()) {
-      parts = newArrayList(tag(), dirtyMarker());
+      parts = newArrayList(tag());
     } else {
-      parts = newArrayList(tag(), commitsAwayFromTag(), prefixedCommitId(), dirtyMarker());
+      parts = newArrayList(tag(), commitsAwayFromTag(), prefixedCommitId());
     }
 
-    return Joiner.on("-").skipNulls().join(parts);
+    return Joiner.on("-").skipNulls().join(parts) + dirtyMarker(); // like in the describe spec the entire "-dirty" is configurable (incl. "-")
   }
 
   private boolean abbrevZeroHidesCommitsPartOfDescribe() {
@@ -151,7 +150,7 @@ public class DescribeResult {
 
   @Nullable
   public String dirtyMarker() {
-    return dirty ? dirtyMarker : null;
+    return dirty ? dirtyMarker : "";
   }
 
   /**
@@ -175,7 +174,6 @@ public class DescribeResult {
   public String prefixedCommitId() {
     if (abbreviatedObjectId.isPresent()) {
       String name = abbreviatedObjectId.get().name();
-      System.out.println("name abbrev = " + name);
       return gPrefixedCommitId(name);
 
     } else if (commitId.isPresent()) {
