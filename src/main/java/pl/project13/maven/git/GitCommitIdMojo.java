@@ -67,6 +67,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_MESSAGE_FULL = "commit.message.full";
   public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public static final String COMMIT_TIME = "commit.time";
+  public static final String MAVEN_GROUP_ID = "maven.groupId";
+  public static final String MAVEN_ARTIFACT_ID = "maven.artifactId";
+  public static final String MAVEN_VERSION = "maven.version";
 
   /**
    * The maven project.
@@ -189,6 +192,15 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean failOnNoGitDirectory;
 
   /**
+   * Append maven {@code groupId}, {@code artifactId} and {@code version}
+   * to generated {@code git.properties} file
+   *
+   * @parameter default-value="false"
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private boolean appendMavenInfo;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -224,6 +236,9 @@ public class GitCommitIdMojo extends AbstractMojo {
       loadBuildTimeData(properties);
 
       if (generateGitPropertiesFile) {
+        if(appendMavenInfo) {
+          appendArtifactInfo(properties);
+        }
         generatePropertiesFile(properties, generateGitPropertiesFilename);
       }
 
@@ -267,6 +282,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     } else {
       return properties = new Properties(); // that's ok for unit tests
     }
+  }
+
+  /**
+   * Copies maven properties (with keys listed in {@code bypassedProperties})
+   * to its argument.
+   * @param properties properties to augment
+   */
+  private void appendArtifactInfo(@NotNull Properties properties) {
+    putWithoutPrefix(properties, MAVEN_GROUP_ID, project.getGroupId());
+    putWithoutPrefix(properties, MAVEN_ARTIFACT_ID, project.getArtifactId());
+    putWithoutPrefix(properties, MAVEN_VERSION, project.getVersion());
   }
 
   private void logProperties(@NotNull Properties properties) {
