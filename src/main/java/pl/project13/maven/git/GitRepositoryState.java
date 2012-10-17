@@ -171,7 +171,7 @@ public class GitRepositoryState {
   }
 
   private void appendProperty(@NotNull StringBuilder sb, String label, String value) {
-    sb.append(String.format("\"%s\" = \"%s\",", label, value));
+    sb.append(String.format("\"%s\": \"%s\",", label, value));
   }
 
 }
