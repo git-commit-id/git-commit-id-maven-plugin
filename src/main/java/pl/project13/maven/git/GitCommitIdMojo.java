@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
+import pl.project13.maven.git.log.MavenLoggerBridge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
@@ -213,11 +213,8 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean runningTests = false;
 
-//  @NotNull
-//  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
-
   @NotNull
-  LoggerBridge loggerBridge = new StdOutLoggerBridge(verbose);
+  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
 
   public void execute() throws MojoExecutionException {
     if (isPomProject(project) && skipPoms) {
@@ -260,19 +257,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Appending to Maven properties");
     
     if (project != null) {
-      log("Project is ok");
-      
       if (reactorProjects != null) {
-        log("Reactor is ok");
         Iterator projIter = reactorProjects.iterator();
+
         while (projIter.hasNext()) {
           MavenProject nextProj = (MavenProject) projIter.next();
-          log("Storing for \"%s\" project", nextProj.getName());
+          Properties mavenProperties = nextProj.getProperties(); 
+              
+          log("Injecting Git properties to \"%s\" project", nextProj.getName());
 
           for (Object key : properties.keySet()) {
-            String keyString = key.toString();
-            log("Appending key %s", keyString);
-            nextProj.getProperties().put(key, properties.get(key));
+            mavenProperties.put(key, properties.get(key));
           }
         }
       }
