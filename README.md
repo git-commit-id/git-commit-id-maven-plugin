@@ -142,7 +142,11 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
-                    
+
+                    <!-- Append maven.groupId, maven.artifactId and maven.version to generated git.properties, false by default -->
+                    <!-- @since 2.1.3 -->
+                    <appendMavenInfo>true</appendMavenInfo>
+
                     <!-- @since 2.1.0 -->
                     <!-- 
                         read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
