@@ -222,6 +222,59 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  public void shouldNotGiveDirtyMarkerWhenOnATagAndDirtyButNoDirtyOptionConfigured() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+    git().checkout().setName("v1.0.0").call();
+
+    // when
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).isEqualTo("v1.0.0");
+  }
+
+  @Test
+  public void shouldGiveTagWithCustomDirtyMarker() throws Exception {
+    // given
+    String customDirtySuffix = "-banana";
+
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    Repository repo = git().getRepository();
+    git().checkout().setName("v1.0.0").call();
+
+    // when
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .dirty(customDirtySuffix)
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).isEqualTo("v1.0.0" + customDirtySuffix);
+  }
+
+  @Test
   public void shouldNotGiveDirtyTagByDefault() throws Exception {
     // given
     mavenSandbox

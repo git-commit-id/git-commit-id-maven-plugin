@@ -194,7 +194,7 @@
             <!--<skip>false</skip>-->
             <!--<always>false</always>-->
             <!--<abbrev>7</abbrev>-->
-            <!--<dirty>DEVEL</dirty>-->
+            <!--<dirty>-DEVEL</dirty>-->
             <!--<forceLongFormat>false</forceLongFormat>-->
           <!--</gitDescribe>-->
 

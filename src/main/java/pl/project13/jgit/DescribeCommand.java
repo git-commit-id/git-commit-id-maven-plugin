@@ -271,7 +271,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     Optional<String> option = Optional.fromNullable(dirtyMarker);
-    log("--dirty = \"-%s\"", option.or(""));
+    log("--dirty = \"%s\"", option.or(""));
     this.dirtyOption = option;
     return this;
   }
@@ -295,7 +295,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       String tagName = tagObjectIdToName.get(headCommit);
       log("The commit we're on is a Tag ([%s]), returning.", tagName);
 
-      return new DescribeResult(tagName, dirty);
+      return new DescribeResult(tagName, dirty, dirtyOption);
     }
 
     if (foundZeroTags(tagObjectIdToName)) {

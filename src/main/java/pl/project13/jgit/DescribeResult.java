@@ -54,7 +54,7 @@ public class DescribeResult {
   public static final DescribeResult EMPTY = new DescribeResult("");
 
   public DescribeResult(@NotNull String tagName) {
-    this(tagName, false);
+    this(tagName, false, Optional.<String>absent());
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @Nullable ObjectId commitId) {
@@ -88,10 +88,10 @@ public class DescribeResult {
     this.dirtyMarker = dirtyMarker.or("");
   }
 
-  public DescribeResult(String tagName, boolean dirty) {
+  public DescribeResult(@NotNull String tagName, boolean dirty, @NotNull Optional<String> dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.dirty = dirty;
-    this.dirtyMarker = "";
+    this.dirtyMarker = dirtyMarker.or("");
   }
 
   @NotNull

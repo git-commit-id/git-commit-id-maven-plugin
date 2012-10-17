@@ -168,7 +168,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                         <abbrev>7</abbrev>
                         
                         <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
-                        <dirty>DEVEL</dirty>
+                        <dirty>-dirty</dirty>
                                                 
                         <!-- 
                              always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
