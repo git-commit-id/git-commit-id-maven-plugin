@@ -108,7 +108,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                     <!-- that's the default value -->
                     <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
 
-                    <!-- false is default here, it prints some more information during the build -->
+                    <!-- true is default here, it prints some more information during the build -->
                     <verbose>true</verbose>
 
                     <!--
@@ -470,7 +470,7 @@ Optional parameters:
 * **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. `${project.basedir}/.git` is the default value and will most probably be ok for single module projects, in other cases please use `../` to get higher up in the dir tree. An example would be: `${project.basedir}/../.git` which I'm currently using in my projects :-)
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
-* **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
+* **verbose** - `(default: true)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
