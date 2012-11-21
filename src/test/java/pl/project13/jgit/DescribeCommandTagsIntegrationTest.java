@@ -114,6 +114,30 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     assertThat(res.toString()).contains("lightweight-tag");
   }
 
+  @Test
+  public void shouldFindAnnotatedTagWithMatchOptionGiven() throws Exception {
+    // given
+
+    // HEAD
+    // lightweight-tag
+    // annotated-tag
+
+    Repository repo = git().getRepository();
+    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    // when
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .match("annotated*")
+        .call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    assertThat(res.toString()).contains("annotated-tag");
+  }
 
   /**
    * <pre>

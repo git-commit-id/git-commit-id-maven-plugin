@@ -42,6 +42,7 @@ import pl.project13.maven.git.util.Pair;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -79,7 +80,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 //  private boolean tagsFlag = false;
 //  private Optional<Integer> candidatesOption = Optional.of(10);
 //  private boolean exactMatchFlag = false;
-//  private Optional<String> matchOption = Optional.absent();
+
+  private Optional<String> matchOption = Optional.absent();
 
   /**
    * How many chars of the commit hash should be displayed? 7 is the default used by git.
@@ -256,6 +258,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       abbrev(config.getAbbrev());
       forceLongFormat(config.getForceLongFormat());
       tags(config.getTags());
+      match(config.getMatch());
     }
     return this;
   }
@@ -273,6 +276,20 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Optional<String> option = Optional.fromNullable(dirtyMarker);
     log("--dirty = \"%s\"", option.or(""));
     this.dirtyOption = option;
+    return this;
+  }
+
+  /**
+   * <pre>--match glob-pattern</pre>
+   * Consider only those tags which match the given glob pattern.
+   *
+   * @param match the glob style pattern to match against the tag names
+   * @return itself, to allow fluent configuration
+   */
+  @NotNull
+  public DescribeCommand match(@Nullable String pattern) {
+    matchOption = Optional.fromNullable(pattern);
+    log("--match = \"%s\"", matchOption.or(""));
     return this;
   }
 
@@ -482,12 +499,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     try {
       walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
 
-
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
 
+      String matchPattern = createMatchPattern();
+      Pattern regex = Pattern.compile(matchPattern);
       for (Ref tagRef : tagRefs) {
         walk.reset();
         String name = tagRef.getName();
+        if(!regex.matcher(name).matches()) {
+            log("Skipping tagRef with name " + name + " as it doesn't match " + matchPattern);
+            continue;
+        }
         ObjectId resolvedCommitId = repo.resolve(name);
 
         // todo that's a bit of a hack...
@@ -516,6 +538,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     return Collections.emptyMap();
+  }
+
+  private String createMatchPattern() {
+    if(!matchOption.isPresent())
+      return ".*";
+
+    StringBuffer buf = new StringBuffer();
+    buf.append("^refs/tags/\\Q");
+    buf.append(matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q"));
+    buf.append("\\E$");
+    return buf.toString();
   }
 
   @VisibleForTesting

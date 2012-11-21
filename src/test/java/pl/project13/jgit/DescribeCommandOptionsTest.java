@@ -84,10 +84,11 @@ public class DescribeCommandOptionsTest {
   @Test
   public void apply_shouldDelegateToAllOptions() throws Exception {
     // given
-    final String DEVEL = "DEVEL";
+      final String DEVEL = "DEVEL";
+      final String MATCH = "*";
     final int ABBREV = 12;
 
-    GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, ABBREV, true, true);
+    GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);
 
     Repository repo = mock(Repository.class);
     DescribeCommand command = DescribeCommand.on(repo);
