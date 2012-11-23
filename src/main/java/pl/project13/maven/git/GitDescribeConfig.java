@@ -56,6 +56,16 @@ public class GitDescribeConfig {
   private String dirty;
 
   /**
+   *<pre>--match glob-pattern</pre>
+   * Only consider tags matching the given pattern (can be used to avoid leaking private tags made from the repository).
+   *
+   * <b>*</b> by default, following git's behaviour.
+   *
+   * @parameter default-value="*"
+   */
+  private String match;
+
+  /**
    * <pre>--abbrev=N</pre>
    * <p>
    * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
@@ -144,9 +154,10 @@ public class GitDescribeConfig {
   public GitDescribeConfig() {
   }
 
-  public GitDescribeConfig(boolean always, String dirty, Integer abbrev, boolean forceLongFormat, boolean tags) {
+  public GitDescribeConfig(boolean always, String dirty, String match, Integer abbrev, boolean forceLongFormat, boolean tags) {
     this.always = always;
     this.dirty = dirty;
+    this.match = match;
     this.abbrev = abbrev;
     this.forceLongFormat = forceLongFormat;
     this.tags = tags;
@@ -166,6 +177,14 @@ public class GitDescribeConfig {
 
   public void setDirty(String dirty) {
     this.dirty = dirty;
+  }
+
+  public String getMatch() {
+    return match;
+  }
+
+  public void setMatch(String match) {
+    this.match = match;
   }
 
   public int getAbbrev() {
