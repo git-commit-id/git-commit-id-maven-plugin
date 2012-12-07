@@ -158,7 +158,7 @@ It's really simple to setup this plugin, here's a sample pom that you may base y
                             if no tag was found "near" this commit, just print the commit's id instead, 
                             helpful when you always expect this field to be not-empty 
                         -->
-                        <always>true</always>
+                        <always>false</always>
                         <!--
                              how many chars should be displayed as the commit object id? 
                              7 is git's default, 
@@ -484,7 +484,7 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **dirty** - `(default: "")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be inclided in the configuration parameter, as it will not be added automatically. If in doubt run git describe --dirty=-my_thing` to see how the end result will look like.
 * **tags** - `(default: false)`
 * **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.
-* **always** - `(default: false)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
+* **always** - `(default: true)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
 
 
