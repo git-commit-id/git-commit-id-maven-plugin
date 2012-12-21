@@ -495,6 +495,8 @@ Notable contributions
 I'd like to give a big thanks to some of these folks, for their suggestions and / or pull requests that helped make this plugin as popular as it is today:
 
 * @mostr - for bugfixes and a framework to do integration testing,
+* @fredcooke - for consistent feedback and suggestions,
+* @MrOnion - for a small yet fast bugfix,
 * ... you! - for using the plugin :-)
 
 License
