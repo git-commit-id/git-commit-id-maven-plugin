@@ -371,7 +371,16 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Git git = Git.wrap(repo);
     Status status = git.status().call();
 
-    boolean isDirty = !status.isClean();
+		// Git describe doesn't mind about untracked files when checking if
+		// repo is dirty. JGit does this, so we cannot use the isClean method
+		// to get the same behaviour. Instead check dirty state without
+		// status.getUntracked().isEmpty()
+		boolean isDirty = !(status.getAdded().isEmpty() //
+						&& status.getChanged().isEmpty() //
+						&& status.getRemoved().isEmpty() //
+						&& status.getMissing().isEmpty() //
+						&& status.getModified().isEmpty() //
+						&& status.getConflicting().isEmpty());
 
     log("Repo is in dirty state = [%s] ", isDirty);
     return isDirty;
