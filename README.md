@@ -56,7 +56,7 @@ But I highly recommend using only stable versions, from maven central... :-)
 
 Using the plugin
 ----------------
-It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
+It's really simple to setup this plugin; below is a sample pom that you may base your **pom.xml** on. Note that it binds to the initialize phase by default such that all Git properties are available for use throughout the build lifecycle.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
