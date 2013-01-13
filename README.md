@@ -382,6 +382,11 @@ public GitRepositoryState(Properties properties)
 }
 ```
 
+Yet another way to use the plugin
+=================================
+
+Rather than reading properties files at runtime or injecting with spring, you can filter a Java source file directly and place it into src/main/java with an ignore, or into generated sources directory within the target directory. This has some minor advantages and disadvantages, but is useful for avoiding runtime injection or lookup from properties files that might get lost during repackaging later if used within a library. 
+
 Git describe - short intro to an awesome command
 ==================================================
 Git's [describe command](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html) is the best way to really see "where" a commit is in the repositories "timeline". 
