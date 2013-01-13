@@ -417,9 +417,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
       for (RevCommit commit : revWalk) {
         ObjectId objId = commit.getId();
-        String lookup = tagObjectIdToName.get(objId).iterator().next();
-        if (lookup != null) {
-          return Collections.singletonList(commit);
+        if (tagObjectIdToName.size() > 0) {
+          List<String> maybeList = tagObjectIdToName.get(objId);
+          if (maybeList != null && maybeList.get(0) != null) {
+            return Collections.singletonList(commit);
+          }
         }
       }
 
@@ -546,9 +548,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
             DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
 
-            if(commitIdsToTags.containsKey(resolvedCommitId)) {
+            if (commitIdsToTags.containsKey(resolvedCommitId)) {
               commitIdsToTags.get(resolvedCommitId).add(datedRevTag
-              );
+                                                       );
             } else {
               commitIdsToTags.put(resolvedCommitId, newArrayList(datedRevTag));
             }
@@ -592,7 +594,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {
         @Override
         public String apply(DatedRevTag input) {
-          return input.tagName;
+          return trimFullTagName(input.tagName);
         }
       });
 
