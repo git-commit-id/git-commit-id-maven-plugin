@@ -56,7 +56,7 @@ But I highly recommend using only stable versions, from maven central... :-)
 
 Using the plugin
 ----------------
-It's really simple to setup this plugin, here's a sample pom that you may base your **pom.xml** on:
+It's really simple to setup this plugin; below is a sample pom that you may base your **pom.xml** on. Note that it binds to the initialize phase by default such that all Git properties are available for use throughout the build lifecycle.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -381,6 +381,11 @@ public GitRepositoryState(Properties properties)
    this.commitTime = properties.get("git.commit.time").toString();
 }
 ```
+
+Yet another way to use the plugin
+=================================
+
+Rather than reading properties files at runtime or injecting with spring, you can filter a Java source file directly and place it into src/main/java with an ignore, or into generated sources directory within the target directory. This has some minor advantages and disadvantages, but is useful for avoiding runtime injection or lookup from properties files that might get lost during repackaging later if used within a library. 
 
 Git describe - short intro to an awesome command
 ==================================================
