@@ -37,6 +37,13 @@ public class MavenLoggerBridge implements LoggerBridge {
   }
 
   @Override
+  public void error(String msg, Object... interpolations) {
+    if(verbose) {
+      logger.error(String.format(msg, interpolations));
+    }
+  }
+
+  @Override
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
