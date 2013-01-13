@@ -560,8 +560,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         }
       }
 
-      for (List<DatedRevTag> datedRevTags : commitIdsToTags.values()) {
-        System.out.println("datedRevTags = " + datedRevTags);
+      for (Map.Entry<ObjectId, List<DatedRevTag>> entry : commitIdsToTags.entrySet()) {
+        log("key [%s], tags => [%s] ", entry.getKey(), entry.getValue());
       }
 
       Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
