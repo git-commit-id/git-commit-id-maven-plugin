@@ -35,10 +35,10 @@
 package pl.project13.jgit;
 
 import com.google.common.base.Optional;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.FileSystemMavenSandbox;
@@ -150,7 +150,6 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
    *   newest-tag-1-gb6a73ed
    */
   @Test
-  @Ignore("Will be implemented soon...")
   public void shouldFindNewerTagWhenACommitHasTwoOrMoreTags() throws Exception {
     // given
 
@@ -172,5 +171,65 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     assertThat(res).isNotNull();
 
     assertThat(res.toString()).contains("newest-tag");
+  }
+
+  @Test
+  public void shouldUseTheNewestTagOnACommitIfItHasMoreThanOneTags() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    String snapshotTag = "0.0.1-SNAPSHOT";
+    String latestTag = "OName-0.0.1";
+
+    Repository repo = git().getRepository();
+    Git jgit = Git.wrap(repo);
+    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    // when
+    jgit.tag().setName(snapshotTag).call();
+    jgit.tag().setName(latestTag).call();
+
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res.toString()).isEqualTo(latestTag);
+  }
+
+  @Test
+  public void shouldUseTheNewestTagOnACommitIfItHasMoreThanOneTagsReversedCase() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+
+    String snapshotTag = "0.0.1-SNAPSHOT";
+    String latestTag = "OName-0.0.1";
+
+    Repository repo = git().getRepository();
+    Git jgit = Git.wrap(repo);
+    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+
+    // when
+    jgit.tag().setName(latestTag).call();
+    jgit.tag().setName(snapshotTag).call();
+
+    DescribeResult res = DescribeCommand
+        .on(repo)
+        .tags()
+        .setVerbose(true)
+        .call();
+
+    // then
+    assertThat(res.toString()).isEqualTo(snapshotTag);
   }
 }
