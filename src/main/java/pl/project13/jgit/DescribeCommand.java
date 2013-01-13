@@ -530,9 +530,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
         // todo that's a bit of a hack...
         try {
-          RevTag revTag = walk.parseTag(resolvedCommitId);
-          log("Resolved tag [%s] [%s] ", revTag.getTagName(), revTag.getTaggerIdent());
+          final RevTag revTag = walk.parseTag(resolvedCommitId);
           ObjectId taggedCommitId = revTag.getObject().getId();
+          log("Resolved tag [%s] [%s], points at [%s] ", revTag.getTagName(), revTag.getTaggerIdent(), taggedCommitId);
+
+          // sometimes a tag, may point to another tag, so we need to unpack it
+          while (isTagId(taggedCommitId)) {
+            taggedCommitId = walk.parseTag(taggedCommitId).getObject().getId();
+          }
 
           if (commitIdsToTags.containsKey(taggedCommitId)) {
             commitIdsToTags.get(taggedCommitId).add(new DatedRevTag(revTag));
@@ -549,8 +554,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
             DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
 
             if (commitIdsToTags.containsKey(resolvedCommitId)) {
-              commitIdsToTags.get(resolvedCommitId).add(datedRevTag
-                                                       );
+              commitIdsToTags.get(resolvedCommitId).add(datedRevTag);
             } else {
               commitIdsToTags.put(resolvedCommitId, newArrayList(datedRevTag));
             }
@@ -576,6 +580,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     return Collections.emptyMap();
+  }
+
+  /** Checks if the given object id resolved to a tag object */
+  private boolean isTagId(ObjectId objectId) {
+    return objectId.toString().startsWith("tag ");
   }
 
   private HashMap<ObjectId, List<String>> transformRevTagsMapToDateSortedTagNames(Map<ObjectId, List<DatedRevTag>> commitIdsToTags) {
