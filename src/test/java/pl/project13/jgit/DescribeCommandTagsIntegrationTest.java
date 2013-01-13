@@ -191,6 +191,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
     // when
     jgit.tag().setName(snapshotTag).call();
+    Thread.sleep(2000);
     jgit.tag().setName(latestTag).call();
 
     DescribeResult res = DescribeCommand
@@ -212,16 +213,16 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
-    String snapshotTag = "0.0.1-SNAPSHOT";
-    String latestTag = "OName-0.0.1";
+    String beforeTag = "OName-0.0.1";
+    String latestTag = "0.0.1-SNAPSHOT";
 
     Repository repo = git().getRepository();
     Git jgit = Git.wrap(repo);
     jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
+    jgit.tag().setName(beforeTag).call();
     jgit.tag().setName(latestTag).call();
-    jgit.tag().setName(snapshotTag).call();
 
     DescribeResult res = DescribeCommand
         .on(repo)
@@ -230,6 +231,6 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .call();
 
     // then
-    assertThat(res.toString()).isEqualTo(snapshotTag);
+    assertThat(res.toString()).isEqualTo(latestTag);
   }
 }

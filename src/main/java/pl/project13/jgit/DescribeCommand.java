@@ -18,9 +18,11 @@
 package pl.project13.jgit;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.Status;
@@ -35,6 +37,7 @@ import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
@@ -44,6 +47,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -203,12 +207,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * <pre>--tags</pre>
    * <p>
-   *   Instead of using only the annotated tags, use any tag found in .git/refs/tags.
-   *   This option enables matching a lightweight (non-annotated) tag.
+   * Instead of using only the annotated tags, use any tag found in .git/refs/tags.
+   * This option enables matching a lightweight (non-annotated) tag.
    * </p>
-   *
+   * <p/>
    * <p>Searching for lightweight tags is <b>false</b> by default.</p>
-   *
+   * <p/>
    * Example:
    * <pre>
    *    b6a73ed - (HEAD, master)
@@ -221,16 +225,16 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *  > git describe --tags
    *    lightweight-tag-1-gb6a73ed   # the nearest tag (including lightweights) is found
    * </pre>
-   *
+   * <p/>
    * <p>
-   *   Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
-   *   things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
-   *   tags to be included in the search, enable this option.
+   * Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
+   * things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
+   * tags to be included in the search, enable this option.
    * </p>
    */
   @NotNull
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
-    if(includeLightweightTagsInSearch != null) {
+    if (includeLightweightTagsInSearch != null) {
       tagsFlag = includeLightweightTagsInSearch;
       log("--tags %s", includeLightweightTagsInSearch);
     }
@@ -283,7 +287,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * <pre>--match glob-pattern</pre>
    * Consider only those tags which match the given glob pattern.
    *
-   * @param match the glob style pattern to match against the tag names
+   * @param pattern the glob style pattern to match against the tag names
    * @return itself, to allow fluent configuration
    */
   @NotNull
@@ -299,7 +303,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     ObjectReader objectReader = repo.newObjectReader();
 
     // get tags
-    Map<ObjectId, String> tagObjectIdToName = findTagObjectIds(repo, tagsFlag);
+    Map<ObjectId, List<String>> tagObjectIdToName = findTagObjectIds(repo, tagsFlag);
 
     // get current commit
     RevCommit headCommit = findHeadObjectId(repo);
@@ -308,8 +312,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     // check if dirty
     boolean dirty = findDirtyState(repo);
 
-    if (isATag(headCommit, tagObjectIdToName)) {
-      String tagName = tagObjectIdToName.get(headCommit);
+    if (hasTags(headCommit, tagObjectIdToName)) {
+      String tagName = tagObjectIdToName.get(headCommit).iterator().next();
       log("The commit we're on is a Tag ([%s]), returning.", tagName);
 
       return new DescribeResult(tagName, dirty, dirtyOption);
@@ -326,7 +330,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     // check how far away from a tag we are
 
     int distance = distanceBetween(repo, headCommit, commits.get(0));
-    String tagName = tagObjectIdToName.get(commits.get(0));
+    String tagName = tagObjectIdToName.get(commits.get(0)).iterator().next();
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
@@ -362,7 +366,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private static boolean foundZeroTags(@NotNull Map<ObjectId, String> tags) {
+  private static boolean foundZeroTags(@NotNull Map<ObjectId, List<String>> tags) {
     return tags.isEmpty();
   }
 
@@ -371,23 +375,23 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Git git = Git.wrap(repo);
     Status status = git.status().call();
 
-		// Git describe doesn't mind about untracked files when checking if
-		// repo is dirty. JGit does this, so we cannot use the isClean method
-		// to get the same behaviour. Instead check dirty state without
-		// status.getUntracked().isEmpty()
-		boolean isDirty = !(status.getAdded().isEmpty() //
-						&& status.getChanged().isEmpty() //
-						&& status.getRemoved().isEmpty() //
-						&& status.getMissing().isEmpty() //
-						&& status.getModified().isEmpty() //
-						&& status.getConflicting().isEmpty());
+    // Git describe doesn't mind about untracked files when checking if
+    // repo is dirty. JGit does this, so we cannot use the isClean method
+    // to get the same behaviour. Instead check dirty state without
+    // status.getUntracked().isEmpty()
+    boolean isDirty = !(status.getAdded().isEmpty()
+        && status.getChanged().isEmpty()
+        && status.getRemoved().isEmpty()
+        && status.getMissing().isEmpty()
+        && status.getModified().isEmpty()
+        && status.getConflicting().isEmpty());
 
-    log("Repo is in dirty state = [%s] ", isDirty);
+    log("Repo is in dirty state [%s] ", isDirty);
     return isDirty;
   }
 
   @VisibleForTesting
-  static boolean isATag(ObjectId headCommit, @NotNull Map<ObjectId, String> tagObjectIdToName) {
+  static boolean hasTags(ObjectId headCommit, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
@@ -406,14 +410,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, String> tagObjectIdToName) {
+  private List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
     RevWalk revWalk = new RevWalk(repo);
     try {
       revWalk.markStart(head);
 
       for (RevCommit commit : revWalk) {
         ObjectId objId = commit.getId();
-        String lookup = tagObjectIdToName.get(objId);
+        String lookup = tagObjectIdToName.get(objId).iterator().next();
         if (lookup != null) {
           return Collections.singletonList(commit);
         }
@@ -421,7 +425,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
       throw new RuntimeException("Did not find any commits until some tag");
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Unable to find commits until some tag", e);
     }
   }
 
@@ -500,44 +504,67 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  // git commit id -> its tag
-  private Map<ObjectId, String> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
-    Map<ObjectId, String> commitIdsToTagNames = newHashMap();
+  // git commit id -> its tag (or tags)
+  private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
+    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = newHashMap();
 
     RevWalk walk = new RevWalk(repo);
     try {
       walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
 
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
-
       String matchPattern = createMatchPattern();
       Pattern regex = Pattern.compile(matchPattern);
+      log("Tag refs [%s]", tagRefs);
+
       for (Ref tagRef : tagRefs) {
         walk.reset();
         String name = tagRef.getName();
-        if(!regex.matcher(name).matches()) {
-            log("Skipping tagRef with name " + name + " as it doesn't match " + matchPattern);
-            continue;
+        if (!regex.matcher(name).matches()) {
+          log("Skipping tagRef with name " + name + " as it doesn't match " + matchPattern);
+          continue;
         }
         ObjectId resolvedCommitId = repo.resolve(name);
 
         // todo that's a bit of a hack...
         try {
           RevTag revTag = walk.parseTag(resolvedCommitId);
+          log("Resolved tag [%s] [%s] ", revTag.getTagName(), revTag.getTaggerIdent());
           ObjectId taggedCommitId = revTag.getObject().getId();
 
-          commitIdsToTagNames.put(taggedCommitId, trimFullTagName(name));
+          if (commitIdsToTags.containsKey(taggedCommitId)) {
+            commitIdsToTags.get(taggedCommitId).add(new DatedRevTag(revTag));
+          } else {
+            commitIdsToTags.put(taggedCommitId, newArrayList(new DatedRevTag(revTag)));
+          }
+
         } catch (IncorrectObjectTypeException ex) {
           // it's an lightweight tag! (yeah, really)
-          if(tagsFlag) {
+          if (tagsFlag) {
             // --tags means "include lightweight tags"
             log("Including lightweight tag [%s]", name);
-            commitIdsToTagNames.put(resolvedCommitId, trimFullTagName(name));
+
+            DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
+
+            if(commitIdsToTags.containsKey(resolvedCommitId)) {
+              commitIdsToTags.get(resolvedCommitId).add(datedRevTag
+              );
+            } else {
+              commitIdsToTags.put(resolvedCommitId, newArrayList(datedRevTag));
+            }
           }
         } catch (Exception ignored) {
-          log("Failed while parsing [%s] -- %s", tagRef, ignored);
+          error("Failed while parsing [%s] -- %s", tagRef, Throwables.getStackTraceAsString(ignored));
         }
       }
+
+      for (List<DatedRevTag> datedRevTags : commitIdsToTags.values()) {
+        System.out.println("datedRevTags = " + datedRevTags);
+      }
+
+      Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
+
+      log("Created map: [%s] ", commitIdsToTagNames);
 
       return commitIdsToTagNames;
     } catch (Exception e) {
@@ -549,9 +576,35 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return Collections.emptyMap();
   }
 
+  private HashMap<ObjectId, List<String>> transformRevTagsMapToDateSortedTagNames(Map<ObjectId, List<DatedRevTag>> commitIdsToTags) {
+    HashMap<ObjectId, List<String>> commitIdsToTagNames = newHashMap();
+    for (Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry : commitIdsToTags.entrySet()) {
+      List<DatedRevTag> tags = objectIdListEntry.getValue();
+
+      List<DatedRevTag> newTags = newArrayList(tags);
+      Collections.sort(newTags, new Comparator<DatedRevTag>() {
+        @Override
+        public int compare(DatedRevTag revTag, DatedRevTag revTag2) {
+          return revTag2.date.compareTo(revTag.date);
+        }
+      });
+
+      List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {
+        @Override
+        public String apply(DatedRevTag input) {
+          return input.tagName;
+        }
+      });
+
+      commitIdsToTagNames.put(objectIdListEntry.getKey(), tagNames);
+    }
+    return commitIdsToTagNames;
+  }
+
   private String createMatchPattern() {
-    if(!matchOption.isPresent())
+    if (!matchOption.isPresent()) {
       return ".*";
+    }
 
     StringBuffer buf = new StringBuffer();
     buf.append("^refs/tags/\\Q");
@@ -567,6 +620,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private void log(String msg, Object... interpolations) {
     loggerBridge.log(msg, interpolations);
+  }
+
+  private void error(String msg, Object... interpolations) {
+    loggerBridge.error(msg, interpolations);
   }
 
 }

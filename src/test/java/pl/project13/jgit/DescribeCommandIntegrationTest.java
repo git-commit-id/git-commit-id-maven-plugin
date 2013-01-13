@@ -30,6 +30,7 @@ import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
+import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -356,7 +357,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.isATag(oid, ImmutableMap.of(oid, tagName));
+    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(oid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -373,7 +374,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.isATag(oid, ImmutableMap.of(tagOid, tagName));
+    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(tagOid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
