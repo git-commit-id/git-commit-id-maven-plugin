@@ -170,7 +170,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("newest-tag");
+    assertThat(res.toString()).isEqualTo("lightweight-tag-1-gb6a73ed");
   }
 
   @Test
