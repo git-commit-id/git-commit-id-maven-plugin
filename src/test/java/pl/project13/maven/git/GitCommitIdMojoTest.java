@@ -69,6 +69,7 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
 
     verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
     verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));

@@ -75,6 +75,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_MESSAGE_FULL = "commit.message.full";
   public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public static final String COMMIT_TIME = "commit.time";
+  public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
 
   /**
    * The maven project.
@@ -386,6 +387,10 @@ private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean re
       Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
       SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
       put(properties, COMMIT_TIME, smf.format(commitDate));
+
+      // git remote.origin.url
+      String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
+      put(properties, REMOTE_ORIGIN_URL, remoteOriginUrl);
     } finally {
       revWalk.dispose();
     }
