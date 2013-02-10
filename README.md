@@ -505,6 +505,12 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @MrOnion - for a small yet fast bugfix,
 * ... you! - for using the plugin :-)
 
+Notable happy users
+===================
+
+* neo4j
+* many others I don't know of
+
 License
 =======
 <img style="float:right; padding:3px; " src="https://github.com/ktoso/maven-git-commit-id-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3"/>
