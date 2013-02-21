@@ -203,7 +203,7 @@ git.build.user.email=${git.build.user.email}
 git.build.time=${git.build.time}
 
 git.commit.id=${git.commit.id}
-git.commit.id.abbrev=${commit.id.abbrev}
+git.commit.id.abbrev=${git.commit.id.abbrev}
 git.commit.user.name=${git.commit.user.name}
 git.commit.user.email=${git.commit.user.email}
 git.commit.message.full=${git.commit.message.full}
