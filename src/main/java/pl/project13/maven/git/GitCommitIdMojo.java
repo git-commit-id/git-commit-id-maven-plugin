@@ -92,8 +92,17 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter expression="${reactorProjects}"
    * @readonly
    */
-  private List reactorProjects;
+  private List<MavenProject> reactorProjects;
 
+  /**
+   * Tell git-commit-id to inject the git properties into all
+   * reactor projects not just the current one.
+   *
+   * @parameter default-value="true"
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private boolean injectAllReactorProjects;
+  
   /**
    * Specifies whether the goal runs in verbose mode.
    * To be more specific, this means more info being printed out while scanning for paths and also
@@ -215,38 +224,46 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean runningTests = false;
 
   @NotNull
-  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), verbose);
+  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), true);
+
+  @NotNull
+  LoggerBridge verboseLoggerBridge = new MavenLoggerBridge(getLog(), true);
 
   public void execute() throws MojoExecutionException {
+	// Set the verbose setting now it should be correctly loaded from maven. 
+	loggerBridge.setVerbose(verbose);
+	alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
+	  
     if (isPomProject(project) && skipPoms) {
-      log("Skipping the execution as it is a project with packaging type: 'pom'");
+      alwaysLog("Skipping the execution as it is a project with packaging type: 'pom'");
       return;
     }
 
     dotGitDirectory = lookupGitDirectory();
     throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-    if(dotGitDirectory != null) {
-    	log("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
+    if (dotGitDirectory != null) {
+    	alwaysLog("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
     } else {
-    	log(".git directory could not be found, skipping execution");
+    	alwaysLog(".git directory could not be found, skipping execution");
         return;
     }
 
     try {
       properties = initProperties();
       prefixDot = prefix + ".";
-
+      
       loadGitData(properties);
       loadBuildTimeData(properties);
-
       logProperties(properties);
 
       if (generateGitPropertiesFile) {
         generatePropertiesFile(properties, generateGitPropertiesFilename);
       }
 
-      appendPropertiesToMaven(properties);
+      if (injectAllReactorProjects) {
+      	appendPropertiesToReactorProjects(properties);
+      }
     } catch (IOException e) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     }
@@ -254,28 +271,23 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Finished running.");
   }
 
-  private void appendPropertiesToMaven(@NotNull Properties properies) {
-    log("Appending to Maven properties");
+  private void appendPropertiesToReactorProjects(@NotNull Properties properies) {
+    log("Appending git properties to all reactor projects:");
     
-    if (project != null) {
-      if (reactorProjects != null) {
-        Iterator projIter = reactorProjects.iterator();
+    if (reactorProjects != null) {
+      for (MavenProject mavenProject : reactorProjects) {
+        Properties mavenProperties = mavenProject.getProperties(); 
+          
+        log("Injecting Git properties to \"%s\" project", mavenProject.getName());
 
-        while (projIter.hasNext()) {
-          MavenProject nextProj = (MavenProject) projIter.next();
-          Properties mavenProperties = nextProj.getProperties(); 
-              
-          log("Injecting Git properties to \"%s\" project", nextProj.getName());
-
-          for (Object key : properties.keySet()) {
-            mavenProperties.put(key, properties.get(key));
-          }
+        for (Object key : properties.keySet()) {
+          mavenProperties.put(key, properties.get(key));
         }
       }
     }
   }
 
-private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
+  private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
     if (required && directoryDoesNotExits(dotGitDirectory)) {
       throw new MojoExecutionException(message);
     }
@@ -288,12 +300,7 @@ private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean re
    * @return the File representation of the .git directory
    */
   private File lookupGitDirectory() throws MojoExecutionException {
-    return getGitDirLocator().lookupGitDirectory(project, dotGitDirectory);
-  }
-
-  @NotNull
-  GitDirLocator getGitDirLocator() {
-    return new GitDirLocator();
+    return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
   private Properties initProperties() throws MojoExecutionException {
@@ -310,15 +317,15 @@ private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean re
   }
 
   private void logProperties(@NotNull Properties properties) {
-    log("------------------git properties loaded------------------");
+    alwaysLog("------------------git properties loaded------------------");
 
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-        log(String.format("%s = %s", key, properties.getProperty(keyString)));
+    	  alwaysLog(String.format("%s = %s", key, properties.getProperty(keyString)));
       }
     }
-    log("---------------------------------------------------------");
+    alwaysLog("---------------------------------------------------------");
   }
 
   private boolean isOurProperty(@NotNull String keyString) {
@@ -481,16 +488,12 @@ private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean re
   }
 
   private void putWithoutPrefix(@NotNull Properties properties, String key, String value) {
-    if (verbose) {
-      String s = String.format("Storing: %s = %s", key, value);
-      log(s);
+    if (!isNotEmpty(value)) {
+      value = "Unknown";
     }
 
-    if (isNotEmpty(value)) {
-      properties.put(key, value);
-    } else {
-      properties.put(key, "Unknown");
-    }
+    log("Storing: %s = %s", key, value);
+    properties.put(key, value);
   }
 
   private boolean isNotEmpty(@Nullable String value) {
@@ -498,7 +501,11 @@ private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean re
   }
 
   void log(String message, String... interpolations) {
-    loggerBridge.log(logPrefix + message, interpolations);
+	loggerBridge.log(logPrefix + message, (Object[]) interpolations);    
+  }
+
+  void alwaysLog(String message, String... interpolations) {
+    verboseLoggerBridge.log(logPrefix + message, (Object[]) interpolations);    
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {
