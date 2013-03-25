@@ -17,38 +17,31 @@
 
 package pl.project13.maven.git;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.io.Closeables;
+import com.google.common.io.Files;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.Closeables;
-import com.google.common.io.Files;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Goal which puts git build-time information into property files or maven's properties.
@@ -92,11 +85,15 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter expression="${reactorProjects}"
    * @readonly
    */
+  @SuppressWarnings("UnusedDeclaration")
   private List<MavenProject> reactorProjects;
 
   /**
    * Tell git-commit-id to inject the git properties into all
    * reactor projects not just the current one.
+   *
+   * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
+   * Basically, injecting into all projects may slow down the build and you don't always need this feature.
    *
    * @parameter default-value="true"
    */
@@ -271,10 +268,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     log("Finished running.");
   }
 
-  private void appendPropertiesToReactorProjects(@NotNull Properties properies) {
+  private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
     log("Appending git properties to all reactor projects:");
     
-    if (reactorProjects != null) {
       for (MavenProject mavenProject : reactorProjects) {
         Properties mavenProperties = mavenProject.getProperties(); 
           
@@ -284,7 +280,6 @@ public class GitCommitIdMojo extends AbstractMojo {
           mavenProperties.put(key, properties.get(key));
         }
       }
-    }
   }
 
   private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {

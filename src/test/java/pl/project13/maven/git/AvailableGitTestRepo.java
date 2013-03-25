@@ -47,6 +47,7 @@ public enum AvailableGitTestRepo {
    */
   WITH_COMMIT_THAT_HAS_TWO_TAGS("src/test/resources/_git_with_commit_that_has_two_tags"),
   ON_A_TAG_DIRTY("src/test/resources/_git_on_a_tag_dirty"),
+  WITH_SUBMODULES("src/test/resources/_git_with_submodules"),
   /**
    * <pre>
    * b6a73ed - (HEAD, master) third addition (4 minutes ago) <Konrad Malawski>
