@@ -50,6 +50,7 @@ import java.util.Properties;
  * @goal revision
  * @phase initialize
  * @requiresProject
+ * @threadSafe true
  * @since 1.0
  */
 @SuppressWarnings({"JavaDoc"})
