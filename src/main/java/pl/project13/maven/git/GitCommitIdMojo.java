@@ -213,6 +213,21 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean failOnNoGitDirectory;
 
   /**
+   * By default the plugin will fail the build if unable to obtain enough data for a complete run,
+   * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
+   * things to the repository, you may want to set this value to false.
+   *
+   * Setting this value to `false`, causes the plugin to gracefuly tell you "I did my best" and abort it's execution
+   * if unable to obtain git meta data - yet the build will continue to run (without failing).
+   *
+   * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
+   *
+   * @parameter default-value="true"
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private boolean failOnUnableToExtractRepoInfo;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -263,10 +278,27 @@ public class GitCommitIdMojo extends AbstractMojo {
       	appendPropertiesToReactorProjects(properties);
       }
     } catch (IOException e) {
-      throw new MojoExecutionException("Could not complete Mojo execution...", e);
+      handlePluginFailure(e);
     }
 
     log("Finished running.");
+  }
+
+  /**
+   * Reacts to an exception based on the {@code failOnUnableToExtractRepoInfo} setting.
+   * If it's true, an MojoExecutionException will be throw, otherwise we just log an error message.
+   *
+   * @throws MojoExecutionException which will be should be throw within an MojoException in case the
+   *                                {@code failOnUnableToExtractRepoInfo} setting was set to true.
+   */
+  private void handlePluginFailure(Exception e) throws MojoExecutionException {
+    if (failOnUnableToExtractRepoInfo) {
+      throw new MojoExecutionException("Could not complete Mojo execution...", e);
+    } else {
+      loggerBridge.error("UNABLE TO OBTAIN GIT COMMIT ID INFORMATION, " +
+                             "BUT FAIL_ON_UNABLE_TO_EXTRACT_REPO_INFO WAS SET TO FALSE, " +
+                             "SO NOT FAILING THIS BUILD!");
+    }
   }
 
   private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
