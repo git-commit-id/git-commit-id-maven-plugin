@@ -243,10 +243,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   LoggerBridge verboseLoggerBridge = new MavenLoggerBridge(getLog(), true);
 
   public void execute() throws MojoExecutionException {
-	// Set the verbose setting now it should be correctly loaded from maven. 
-	loggerBridge.setVerbose(verbose);
-	alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
-	  
+    // Set the verbose setting now it should be correctly loaded from maven.
+    loggerBridge.setVerbose(verbose);
+    alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
+
     if (isPomProject(project) && skipPoms) {
       alwaysLog("Skipping the execution as it is a project with packaging type: 'pom'");
       return;
