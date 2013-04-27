@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.File;
 import java.util.Collections;
@@ -36,6 +37,9 @@ public class GitDirLocatorTest {
   @Mock
   MavenProject project;
 
+  @Mock
+  LoggerBridge loggerBridge;
+
   List<MavenProject> reactorProjects = Collections.emptyList();
 
   @Test
@@ -44,7 +48,7 @@ public class GitDirLocatorTest {
     File dotGitDir = Files.createTempDir();
 
     // when
-    GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+    GitDirLocator locator = new GitDirLocator(project, reactorProjects, loggerBridge, false);
     File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
     // then
