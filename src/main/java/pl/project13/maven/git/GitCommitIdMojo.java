@@ -228,11 +228,19 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
+   * If true, plugin will fallback to searching for .git directory recursively until file
+   * system boundary is hit.
+   *
+   * @parameter expression="${git.stopAtFileSystemBoundary}" default-value="false"
+   */
+  private boolean stopAtFileSystemBoundary;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
 
-  public final String logPrefix = "[GitCommitIdMojo] ";
+  public static final String logPrefix = "[GitCommitIdMojo] ";
 
   boolean runningTests = false;
 
@@ -243,10 +251,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   LoggerBridge verboseLoggerBridge = new MavenLoggerBridge(getLog(), true);
 
   public void execute() throws MojoExecutionException {
-	// Set the verbose setting now it should be correctly loaded from maven. 
-	loggerBridge.setVerbose(verbose);
-	alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
-	  
+    // Set the verbose setting now it should be correctly loaded from maven.
+    loggerBridge.setVerbose(verbose);
+    alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
+
     if (isPomProject(project) && skipPoms) {
       alwaysLog("Skipping the execution as it is a project with packaging type: 'pom'");
       return;
@@ -328,7 +336,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @return the File representation of the .git directory
    */
   private File lookupGitDirectory() throws MojoExecutionException {
-    return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
+    File file = new GitDirLocator(project, reactorProjects, loggerBridge, stopAtFileSystemBoundary).lookupGitDirectory(dotGitDirectory);
+    log("Using git directory %s", file == null ? null : file.getAbsolutePath());
+    return file;
   }
 
   private Properties initProperties() throws MojoExecutionException {

@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
 import java.util.List;
@@ -33,40 +34,38 @@ import java.util.List;
  * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
 public class GitDirLocator {
+  @NotNull
+  final LoggerBridge loggerBridge;
   final MavenProject mavenProject;
   final List<MavenProject> reactorProjects;
+  final boolean stopAtFileSystemBoundary;
 
-  public GitDirLocator(MavenProject mavenProject, List<MavenProject> reactorProjects) {
+  public GitDirLocator(MavenProject mavenProject, List<MavenProject> reactorProjects, LoggerBridge loggerBridge,
+                       boolean stopAtFileSystemBoundary) {
     this.mavenProject = mavenProject;
     this.reactorProjects = reactorProjects;
+    this.loggerBridge = loggerBridge;
+    this.stopAtFileSystemBoundary = stopAtFileSystemBoundary;
   }
 
   @Nullable
   public File lookupGitDirectory(@NotNull File manuallyConfiguredDir) {
-
     if (manuallyConfiguredDir.exists()) {
-
-      // If manuallyConfiguredDir is a directory then we can use it as the git path. 
-      if (manuallyConfiguredDir.isDirectory()) {
-        return manuallyConfiguredDir;
-      }
-
-      // If the path exists but is not a directory it might be a git submodule "gitdir" link.
-      File gitDirLinkPath = processGitDirFile(manuallyConfiguredDir);
-
-      // If the linkPath was found from the file and it exists then use it.
-      if (isExistingDirectory(gitDirLinkPath)) {
-        return gitDirLinkPath;
-      }
-
-      /**
-       * FIXME: I think we should fail here because a manual path was set and it was not found
-       * but I'm leaving it falling back to searching for the git path because that is the current
-       * behaviour - Unluckypixie.
-       */
+      return findProjectGitDirectory(manuallyConfiguredDir);
+    } else {
+      return findProjectGitDirectory();
     }
+  }
 
-    return findProjectGitDirectory();
+  private File findProjectGitDirectory(File gitFileOrFolder) {
+    if (gitFileOrFolder.exists()) {
+      if (gitFileOrFolder.isDirectory()) {
+        return gitFileOrFolder;
+      } else {
+        return processGitDirFile(gitFileOrFolder);
+      }
+    }
+    return null;
   }
 
   /**
@@ -80,7 +79,9 @@ public class GitDirLocator {
     MavenProject currentProject = this.mavenProject;
 
     while (currentProject != null) {
-      File dir = getProjectGitDir(currentProject);
+      File projectDir = currentProject.getBasedir();
+      log("Searching for .git folder in %s", projectDir.getAbsolutePath());
+      File dir = findProjectGitDirectory(appendDotGit(projectDir));
 
       if (isExistingDirectory(dir)) {
         return dir;
@@ -101,9 +102,23 @@ public class GitDirLocator {
         }
       }
     }
+    if (stopAtFileSystemBoundary) {
+      log("Searching until filesytem boundary is hit");
+      File dir = mavenProject.getBasedir();
+      while(dir.getParentFile() != null) {
+        log("Searching for .git folder in %s", dir.getAbsolutePath());
+        File gitDir = findProjectGitDirectory(appendDotGit(dir));
+        if (gitDir != null){
+          return gitDir;
+        }
+        dir = dir.getParentFile();
+      }
+    }
 
     return null;
   }
+
+
 
   /**
    * Find a project in the reactor by its artifact, I'm new to maven coding
@@ -132,6 +147,7 @@ public class GitDirLocator {
    * @return File object with path loaded or null
    */
   private File processGitDirFile(@NotNull File file) {
+    log("Processing submodule %s", file.getAbsolutePath());
     try {
       BufferedReader reader = null;
 
@@ -151,26 +167,37 @@ public class GitDirLocator {
         }
 
         // All seems ok so return the "gitdir" value read from the file.
-        return new File(parts[1]);
+        File found = new File(file.getParentFile(), parts[1]);
+        log("Found git root from .git file: %s", found.getAbsolutePath());
+        if (isExistingDirectory(found)) {
+          return found;
+        } else {
+          log("Folder does not exist");
+        }
       } catch (FileNotFoundException e) {
-        return null;
+
       } finally {
         if (reader != null) {
           reader.close();
         }
       }
     } catch (IOException e) {
-      return null;
+
     }
+    return null;
   }
 
   @NotNull
-  private static File getProjectGitDir(@NotNull MavenProject mavenProject) {
+  private static File appendDotGit(@NotNull File directory) {
     // FIXME Shouldn't this look at the dotGitDirectory property (if set) for the given project?
-    return new File(mavenProject.getBasedir(), Constants.DOT_GIT);
+    return new File(directory, Constants.DOT_GIT);
   }
 
   private static boolean isExistingDirectory(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
+  }
+
+  void log(String message, String... interpolations) {
+    loggerBridge.log(GitCommitIdMojo.logPrefix + message, (Object[]) interpolations);
   }
 }
