@@ -21,7 +21,7 @@ import com.google.common.io.Files;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations.Mock;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
@@ -39,7 +39,7 @@ public class GitDirLocatorTest {
   List<MavenProject> reactorProjects = Collections.emptyList();
 
   @Test
-  public void shouldUseTheManualySpecifiedDirectory() throws Exception {
+  public void shouldUseTheManuallySpecifiedDirectory() throws Exception {
     // given
     File dotGitDir = Files.createTempDir();
 
@@ -48,6 +48,7 @@ public class GitDirLocatorTest {
     File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
     // then
+    assert foundDirectory != null;
     assertThat(foundDirectory.getAbsolutePath()).isEqualTo(dotGitDir.getAbsolutePath());
   }
 

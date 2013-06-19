@@ -217,7 +217,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
    * things to the repository, you may want to set this value to false.
    *
-   * Setting this value to `false`, causes the plugin to gracefuly tell you "I did my best" and abort it's execution
+   * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
    * if unable to obtain git meta data - yet the build will continue to run (without failing).
    *
    * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
