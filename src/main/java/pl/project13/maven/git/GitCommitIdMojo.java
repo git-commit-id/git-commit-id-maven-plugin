@@ -529,7 +529,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void log(String message, String... interpolations) {
-	loggerBridge.log(logPrefix + message, (Object[]) interpolations);    
+    loggerBridge.log(logPrefix + message, (Object[]) interpolations);
   }
 
   void alwaysLog(String message, String... interpolations) {
