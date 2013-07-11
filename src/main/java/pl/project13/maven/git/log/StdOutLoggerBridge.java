@@ -28,20 +28,24 @@ public class StdOutLoggerBridge implements LoggerBridge {
   @Override
   public void log(String msg, Object... interpolations) {
     if (verbose) {
-      System.out.println("LOG: " + String.format(msg, interpolations));
+      System.out.println("LOG: " + String.format(escaped(msg), interpolations));
     }
   }
 
   @Override
   public void error(String msg, Object... interpolations) {
     if(verbose) {
-      System.out.println("ERR: " + String.format(msg, interpolations));
+      System.out.println("ERR: " + String.format(escaped(msg), interpolations));
     }
   }
 
   @Override
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
+  }
+
+  private String escaped(String msg) {
+    return msg.replaceAll("%", "%%");
   }
 
 }

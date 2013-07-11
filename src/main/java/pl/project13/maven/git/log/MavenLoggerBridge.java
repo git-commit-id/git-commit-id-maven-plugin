@@ -32,14 +32,14 @@ public class MavenLoggerBridge implements LoggerBridge {
   @Override
   public void log(String msg, Object... interpolations) {
     if(verbose) {
-      logger.info(String.format(msg, interpolations));
+      logger.info(String.format(escaped(msg), interpolations));
     }
   }
 
   @Override
   public void error(String msg, Object... interpolations) {
     if(verbose) {
-      logger.error(String.format(msg, interpolations));
+      logger.error(String.format(escaped(msg), interpolations));
     }
   }
 
@@ -48,4 +48,7 @@ public class MavenLoggerBridge implements LoggerBridge {
     this.verbose = verbose;
   }
 
+  private String escaped(String msg) {
+    return msg.replaceAll("%", "%%");
+  }
 }
