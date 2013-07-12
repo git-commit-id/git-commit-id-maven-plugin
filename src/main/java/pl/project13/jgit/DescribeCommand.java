@@ -161,7 +161,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
-    log("--always = %s", always);
+    log("--always =", always);
     return this;
   }
 
@@ -198,7 +198,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     if (n != null) {
       Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
       Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
-      log("--abbrev = %s", n);
+      log("--abbrev =", n);
       abbrev = n;
     }
     return this;
@@ -236,7 +236,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
     if (includeLightweightTagsInSearch != null) {
       tagsFlag = includeLightweightTagsInSearch;
-      log("--tags %s", includeLightweightTagsInSearch);
+      log("--tags =", includeLightweightTagsInSearch);
     }
     return this;
   }
@@ -278,7 +278,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     Optional<String> option = Optional.fromNullable(dirtyMarker);
-    log("--dirty = \"%s\"", option.or(""));
+    log("--dirty =", option.or(""));
     this.dirtyOption = option;
     return this;
   }
@@ -293,7 +293,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand match(@Nullable String pattern) {
     matchOption = Optional.fromNullable(pattern);
-    log("--match = \"%s\"", matchOption.or(""));
+    log("--match =", matchOption.or(""));
     return this;
   }
 
@@ -314,7 +314,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     if (hasTags(headCommit, tagObjectIdToName)) {
       String tagName = tagObjectIdToName.get(headCommit).iterator().next();
-      log("The commit we're on is a Tag ([%s]), returning.", tagName);
+      log("The commit we're on is a Tag ([",tagName,"]), returning.");
 
       return new DescribeResult(tagName, dirty, dirtyOption);
     }
@@ -386,7 +386,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         && status.getModified().isEmpty()
         && status.getConflicting().isEmpty());
 
-    log("Repo is in dirty state [%s] ", isDirty);
+    log("Repo is in dirty state [", isDirty, "]");
     return isDirty;
   }
 
@@ -403,7 +403,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       RevCommit headCommit = walk.lookupCommit(headId);
       walk.dispose();
 
-      log("HEAD is [%s] ", headCommit.getName());
+      log("HEAD is [",headCommit.getName(),"] ");
       return headCommit;
     } catch (IOException ex) {
       throw new RuntimeException("Unable to obtain HEAD commit!", ex);
@@ -517,13 +517,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
       String matchPattern = createMatchPattern();
       Pattern regex = Pattern.compile(matchPattern);
-      log("Tag refs [%s]", tagRefs);
+      log("Tag refs [", tagRefs, "]");
 
       for (Ref tagRef : tagRefs) {
         walk.reset();
         String name = tagRef.getName();
         if (!regex.matcher(name).matches()) {
-          log("Skipping tagRef with name " + name + " as it doesn't match " + matchPattern);
+          log("Skipping tagRef with name [", name, "] as it doesn't match [", matchPattern, "]");
           continue;
         }
         ObjectId resolvedCommitId = repo.resolve(name);
@@ -532,7 +532,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         try {
           final RevTag revTag = walk.parseTag(resolvedCommitId);
           ObjectId taggedCommitId = revTag.getObject().getId();
-          log("Resolved tag [%s] [%s], points at [%s] ", revTag.getTagName(), revTag.getTaggerIdent(), taggedCommitId);
+          log("Resolved tag [",revTag.getTagName(),"] [",revTag.getTaggerIdent(),"], points at [",taggedCommitId,"] ");
 
           // sometimes a tag, may point to another tag, so we need to unpack it
           while (isTagId(taggedCommitId)) {
@@ -549,7 +549,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
           // it's an lightweight tag! (yeah, really)
           if (tagsFlag) {
             // --tags means "include lightweight tags"
-            log("Including lightweight tag [%s]", name);
+            log("Including lightweight tag [", name, "]");
 
             DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
 
@@ -560,21 +560,21 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
             }
           }
         } catch (Exception ignored) {
-          error("Failed while parsing [%s] -- %s", tagRef, Throwables.getStackTraceAsString(ignored));
+          error("Failed while parsing [",tagRef,"] -- ", Throwables.getStackTraceAsString(ignored));
         }
       }
 
       for (Map.Entry<ObjectId, List<DatedRevTag>> entry : commitIdsToTags.entrySet()) {
-        log("key [%s], tags => [%s] ", entry.getKey(), entry.getValue());
+        log("key [",entry.getKey(),"], tags => [",entry.getValue(),"] ");
       }
 
       Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
 
-      log("Created map: [%s] ", commitIdsToTagNames);
+      log("Created map: [",commitIdsToTagNames,"] ");
 
       return commitIdsToTagNames;
     } catch (Exception e) {
-      log("Unable to locate tags\n[%s]", Throwables.getStackTraceAsString(e));
+      log("Unable to locate tags\n[",Throwables.getStackTraceAsString(e),"]");
     } finally {
       walk.release();
     }
@@ -629,12 +629,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return tagName.replaceFirst("refs/tags/", "");
   }
 
-  private void log(String msg, Object... interpolations) {
-    loggerBridge.log(msg, interpolations);
+  private void log(Object... parts) {
+    loggerBridge.log(parts);
   }
 
-  private void error(String msg, Object... interpolations) {
-    loggerBridge.error(msg, interpolations);
+  private void error(Object... parts) {
+    loggerBridge.error(parts);
   }
 
 }

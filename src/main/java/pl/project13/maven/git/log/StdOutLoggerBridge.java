@@ -17,6 +17,8 @@
 
 package pl.project13.maven.git.log;
 
+import com.google.common.base.Joiner;
+
 public class StdOutLoggerBridge implements LoggerBridge {
 
   private boolean verbose;
@@ -26,26 +28,22 @@ public class StdOutLoggerBridge implements LoggerBridge {
   }
 
   @Override
-  public void log(String msg, Object... interpolations) {
+  public void log(Object... parts) {
     if (verbose) {
-      System.out.println("LOG: " + String.format(escaped(msg), interpolations));
+      System.out.println("LOG: " + Joiner.on(" ").join(parts));
     }
   }
 
   @Override
-  public void error(String msg, Object... interpolations) {
+  public void error(Object... parts) {
     if(verbose) {
-      System.out.println("ERR: " + String.format(escaped(msg), interpolations));
+      System.out.println("ERR: " + Joiner.on(" ").join(parts));
     }
   }
 
   @Override
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
-  }
-
-  private String escaped(String msg) {
-    return msg.replaceAll("%", "%%");
   }
 
 }

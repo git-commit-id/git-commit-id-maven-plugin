@@ -10,7 +10,7 @@ public class StdOutLoggerBridgeTest {
     StdOutLoggerBridge bridge = new StdOutLoggerBridge(true);
 
     // when
-    bridge.log("'- Finished tests for User Account service and Network service (100% coverage)'");
+    bridge.log();
 
     // then, should not have thrown
   }
@@ -21,7 +21,7 @@ public class StdOutLoggerBridgeTest {
     StdOutLoggerBridge bridge = new StdOutLoggerBridge(true);
 
     // when
-    bridge.error("AAAA all tests are burning. All 100% of them!");
+    bridge.error();
 
     // then, should not have thrown
   }

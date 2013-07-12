@@ -17,6 +17,7 @@
 
 package pl.project13.maven.git.log;
 
+import com.google.common.base.Joiner;
 import org.apache.maven.plugin.logging.Log;
 
 public class MavenLoggerBridge implements LoggerBridge {
@@ -30,16 +31,16 @@ public class MavenLoggerBridge implements LoggerBridge {
   }
 
   @Override
-  public void log(String msg, Object... interpolations) {
-    if(verbose) {
-      logger.info(String.format(escaped(msg), interpolations));
+  public void log(Object... parts) {
+    if (verbose) {
+      logger.info(Joiner.on(" ").join(parts));
     }
   }
 
   @Override
-  public void error(String msg, Object... interpolations) {
-    if(verbose) {
-      logger.error(String.format(escaped(msg), interpolations));
+  public void error(Object... parts) {
+    if (verbose) {
+      logger.error(Joiner.on(" ").join(parts));
     }
   }
 
@@ -48,7 +49,4 @@ public class MavenLoggerBridge implements LoggerBridge {
     this.verbose = verbose;
   }
 
-  private String escaped(String msg) {
-    return msg.replaceAll("%", "%%");
-  }
 }

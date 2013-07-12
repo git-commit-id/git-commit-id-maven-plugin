@@ -15,12 +15,13 @@ public class MavenLoggerBridgeTest {
   @Test
   public void shouldNotFailWhenMessageContainsPercentSigns() throws Exception {
     // given
-    String msg = "the output was: [%s]";
+    String start = "the output was: [";
     String content = "100% coverage!!!";
-    String expectedExplicit = "the output was: [100% coverage!!!]";
+    String end = "]";
+    String expectedExplicit = "the output was: [ 100% coverage!!! ]";
 
     // when
-    bridge.log(msg, content);
+    bridge.log(start, content, end);
 
     // then
     verify(logger).info(expectedExplicit);

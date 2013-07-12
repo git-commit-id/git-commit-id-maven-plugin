@@ -92,7 +92,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Tell git-commit-id to inject the git properties into all
    * reactor projects not just the current one.
-   *
+   * <p/>
    * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
    * Basically, injecting into all projects may slow down the build and you don't always need this feature.
    *
@@ -100,7 +100,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   private boolean injectAllReactorProjects;
-  
+
   /**
    * Specifies whether the goal runs in verbose mode.
    * To be more specific, this means more info being printed out while scanning for paths and also
@@ -165,19 +165,19 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * <p>
-   *   Configure the "git.commit.id.abbrev" property to be at least of length N.
-   *   N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
+   * Configure the "git.commit.id.abbrev" property to be at least of length N.
+   * N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
    * </p>
-   *
+   * <p/>
    * <p>
-   *   An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
-   *   To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
+   * An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
+   * To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
    * </p>
-   *
+   * <p/>
    * <b>Example:</b>
    * <p>
-   *   You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
-   *   long abbrev version of the commit id. If your repository, on the other hand, has just 4 commits, you'll probably get a 2 char long abbrev.
+   * You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
+   * long abbrev version of the commit id. If your repository, on the other hand, has just 4 commits, you'll probably get a 2 char long abbrev.
    * </p>
    *
    * @parameter default-value=7
@@ -216,10 +216,10 @@ public class GitCommitIdMojo extends AbstractMojo {
    * By default the plugin will fail the build if unable to obtain enough data for a complete run,
    * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
    * things to the repository, you may want to set this value to false.
-   *
+   * <p/>
    * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
    * if unable to obtain git meta data - yet the build will continue to run (without failing).
-   *
+   * <p/>
    * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
    *
    * @parameter default-value="true"
@@ -245,10 +245,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     // Set the verbose setting now it should be correctly loaded from maven.
     loggerBridge.setVerbose(verbose);
-    alwaysLog("Verbose Setting: " + Boolean.valueOf(verbose));
+    alwaysLog();
 
     if (isPomProject(project) && skipPoms) {
-      alwaysLog("Skipping the execution as it is a project with packaging type: 'pom'");
+      alwaysLog();
       return;
     }
 
@@ -256,16 +256,16 @@ public class GitCommitIdMojo extends AbstractMojo {
     throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
     if (dotGitDirectory != null) {
-    	alwaysLog("Running on '%s' repository...", dotGitDirectory.getAbsolutePath());
+      alwaysLog(dotGitDirectory.getAbsolutePath());
     } else {
-    	alwaysLog(".git directory could not be found, skipping execution");
-        return;
+      alwaysLog();
+      return;
     }
 
     try {
       properties = initProperties();
       prefixDot = prefix + ".";
-      
+
       loadGitData(properties);
       loadBuildTimeData(properties);
       logProperties(properties);
@@ -275,13 +275,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (injectAllReactorProjects) {
-      	appendPropertiesToReactorProjects(properties);
+        appendPropertiesToReactorProjects(properties);
       }
     } catch (IOException e) {
       handlePluginFailure(e);
     }
 
-    log("Finished running.");
+    log();
   }
 
   /**
@@ -295,24 +295,22 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (failOnUnableToExtractRepoInfo) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     } else {
-      loggerBridge.error("UNABLE TO OBTAIN GIT COMMIT ID INFORMATION, " +
-                             "BUT FAIL_ON_UNABLE_TO_EXTRACT_REPO_INFO WAS SET TO FALSE, " +
-                             "SO NOT FAILING THIS BUILD!");
+      loggerBridge.error();
     }
   }
 
   private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
-    log("Appending git properties to all reactor projects:");
-    
-      for (MavenProject mavenProject : reactorProjects) {
-        Properties mavenProperties = mavenProject.getProperties(); 
-          
-        log("Injecting Git properties to \"%s\" project", mavenProject.getName());
+    log();
 
-        for (Object key : properties.keySet()) {
-          mavenProperties.put(key, properties.get(key));
-        }
+    for (MavenProject mavenProject : reactorProjects) {
+      Properties mavenProperties = mavenProject.getProperties();
+
+      log(mavenProject.getName(), "] project", mavenProject.getName());
+
+      for (Object key : properties.keySet()) {
+        mavenProperties.put(key, properties.get(key));
       }
+    }
   }
 
   private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
@@ -332,12 +330,12 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private Properties initProperties() throws MojoExecutionException {
-    log("Initializing properties...");
+    log();
     if (generateGitPropertiesFile) {
-      log("Using clean properties...");
+      log();
       return properties = new Properties();
     } else if (!runningTests) {
-      log("Using maven project properties...");
+      log();
       return properties = project.getProperties();
     } else {
       return properties = new Properties(); // that's ok for unit tests
@@ -345,15 +343,15 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void logProperties(@NotNull Properties properties) {
-    alwaysLog("------------------git properties loaded------------------");
+    alwaysLog();
 
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-    	  alwaysLog(String.format("%s = %s", key, properties.getProperty(keyString)));
+        alwaysLog();
       }
     }
-    alwaysLog("---------------------------------------------------------");
+    alwaysLog();
   }
 
   private boolean isOurProperty(@NotNull String keyString) {
@@ -367,7 +365,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    log("Loading data from git repository...");
+    log();
     Repository git = getGitRepository();
     ObjectReader objectReader = git.newObjectReader();
 
@@ -433,7 +431,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
     if(abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. " +
+      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
     }
 
@@ -520,7 +518,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       value = "Unknown";
     }
 
-    log("Storing: %s = %s", key, value);
+    log(key, value);
     properties.put(key, value);
   }
 
@@ -528,12 +526,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     return null != value && !" ".equals(value.trim().replaceAll(" ", ""));
   }
 
-  void log(String message, String... interpolations) {
-    loggerBridge.log(logPrefix + message, (Object[]) interpolations);
+  void log(String... interpolations) {
+    loggerBridge.log((Object[]) interpolations);
   }
 
-  void alwaysLog(String message, String... interpolations) {
-    verboseLoggerBridge.log(logPrefix + message, (Object[]) interpolations);    
+  void alwaysLog(String... interpolations) {
+    verboseLoggerBridge.log((Object[]) interpolations);
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {
