@@ -138,7 +138,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
-    String targetFilePath = "src/main/resources/custom-git.properties";
+    String targetFilePath = "target/classes/custom-git.properties";
     File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
     setProjectToExecuteMojoIn(targetProject);
