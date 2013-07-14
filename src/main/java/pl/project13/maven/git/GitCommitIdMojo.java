@@ -468,7 +468,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void generatePropertiesFile(@NotNull Properties properties, String generateGitPropertiesFilename) throws IOException {
     FileWriter fileWriter = null;
-    File gitPropsFile = new File(project.getBasedir(), generateGitPropertiesFilename);
+    File gitPropsFile = new File(generateGitPropertiesFilename);
     try {
       Files.createParentDirs(gitPropsFile);
 
