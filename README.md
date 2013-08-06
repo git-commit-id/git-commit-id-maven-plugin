@@ -228,8 +228,9 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="branch" value="${git.branch}"/>
         <property name="describe" value="${git.commit.id.describe}"/>
         <property name="commitId" value="${git.commit.id}"/>
-        <property name="commitIdAbbrev" value="${commit.id.abbrev}"/>
+        <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="commitTime" value="${git.commit.time}"/>
+        <property name="buildTime" value="${git.build.time}"/>
         <property name="buildUserName" value="${git.build.user.name}"/>
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="commitMessageFull" value="${git.commit.message.full}"/>
