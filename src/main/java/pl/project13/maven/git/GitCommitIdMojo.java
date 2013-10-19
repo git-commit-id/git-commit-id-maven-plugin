@@ -232,23 +232,17 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Properties properties;
 
-  public final String logPrefix = "[GitCommitIdMojo] ";
-
   boolean runningTests = false;
 
   @NotNull
   LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), true);
 
-  @NotNull
-  LoggerBridge verboseLoggerBridge = new MavenLoggerBridge(getLog(), true);
-
   public void execute() throws MojoExecutionException {
     // Set the verbose setting now it should be correctly loaded from maven.
     loggerBridge.setVerbose(verbose);
-    alwaysLog();
 
     if (isPomProject(project) && skipPoms) {
-      alwaysLog();
+      log("isPomProject is true and skipPoms is true, return");
       return;
     }
 
@@ -256,9 +250,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
     if (dotGitDirectory != null) {
-      alwaysLog(dotGitDirectory.getAbsolutePath());
+      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
     } else {
-      alwaysLog();
+        log("dotGitDirectory is null");
       return;
     }
 
@@ -343,15 +337,12 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void logProperties(@NotNull Properties properties) {
-    alwaysLog();
-
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-        alwaysLog();
+        log("found property", keyString);
       }
     }
-    alwaysLog();
   }
 
   private boolean isOurProperty(@NotNull String keyString) {
@@ -526,10 +517,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void log(String... interpolations) {
     loggerBridge.log((Object[]) interpolations);
-  }
-
-  void alwaysLog(String... interpolations) {
-    verboseLoggerBridge.log((Object[]) interpolations);
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {
