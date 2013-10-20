@@ -4,6 +4,11 @@ maven git commit id plugin
 
 git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
 
+Table of Contents
+=================
+
+{:toc}
+
 Use cases
 =========
 Which version had the bug? Is that deployed already?
