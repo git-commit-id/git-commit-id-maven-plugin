@@ -510,6 +510,8 @@ Notable happy users
 ===================
 
 * neo4j
+* foundationdb.com
+* others I know of but shouldn't tell ;-)
 * many others I don't know of
 
 License
