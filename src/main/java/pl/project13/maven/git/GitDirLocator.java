@@ -84,21 +84,28 @@ public class GitDirLocator {
 
       if (isExistingDirectory(dir)) {
         return dir;
+      }
+      // If the path exists but is not a directory it might be a git submodule "gitdir" link.
+      File gitDirLinkPath = processGitDirFile(dir);
+
+      // If the linkPath was found from the file and it exists then use it.
+      if (isExistingDirectory(gitDirLinkPath)) {
+        return gitDirLinkPath;
+      }
+
+      /**
+       * project.getParent always returns NULL for me, but if getParentArtifact returns
+       * not null then there is actually a parent - seems like a bug in maven to me.
+       */
+      if (currentProject.getParent() == null && currentProject.getParentArtifact() != null) {
+        Optional<MavenProject> maybeFoundParentProject = getReactorParentProject(currentProject);
+
+        if (maybeFoundParentProject.isPresent())
+        currentProject = maybeFoundParentProject.get();
+
       } else {
-        /**
-         * project.getParent always returns NULL for me, but if getParentArtifact returns
-         * not null then there is actually a parent - seems like a bug in maven to me.
-         */
-        if (currentProject.getParent() == null && currentProject.getParentArtifact() != null) {
-          Optional<MavenProject> maybeFoundParentProject = getReactorParentProject(currentProject);
-
-          if (maybeFoundParentProject.isPresent())
-            currentProject = maybeFoundParentProject.get();
-
-        } else {
-          // Get the parent, or NULL if no parent AND no parentArtifact.
-          currentProject = currentProject.getParent();
-        }
+        // Get the parent, or NULL if no parent AND no parentArtifact.
+        currentProject = currentProject.getParent();
       }
     }
 
@@ -151,7 +158,7 @@ public class GitDirLocator {
         }
 
         // All seems ok so return the "gitdir" value read from the file.
-        return new File(parts[1]);
+        return new File(file.getParentFile(), parts[1]);
       } catch (FileNotFoundException e) {
         return null;
       } finally {
