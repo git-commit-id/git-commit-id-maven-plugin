@@ -20,6 +20,7 @@ package pl.project13.maven.git;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -30,6 +31,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -41,6 +43,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -379,7 +382,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     try {
       // git.branch
-      String branch = git.getBranch();
+      String branch = determineBranchName(git);
       put(properties, BRANCH, branch);
 
       // git.commit.id.describe
@@ -525,6 +528,21 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private boolean directoryDoesNotExits(File fileLocation) {
     return !directoryExists(fileLocation);
+  }
+  
+  protected String determineBranchName(Repository git) throws IOException {
+	  String branch = git.getBranch();
+	  
+	  // Special processing if we're in Jenkins/Hudson
+	  Map<String,String> env = System.getenv();
+	  if (env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL")) {
+		  String branchName = env.get("GIT_BRANCH");
+		  if (branchName!=null && branchName.length()>0) {
+			  branch=branchName;
+		  }
+	  }
+	  
+	  return branch;
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------
