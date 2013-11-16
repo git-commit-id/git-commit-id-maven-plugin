@@ -530,18 +530,28 @@ public class GitCommitIdMojo extends AbstractMojo {
     return !directoryExists(fileLocation);
   }
   
+  /**
+   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
+   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
+   * 
+   * @param git
+   * @return results of git.getBranch() or, if in Jenkins/Hudson, value of GIT_BRANCH
+   */
   protected String determineBranchName(Repository git) throws IOException {
+	  Map<String,String> env = System.getenv();
+	  return determineBranchName(git,env);
+  }
+  
+  protected String determineBranchName(Repository git, Map<String,String> env) throws IOException {
 	  String branch = git.getBranch();
 	  
 	  // Special processing if we're in Jenkins/Hudson
-	  Map<String,String> env = System.getenv();
 	  if (env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL")) {
 		  String branchName = env.get("GIT_BRANCH");
 		  if (branchName!=null && branchName.length()>0) {
 			  branch=branchName;
 		  }
 	  }
-	  
 	  return branch;
   }
 
