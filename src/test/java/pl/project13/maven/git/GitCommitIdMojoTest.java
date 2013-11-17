@@ -17,12 +17,11 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.collect.Maps;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +30,6 @@ import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * I'm not a big fan of this test - let's move to integration test from now on.
@@ -97,37 +95,38 @@ public class GitCommitIdMojoTest {
 
   @Test
   public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
-	  Repository git = mock(Repository.class);
-	  Map<String,String> env = Maps.newHashMap();
-	  
-	  String detachedHeadSHA1 = "16bb801934e652f5e291a003db05e364d83fba25";
-	  String ciUrl = "http://myciserver.com";
-	  
-	  when(git.getBranch()).thenReturn(detachedHeadSHA1);
-	  
-	  // In a detached head state, getBranch() will return the SHA1...standard behavior
-	  assertEquals(detachedHeadSHA1, mojo.determineBranchName(git, env));
-	  
-	  // Again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
-	  env.put("JENKINS_URL", "http://myjenkinsserver.com");
-	  assertEquals(detachedHeadSHA1, mojo.determineBranchName(git, env));
-	  
-	  // Now set GIT_BRANCH too and see that the branch name from env var is returned
-	  env.clear();
-	  env.put("JENKINS_URL", ciUrl);
-	  env.put("GIT_BRANCH", "mybranch");
-	  assertEquals("mybranch", mojo.determineBranchName(git, env));
-	  
-	  
-	  // Same, but for hudson
-	  env.clear();
-	  env.put("GIT_BRANCH", "mybranch");
-	  env.put("HUDSON_URL", ciUrl);
-	  assertEquals("mybranch", mojo.determineBranchName(git, env));
-	  
-	  // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
-	  env.clear();
-	  env.put("GIT_BRANCH", "mybranch");
-	  assertEquals(detachedHeadSHA1, mojo.determineBranchName(git, env));
+    // given
+    Repository git = mock(Repository.class);
+    Map<String, String> env = Maps.newHashMap();
+
+    String detachedHeadSHA1 = "16bb801934e652f5e291a003db05e364d83fba25";
+    String ciUrl = "http://myciserver.com";
+
+    when(git.getBranch()).thenReturn(detachedHeadSHA1);
+
+    // when
+    // in a detached head state, getBranch() will return the SHA1...standard behavior
+    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+
+    // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
+    env.put("JENKINS_URL", "http://myjenkinsserver.com");
+    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+
+    // now set GIT_BRANCH too and see that the branch name from env var is returned
+    env.clear();
+    env.put("JENKINS_URL", ciUrl);
+    env.put("GIT_BRANCH", "mybranch");
+    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+
+    // same, but for hudson
+    env.clear();
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("HUDSON_URL", ciUrl);
+    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+
+    // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
+    env.clear();
+    env.put("GIT_BRANCH", "mybranch");
+    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
   }
 }

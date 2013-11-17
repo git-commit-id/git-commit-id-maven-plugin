@@ -65,7 +65,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  private void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
+  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
   }

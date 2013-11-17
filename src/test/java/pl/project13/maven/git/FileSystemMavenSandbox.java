@@ -46,6 +46,7 @@ public class FileSystemMavenSandbox {
    * Test should copy content of this folder to ".git" in correct destination
    */
   private File gitRepoSourceDir;
+
   @Nullable
   private File gitRepoTargetDir;
 
@@ -153,6 +154,8 @@ public class FileSystemMavenSandbox {
     return childProject;
   }
 
+  public File getSandboxDir() { return gitRepoTargetDir.getAbsoluteFile(); }
+
   @NotNull
   private MavenProject createProject(File basedir, String packaging) {
     MavenProject project = new MavenProject();
@@ -166,5 +169,12 @@ public class FileSystemMavenSandbox {
     NO_CLEANUP
   }
 
-
+  @Override
+  public String toString() {
+    return "FileSystemMavenSandbox{" +
+        "gitRepoTargetDir=" + gitRepoTargetDir +
+        ", gitRepoSourceDir=" + gitRepoSourceDir +
+        ", rootSandboxPath='" + rootSandboxPath + '\'' +
+        '}';
+  }
 }

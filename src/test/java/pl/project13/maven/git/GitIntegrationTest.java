@@ -18,6 +18,7 @@
 package pl.project13.maven.git;
 
 import com.google.common.base.Optional;
+import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -74,4 +75,10 @@ public abstract class GitIntegrationTest {
       setInternalState(mojo, entry.getKey(), entry.getValue());
     }
   }
+
+  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
+    setInternalState(mojo, "project", project);
+    setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
+  }
+
 }
