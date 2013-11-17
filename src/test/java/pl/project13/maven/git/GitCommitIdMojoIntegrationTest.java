@@ -142,7 +142,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("generateGitPropertiesFile", true);
-    alterMojoSettings("generateGitPropertiesFilename", expectedFile.getAbsolutePath());
+    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
 
     // when
     try {
