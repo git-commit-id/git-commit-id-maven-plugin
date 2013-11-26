@@ -19,15 +19,22 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.fest.util.Files;
+import org.codehaus.plexus.util.FileUtils;
 import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 import pl.project13.test.utils.AssertException;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
@@ -128,31 +135,65 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGenerateCustomPropertiesFile() throws Exception {
-    // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
-                .create(CleanUp.CLEANUP_FIRST);
+  public void shouldGenerateCustomPropertiesFileProperties() throws Exception {
+      // given
+      mavenSandbox.withParentProject("my-pom-project", "pom")
+          .withChildProject("my-jar-module", "jar")
+          .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
+          .create(CleanUp.CLEANUP_FIRST);
 
-    MavenProject targetProject = mavenSandbox.getChildProject();
+      MavenProject targetProject = mavenSandbox.getChildProject();
 
-    String targetFilePath = "target/classes/custom-git.properties";
-    File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
+      String targetFilePath = "target/classes/custom-git.properties";
+      File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
-    setProjectToExecuteMojoIn(targetProject);
-    alterMojoSettings("generateGitPropertiesFile", true);
-    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
+      setProjectToExecuteMojoIn(targetProject);
+      alterMojoSettings("generateGitPropertiesFile", true);
+      alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
 
-    // when
-    try {
-      mojo.execute();
+      // when
+      try {
+        mojo.execute();
 
-      // then
-      assertThat(expectedFile).exists();
-    } finally {
-      Files.delete(expectedFile);
-    }
+        // then
+        assertThat(expectedFile).exists();
+      } finally {
+        FileUtils.forceDelete(expectedFile);
+      }
+  }
+
+  @Test
+  public void shouldGenerateCustomPropertiesFileJson() throws Exception {
+      // given
+      mavenSandbox.withParentProject("my-pom-project", "pom")
+          .withChildProject("my-jar-module", "jar")
+          .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
+          .create(CleanUp.CLEANUP_FIRST);
+
+      MavenProject targetProject = mavenSandbox.getChildProject();
+
+      String targetFilePath = "target/classes/custom-git.properties";
+      File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
+
+      setProjectToExecuteMojoIn(targetProject);
+      alterMojoSettings("generateGitPropertiesFile", true);
+      alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
+      alterMojoSettings("format", "json");
+
+      // when
+      try {
+        mojo.execute();
+
+        // then
+        assertThat(expectedFile).exists();
+        String json = Files.toString(expectedFile, Charset.defaultCharset());
+        ObjectMapper om = new ObjectMapper();
+        Map<String, String> map = new HashMap<String, String>();
+        map = om.readValue(expectedFile, map.getClass());
+        assertThat(map.size() > 10);
+      } finally {
+        FileUtils.forceDelete(expectedFile);
+      }
   }
 
   private void alterMojoSettings(String parameterName, Object parameterValue) {
