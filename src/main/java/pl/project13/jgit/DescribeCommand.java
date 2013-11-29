@@ -426,7 +426,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         }
       }
 
-//      throw new RuntimeException("Did not find any commits until some tag");
       return Collections.emptyList();
     } catch (Exception e) {
       throw new RuntimeException("Unable to find commits until some tag", e);
