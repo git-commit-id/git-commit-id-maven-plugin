@@ -55,7 +55,8 @@ public enum AvailableGitTestRepo {
    * 9597545 - (annotated-tag) initial commit (6 minutes ago) <Konrad Malawski>
    * </pre>
    */
-  WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag");
+  WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag"),
+  WITH_TAG_ON_DIFFERENT_BRANCH("src/test/resources/_git_with_tag_on_different_branch");
 
   private String dir;
 

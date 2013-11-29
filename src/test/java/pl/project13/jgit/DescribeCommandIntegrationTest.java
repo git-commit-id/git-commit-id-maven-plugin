@@ -95,7 +95,31 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     RevCommit HEAD = git().log().call().iterator().next();
     assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
   }
+  
+  @Test
+  public void shouldGiveTheCommitIdWhenTagIsOnOtherBranch() throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject(PROJECT_NAME, "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
 
+    Repository repo = git().getRepository();
+
+    // when
+    DescribeCommand command = spy(DescribeCommand.on(repo));
+    doReturn(false).when(command).findDirtyState(any(Repository.class));
+
+    command.setVerbose(true);
+    DescribeResult res = command.call();
+
+    // then
+    assertThat(res).isNotNull();
+
+    RevCommit HEAD = git().log().call().iterator().next();
+    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+  }
 
   @Test
   public void shouldGiveTheCommitIdWhenNothingElseCanBeFoundAndUseAbbrevVersionOfIt() throws Exception {

@@ -319,13 +319,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return new DescribeResult(tagName, dirty, dirtyOption);
     }
 
-    if (foundZeroTags(tagObjectIdToName)) {
+    // get commits, up until the nearest tag
+    List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+
+    // if there is no tags or any tag is not on that branch then return generic describe
+    if (foundZeroTags(tagObjectIdToName) || commits.isEmpty()) {
       return new DescribeResult(objectReader, headCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
     }
-
-    // get commits, up until the nearest tag
-    List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
     // check how far away from a tag we are
 
@@ -425,7 +426,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         }
       }
 
-      throw new RuntimeException("Did not find any commits until some tag");
+//      throw new RuntimeException("Did not find any commits until some tag");
+      return Collections.emptyList();
     } catch (Exception e) {
       throw new RuntimeException("Unable to find commits until some tag", e);
     }
