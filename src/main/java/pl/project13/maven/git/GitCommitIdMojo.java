@@ -78,7 +78,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The maven project.
    *
-   * @parameter expression="${project}"
+   * @parameter property="project"
    * @readonly
    */
   @SuppressWarnings("UnusedDeclaration")
@@ -87,7 +87,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Contains the full list of projects in the reactor.
    *
-   * @parameter expression="${reactorProjects}"
+   * @parameter property="reactorProjects"
    * @readonly
    */
   @SuppressWarnings("UnusedDeclaration")
@@ -119,7 +119,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Specifies whether the execution in pom projects should be skipped.
    * Override this value to false if you want to force the plugin to run on 'pom' packaged projects.
    *
-   * @parameter expression="${git.skipPoms}" default-value="true"
+   * @parameter property="git.skipPoms" default-value="true"
    */
   @SuppressWarnings("UnusedDeclaration")
   private boolean skipPoms;
