@@ -526,3 +526,7 @@ and maybe someone else has some idea or would like to upvote your issue.
 
 In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ktoso/maven-git-commit-id-plugin/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
