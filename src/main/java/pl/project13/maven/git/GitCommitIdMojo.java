@@ -252,6 +252,15 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean useNativeGit;
 
   /**
+   * Skip the plugin execution.
+   *
+   * @parameter default-value="false"
+   * @since 2.1.8
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private boolean skip = false;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -264,6 +273,11 @@ public class GitCommitIdMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     // Set the verbose setting now it should be correctly loaded from maven.
     loggerBridge.setVerbose(verbose);
+
+    if (skip) {
+      log("skip is true, return");
+      return;
+    }
 
     if (isPomProject(project) && skipPoms) {
       log("isPomProject is true and skipPoms is true, return");

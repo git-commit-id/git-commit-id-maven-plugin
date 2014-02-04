@@ -144,6 +144,13 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     
+                    <!-- @since 2.1.8 -->
+                    <!--
+                        skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
+                        to use properties to enable / disable pom features. Default value is 'false'.
+                    -->
+                    <skip>false</skip>
+                    
                     <!-- @since 2.1.0 -->
                     <!-- 
                         read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
@@ -482,6 +489,7 @@ Optional parameters:
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
+* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
@@ -525,4 +533,8 @@ The best way to ask for features / improvements is [via the Issues section on gi
 and maybe someone else has some idea or would like to upvote your issue.
 
 In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
+
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ktoso/maven-git-commit-id-plugin/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
