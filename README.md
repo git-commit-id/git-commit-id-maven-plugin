@@ -144,6 +144,13 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     
+                    <!-- @since 2.1.8 -->
+                    <!--
+                        skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
+                        to use properties to enable / disable pom features. Default value is 'false'.
+                    -->
+                    <skip>false</skip>
+                    
                     <!-- @since 2.1.0 -->
                     <!-- 
                         read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
@@ -177,13 +184,6 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
-
-                    <!-- @since 2.1.8 -->
-                    <!--
-                        skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
-                        to use properties to enable / disable pom features. Default value is 'false'.
-                    -->
-                    <skip>false</skip>
                 </configuration>
 
             </plugin>
