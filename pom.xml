@@ -10,7 +10,11 @@
   <groupId>pl.project13.maven</groupId>
   <artifactId>git-commit-id-plugin</artifactId>
   <packaging>maven-plugin</packaging>
+<<<<<<< HEAD
   <version>2.1.8.COI-SNAPSHOT</version>
+=======
+  <version>2.1.8</version>
+>>>>>>> 4f787aa... [maven-release-plugin] prepare release v2.1.8
   <name>Git Commit Id Plugin Maven Mojo</name>
   <description>
     git-commit-id-plugin is a plugin quite similar to
