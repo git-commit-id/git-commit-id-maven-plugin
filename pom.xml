@@ -232,6 +232,22 @@
         </configuration>
       </plugin>
 
+      <plugin>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>3.2</version>
+        <executions>
+          <execution>
+            <id>generated-helpmojo</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+            <configuration>
+              <goalPrefix>git-commit-id</goalPrefix>
+              <helpPackageName>pl.project13.maven</helpPackageName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
