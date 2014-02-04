@@ -177,6 +177,13 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
+
+                    <!-- @since 2.1.8 -->
+                    <!--
+                        skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
+                        to use properties to enable / disable pom features. Default value is 'false'.
+                    -->
+                    <skip>false</skip>
                 </configuration>
 
             </plugin>
@@ -482,6 +489,7 @@ Optional parameters:
 * **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
+* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
