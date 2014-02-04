@@ -53,6 +53,21 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  public void shouldNotRunWhenSkipIsSet() throws Exception {
+    // given
+        mavenSandbox.withParentProject("my-skip-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("skip", Boolean.TRUE);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).isEmpty();
+  }
+
+  @Test
   public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply() throws Exception {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
@@ -111,6 +126,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
+  @Test
   public void shouldFailWithExceptionWhenNoGitRepoFound() throws Exception {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
@@ -194,6 +210,44 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       } finally {
         FileUtils.forceDelete(expectedFile);
       }
+  }
+
+  @Test
+  public void shouldSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoFound() throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withNoGitRepoAvailable()
+                .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("failOnNoGitDirectory", false);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).isEmpty();
+  }
+
+  @Test
+  public void shouldNotSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoIsPresent() throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+                .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("failOnNoGitDirectory", false);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
   private void alterMojoSettings(String parameterName, Object parameterValue) {
