@@ -18,15 +18,14 @@
 package pl.project13.maven.git;
 
 import com.google.common.base.Optional;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.Git;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
@@ -71,6 +70,7 @@ public abstract class GitIntegrationTest {
     mojoDefaults.put("prefix", "git");
     mojoDefaults.put("dateFormat", "dd.MM.yyyy '@' HH:mm:ss z");
     mojoDefaults.put("failOnNoGitDirectory", true);
+    mojoDefaults.put("useNativeGit", false);
     for (Map.Entry<String, Object> entry : mojoDefaults.entrySet()) {
       setInternalState(mojo, entry.getKey(), entry.getValue());
     }

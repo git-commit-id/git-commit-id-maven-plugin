@@ -21,11 +21,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -35,15 +47,6 @@ import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -237,7 +240,16 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="true"
    */
   @SuppressWarnings("UnusedDeclaration")
-  private boolean failOnUnableToExtractRepoInfo;
+    private boolean failOnUnableToExtractRepoInfo;
+
+  /**
+   * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
+   * use a native GIT executable to fetch information about the repository, witch is in most cases faster but requires
+   * a git executable to be installed in system.
+   *
+   * @parameter default-value="false"
+   */
+  private boolean useNativeGit;
 
   /**
    * The properties we store our data in and then expose them
@@ -258,14 +270,17 @@ public class GitCommitIdMojo extends AbstractMojo {
       return;
     }
 
-    dotGitDirectory = lookupGitDirectory();
-    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    if (!useNativeGit) {
+      dotGitDirectory = lookupGitDirectory();
+      throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory,
+              ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-    if (dotGitDirectory != null) {
-      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
-    } else {
-      log("dotGitDirectory is null, aborting execution!");
-      return;
+      if (dotGitDirectory != null) {
+          log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+      } else {
+          log("dotGitDirectory is null, aborting execution!");
+          return;
+      }
     }
 
     try {
@@ -362,6 +377,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+    if (useNativeGit) {
+      NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
+      Map<String, String> loadedData = gitProvider.loadGitData(project.getBasedir());
+      for (Map.Entry<String, String> entry : loadedData.entrySet()) {
+        put(properties, entry.getKey(), entry.getValue());
+      }
+      return;
+    }
     Repository git = getGitRepository();
     ObjectReader objectReader = git.newObjectReader();
 

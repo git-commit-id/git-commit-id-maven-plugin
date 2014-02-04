@@ -17,27 +17,40 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
-import pl.project13.test.utils.AssertException;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.FileUtils;
+import org.junit.Test;
+import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
+import pl.project13.test.utils.AssertException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
+
+  @Test
+  public void shouldResolvePropertiesUsingNativeGitForNonPomProject() throws Exception {
+    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent(
+            AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("useNativeGit", true);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
 
   @Test
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject() throws Exception {
