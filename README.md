@@ -512,6 +512,7 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @mostr - for bugfixes and a framework to do integration testing,
 * @fredcooke - for consistent feedback and suggestions,
 * @MrOnion - for a small yet fast bugfix,
+* ... many others - thank you for your contributions,
 * ... you! - for using the plugin :-)
 
 Notable happy users
