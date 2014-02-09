@@ -29,13 +29,13 @@ If you have a nice use case to share, please do fork this file and file a pull r
 
 Getting the plugin
 ==================
-The plugin is available from **Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
+The plugin **is available from Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
 
 A detailed description of using the pluing is available in the <a href="https://github.com/ktoso/maven-git-commit-id-plugin#using-the-plugin">Using the plugin</a> section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml` - more advanced configurations are also explained so... read on!
 
 Versions
 --------
-The current version is **2.1.7**.
+The current version is **2.1.9**.
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -150,7 +150,23 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         to use properties to enable / disable pom features. Default value is 'false'.
                     -->
                     <skip>false</skip>
-                    
+
+                    <!-- @since 2.1.9 -->
+                    <!--
+                        Can be used to exclude certain properties from being emited into the resulting file.
+                        May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
+                        or the email of the committer etc.
+
+                        Each value may be globbing, that is, you can write {@code git.commit.user.*} to exclude both, the {@code name},
+                        as well as {@code email} properties from being emitted into the resulting files.
+
+                        Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+                    -->
+                    <excludeProperties>
+                      <!-- <excludeProperty>git.user.*</excludeProperty> -->
+                    </excludeProperties>
+
+
                     <!-- @since 2.1.0 -->
                     <!-- 
                         read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
@@ -490,6 +506,7 @@ Optional parameters:
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
+* **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
