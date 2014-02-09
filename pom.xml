@@ -187,8 +187,6 @@
     </resources>
 
     <plugins>
-
-
       <!--<plugin>-->
         <!--<groupId>pl.project13.maven</groupId>-->
         <!--<artifactId>git-commit-id-plugin</artifactId>-->
@@ -209,10 +207,11 @@
 
           <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
 
-          <!--<generateGitPropertiesFile>false</generateGitPropertiesFile>-->
+          <!--<generateGitPropertiesFile>true</generateGitPropertiesFile>-->
+          <!--<generateGitPropertiesFilename>testing.properties</generateGitPropertiesFilename>-->
 
           <!--<excludeProperties>-->
-            <!--<excludeProperty>git.user.*</excludeProperty>-->
+            <!--<excludeProperty>git.commit.*</excludeProperty>-->
           <!--</excludeProperties>-->
 
           <!--<gitDescribe>-->
