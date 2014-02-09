@@ -245,7 +245,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="true"
    */
   @SuppressWarnings("UnusedDeclaration")
-    private boolean failOnUnableToExtractRepoInfo;
+  private boolean failOnUnableToExtractRepoInfo;
 
   /**
    * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
@@ -312,10 +312,10 @@ public class GitCommitIdMojo extends AbstractMojo {
               ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
       if (dotGitDirectory != null) {
-          log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+        log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
       } else {
-          log("dotGitDirectory is null, aborting execution!");
-          return;
+        log("dotGitDirectory is null, aborting execution!");
+        return;
       }
     }
 
@@ -342,8 +342,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void filterNot(Properties properties, @Nullable List<String> exclusions) {
-    if (exclusions == null)
+    if (exclusions == null) {
       return;
+    }
 
     List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, new Function<String, Predicate<CharSequence>>() {
       @Override
@@ -359,7 +360,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        System.out.println("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
+        System.out.println("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
     }
@@ -460,7 +461,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     // more details parsed out bellow
     Ref HEAD = git.getRef(Constants.HEAD);
     if (HEAD == null) {
-      throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
+      throw new MojoExecutionException(
+              "Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
     }
     RevWalk revWalk = new RevWalk(git);
     RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
@@ -509,18 +511,20 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
+  private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit,
+          int abbrevLength) throws MojoExecutionException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
-                                           "Please fix your configuration (the <abbrevLength/> element).");
+      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".
+              codePointBefore(abbrevLength)
+              + "Please fix your configuration (the <abbrevLength/> element).");
     }
 
     try {
       AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
       put(properties, COMMIT_ID_ABBREV, abbreviatedObjectId.name());
     } catch (IOException e) {
-      throw new MojoExecutionException("Unable to abbreviate commit id! " +
-                                           "You may want to investigate the <abbrevLength/> element in your configuration.", e);
+      throw new MojoExecutionException("Unable to abbreviate commit id! "
+              + "You may want to investigate the <abbrevLength/> element in your configuration.", e);
     }
   }
 
@@ -648,10 +652,10 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   protected String determineBranchNameOnBuildServer(Repository git, Map<String, String> env) throws IOException {
     String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
+    if (isNullOrEmpty(enviromentBasedBranch)) {
       log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
       return git.getBranch();
-    }else {
+    } else {
       log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
       return enviromentBasedBranch;
     }
