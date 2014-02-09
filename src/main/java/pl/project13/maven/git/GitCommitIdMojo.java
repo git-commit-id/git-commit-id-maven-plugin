@@ -120,7 +120,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Specifies whether the execution in pom projects should be skipped.
    * Override this value to false if you want to force the plugin to run on 'pom' packaged projects.
    *
-   * @parameter default-value="true"
+   * @parameter parameter="git.skipPoms" default-value="true"
    */
   @SuppressWarnings("UnusedDeclaration")
   private boolean skipPoms;
@@ -285,7 +285,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       return;
     }
 
-    if (isPomProject(project)) {
+    if (isPomProject(project) && skipPoms) {
       log("isPomProject is true and skipPoms is true, return");
       return;
     }
