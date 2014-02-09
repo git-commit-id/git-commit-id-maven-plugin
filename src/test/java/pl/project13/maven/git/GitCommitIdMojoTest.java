@@ -17,6 +17,7 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
@@ -73,6 +74,38 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+
+    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+  }
+
+  @Test
+  public void shouldExcludeAsConfiguredProperties() throws Exception {
+    // given
+    mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = mojo.getProperties();
+
+    // explicitly excluded
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
+
+    // glob excluded
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.name"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.name"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.email"));
+
+    // these stay
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
 
     verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
     verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));

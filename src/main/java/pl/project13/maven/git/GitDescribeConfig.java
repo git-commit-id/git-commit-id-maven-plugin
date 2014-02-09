@@ -218,4 +218,17 @@ public class GitDescribeConfig {
   public void setTags(Boolean tags) {
     this.tags = tags;
   }
+
+  @Override
+  public String toString() {
+    return "GitDescribeConfig{" +
+        "skip=" + skip +
+        ", always=" + always +
+        ", dirty='" + dirty + '\'' +
+        ", match='" + match + '\'' +
+        ", abbrev=" + abbrev +
+        ", tags=" + tags +
+        ", forceLongFormat=" + forceLongFormat +
+        '}';
+  }
 }

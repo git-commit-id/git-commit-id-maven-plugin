@@ -117,7 +117,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>13.0</version>
+      <version>15.0</version>
     </dependency>
 
     <!-- IntelliJ Annotations -->
@@ -187,6 +187,8 @@
     </resources>
 
     <plugins>
+
+
       <!--<plugin>-->
         <!--<groupId>pl.project13.maven</groupId>-->
         <!--<artifactId>git-commit-id-plugin</artifactId>-->
@@ -208,6 +210,10 @@
           <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
 
           <!--<generateGitPropertiesFile>false</generateGitPropertiesFile>-->
+
+          <!--<excludeProperties>-->
+            <!--<excludeProperty>git.user.*</excludeProperty>-->
+          <!--</excludeProperties>-->
 
           <!--<gitDescribe>-->
             <!--<skip>false</skip>-->

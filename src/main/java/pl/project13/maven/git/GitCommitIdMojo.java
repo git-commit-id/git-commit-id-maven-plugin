@@ -19,12 +19,17 @@ package pl.project13.maven.git;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +266,23 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean skip = false;
 
   /**
+   * Can be used to exclude certain properties from being emited into the resulting file.
+   * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
+   * or the email of the committer etc.
+   *
+   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to exclude both, the {@code name},
+   * as well as {@code email} properties from being emitted into the resulting files.
+   *
+   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+   *
+   * @parameter
+   * @since 2.1.9
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private List<String> excludeProperties = Collections.emptyList();
+
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -302,6 +324,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       prefixDot = prefix + ".";
 
       loadGitData(properties);
+      filterNot(properties, excludeProperties);
       loadBuildTimeData(properties);
       logProperties(properties);
 
@@ -316,6 +339,30 @@ public class GitCommitIdMojo extends AbstractMojo {
       handlePluginFailure(e);
     }
 
+  }
+
+  private void filterNot(Properties properties, @Nullable List<String> exclusions) {
+    if (exclusions == null)
+      return;
+
+    List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, new Function<String, Predicate<CharSequence>>() {
+      @Override
+      public Predicate<CharSequence> apply(String exclude) {
+        return Predicates.containsPattern(exclude);
+      }
+    });
+
+    Predicate<CharSequence> shouldExclude = Predicates.alwaysFalse();
+    for (Predicate<CharSequence> predicate : excludePredicates) {
+      shouldExclude = Predicates.or(shouldExclude, predicate);
+    }
+
+    for (String key : properties.stringPropertyNames()) {
+      if (shouldExclude.apply(key)) {
+        System.out.println("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
+        properties.remove(key);
+      }
+    }
   }
 
   /**
@@ -655,5 +702,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setAbbrevLength(int abbrevLength) {
     this.abbrevLength = abbrevLength;
+  }
+
+  public void setExcludeProperties(List<String> excludeProperties) {
+    this.excludeProperties = excludeProperties;
   }
 }
