@@ -11,4 +11,28 @@
   <artifactId>git-commit-id-plugin-common</artifactId>
   <name>Git Commit Id Plugin Maven Common</name>
 
+  <dependencies>
+      <!-- JGit -->
+
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+    </dependency>
+
+	<!-- Guava -->
+	<dependency>
+		<groupId>com.google.guava</groupId>
+		<artifactId>guava</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>com.google.code.findbugs</groupId>
+		<artifactId>jsr305</artifactId>
+	</dependency>
+	
+	    <!-- Joda Time -->
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+    </dependency>
+  </dependencies>
 </project>
