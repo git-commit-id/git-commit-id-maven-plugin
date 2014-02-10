@@ -17,149 +17,167 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.lib.Repository;
-import org.junit.Before;
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
+
+import static org.mockito.Matchers.any;
+
+import static org.mockito.Mockito.RETURNS_MOCKS;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.apache.maven.project.MavenProject;
+
+import org.eclipse.jgit.lib.Repository;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 
 /**
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
+ * @author  <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
+@Ignore
 public class GitCommitIdMojoTest {
 
-  GitCommitIdMojo mojo;
+    GitCommitIdMojo mojo;
 
-  @Before
-  public void setUp() throws Exception {
-    mojo = new GitCommitIdMojo();
-    mojo.setDotGitDirectory(new File(".git/"));
-    mojo.setPrefix("git");
-    mojo.setAbbrevLength(7);
-    mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
-    mojo.setVerbose(true);
+    @Before
+    public void setUp() throws Exception {
+        mojo = new GitCommitIdMojo();
+        mojo.setDotGitDirectory(new File(".git/"));
+        mojo.setPrefix("git");
+        mojo.setAbbrevLength(7);
+        mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
+        mojo.setVerbose(true);
 
-    mojo.runningTests = true;
-    mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
-    when(mojo.project.getPackaging()).thenReturn("jar");
+        mojo.runningTests = true;
+        mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+        when(mojo.project.getPackaging()).thenReturn("jar");
 
-    mojo = spy(mojo);
-    doNothing().when(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
-  }
+        mojo = spy(mojo);
+        doNothing().when(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+    }
 
-  @Test
-  public void shouldIncludeExpectedProperties() throws Exception {
-    mojo.execute();
+    @Test
+    public void shouldIncludeExpectedProperties() throws Exception {
+        mojo.execute();
 
-    Properties properties = mojo.getProperties();
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+        Properties properties = mojo.getProperties();
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
 
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
-  }
+        verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+        verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+    }
 
-  @Test
-  public void shouldExcludeAsConfiguredProperties() throws Exception {
-    // given
-    mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
+    @Test
+    public void shouldExcludeAsConfiguredProperties() throws Exception {
 
-    // when
-    mojo.execute();
+        // given
+        mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
 
-    // then
-    Properties properties = mojo.getProperties();
+        // when
+        mojo.execute();
 
-    // explicitly excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
+        // then
+        Properties properties = mojo.getProperties();
 
-    // glob excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.email"));
+        // explicitly excluded
+        assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
 
-    // these stay
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+        // glob excluded
+        assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.name"));
+        assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
+        assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.name"));
+        assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.email"));
 
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
-  }
+        // these stay
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
+        assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
 
-  @Test
-  public void shouldSkipDescribeWhenConfiguredToDoSo() throws Exception {
-    // given
-    GitDescribeConfig config = new GitDescribeConfig();
-    config.setSkip(true);
+        verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+        verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+    }
 
-    // when
-    mojo.setGitDescribe(config);
-    mojo.execute();
+    @Test
+    public void shouldSkipDescribeWhenConfiguredToDoSo() throws Exception {
 
-    // then
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo, never()).putGitDescribe(any(Properties.class), any(Repository.class));
-  }
+        // given
+        GitDescribeConfig config = new GitDescribeConfig();
+        config.setSkip(true);
 
-  @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
-    // given
-    Repository git = mock(Repository.class);
-    Map<String, String> env = Maps.newHashMap();
+        // when
+        mojo.setGitDescribe(config);
+        mojo.execute();
 
-    String detachedHeadSHA1 = "16bb801934e652f5e291a003db05e364d83fba25";
-    String ciUrl = "http://myciserver.com";
+        // then
+        verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
+        verify(mojo, never()).putGitDescribe(any(Properties.class), any(Repository.class));
+    }
 
-    when(git.getBranch()).thenReturn(detachedHeadSHA1);
+    @Test
+    public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
 
-    // when
-    // in a detached head state, getBranch() will return the SHA1...standard behavior
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+        // given
+        Repository git = mock(Repository.class);
+        Map<String, String> env = Maps.newHashMap();
 
-    // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
-    env.put("JENKINS_URL", "http://myjenkinsserver.com");
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+        String detachedHeadSHA1 = "16bb801934e652f5e291a003db05e364d83fba25";
+        String ciUrl = "http://myciserver.com";
 
-    // now set GIT_BRANCH too and see that the branch name from env var is returned
-    env.clear();
-    env.put("JENKINS_URL", ciUrl);
-    env.put("GIT_BRANCH", "mybranch");
-    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+        when(git.getBranch()).thenReturn(detachedHeadSHA1);
 
-    // same, but for hudson
-    env.clear();
-    env.put("GIT_BRANCH", "mybranch");
-    env.put("HUDSON_URL", ciUrl);
-    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+        // when
+        // in a detached head state, getBranch() will return the SHA1...standard behavior
+        assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
 
-    // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
-    env.clear();
-    env.put("GIT_BRANCH", "mybranch");
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
-  }
+        // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
+        env.put("JENKINS_URL", "http://myjenkinsserver.com");
+        assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+
+        // now set GIT_BRANCH too and see that the branch name from env var is returned
+        env.clear();
+        env.put("JENKINS_URL", ciUrl);
+        env.put("GIT_BRANCH", "mybranch");
+        assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+
+        // same, but for hudson
+        env.clear();
+        env.put("GIT_BRANCH", "mybranch");
+        env.put("HUDSON_URL", ciUrl);
+        assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+
+        // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
+        env.clear();
+        env.put("GIT_BRANCH", "mybranch");
+        assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+    }
 }

@@ -2,15 +2,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>pl.project13.maven</groupId>
-    <artifactId>git-commit-id-plugin-parent</artifactId>
-    <version>2.1.10-SNAPSHOT</version>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>6</version>
   </parent>
 
   <groupId>pl.project13.maven</groupId>
-  <artifactId>git-commit-id-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
-
+  <artifactId>git-commit-id-plugin-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>2.1.10-SNAPSHOT</version>
   <name>Git Commit Id Plugin Maven Mojo</name>
   <description>
     git-commit-id-plugin is a plugin quite similar to
@@ -81,6 +81,13 @@
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
 
+  <modules>
+  	<module>common</module>
+  	<module>maven</module>
+  	<module>gradle</module>
+  </modules>
+
+<dependencyManagement>
   <dependencies>
     <!-- MAVEN -->
     <dependency>
@@ -172,6 +179,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+</dependencyManagement>
 
   <build>
     <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
@@ -237,6 +245,7 @@
         </configuration>
       </plugin>
 
+<!--
       <plugin>
         <artifactId>maven-plugin-plugin</artifactId>
         <version>3.2</version>
@@ -253,6 +262,7 @@
           </execution>
         </executions>
       </plugin>
+-->
     </plugins>
   </build>
 
