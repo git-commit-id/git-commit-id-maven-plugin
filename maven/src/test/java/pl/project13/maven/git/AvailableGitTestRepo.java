@@ -17,9 +17,9 @@
 
 package pl.project13.maven.git;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
+
+import javax.annotation.Nonnull;
 
 public enum AvailableGitTestRepo {
   WITH_ONE_COMMIT("src/test/resources/_git_one_commit"),
@@ -64,7 +64,7 @@ public enum AvailableGitTestRepo {
     this.dir = dir;
   }
 
-  @NotNull
+  @Nonnull
   public File getDir() {
     return new File(dir);
   }

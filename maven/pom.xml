@@ -82,6 +82,12 @@
   </properties>
 
   <dependencies>
+  	<dependency>
+  	  <groupId>${project.groupId}</groupId>
+  	  <artifactId>${project.artifactId}-common</artifactId>
+  	  <version>${project.version}</version>
+  	</dependency>
+  
     <!-- MAVEN -->
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -121,11 +127,17 @@
     </dependency>
 
     <!-- IntelliJ Annotations -->
+    <!--
     <dependency>
       <groupId>com.intellij</groupId>
       <artifactId>annotations</artifactId>
       <version>9.0.4</version>
-    </dependency>
+    </dependency> -->
+	<!-- Replace IntelliJ Annotations -->
+	<dependency>
+		<groupId>com.google.code.findbugs</groupId>
+		<artifactId>jsr305</artifactId>
+	</dependency>
 
     <!-- JGit -->
 

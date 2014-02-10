@@ -17,10 +17,11 @@
 
 package pl.project13.maven.git;
 
-import org.fest.assertions.Condition;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import org.fest.assertions.Condition;
 
 class ContainsKeyCondition extends Condition<Map<?, ?>> {
 
@@ -31,7 +32,7 @@ class ContainsKeyCondition extends Condition<Map<?, ?>> {
   }
 
   @Override
-  public boolean matches(@NotNull Map<?, ?> map) {
+  public boolean matches(@Nonnull Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
     if (!containsKey) {
       throw new RuntimeException(String.format("Map did not contain [%s] key! Map is: %s", key, map));

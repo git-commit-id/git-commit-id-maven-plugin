@@ -34,16 +34,18 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 import java.io.File;
 import java.util.Properties;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
+import javax.annotation.Nonnull;
+
+import org.apache.maven.project.MavenProject;
+import org.junit.Test;
+
+import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 public class GitSubmodulesTest extends GitIntegrationTest {
 
@@ -65,7 +67,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
+  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
   }

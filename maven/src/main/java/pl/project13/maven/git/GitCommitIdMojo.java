@@ -17,6 +17,39 @@
 
 package pl.project13.maven.git;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+
+import pl.project13.jgit.DescribeCommand;
+import pl.project13.jgit.DescribeResult;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.MavenLoggerBridge;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -25,28 +58,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import pl.project13.jgit.DescribeCommand;
-import pl.project13.jgit.DescribeResult;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
  * Goal which puts git build-time information into property files or maven's properties.
@@ -273,7 +284,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean runningTests = false;
 
-  @NotNull
+  @Nonnull
   LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), true);
 
   public void execute() throws MojoExecutionException {
@@ -361,7 +372,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
+  private void appendPropertiesToReactorProjects(@Nonnull Properties properties) {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
@@ -399,7 +410,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void logProperties(@NotNull Properties properties) {
+  private void logProperties(@Nonnull Properties properties) {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
@@ -408,17 +419,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private boolean isOurProperty(@NotNull String keyString) {
+  private boolean isOurProperty(@Nonnull String keyString) {
     return keyString.startsWith(prefixDot);
   }
 
-  void loadBuildTimeData(@NotNull Properties properties) {
+  void loadBuildTimeData(@Nonnull Properties properties) {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(commitDate));
   }
 
-  void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitData(@Nonnull Properties properties) throws IOException, MojoExecutionException {
     Repository git = getGitRepository();
     ObjectReader objectReader = git.newObjectReader();
 
@@ -497,14 +508,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void maybePutGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
+  void maybePutGitDescribe(@Nonnull Properties properties, @Nonnull Repository repository) throws MojoExecutionException {
     if (gitDescribe == null || !gitDescribe.isSkip()) {
       putGitDescribe(properties, repository);
     }
   }
 
   @VisibleForTesting
-  void putGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
+  void putGitDescribe(@Nonnull Properties properties, @Nonnull Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(repository)
@@ -521,7 +532,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   static int counter;
 
-  void generatePropertiesFile(@NotNull Properties properties, File base, String propertiesFilename) throws IOException {
+  void generatePropertiesFile(@Nonnull Properties properties, File base, String propertiesFilename) throws IOException {
     FileWriter fileWriter = null;
     File gitPropsFile = new File(base, propertiesFilename);
     try {
@@ -544,11 +555,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  boolean isPomProject(@NotNull MavenProject project) {
+  boolean isPomProject(@Nonnull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
   }
 
-  @NotNull
+  @Nonnull
   private Repository getGitRepository() throws MojoExecutionException {
     Repository repository;
 
@@ -570,11 +581,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     return repository;
   }
 
-  private void put(@NotNull Properties properties, String key, String value) {
+  private void put(@Nonnull Properties properties, String key, String value) {
     putWithoutPrefix(properties, prefixDot + key, value);
   }
 
-  private void putWithoutPrefix(@NotNull Properties properties, String key, String value) {
+  private void putWithoutPrefix(@Nonnull Properties properties, String key, String value) {
     if (!isNotEmpty(value)) {
       value = "Unknown";
     }

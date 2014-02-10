@@ -17,24 +17,27 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
-import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
-import pl.project13.maven.git.GitIntegrationTest;
-
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+
+import javax.annotation.Nonnull;
+
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Test;
+
+import pl.project13.maven.git.AvailableGitTestRepo;
+import pl.project13.maven.git.FileSystemMavenSandbox;
+import pl.project13.maven.git.GitIntegrationTest;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
@@ -444,11 +447,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(simpleName).isEqualTo("v1.0.0");
   }
 
-  String abbrev(@NotNull String id) {
+  String abbrev(@Nonnull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
 
-  String abbrev(@NotNull String id, int n) {
+  String abbrev(@Nonnull String id, int n) {
     return id.substring(0, n);
   }
 }

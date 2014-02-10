@@ -17,18 +17,20 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Optional;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.Git;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
+import javax.annotation.Nonnull;
+
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.Git;
+import org.junit.Before;
+
+import com.google.common.base.Optional;
 
 public abstract class GitIntegrationTest {
 
@@ -52,8 +54,8 @@ public abstract class GitIntegrationTest {
     return Optional.absent();
   }
 
-  @NotNull
-  protected File dotGitDir(@NotNull Optional<String> projectDir) {
+  @Nonnull
+  protected File dotGitDir(@Nonnull Optional<String> projectDir) {
     if (projectDir.isPresent()) {
       return new File(SANDBOX_DIR + File.separator + projectDir.get() + File.separator + ".git");
     } else {
@@ -76,7 +78,7 @@ public abstract class GitIntegrationTest {
     }
   }
 
-  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
+  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
   }

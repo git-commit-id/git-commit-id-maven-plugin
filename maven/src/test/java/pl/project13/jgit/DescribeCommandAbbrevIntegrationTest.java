@@ -34,15 +34,18 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
+import static org.fest.assertions.Assertions.assertThat;
+
+import javax.annotation.Nonnull;
+
 import org.eclipse.jgit.lib.Repository;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import static org.fest.assertions.Assertions.assertThat;
+import com.google.common.base.Optional;
 
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
@@ -123,7 +126,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     assertThat(res.prefixedCommitId()).isEqualTo("g" + smallestAbbrevGitWillUse);
   }
 
-  String abbrev(@NotNull String id, int n) {
+  String abbrev(@Nonnull String id, int n) {
     return id.substring(0, n);
   }
 }

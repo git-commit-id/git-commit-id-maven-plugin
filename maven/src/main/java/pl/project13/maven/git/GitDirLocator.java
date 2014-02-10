@@ -17,15 +17,21 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Optional;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
-import java.util.List;
+import com.google.common.base.Optional;
 
 /**
  * Encapsulates logic to locate a valid .git directory.
@@ -42,7 +48,7 @@ public class GitDirLocator {
   }
 
   @Nullable
-  public File lookupGitDirectory(@NotNull File manuallyConfiguredDir) {
+  public File lookupGitDirectory(@Nonnull File manuallyConfiguredDir) {
 
     if (manuallyConfiguredDir.exists()) {
 
@@ -119,7 +125,7 @@ public class GitDirLocator {
    *
    * @return MavenProject parent project or NULL if no parent available
    */
-  private Optional<MavenProject> getReactorParentProject(@NotNull MavenProject project) {
+  private Optional<MavenProject> getReactorParentProject(@Nonnull MavenProject project) {
     Artifact parentArtifact = project.getParentArtifact();
 
     if (parentArtifact != null) {
@@ -138,7 +144,7 @@ public class GitDirLocator {
    *
    * @return File object with path loaded or null
    */
-  private File processGitDirFile(@NotNull File file) {
+  private File processGitDirFile(@Nonnull File file) {
     try {
       BufferedReader reader = null;
 
@@ -171,8 +177,8 @@ public class GitDirLocator {
     }
   }
 
-  @NotNull
-  private static File getProjectGitDir(@NotNull MavenProject mavenProject) {
+  @Nonnull
+  private static File getProjectGitDir(@Nonnull MavenProject mavenProject) {
     // FIXME Shouldn't this look at the dotGitDirectory property (if set) for the given project?
     return new File(mavenProject.getBasedir(), Constants.DOT_GIT);
   }
