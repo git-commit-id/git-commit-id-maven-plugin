@@ -21,7 +21,6 @@ package pl.project13.maven.git;
  * Represents options passed in via maven configuration,
  * corresponds to options of git-describe.
  */
-@SuppressWarnings("JavaDoc")
 public class GitDescribeConfig {
 
   /**
