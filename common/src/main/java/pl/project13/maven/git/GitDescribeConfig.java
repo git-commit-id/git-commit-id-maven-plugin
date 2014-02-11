@@ -31,7 +31,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=false
    */
-  private boolean skip;
+  private boolean skip = false;
 
   /**
    * <pre>--always</pre>
@@ -41,7 +41,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=true
    */
-  private boolean always;
+  private boolean always = true;
 
   /**
    * <pre>--dirty[=mark]</pre>
@@ -52,7 +52,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value="devel"
    */
-  private String dirty;
+  private String dirty = "devel";
 
   /**
    *<pre>--match glob-pattern</pre>
@@ -62,7 +62,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value="*"
    */
-  private String match;
+  private String match = "*";
 
   /**
    * <pre>--abbrev=N</pre>
@@ -102,7 +102,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=7
    */
-  private int abbrev;
+  private int abbrev = 7;
 
   /**
    * <pre>--tags</pre>
@@ -135,7 +135,7 @@ public class GitDescribeConfig {
    *
    * @parameter
    */
-  private Boolean tags;
+  private Boolean tags = Boolean.FALSE;
 
   /**
    * <pre>--long</pre>
@@ -148,7 +148,7 @@ public class GitDescribeConfig {
    * <p/>
    * <pre>false</pre> by default.
    */
-  private Boolean forceLongFormat;
+  private Boolean forceLongFormat = Boolean.FALSE;
 
   public GitDescribeConfig() {
   }
