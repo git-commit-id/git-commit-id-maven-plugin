@@ -1,0 +1,19 @@
+<props>
+  <commit>
+    <abbr>d79f2d5</abbr>
+    <hash>d79f2d589079c591852ee610135ecd3acb6faf0c</hash>
+    <subject>A sample git subject line</subject>
+    <body>A sample git body contents.
+      A other sample git body contents.</body>
+  </commit>
+  <committer>
+    <name>Krzysztof Suszyński</name>
+    <email>krzysztof.suszynski@example.org</email>
+    <date>2014-02-04 14:53:35 +0100</date>
+  </committer>
+  <author>
+    <name>Jan Kowalski</name>
+    <email>jan.kowalski@example.org</email>
+    <date>2014-02-01 12:33:45 +0100</date>
+  </author>
+</props>

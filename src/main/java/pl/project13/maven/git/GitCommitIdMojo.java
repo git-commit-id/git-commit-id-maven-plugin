@@ -241,6 +241,15 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
+   * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
+   * use a native GIT executable to fetch information about the repository, witch is in most cases faster but requires
+   * a git executable to be installed in system.
+   *
+   * @parameter default-value="false"
+   */
+  private boolean useNativeGit;
+
+  /**
    * Skip the plugin execution.
    *
    * @parameter default-value="false"
@@ -264,7 +273,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   private List<String> excludeProperties = Collections.emptyList();
-
 
   /**
    * The properties we store our data in and then expose them
@@ -290,14 +298,17 @@ public class GitCommitIdMojo extends AbstractMojo {
       return;
     }
 
-    dotGitDirectory = lookupGitDirectory();
-    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    if (!useNativeGit) {
+      dotGitDirectory = lookupGitDirectory();
+      throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory,
+              ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-    if (dotGitDirectory != null) {
-      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
-    } else {
-      log("dotGitDirectory is null, aborting execution!");
-      return;
+      if (dotGitDirectory != null) {
+          log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+      } else {
+          log("dotGitDirectory is null, aborting execution!");
+          return;
+      }
     }
 
     try {
@@ -419,6 +430,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+    if (useNativeGit) {
+      NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
+      Map<String, String> loadedData = gitProvider.loadGitData(project.getBasedir());
+      for (Map.Entry<String, String> entry : loadedData.entrySet()) {
+        put(properties, entry.getKey(), entry.getValue());
+      }
+      return;
+    }
     Repository git = getGitRepository();
     ObjectReader objectReader = git.newObjectReader();
 

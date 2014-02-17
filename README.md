@@ -112,6 +112,12 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- true is default here, it prints some more information during the build -->
                     <verbose>true</verbose>
 
+                    <!-- 
+                        false is default here, if set to true it uses native GIT excutable for 
+                        better performance (it must be installed in system and available in system PATH) 
+                    -->
+                    <useNativeGit>false</useNativeGit>
+
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
                         use this setting, otherwise we'll perform a search trying to

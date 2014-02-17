@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<props>
+  <commit>
+    <abbr>%h</abbr>
+    <hash>%H</hash>
+    <subject>%s</subject>
+    <body>%b</body>
+  </commit>
+  <committer>
+    <name>%cn</name>
+    <email>%ce</email>
+    <date>%ci</date>
+  </committer>
+  <author>
+    <name>%an</name>
+    <email>%ae</email>
+    <date>%ai</date>
+  </author>
+</props>
