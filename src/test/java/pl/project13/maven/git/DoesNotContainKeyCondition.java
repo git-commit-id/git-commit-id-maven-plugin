@@ -22,19 +22,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-class ContainsKeyCondition extends Condition<Map<?, ?>> {
+class DoesNotContainKeyCondition extends Condition<Map<?, ?>> {
 
   private String key;
 
-  public ContainsKeyCondition(String key) {
+  public DoesNotContainKeyCondition(String key) {
     this.key = key;
   }
 
   @Override
   public boolean matches(@NotNull Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
-    if (!containsKey) {
-      throw new RuntimeException(String.format("Map did not contain [%s] key! Map is: %s", key, map));
+    if (containsKey) {
+      System.out.println(String.format("Map contained [%s] key! Map is: %s", key, map));
+      throw new RuntimeException(String.format("Map contained [%s] key! Map is: %s", key, map));
     }
     return true;
   }

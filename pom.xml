@@ -10,8 +10,7 @@
   <groupId>pl.project13.maven</groupId>
   <artifactId>git-commit-id-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>2.1.9-COI-1</version>
-  
+  <version>2.1.10-SNAPSHOT</version>
   <name>Git Commit Id Plugin Maven Mojo</name>
   <description>
     git-commit-id-plugin is a plugin quite similar to
@@ -118,7 +117,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>13.0</version>
+      <version>15.0</version>
     </dependency>
 
     <!-- IntelliJ Annotations -->
@@ -208,7 +207,12 @@
 
           <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
 
-          <!--<generateGitPropertiesFile>false</generateGitPropertiesFile>-->
+          <!--<generateGitPropertiesFile>true</generateGitPropertiesFile>-->
+          <!--<generateGitPropertiesFilename>testing.properties</generateGitPropertiesFilename>-->
+
+          <!--<excludeProperties>-->
+            <!--<excludeProperty>git.commit.*</excludeProperty>-->
+          <!--</excludeProperties>-->
 
           <!--<gitDescribe>-->
             <!--<skip>false</skip>-->
@@ -237,6 +241,18 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
         <version>3.2</version>
+        <executions>
+          <execution>
+            <id>generated-helpmojo</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+            <configuration>
+              <goalPrefix>git-commit-id</goalPrefix>
+              <helpPackageName>pl.project13.maven</helpPackageName>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>
