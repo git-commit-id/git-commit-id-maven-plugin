@@ -93,7 +93,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.1.7</version>
+                <version>2.1.9</version>
                 <executions>
                     <execution>
                         <goals>
