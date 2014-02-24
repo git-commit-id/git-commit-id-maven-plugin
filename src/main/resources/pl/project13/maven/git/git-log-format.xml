@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <props>
   <commit>
-    <abbr>%h</abbr>
-    <hash>%H</hash>
-    <subject>%s</subject>
-    <body>%b</body>
+    <abbr><![CDATA[%h]]></abbr>
+    <hash><![CDATA[%H]]></hash>
+    <subject><![CDATA[%s]]></subject>
+    <body><![CDATA[%b]]></body>
   </commit>
   <committer>
-    <name>%cn</name>
-    <email>%ce</email>
-    <date>%ci</date>
+    <name><![CDATA[%cn]]></name>
+    <email><![CDATA[%ce]]></email>
+    <date><![CDATA[%ci]]></date>
   </committer>
   <author>
-    <name>%an</name>
-    <email>%ae</email>
-    <date>%ai</date>
+    <name><![CDATA[%an]]></name>
+    <email><![CDATA[%ae]]></email>
+    <date><![CDATA[%ai]]></date>
   </author>
 </props>

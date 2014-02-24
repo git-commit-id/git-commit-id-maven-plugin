@@ -52,6 +52,7 @@ import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.maven.git.util.DisplayedException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -281,7 +282,6 @@ public class GitCommitIdMojo extends AbstractMojo {
   @SuppressWarnings("UnusedDeclaration")
   private List<String> excludeProperties = Collections.emptyList();
 
-
   /**
    * The properties we store our data in and then expose them
    */
@@ -441,7 +441,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
     if (useNativeGit) {
       NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
-      Map<String, String> loadedData = gitProvider.loadGitData(project.getBasedir());
+      File basedir = project.getBasedir().getCanonicalFile();
+      Map<String, String> loadedData;
+      try {
+        loadedData = gitProvider.loadGitData(basedir);
+      } catch (DisplayedException ex) {
+        throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
+      }
       for (Map.Entry<String, String> entry : loadedData.entrySet()) {
         put(properties, entry.getKey(), entry.getValue());
       }

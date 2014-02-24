@@ -74,7 +74,7 @@ public class NativeGitProviderTest {
             "krzysztof.suszynski@example.org",
             "A sample git subject line",
             "A sample git body contents.\n"
-            + "      A other sample git body contents.",
+            + "      A other sample git body contents. Even with XML tags: <3 <xml />.",
             "04.02.2014 @ 14:53:35 CET",
             "Jan Kowalski",
             "jan.kowalski@example.org"
@@ -120,7 +120,7 @@ public class NativeGitProviderTest {
             "krzysztof.suszynski@example.org",
             "A sample git subject line",
             "A sample git body contents.\n"
-            + "      A other sample git body contents.",
+            + "      A other sample git body contents. Even with XML tags: <3 <xml />.",
             "04.02.2014 @ 14:53:35 CET",
             "Jan Kowalski",
             "jan.kowalski@example.org"
@@ -165,7 +165,7 @@ public class NativeGitProviderTest {
             "krzysztof.suszynski@example.org",
             "A sample git subject line",
             "A sample git body contents.\n"
-            + "      A other sample git body contents.",
+            + "      A other sample git body contents. Even with XML tags: <3 <xml />.",
             "04.02.2014 @ 14:53:35 CET",
             "Jan Kowalski",
             "jan.kowalski@example.org"

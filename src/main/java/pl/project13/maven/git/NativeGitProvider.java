@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +21,8 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+import pl.project13.maven.git.util.DisplayedException;
+import pl.project13.maven.git.util.EidRuntimeException;
 
 import static java.nio.charset.Charset.defaultCharset;
 
@@ -27,7 +30,9 @@ import static java.nio.charset.Charset.defaultCharset;
  *
  * @author Krzysztof Suszyński <krzysztof.suszynski@gmail.com>
  */
-public class NativeGitProvider {
+public class NativeGitProvider implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private transient CliRunner runner;
 
@@ -35,7 +40,7 @@ public class NativeGitProvider {
 
   private static final Map<String, String> PARSE_MAP;
 
-  private String dateFormat;
+  private final String dateFormat;
 
   static {
     final InputStream inputStream = NativeGitProvider.class.getResourceAsStream("git-log-format.xml");
@@ -52,11 +57,24 @@ public class NativeGitProvider {
     PARSE_MAP.put(GitCommitIdMojo.BUILD_AUTHOR_EMAIL, "author/email");
   }
 
+  private static final int REMOTE_COLS = 3;
+
+  /**
+   * A constructor with extra runner
+   *
+   * @param runner a cli runner to use
+   * @param dateFormat a date format
+   */
   public NativeGitProvider(CliRunner runner, String dateFormat) {
     this.runner = runner;
     this.dateFormat = dateFormat;
   }
 
+  /**
+   * A default constructor
+   *
+   * @param dateFormat a date format
+   */
   public NativeGitProvider(String dateFormat) {
     this.dateFormat = dateFormat;
   }
@@ -66,39 +84,46 @@ public class NativeGitProvider {
    *
    * @param directory a directory to run command into
    * @return map of all git properties
-   * @throws java.io.IOException
    */
-  public Map<String, String> loadGitData(final File directory) throws IOException {
-    final File canonical = directory.getCanonicalFile();
-    final Map<String, String> map = new LinkedHashMap<String, String>();
-    map.put(GitCommitIdMojo.COMMIT_DESCRIBE, tryToRunGitCommand(canonical, "describe --tags", null));
-    map.put(GitCommitIdMojo.BRANCH, getBranch(canonical));
-    map.put(GitCommitIdMojo.REMOTE_ORIGIN_URL, getOriginRemote(canonical));
-    final String format = FORMAT.replaceFirst("<\\?xml.+\\?>", "").replaceAll("\\s+", "");
-    final String logCommand = String.format("log -1 --format=%s", format);
-    final String xml = runGitCommand(canonical, logCommand);
+  public Map<String, String> loadGitData(File directory) throws DisplayedException {
+    File canonical;
     try {
-      readFromFormatedXml(map, xml);
-    } catch (SAXException ex) {
-      throw new IOException(ex);
-    } catch (ParserConfigurationException ex) {
-      throw new IOException(ex);
-    } catch (XPathExpressionException ex) {
-      throw new IOException(ex);
-    } catch (ParseException ex) {
-      throw new IOException(ex);
+      canonical = directory.getCanonicalFile();
+    } catch (IOException ex) {
+      throw new EidRuntimeException("20140224:194232", "Passed a invalid directory, not a GIT repository: " + directory,
+              ex);
     }
-    return map;
+    try {
+      Map<String, String> map = new LinkedHashMap<String, String>();
+      map.put(GitCommitIdMojo.COMMIT_DESCRIBE, tryToRunGitCommand(canonical, "describe --tags", null));
+      map.put(GitCommitIdMojo.BRANCH, getBranch(canonical));
+      map.put(GitCommitIdMojo.REMOTE_ORIGIN_URL, getOriginRemote(canonical));
+      String format = FORMAT.replaceFirst("<\\?xml.+\\?>", "").replaceAll("\\s+", "");
+      String logCommand = String.format("log -1 --format=%s", format);
+      String xml = runGitCommand(canonical, logCommand);
+      readFromFormatedXml(map, xml);
+      return map;
+    } catch (DisplayedException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      throw new EidRuntimeException("20140224:194451", "Unsupported GIT output - has it changed?!", ex);
+    }
   }
 
-  private String getOriginRemote(final File directory) throws IOException {
+  /**
+   * Gets a default origin remote address.
+   *
+   * @param directory a directory to fetch a remote to
+   * @return a remote address
+   */
+  private String getOriginRemote(File directory) throws DisplayedException {
     String remotes = runGitCommand(directory, "remote -v");
     for (String line : remotes.split("\n")) {
       String trimmed = line.trim();
       if (trimmed.startsWith("origin")) {
         String[] splited = trimmed.split("\\s+");
-        if (splited.length != 3) {
-          throw new IOException("Unsopported GIT output: " + line);
+        if (splited.length != REMOTE_COLS) {
+          throw new EidRuntimeException("20140224:194851", "Unsupported GIT output - verbose remote address:" + line);
         }
         return splited[1];
       }
@@ -112,13 +137,18 @@ public class NativeGitProvider {
    * @param directory a directory to run command into
    * @param gitCommand a git command to run
    * @return output of a git command
-   * @throws IOException
+   * @throws DisplayedException if could not run git command
    */
-  private String runGitCommand(final File directory, final String gitCommand) throws IOException {
-    final String env = System.getenv("GIT_PATH");
-    final String exec = (env == null) ? "git" : env;
-    final String command = String.format("%s %s", exec, gitCommand);
-    return getRunner().run(directory, command).trim();
+  private String runGitCommand(final File directory, final String gitCommand) throws DisplayedException {
+    try {
+      final String env = System.getenv("GIT_PATH");
+      final String exec = (env == null) ? "git" : env;
+      final String command = String.format("%s %s", exec, gitCommand);
+      return getRunner().run(directory, command).trim();
+    } catch (IOException ex) {
+      throw new DisplayedException("Could not run GIT command - GIT is not installed or not exists in system path? "
+              + "Tried to run: " + gitCommand, ex);
+    }
   }
 
   /**
@@ -133,7 +163,7 @@ public class NativeGitProvider {
     String retValue;
     try {
       retValue = runGitCommand(directory, gitCommand);
-    } catch (IOException ex) {
+    } catch (DisplayedException ex) {
       retValue = defaultValue;
     }
     return retValue;
@@ -151,23 +181,23 @@ public class NativeGitProvider {
     return runner;
   }
 
-  private void readFromFormatedXml(final Map<String, String> map, final String xml) throws
+  private void readFromFormatedXml(Map<String, String> map, String xml) throws
           SAXException, IOException, ParserConfigurationException, XPathExpressionException, ParseException {
-    final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-    final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-    final String withProlog = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + xml;
-    final ByteArrayInputStream bais = new ByteArrayInputStream(withProlog.getBytes(defaultCharset()));
-    final Document document = builder.parse(bais);
-    final XPath xPath = XPathFactory.newInstance().newXPath();
+    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = builderFactory.newDocumentBuilder();
+    String withProlog = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + xml;
+    ByteArrayInputStream bais = new ByteArrayInputStream(withProlog.getBytes(defaultCharset()));
+    Document document = builder.parse(bais);
+    XPath xPath = XPathFactory.newInstance().newXPath();
     for (Map.Entry<String, String> entry : PARSE_MAP.entrySet()) {
-      final String propertyName = entry.getKey();
-      final String path = entry.getValue();
-      final String value = xPath.compile("/props/" + path).evaluate(document);
+      String propertyName = entry.getKey();
+      String path = entry.getValue();
+      String value = xPath.compile("/props/" + path).evaluate(document);
       map.put(propertyName, postprocesValue(value, propertyName));
     }
   }
 
-  private String getBranch(final File canonical) {
+  private String getBranch(File canonical) {
     String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD", null);
     if (branch != null) {
       branch = branch.replace("refs/heads/", "");
@@ -177,9 +207,9 @@ public class NativeGitProvider {
 
   private String postprocesValue(String value, String propertyName) throws ParseException {
     if (propertyName.equals(GitCommitIdMojo.COMMIT_TIME)) {
-      final SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
-      final Date date = parser.parse(value);
-      final SimpleDateFormat smf = new SimpleDateFormat(dateFormat, Locale.US);
+      SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
+      Date date = parser.parse(value);
+      SimpleDateFormat smf = new SimpleDateFormat(dateFormat, Locale.US);
       return smf.format(date);
     } else {
       return value;
@@ -199,20 +229,20 @@ public class NativeGitProvider {
      * @return Executed output STDOUT
      * @throws IOException if error occurd
      */
-    String run(final File directory, final String command) throws IOException;
+    String run(File directory, String command) throws IOException;
   }
 
   protected static class Runner implements CliRunner {
 
     @Override
-    public String run(final File directory, final String command) throws IOException {
+    public String run(File directory, String command) throws IOException {
       try {
-        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-        final Process proc = builder.directory(directory).start();
+        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        Process proc = builder.directory(directory).start();
         proc.waitFor();
-        final String output = convertStreamToString(proc.getInputStream());
+        String output = convertStreamToString(proc.getInputStream());
         if (proc.exitValue() != 0) {
-          final String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),
+          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),
                   output);
           throw new IOException(message);
         }
@@ -224,8 +254,8 @@ public class NativeGitProvider {
 
   }
 
-  private static String convertStreamToString(final InputStream inputStream) {
-    final Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+  private static String convertStreamToString(InputStream inputStream) {
+    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
     return scanner.hasNext() ? scanner.next() : "";
   }
 }
