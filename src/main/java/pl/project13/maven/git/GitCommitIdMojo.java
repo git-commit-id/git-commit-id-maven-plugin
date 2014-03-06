@@ -305,8 +305,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       prefixDot = prefix + ".";
 
       loadGitData(properties);
-      filterNot(properties, excludeProperties);
       loadBuildTimeData(properties);
+      filterNot(properties, excludeProperties);
       logProperties(properties);
 
       if (generateGitPropertiesFile) {
@@ -316,7 +316,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       if (injectAllReactorProjects) {
         appendPropertiesToReactorProjects(properties);
       }
-    } catch (IOException e) {
+    } catch (Exception e) {
       handlePluginFailure(e);
     }
 
@@ -340,7 +340,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        System.out.println("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
+    	loggerBridge.debug("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
     }
