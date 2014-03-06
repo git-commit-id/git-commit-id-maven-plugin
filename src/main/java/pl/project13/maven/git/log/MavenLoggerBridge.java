@@ -43,6 +43,13 @@ public class MavenLoggerBridge implements LoggerBridge {
       logger.error(Joiner.on(" ").join(parts));
     }
   }
+  
+  @Override
+  public void debug(Object... parts) {
+    if (verbose) {
+      logger.debug(Joiner.on(" ").join(parts));
+    }
+  }
 
   @Override
   public void setVerbose(boolean verbose) {

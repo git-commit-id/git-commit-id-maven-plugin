@@ -40,6 +40,13 @@ public class StdOutLoggerBridge implements LoggerBridge {
       System.out.println("ERR: " + Joiner.on(" ").join(parts));
     }
   }
+  
+  @Override
+  public void debug(Object... parts) {
+    if(verbose) {
+      System.out.println("DBG: " + Joiner.on(" ").join(parts));
+    }
+  }
 
   @Override
   public void setVerbose(boolean verbose) {
