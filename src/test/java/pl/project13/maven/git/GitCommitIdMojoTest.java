@@ -111,6 +111,24 @@ public class GitCommitIdMojoTest {
     verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
+
+  @Test
+  public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties() throws Exception {
+    // given
+    mojo.setPrefix("");
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = mojo.getProperties();
+
+    // explicitly excluded
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition(".remote.origin.url"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("remote.origin.url"));
+  }
+
   @Test
   public void shouldSkipDescribeWhenConfiguredToDoSo() throws Exception {
     // given

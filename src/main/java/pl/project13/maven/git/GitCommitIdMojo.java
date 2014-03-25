@@ -302,7 +302,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     try {
       properties = initProperties();
-      prefixDot = prefix + ".";
+
+      String trimmedPrefix = prefix.trim();
+      prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
       loadGitData(properties);
       loadBuildTimeData(properties);
