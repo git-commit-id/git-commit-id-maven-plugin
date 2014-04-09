@@ -535,9 +535,9 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 Notable happy users
 ===================
 
-* neo4j
+* [neo4j](http://www.neo4j.org/) graph database
 * foundationdb.com
-* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-maven)
+* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information)
 * others I know of but shouldn't tell ;-)
 * many others I don't know of
 
