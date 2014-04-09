@@ -537,6 +537,7 @@ Notable happy users
 
 * neo4j
 * foundationdb.com
+* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-maven)
 * others I know of but shouldn't tell ;-)
 * many others I don't know of
 
