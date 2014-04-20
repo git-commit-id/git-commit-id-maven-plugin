@@ -49,6 +49,8 @@ public class DescribeResult {
   private boolean dirty;
   private String dirtyMarker;
 
+  private boolean forceLongFormat;
+
   private ObjectReader objectReader;
 
   public static final DescribeResult EMPTY = new DescribeResult("");
@@ -58,7 +60,7 @@ public class DescribeResult {
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @Nullable ObjectId commitId) {
-    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.<String>absent());
+    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.<String>absent(), false);
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId) {
@@ -69,13 +71,14 @@ public class DescribeResult {
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, String dirtyMarker) {
-    this(objectReader, tagName, commitsAwayFromTag, commitId, dirty, Optional.of(dirtyMarker));
+    this(objectReader, tagName, commitsAwayFromTag, commitId, dirty, Optional.of(dirtyMarker), false);
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker) {
+  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker, boolean forceLongFormat) {
     this(objectReader, commitId, dirty, dirtyMarker);
     this.tagName = Optional.of(tagName);
     this.commitsAwayFromTag = commitsAwayFromTag;
+    this.forceLongFormat = forceLongFormat;
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId, boolean dirty, @NotNull Optional<String> dirtyMarker) {
@@ -145,6 +148,9 @@ public class DescribeResult {
 
   @Nullable
   public String commitsAwayFromTag() {
+    if (forceLongFormat) {
+      return String.valueOf(commitsAwayFromTag);
+    }
     return commitsAwayFromTag == 0 ? null : String.valueOf(commitsAwayFromTag);
   }
 

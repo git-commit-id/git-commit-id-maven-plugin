@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.MapAssert.entry;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
@@ -248,6 +248,54 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
+
+  @Test
+  public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalse() throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+    gitDescribeConfig.setTags(true);
+    gitDescribeConfig.setForceLongFormat(false);
+    gitDescribeConfig.setAbbrev(7);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0"));
+  }
+
+  @Test
+  public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrue() throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+    gitDescribeConfig.setTags(true);
+    gitDescribeConfig.setForceLongFormat(true);
+    gitDescribeConfig.setAbbrev(7);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
   }
 
   private void alterMojoSettings(String parameterName, Object parameterValue) {
