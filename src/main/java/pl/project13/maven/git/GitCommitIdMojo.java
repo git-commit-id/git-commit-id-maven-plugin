@@ -63,6 +63,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
+  public static final String BRANCH_CLASSIFIER = "branch.classifier";
   public static final String COMMIT_ID = "commit.id";
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
@@ -445,6 +446,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       // git.branch
       String branch = determineBranchName(git, System.getenv());
       put(properties, BRANCH, branch);
+      put(properties, BRANCH_CLASSIFIER, toBranchClassifier(branch));
 
       // git.commit.id.describe
       maybePutGitDescribe(properties, git);
@@ -643,6 +645,15 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private boolean runningOnBuildServer(Map<String, String> env) {
     return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
+  }
+
+  protected String toBranchClassifier(String branch) {
+    if ("master".equals(branch)) {
+      return "";
+    } else {
+      // TODO are all branch names valid classifiers?
+      return branch;
+    }
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------
