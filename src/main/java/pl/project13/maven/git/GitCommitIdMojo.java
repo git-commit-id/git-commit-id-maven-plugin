@@ -66,6 +66,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_ID = "commit.id";
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
+  public static final String COMMIT_SHORT_DESCRIBE = "commit.id.short-describe";
   public static final String BUILD_AUTHOR_NAME = "build.user.name";
   public static final String BUILD_AUTHOR_EMAIL = "build.user.email";
   public static final String BUILD_TIME = "build.time";
@@ -205,7 +206,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   private String prefix;
-  private String prefixDot;
+  private String prefixDot = "";
 
   /**
    * The date format to be used for any dates exported by this plugin.
@@ -308,6 +309,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       loadGitData(properties);
       loadBuildTimeData(properties);
+      loadShortDescribe(properties);
       filterNot(properties, excludeProperties);
       logProperties(properties);
 
@@ -418,6 +420,27 @@ public class GitCommitIdMojo extends AbstractMojo {
     Date commitDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(commitDate));
+  }
+  
+  void loadShortDescribe(@NotNull Properties properties) {
+    //removes git hash part from describe
+    String commitDescribe = properties.getProperty(prefixDot + COMMIT_DESCRIBE);
+
+    if (commitDescribe != null) {
+      int startPos = commitDescribe.indexOf("-g");
+      if (startPos > 0) {
+        String commitShortDescribe;
+        int endPos = commitDescribe.indexOf('-', startPos + 1);
+        if (endPos < 0) {
+          commitShortDescribe = commitDescribe.substring(0, startPos);
+        } else {
+          commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
+        }
+        put(properties, COMMIT_SHORT_DESCRIBE, commitShortDescribe);
+      } else {
+        put(properties, COMMIT_SHORT_DESCRIBE, commitDescribe);
+      }
+    }
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
