@@ -132,19 +132,22 @@ public class NativeGitProvider {
     return runner;
   }
 
-  private void readFromFormatedXml(Map<String, String> map, String xml) throws
-          SAXException, IOException, ParserConfigurationException, XPathExpressionException, ParseException {
-    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder = builderFactory.newDocumentBuilder();
-    String withProlog = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + xml;
-    ByteArrayInputStream bais = new ByteArrayInputStream(withProlog.getBytes(defaultCharset()));
-    Document document = builder.parse(bais);
-    XPath xPath = XPathFactory.newInstance().newXPath();
-    for (Map.Entry<String, String> entry : PARSE_MAP.entrySet()) {
-      String propertyName = entry.getKey();
-      String path = entry.getValue();
-      String value = xPath.compile("/props/" + path).evaluate(document);
-      map.put(propertyName, postprocesValue(value, propertyName));
+  private void readFromFormatedXml(Map<String, String> map, String xml) throws MojoExecutionException {
+    try {
+      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = builderFactory.newDocumentBuilder();
+      String withProlog = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + xml;
+      ByteArrayInputStream bais = new ByteArrayInputStream(withProlog.getBytes(defaultCharset()));
+      Document document = builder.parse(bais);
+      XPath xPath = XPathFactory.newInstance().newXPath();
+      for (Map.Entry<String, String> entry : PARSE_MAP.entrySet()) {
+        String propertyName = entry.getKey();
+        String path = entry.getValue();
+        String value = xPath.compile("/props/" + path).evaluate(document);
+        map.put(propertyName, postprocesValue(value, propertyName));
+      }
+    } catch (Exception ex) {
+      throw new MojoExecutionException("Something went wrong readingTheFormatedXml.", ex);
     }
   }
 
