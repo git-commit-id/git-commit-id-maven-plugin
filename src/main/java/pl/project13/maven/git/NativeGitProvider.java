@@ -197,6 +197,16 @@ public class NativeGitProvider {
 
   private static String convertStreamToString(InputStream inputStream) {
     Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-    return scanner.hasNext() ? scanner.next() : "";
+    String nextContent = "";
+    try{
+      if(scanner.hasNext()){
+        nextContent = scanner.next();
+      }
+    }catch(Exception e){
+      // should we do something here?
+	}finally{
+      scanner.close();
+    }
+    return nextContent;
   }
 }
