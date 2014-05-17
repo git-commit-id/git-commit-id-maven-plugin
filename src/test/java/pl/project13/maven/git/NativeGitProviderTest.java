@@ -35,20 +35,17 @@ public class NativeGitProviderTest {
     return scanner.hasNext() ? scanner.next() : "";
   }
 
-  /**
-* Test of loadGitData method, of class NativeGitProvider.
-*/
-  @Test
-  public void testLoadGitData() throws Exception {
+  private Map<String, String> getDefaultTestData(){
     Map<String, String> map = new HashMap<String, String>();
     map.put("git describe --tags", "v0.0.3-2557-gd79f2d5");
     map.put("git symbolic-ref HEAD", "refs/heads/master");
     map.put("git log -1 --format=", loadSample("sample-onbranch-with-tags"));
     map.put("git remote -v", "origin https://git.example.org/sample-project.git (fetch)\n"
             + "origin https://git.example.org/sample-project.git (push)");
-    FakeRunner runner = new FakeRunner(map);
-    NativeGitProvider instance = new NativeGitProvider(runner, "dd.MM.yyyy '@' HH:mm:ss z");
-    Map<String, String> result = instance.loadGitData(directory);
+    return map;
+  }
+
+  private String[] getDefaultExpectedKeys(){
     String[] expectedKeys = Arrays.array(
             GitCommitIdMojo.COMMIT_DESCRIBE,
             GitCommitIdMojo.BRANCH,
@@ -63,6 +60,10 @@ public class NativeGitProviderTest {
             GitCommitIdMojo.BUILD_AUTHOR_NAME,
             GitCommitIdMojo.BUILD_AUTHOR_EMAIL
     );
+	return expectedKeys;
+  }
+ 
+  private String[] getDefaultExpectedValue(String expectedGitTag, String expectedGitBranch){
     String[] expectedValues = Arrays.array(
             "v0.0.3-2557-gd79f2d5",
             "master",
@@ -78,6 +79,20 @@ public class NativeGitProviderTest {
             "Jan Kowalski",
             "jan.kowalski@example.org"
     );
+    return expectedValues;
+  }
+
+  /**
+   * Test of loadGitData method, of class NativeGitProvider.
+   */
+  @Test
+  public void testLoadGitData() throws Exception {
+    Map<String, String> map = getDefaultTestData();
+    FakeRunner runner = new FakeRunner(map);
+    NativeGitProvider instance = new NativeGitProvider(runner, "dd.MM.yyyy '@' HH:mm:ss z");
+    Map<String, String> result = instance.loadGitData(directory);
+    String[] expectedKeys = getDefaultExpectedKeys();
+    String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5","master");
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }
@@ -87,43 +102,12 @@ public class NativeGitProviderTest {
 */
   @Test
   public void testLoadGitDataDetachedWithTags() throws Exception {
-    Map<String, String> map = new HashMap<String, String>();
-    map.put("git describe --tags", "v0.0.3-2557-gd79f2d5");
-    map.put("git log -1 --format=", loadSample("sample-onbranch-with-tags"));
-    map.put("git remote -v", "origin https://git.example.org/sample-project.git (fetch)\n"
-            + "origin https://git.example.org/sample-project.git (push)");
+    Map<String, String> map = getDefaultTestData();
     FakeRunner runner = new FakeRunner(map);
     NativeGitProvider instance = new NativeGitProvider(runner, "dd.MM.yyyy '@' HH:mm:ss z");
     Map<String, String> result = instance.loadGitData(directory);
-    String[] expectedKeys = Arrays.array(
-            GitCommitIdMojo.COMMIT_DESCRIBE,
-            GitCommitIdMojo.BRANCH,
-            GitCommitIdMojo.REMOTE_ORIGIN_URL,
-            GitCommitIdMojo.COMMIT_ID,
-            GitCommitIdMojo.COMMIT_ID_ABBREV,
-            GitCommitIdMojo.COMMIT_AUTHOR_NAME,
-            GitCommitIdMojo.COMMIT_AUTHOR_EMAIL,
-            GitCommitIdMojo.COMMIT_MESSAGE_SHORT,
-            GitCommitIdMojo.COMMIT_MESSAGE_FULL,
-            GitCommitIdMojo.COMMIT_TIME,
-            GitCommitIdMojo.BUILD_AUTHOR_NAME,
-            GitCommitIdMojo.BUILD_AUTHOR_EMAIL
-    );
-    String[] expectedValues = Arrays.array(
-            "v0.0.3-2557-gd79f2d5",
-            null,
-            "https://git.example.org/sample-project.git",
-            "d79f2d589079c591852ee610135ecd3acb6faf0c",
-            "d79f2d5",
-            "Krzysztof Suszyński",
-            "krzysztof.suszynski@example.org",
-            "A sample git subject line",
-            "A sample git body contents.\n"
-            + " A other sample git body contents. Even with XML tags: <3 <xml />.",
-            "04.02.2014 @ 14:53:35 CET",
-            "Jan Kowalski",
-            "jan.kowalski@example.org"
-    );
+    String[] expectedKeys = getDefaultExpectedKeys();
+    String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5",null);
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }
@@ -140,41 +124,13 @@ public class NativeGitProviderTest {
     FakeRunner runner = new FakeRunner(map);
     NativeGitProvider instance = new NativeGitProvider(runner, "dd.MM.yyyy '@' HH:mm:ss z");
     Map<String, String> result = instance.loadGitData(directory);
-    String[] expectedKeys = Arrays.array(
-            GitCommitIdMojo.COMMIT_DESCRIBE,
-            GitCommitIdMojo.BRANCH,
-            GitCommitIdMojo.REMOTE_ORIGIN_URL,
-            GitCommitIdMojo.COMMIT_ID,
-            GitCommitIdMojo.COMMIT_ID_ABBREV,
-            GitCommitIdMojo.COMMIT_AUTHOR_NAME,
-            GitCommitIdMojo.COMMIT_AUTHOR_EMAIL,
-            GitCommitIdMojo.COMMIT_MESSAGE_SHORT,
-            GitCommitIdMojo.COMMIT_MESSAGE_FULL,
-            GitCommitIdMojo.COMMIT_TIME,
-            GitCommitIdMojo.BUILD_AUTHOR_NAME,
-            GitCommitIdMojo.BUILD_AUTHOR_EMAIL
-    );
-    String[] expectedValues = Arrays.array(
-            null,
-            null,
-            "https://git.example.org/sample-project.git",
-            "d79f2d589079c591852ee610135ecd3acb6faf0c",
-            "d79f2d5",
-            "Krzysztof Suszyński",
-            "krzysztof.suszynski@example.org",
-            "A sample git subject line",
-            "A sample git body contents.\n"
-            + " A other sample git body contents. Even with XML tags: <3 <xml />.",
-            "04.02.2014 @ 14:53:35 CET",
-            "Jan Kowalski",
-            "jan.kowalski@example.org"
-    );
+    String[] expectedKeys = getDefaultExpectedKeys();
+    String[] expectedValues = getDefaultExpectedValue(null,null);
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }
 
   private class FakeRunner implements NativeGitProvider.CliRunner {
-
     private Map<String, String> map;
 
     public FakeRunner(Map<String, String> map) {
@@ -193,7 +149,6 @@ public class NativeGitProviderTest {
       }
       throw new IOException(String.format("Unknown command: `%s`", command));
     }
-
   }
 
 }
