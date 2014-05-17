@@ -84,7 +84,7 @@ public class NativeGitProviderTest {
             "krzysztof.suszynski@example.org",
             "A sample git subject line",
             "A sample git body contents.\n"
-            + " A other sample git body contents. Even with XML tags: <3 <xml />.",
+            + "A other sample git body contents. Even with XML tags: <3 <xml />.",
             "04.02.2014 @ 14:53:35 CET",
             "Jan Kowalski",
             "jan.kowalski@example.org"
@@ -108,8 +108,8 @@ public class NativeGitProviderTest {
   }
 
   /**
-* Test of loadGitData method, of class NativeGitProvider.
-*/
+   * Test of loadGitData method, of class NativeGitProvider.
+   */
   @Test
   public void testLoadGitDataDetachedWithTags() throws Exception {
     Map<String, String> map = getDefaultTestData();
@@ -117,14 +117,14 @@ public class NativeGitProviderTest {
     NativeGitProvider instance = new NativeGitProvider(runner, "dd.MM.yyyy '@' HH:mm:ss z");
     Map<String, String> result = instance.loadGitData(directory);
     String[] expectedKeys = getDefaultExpectedKeys();
-    String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5",null);
+    String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5","master");
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }
 
   /**
-* Test of loadGitData method, of class NativeGitProvider.
-*/
+   * Test of loadGitData method, of class NativeGitProvider.
+   */
   @Test
   public void testLoadGitDataDetachedWithoutTags() throws Exception {
     Map<String, String> map = new HashMap<String, String>();
