@@ -40,7 +40,8 @@ public class NativeGitProvider {
   private static final int REMOTE_COLS = 3;
 
   static {
-    InputStream inputStream = NativeGitProvider.class.getResourceAsStream("git-log-format.xml");
+    String fileName = "/git-log-format.xml";
+    InputStream inputStream = NativeGitProvider.class.getResourceAsStream(fileName);
     FORMAT = convertStreamToString(inputStream);
     PARSE_MAP = new LinkedHashMap<String, String>();
     PARSE_MAP.put(GitCommitIdMojo.COMMIT_ID, "commit/hash");
@@ -196,6 +197,11 @@ public class NativeGitProvider {
   }
 
   private static String convertStreamToString(InputStream inputStream) {
+    if(inputStream == null){
+      IllegalArgumentException e = new IllegalArgumentException("Something went wrong InputStream is null");
+      e.printStackTrace();
+      throw e;
+    }
     Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
     String nextContent = "";
     try{
@@ -203,7 +209,7 @@ public class NativeGitProvider {
         nextContent = scanner.next();
       }
     }catch(Exception e){
-      // should we do something here?
+      e.printStackTrace();
 	}finally{
       scanner.close();
     }

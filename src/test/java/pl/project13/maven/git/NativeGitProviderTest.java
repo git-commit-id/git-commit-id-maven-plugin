@@ -103,7 +103,6 @@ public class NativeGitProviderTest {
     Map<String, String> result = instance.loadGitData(directory);
     String[] expectedKeys = getDefaultExpectedKeys();
     String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5","master");
-
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }
