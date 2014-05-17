@@ -43,7 +43,6 @@ import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
-import pl.project13.maven.git.util.DisplayedException;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -446,17 +445,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitDataWithNativeGit(@NotNull Properties properties) throws MojoExecutionException {
+  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
     NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
     File basedir = project.getBasedir().getCanonicalFile();
     Map<String, String> loadedData;
 
-    try {
-      loadedData = gitProvider.loadGitData(basedir);
-    } catch (DisplayedException ex) {
-      throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
-    }
-
+    loadedData = gitProvider.loadGitData(basedir);
+    
     for (Map.Entry<String, String> entry : loadedData.entrySet()) {
       put(properties, entry.getKey(), entry.getValue());
     }

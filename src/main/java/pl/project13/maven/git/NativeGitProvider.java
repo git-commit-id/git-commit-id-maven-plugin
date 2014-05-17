@@ -19,8 +19,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import pl.project13.maven.git.util.DisplayedException;
-import pl.project13.maven.git.util.EidRuntimeException;
+import org.apache.maven.plugin.MojoExecutionException;
 
 import static java.nio.charset.Charset.defaultCharset;
 
@@ -67,12 +66,12 @@ public class NativeGitProvider {
   /**
    * Loads a git repository information using native git executable.
    */
-  public Map<String, String> loadGitData(final File directory) throws DisplayedException {
+  public Map<String, String> loadGitData(final File directory) throws MojoExecutionException {
     File canonical;
     try{
       canonical = directory.getCanonicalFile();
     } catch (IOException ex) {
-      throw new EidRuntimeException("20140224:194232", "Passed a invalid directory, not a GIT repository: " + directory, ex);
+      throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + directory, ex);
 	}
 
     try {
@@ -85,21 +84,19 @@ public class NativeGitProvider {
       String xml = runGitCommand(canonical, logCommand);
       readFromFormatedXml(map, xml);
       return map;
-    } catch (DisplayedException ex) {
-       throw ex;
     } catch (Exception ex) {
-      throw new EidRuntimeException("20140224:194451", "Unsupported GIT output - has it changed?!", ex);
+      throw new MojoExecutionException("Unsupported GIT output - has it changed?!", ex);
     }
   }
 
-  private String getOriginRemote(final File directory) throws IOException {
+  private String getOriginRemote(final File directory) throws IOException, MojoExecutionException {
     String remotes = runGitCommand(directory, "remote -v");
     for (String line : remotes.split("\n")) {
       String trimmed = line.trim();
       if (trimmed.startsWith("origin")) {
         String[] splited = trimmed.split("\\s+");
         if (splited.length != REMOTE_COLS) {
-          throw new EidRuntimeException("20140224:194851", "Unsupported GIT output - verbose remote address:" + line);
+          throw new MojoExecutionException("Unsupported GIT output - verbose remote address:" + line);
         }
         return splited[1];
       }
@@ -107,14 +104,14 @@ public class NativeGitProvider {
     return null;
   }
 
-  private String runGitCommand(final File directory, final String gitCommand) throws DisplayedException {
+  private String runGitCommand(final File directory, final String gitCommand) throws MojoExecutionException {
     try {
       final String env = System.getenv("GIT_PATH");
       final String exec = (env == null) ? "git" : env;
       final String command = String.format("%s %s", exec, gitCommand);
       return getRunner().run(directory, command).trim();
     }catch(IOException ex) {
-      throw new DisplayedException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: " + gitCommand, ex);
+      throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: " + gitCommand, ex);
     }
   }
 
@@ -122,7 +119,7 @@ public class NativeGitProvider {
     String retValue;
     try {
       retValue = runGitCommand(directory, gitCommand);
-    } catch (DisplayedException ex) {
+    } catch (MojoExecutionException ex) {
       retValue = defaultValue;
     }
     return retValue;
