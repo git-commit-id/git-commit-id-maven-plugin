@@ -26,12 +26,12 @@ public class NativeGitProviderTest {
   }
 
   private String loadSample(String sample) {
-    final InputStream stream = this.getClass().getResourceAsStream(sample + ".xml");
+    InputStream stream = this.getClass().getResourceAsStream(sample + ".xml");
     return convertStreamToString(stream).replaceFirst("<\\?xml.+\\?>", "").replaceAll(">\\s+<", "><");
   }
 
-  private static String convertStreamToString(final InputStream inputStream) {
-    final Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+  private static String convertStreamToString(InputStream inputStream) {
+    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
     return scanner.hasNext() ? scanner.next() : "";
   }
 

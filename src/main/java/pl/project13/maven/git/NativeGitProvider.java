@@ -40,7 +40,7 @@ public class NativeGitProvider {
   private static final int REMOTE_COLS = 3;
 
   static {
-    final InputStream inputStream = NativeGitProvider.class.getResourceAsStream("git-log-format.xml");
+    InputStream inputStream = NativeGitProvider.class.getResourceAsStream("git-log-format.xml");
     FORMAT = convertStreamToString(inputStream);
     PARSE_MAP = new LinkedHashMap<String, String>();
     PARSE_MAP.put(GitCommitIdMojo.COMMIT_ID, "commit/hash");
@@ -66,7 +66,7 @@ public class NativeGitProvider {
   /**
    * Loads a git repository information using native git executable.
    */
-  public Map<String, String> loadGitData(final File directory) throws MojoExecutionException {
+  public Map<String, String> loadGitData(File directory) throws MojoExecutionException {
     File canonical;
     try{
       canonical = directory.getCanonicalFile();
@@ -89,7 +89,7 @@ public class NativeGitProvider {
     }
   }
 
-  private String getOriginRemote(final File directory) throws IOException, MojoExecutionException {
+  private String getOriginRemote(File directory) throws IOException, MojoExecutionException {
     String remotes = runGitCommand(directory, "remote -v");
     for (String line : remotes.split("\n")) {
       String trimmed = line.trim();
@@ -104,18 +104,18 @@ public class NativeGitProvider {
     return null;
   }
 
-  private String runGitCommand(final File directory, final String gitCommand) throws MojoExecutionException {
+  private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
     try {
-      final String env = System.getenv("GIT_PATH");
-      final String exec = (env == null) ? "git" : env;
-      final String command = String.format("%s %s", exec, gitCommand);
+      String env = System.getenv("GIT_PATH");
+      String exec = (env == null) ? "git" : env;
+      String command = String.format("%s %s", exec, gitCommand);
       return getRunner().run(directory, command).trim();
     }catch(IOException ex) {
       throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: " + gitCommand, ex);
     }
   }
 
-  private String tryToRunGitCommand(final File directory, final String gitCommand, final String defaultValue) {
+  private String tryToRunGitCommand(File directory, String gitCommand, String defaultValue) {
     String retValue;
     try {
       retValue = runGitCommand(directory, gitCommand);
@@ -176,8 +176,8 @@ public class NativeGitProvider {
     @Override
     public String run(File directory, String command) throws IOException {
       try {
-        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-        final Process proc = builder.directory(directory).start();
+        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        Process proc = builder.directory(directory).start();
         proc.waitFor();
         String output = convertStreamToString(proc.getInputStream());
         if (proc.exitValue() != 0) {
