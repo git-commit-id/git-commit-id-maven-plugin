@@ -546,6 +546,7 @@ Notable happy users
 * [neo4j](http://www.neo4j.org/) graph database
 * foundationdb.com
 * [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information)
+* Akamai
 * others I know of but shouldn't tell ;-)
 * many others I don't know of
 
