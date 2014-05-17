@@ -9,6 +9,7 @@ import java.util.Scanner;
 import org.fest.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import java.io.FileNotFoundException;
 
 import static org.junit.Assert.*;
 
@@ -26,8 +27,17 @@ public class NativeGitProviderTest {
   }
 
   private String loadSample(String sample) {
-    InputStream stream = this.getClass().getResourceAsStream(sample + ".xml");
-    return convertStreamToString(stream).replaceFirst("<\\?xml.+\\?>", "").replaceAll(">\\s+<", "><");
+    String fileName = "/" + sample + ".xml";
+    try{
+      InputStream stream = this.getClass().getResourceAsStream(fileName);
+      if(stream == null){
+        throw new FileNotFoundException("FAILED TO OPEN " + fileName);
+      }
+      return convertStreamToString(stream).replaceFirst("<\\?xml.+\\?>", "").replaceAll(">\\s+<", "><");
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+    return "";
   }
 
   private static String convertStreamToString(InputStream inputStream) {
@@ -65,8 +75,8 @@ public class NativeGitProviderTest {
  
   private String[] getDefaultExpectedValue(String expectedGitTag, String expectedGitBranch){
     String[] expectedValues = Arrays.array(
-            "v0.0.3-2557-gd79f2d5",
-            "master",
+            expectedGitTag,
+            expectedGitBranch,
             "https://git.example.org/sample-project.git",
             "d79f2d589079c591852ee610135ecd3acb6faf0c",
             "d79f2d5",
@@ -93,6 +103,7 @@ public class NativeGitProviderTest {
     Map<String, String> result = instance.loadGitData(directory);
     String[] expectedKeys = getDefaultExpectedKeys();
     String[] expectedValues = getDefaultExpectedValue("v0.0.3-2557-gd79f2d5","master");
+
     assertArrayEquals(expectedKeys, result.keySet().toArray());
     assertArrayEquals(expectedValues, result.values().toArray());
   }

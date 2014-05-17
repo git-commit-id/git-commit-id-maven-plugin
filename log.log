@@ -1,0 +1,531 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Git Commit Id Plugin Maven Mojo 2.1.10-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[WARNING] The artifact org.apache.commons:commons-io:jar:1.3.2 has been relocated to commons-io:commons-io:jar:1.3.2
+[INFO] 
+[INFO] --- maven-clean-plugin:2.3:clean (default-clean) @ git-commit-id-plugin ---
+[INFO] Deleting file set: /home/snoozer/git/maven-git-commit-id-plugin/target (included: [**], excluded: [])
+[INFO] 
+[INFO] --- maven-enforcer-plugin:1.0-beta-1:enforce (enforce-maven) @ git-commit-id-plugin ---
+[INFO] 
+[INFO] --- maven-plugin-plugin:3.2:helpmojo (generated-helpmojo) @ git-commit-id-plugin ---
+[INFO] Using 'UTF-8' encoding to read mojo metadata.
+[INFO] Applying mojo extractor for language: java-annotations
+[INFO] Mojo extractor for language: java-annotations found 0 mojo descriptors.
+[INFO] Applying mojo extractor for language: java
+[INFO] Mojo extractor for language: java found 1 mojo descriptors.
+[INFO] Applying mojo extractor for language: bsh
+[INFO] Mojo extractor for language: bsh found 0 mojo descriptors.
+[INFO] 
+[INFO] --- maven-plugin-plugin:3.2:descriptor (default-descriptor) @ git-commit-id-plugin ---
+[INFO] Using 'UTF-8' encoding to read mojo metadata.
+[INFO] Applying mojo extractor for language: java-annotations
+[INFO] Mojo extractor for language: java-annotations found 0 mojo descriptors.
+[INFO] Applying mojo extractor for language: java
+[INFO] Mojo extractor for language: java found 2 mojo descriptors.
+[INFO] Applying mojo extractor for language: bsh
+[INFO] Mojo extractor for language: bsh found 0 mojo descriptors.
+[INFO] 
+[INFO] --- maven-resources-plugin:2.3:resources (default-resources) @ git-commit-id-plugin ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 3 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.5.1:compile (default-compile) @ git-commit-id-plugin ---
+[INFO] Compiling 13 source files to /home/snoozer/git/maven-git-commit-id-plugin/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.3:testResources (default-testResources) @ git-commit-id-plugin ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1884 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:2.5.1:testCompile (default-testCompile) @ git-commit-id-plugin ---
+[INFO] Compiling 18 source files to /home/snoozer/git/maven-git-commit-id-plugin/target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.10:test (default-test) @ git-commit-id-plugin ---
+[INFO] Surefire report directory: /home/snoozer/git/maven-git-commit-id-plugin/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running pl.project13.jgit.DescribeCommandIntegrationTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit_dirty]
+LOG: Tag refs [ [] ]
+LOG: Created map: [ {} ] 
+LOG: HEAD is [ 0b0181b49468f45e573eaf3562f163107c5c121d ] 
+LOG: Repo is in dirty state [ true ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+LOG: Tag refs [ [] ]
+LOG: Created map: [ {} ] 
+LOG: HEAD is [ 0b0181b49468f45e573eaf3562f163107c5c121d ] 
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_with_tag_on_different_branch]
+LOG: Tag refs [ [Ref[refs/tags/test_tag=8fd26be268fd77188a08f064b0c80d34b0ba89c4]] ]
+LOG: Resolved tag [ test_tag ] [ PersonIdent[Karol Lassak, karol.lassak@coi.gov.pl, Fri Nov 29 10:41:53 2013 +0100] ], points at [ commit 9cb810e57e2994f38c7ec6a698a31de66fdd9e24 0 ------ ] 
+LOG: key [ commit 9cb810e57e2994f38c7ec6a698a31de66fdd9e24 0 ------ ], tags => [ [DatedRevTag{id=8fd26be268fd77188a08f064b0c80d34b0ba89c4, tagName='test_tag', date=29. November 2013 10:41:53 +01:00}] ] 
+LOG: Created map: [ {commit 9cb810e57e2994f38c7ec6a698a31de66fdd9e24 0 ------=[test_tag]} ] 
+LOG: HEAD is [ 234342815bc16c473495871118b3dc5ee68a8a4a ] 
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+LOG: --abbrev = 10
+LOG: Tag refs [ [] ]
+LOG: Created map: [ {} ] 
+LOG: HEAD is [ 0b0181b49468f45e573eaf3562f163107c5c121d ] 
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_of_git_commit_id]
+LOG: --dirty = -dirty
+LOG: Tag refs [ [Ref[refs/tags/v1.0=16c85b8d649a34c40056355af1e1f82b0d2c9d76], Ref[refs/tags/v1.1=ab60db7e7fedcae077af509e6192add421bfbb12], Ref[refs/tags/v1.2=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c], Ref[refs/tags/v1.3=e89f1e7e8e7f24624ed9d19e1d35898339266072], Ref[refs/tags/v1.4=971316a891441fbc2635e33ee9c79cf183d71dbb], Ref[refs/tags/v1.5=8a2e16427355862573140fe9baa1e82ec2e921c6], Ref[refs/tags/v1.6=473aa600d2c22fc4a008d1c1d8cf50562fef5876], Ref[refs/tags/v1.7=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13], Ref[refs/tags/v1.8=b683a0108b943343f0cc0783e8309f8750f2b78c], Ref[refs/tags/v1.9=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396], Ref[refs/tags/v2.0=1740fbbddc35a2c3d7da5421ee4eb61b90664802], Ref[refs/tags/v2.0.1=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab], Ref[refs/tags/v2.0.2=f0c5ac406ddde0a45a885e0ebb7eed15252d487a], Ref[refs/tags/v2.0.3=28728f43f6a9619e78c560830f1db98e271cec07], Ref[refs/tags/v2.0.4=9b0ee30af97d4ae17dffb11bd06ed67fc4451547]] ]
+LOG: Resolved tag [ v1.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 19 01:03:07 2011 +0100] ], points at [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ] 
+LOG: Resolved tag [ v1.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 26 16:44:44 2011 +0100] ], points at [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ] 
+LOG: Resolved tag [ v1.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Wed Apr 27 11:03:51 2011 +0200] ], points at [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ] 
+LOG: Resolved tag [ v1.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat May 7 23:54:24 2011 +0200] ], points at [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ] 
+LOG: Resolved tag [ v1.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 21:52:59 2011 +0200] ], points at [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ] 
+LOG: Resolved tag [ v1.5 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 23:54:38 2011 +0200] ], points at [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ] 
+LOG: Resolved tag [ v1.6 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 25 21:18:54 2011 +0200] ], points at [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ] 
+LOG: Resolved tag [ v1.7 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jul 30 13:32:42 2011 +0200] ], points at [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ] 
+LOG: Resolved tag [ v1.8 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun Sep 4 12:54:03 2011 +0200] ], points at [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ] 
+LOG: Resolved tag [ v1.9 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Sep 22 22:51:17 2011 +0200] ], points at [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ] 
+LOG: Resolved tag [ v2.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:22:14 2011 +0100] ], points at [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ] 
+LOG: Resolved tag [ v2.0.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:25:30 2011 +0100] ], points at [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ] 
+LOG: Resolved tag [ v2.0.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jan 7 18:16:30 2012 +0100] ], points at [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ] 
+LOG: Resolved tag [ v2.0.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Feb 23 09:19:53 2012 +0100] ], points at [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ] 
+LOG: Resolved tag [ v2.0.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 2 10:31:34 2012 +0200] ], points at [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ] 
+LOG: key [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ], tags => [ [DatedRevTag{id=b683a0108b943343f0cc0783e8309f8750f2b78c, tagName='v1.8', date=4. September 2011 12:54:03 +02:00}] ] 
+LOG: key [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ], tags => [ [DatedRevTag{id=473aa600d2c22fc4a008d1c1d8cf50562fef5876, tagName='v1.6', date=25. Juli 2011 21:18:54 +02:00}] ] 
+LOG: key [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ], tags => [ [DatedRevTag{id=8a2e16427355862573140fe9baa1e82ec2e921c6, tagName='v1.5', date=15. Mai 2011 23:54:38 +02:00}] ] 
+LOG: key [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ], tags => [ [DatedRevTag{id=28728f43f6a9619e78c560830f1db98e271cec07, tagName='v2.0.3', date=23. Februar 2012 09:19:53 +01:00}] ] 
+LOG: key [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ], tags => [ [DatedRevTag{id=1740fbbddc35a2c3d7da5421ee4eb61b90664802, tagName='v2.0', date=24. Dezember 2011 15:22:14 +01:00}] ] 
+LOG: key [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ], tags => [ [DatedRevTag{id=ab60db7e7fedcae077af509e6192add421bfbb12, tagName='v1.1', date=26. Februar 2011 16:44:44 +01:00}] ] 
+LOG: key [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ], tags => [ [DatedRevTag{id=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c, tagName='v1.2', date=27. April 2011 11:03:51 +02:00}] ] 
+LOG: key [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ], tags => [ [DatedRevTag{id=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13, tagName='v1.7', date=30. Juli 2011 13:32:42 +02:00}] ] 
+LOG: key [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ], tags => [ [DatedRevTag{id=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396, tagName='v1.9', date=22. September 2011 22:51:17 +02:00}] ] 
+LOG: key [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ], tags => [ [DatedRevTag{id=971316a891441fbc2635e33ee9c79cf183d71dbb, tagName='v1.4', date=15. Mai 2011 21:52:59 +02:00}] ] 
+LOG: key [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ], tags => [ [DatedRevTag{id=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab, tagName='v2.0.1', date=24. Dezember 2011 15:25:30 +01:00}] ] 
+LOG: key [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ], tags => [ [DatedRevTag{id=16c85b8d649a34c40056355af1e1f82b0d2c9d76, tagName='v1.0', date=19. Februar 2011 01:03:07 +01:00}] ] 
+LOG: key [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ], tags => [ [DatedRevTag{id=f0c5ac406ddde0a45a885e0ebb7eed15252d487a, tagName='v2.0.2', date=7. Januar 2012 18:16:30 +01:00}] ] 
+LOG: key [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ], tags => [ [DatedRevTag{id=9b0ee30af97d4ae17dffb11bd06ed67fc4451547, tagName='v2.0.4', date=2. Juli 2012 10:31:34 +02:00}] ] 
+LOG: key [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ], tags => [ [DatedRevTag{id=e89f1e7e8e7f24624ed9d19e1d35898339266072, tagName='v1.3', date=7. Mai 2011 23:54:24 +02:00}] ] 
+LOG: Created map: [ {commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------=[v1.8], commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------=[v1.6], commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------=[v1.5], commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------=[v2.0.3], commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------=[v2.0], commit 6cc9d99542458e164822c47488414234b6b59060 0 ------=[v1.1], commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------=[v1.2], commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------=[v1.7], commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------=[v1.9], commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------=[v1.4], commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------=[v2.0.1], commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------=[v1.0], commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------=[v2.0.2], commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------=[v2.0.4], commit d142945e8c4b15c561601e58573938d6835eb467 0 ------=[v1.3]} ] 
+LOG: HEAD is [ 7181832b7d9afdeb86c32cf51214abfca63625be ] 
+LOG: Repo is in dirty state [ true ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_of_git_commit_id]
+LOG: --dirty = -DEV
+LOG: Tag refs [ [Ref[refs/tags/v1.0=16c85b8d649a34c40056355af1e1f82b0d2c9d76], Ref[refs/tags/v1.1=ab60db7e7fedcae077af509e6192add421bfbb12], Ref[refs/tags/v1.2=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c], Ref[refs/tags/v1.3=e89f1e7e8e7f24624ed9d19e1d35898339266072], Ref[refs/tags/v1.4=971316a891441fbc2635e33ee9c79cf183d71dbb], Ref[refs/tags/v1.5=8a2e16427355862573140fe9baa1e82ec2e921c6], Ref[refs/tags/v1.6=473aa600d2c22fc4a008d1c1d8cf50562fef5876], Ref[refs/tags/v1.7=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13], Ref[refs/tags/v1.8=b683a0108b943343f0cc0783e8309f8750f2b78c], Ref[refs/tags/v1.9=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396], Ref[refs/tags/v2.0=1740fbbddc35a2c3d7da5421ee4eb61b90664802], Ref[refs/tags/v2.0.1=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab], Ref[refs/tags/v2.0.2=f0c5ac406ddde0a45a885e0ebb7eed15252d487a], Ref[refs/tags/v2.0.3=28728f43f6a9619e78c560830f1db98e271cec07], Ref[refs/tags/v2.0.4=9b0ee30af97d4ae17dffb11bd06ed67fc4451547]] ]
+LOG: Resolved tag [ v1.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 19 01:03:07 2011 +0100] ], points at [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ] 
+LOG: Resolved tag [ v1.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 26 16:44:44 2011 +0100] ], points at [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ] 
+LOG: Resolved tag [ v1.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Wed Apr 27 11:03:51 2011 +0200] ], points at [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ] 
+LOG: Resolved tag [ v1.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat May 7 23:54:24 2011 +0200] ], points at [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ] 
+LOG: Resolved tag [ v1.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 21:52:59 2011 +0200] ], points at [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ] 
+LOG: Resolved tag [ v1.5 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 23:54:38 2011 +0200] ], points at [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ] 
+LOG: Resolved tag [ v1.6 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 25 21:18:54 2011 +0200] ], points at [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ] 
+LOG: Resolved tag [ v1.7 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jul 30 13:32:42 2011 +0200] ], points at [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ] 
+LOG: Resolved tag [ v1.8 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun Sep 4 12:54:03 2011 +0200] ], points at [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ] 
+LOG: Resolved tag [ v1.9 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Sep 22 22:51:17 2011 +0200] ], points at [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ] 
+LOG: Resolved tag [ v2.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:22:14 2011 +0100] ], points at [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ] 
+LOG: Resolved tag [ v2.0.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:25:30 2011 +0100] ], points at [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ] 
+LOG: Resolved tag [ v2.0.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jan 7 18:16:30 2012 +0100] ], points at [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ] 
+LOG: Resolved tag [ v2.0.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Feb 23 09:19:53 2012 +0100] ], points at [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ] 
+LOG: Resolved tag [ v2.0.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 2 10:31:34 2012 +0200] ], points at [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ] 
+LOG: key [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ], tags => [ [DatedRevTag{id=b683a0108b943343f0cc0783e8309f8750f2b78c, tagName='v1.8', date=4. September 2011 12:54:03 +02:00}] ] 
+LOG: key [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ], tags => [ [DatedRevTag{id=473aa600d2c22fc4a008d1c1d8cf50562fef5876, tagName='v1.6', date=25. Juli 2011 21:18:54 +02:00}] ] 
+LOG: key [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ], tags => [ [DatedRevTag{id=8a2e16427355862573140fe9baa1e82ec2e921c6, tagName='v1.5', date=15. Mai 2011 23:54:38 +02:00}] ] 
+LOG: key [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ], tags => [ [DatedRevTag{id=28728f43f6a9619e78c560830f1db98e271cec07, tagName='v2.0.3', date=23. Februar 2012 09:19:53 +01:00}] ] 
+LOG: key [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ], tags => [ [DatedRevTag{id=1740fbbddc35a2c3d7da5421ee4eb61b90664802, tagName='v2.0', date=24. Dezember 2011 15:22:14 +01:00}] ] 
+LOG: key [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ], tags => [ [DatedRevTag{id=ab60db7e7fedcae077af509e6192add421bfbb12, tagName='v1.1', date=26. Februar 2011 16:44:44 +01:00}] ] 
+LOG: key [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ], tags => [ [DatedRevTag{id=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c, tagName='v1.2', date=27. April 2011 11:03:51 +02:00}] ] 
+LOG: key [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ], tags => [ [DatedRevTag{id=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13, tagName='v1.7', date=30. Juli 2011 13:32:42 +02:00}] ] 
+LOG: key [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ], tags => [ [DatedRevTag{id=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396, tagName='v1.9', date=22. September 2011 22:51:17 +02:00}] ] 
+LOG: key [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ], tags => [ [DatedRevTag{id=971316a891441fbc2635e33ee9c79cf183d71dbb, tagName='v1.4', date=15. Mai 2011 21:52:59 +02:00}] ] 
+LOG: key [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ], tags => [ [DatedRevTag{id=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab, tagName='v2.0.1', date=24. Dezember 2011 15:25:30 +01:00}] ] 
+LOG: key [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ], tags => [ [DatedRevTag{id=16c85b8d649a34c40056355af1e1f82b0d2c9d76, tagName='v1.0', date=19. Februar 2011 01:03:07 +01:00}] ] 
+LOG: key [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ], tags => [ [DatedRevTag{id=f0c5ac406ddde0a45a885e0ebb7eed15252d487a, tagName='v2.0.2', date=7. Januar 2012 18:16:30 +01:00}] ] 
+LOG: key [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ], tags => [ [DatedRevTag{id=9b0ee30af97d4ae17dffb11bd06ed67fc4451547, tagName='v2.0.4', date=2. Juli 2012 10:31:34 +02:00}] ] 
+LOG: key [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ], tags => [ [DatedRevTag{id=e89f1e7e8e7f24624ed9d19e1d35898339266072, tagName='v1.3', date=7. Mai 2011 23:54:24 +02:00}] ] 
+LOG: Created map: [ {commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------=[v1.8], commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------=[v1.6], commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------=[v1.5], commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------=[v2.0.3], commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------=[v2.0], commit 6cc9d99542458e164822c47488414234b6b59060 0 ------=[v1.1], commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------=[v1.2], commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------=[v1.7], commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------=[v1.9], commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------=[v1.4], commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------=[v2.0.1], commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------=[v1.0], commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------=[v2.0.2], commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------=[v2.0.4], commit d142945e8c4b15c561601e58573938d6835eb467 0 ------=[v1.3]} ] 
+LOG: HEAD is [ 7181832b7d9afdeb86c32cf51214abfca63625be ] 
+LOG: Repo is in dirty state [ true ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_of_git_commit_id]
+LOG: Tag refs [ [Ref[refs/tags/v1.0=16c85b8d649a34c40056355af1e1f82b0d2c9d76], Ref[refs/tags/v1.1=ab60db7e7fedcae077af509e6192add421bfbb12], Ref[refs/tags/v1.2=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c], Ref[refs/tags/v1.3=e89f1e7e8e7f24624ed9d19e1d35898339266072], Ref[refs/tags/v1.4=971316a891441fbc2635e33ee9c79cf183d71dbb], Ref[refs/tags/v1.5=8a2e16427355862573140fe9baa1e82ec2e921c6], Ref[refs/tags/v1.6=473aa600d2c22fc4a008d1c1d8cf50562fef5876], Ref[refs/tags/v1.7=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13], Ref[refs/tags/v1.8=b683a0108b943343f0cc0783e8309f8750f2b78c], Ref[refs/tags/v1.9=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396], Ref[refs/tags/v2.0=1740fbbddc35a2c3d7da5421ee4eb61b90664802], Ref[refs/tags/v2.0.1=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab], Ref[refs/tags/v2.0.2=f0c5ac406ddde0a45a885e0ebb7eed15252d487a], Ref[refs/tags/v2.0.3=28728f43f6a9619e78c560830f1db98e271cec07], Ref[refs/tags/v2.0.4=9b0ee30af97d4ae17dffb11bd06ed67fc4451547]] ]
+LOG: Resolved tag [ v1.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 19 01:03:07 2011 +0100] ], points at [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ] 
+LOG: Resolved tag [ v1.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 26 16:44:44 2011 +0100] ], points at [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ] 
+LOG: Resolved tag [ v1.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Wed Apr 27 11:03:51 2011 +0200] ], points at [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ] 
+LOG: Resolved tag [ v1.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat May 7 23:54:24 2011 +0200] ], points at [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ] 
+LOG: Resolved tag [ v1.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 21:52:59 2011 +0200] ], points at [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ] 
+LOG: Resolved tag [ v1.5 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 23:54:38 2011 +0200] ], points at [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ] 
+LOG: Resolved tag [ v1.6 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 25 21:18:54 2011 +0200] ], points at [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ] 
+LOG: Resolved tag [ v1.7 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jul 30 13:32:42 2011 +0200] ], points at [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ] 
+LOG: Resolved tag [ v1.8 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun Sep 4 12:54:03 2011 +0200] ], points at [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ] 
+LOG: Resolved tag [ v1.9 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Sep 22 22:51:17 2011 +0200] ], points at [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ] 
+LOG: Resolved tag [ v2.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:22:14 2011 +0100] ], points at [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ] 
+LOG: Resolved tag [ v2.0.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:25:30 2011 +0100] ], points at [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ] 
+LOG: Resolved tag [ v2.0.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jan 7 18:16:30 2012 +0100] ], points at [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ] 
+LOG: Resolved tag [ v2.0.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Feb 23 09:19:53 2012 +0100] ], points at [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ] 
+LOG: Resolved tag [ v2.0.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 2 10:31:34 2012 +0200] ], points at [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ] 
+LOG: key [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ], tags => [ [DatedRevTag{id=b683a0108b943343f0cc0783e8309f8750f2b78c, tagName='v1.8', date=4. September 2011 12:54:03 +02:00}] ] 
+LOG: key [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ], tags => [ [DatedRevTag{id=473aa600d2c22fc4a008d1c1d8cf50562fef5876, tagName='v1.6', date=25. Juli 2011 21:18:54 +02:00}] ] 
+LOG: key [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ], tags => [ [DatedRevTag{id=8a2e16427355862573140fe9baa1e82ec2e921c6, tagName='v1.5', date=15. Mai 2011 23:54:38 +02:00}] ] 
+LOG: key [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ], tags => [ [DatedRevTag{id=28728f43f6a9619e78c560830f1db98e271cec07, tagName='v2.0.3', date=23. Februar 2012 09:19:53 +01:00}] ] 
+LOG: key [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ], tags => [ [DatedRevTag{id=1740fbbddc35a2c3d7da5421ee4eb61b90664802, tagName='v2.0', date=24. Dezember 2011 15:22:14 +01:00}] ] 
+LOG: key [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ], tags => [ [DatedRevTag{id=ab60db7e7fedcae077af509e6192add421bfbb12, tagName='v1.1', date=26. Februar 2011 16:44:44 +01:00}] ] 
+LOG: key [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ], tags => [ [DatedRevTag{id=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c, tagName='v1.2', date=27. April 2011 11:03:51 +02:00}] ] 
+LOG: key [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ], tags => [ [DatedRevTag{id=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13, tagName='v1.7', date=30. Juli 2011 13:32:42 +02:00}] ] 
+LOG: key [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ], tags => [ [DatedRevTag{id=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396, tagName='v1.9', date=22. September 2011 22:51:17 +02:00}] ] 
+LOG: key [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ], tags => [ [DatedRevTag{id=971316a891441fbc2635e33ee9c79cf183d71dbb, tagName='v1.4', date=15. Mai 2011 21:52:59 +02:00}] ] 
+LOG: key [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ], tags => [ [DatedRevTag{id=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab, tagName='v2.0.1', date=24. Dezember 2011 15:25:30 +01:00}] ] 
+LOG: key [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ], tags => [ [DatedRevTag{id=16c85b8d649a34c40056355af1e1f82b0d2c9d76, tagName='v1.0', date=19. Februar 2011 01:03:07 +01:00}] ] 
+LOG: key [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ], tags => [ [DatedRevTag{id=f0c5ac406ddde0a45a885e0ebb7eed15252d487a, tagName='v2.0.2', date=7. Januar 2012 18:16:30 +01:00}] ] 
+LOG: key [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ], tags => [ [DatedRevTag{id=9b0ee30af97d4ae17dffb11bd06ed67fc4451547, tagName='v2.0.4', date=2. Juli 2012 10:31:34 +02:00}] ] 
+LOG: key [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ], tags => [ [DatedRevTag{id=e89f1e7e8e7f24624ed9d19e1d35898339266072, tagName='v1.3', date=7. Mai 2011 23:54:24 +02:00}] ] 
+LOG: Created map: [ {commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------=[v1.8], commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------=[v1.6], commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------=[v1.5], commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------=[v2.0.3], commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------=[v2.0], commit 6cc9d99542458e164822c47488414234b6b59060 0 ------=[v1.1], commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------=[v1.2], commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------=[v1.7], commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------=[v1.9], commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------=[v1.4], commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------=[v2.0.1], commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------=[v1.0], commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------=[v2.0.2], commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------=[v2.0.4], commit d142945e8c4b15c561601e58573938d6835eb467 0 ------=[v1.3]} ] 
+LOG: HEAD is [ 7181832b7d9afdeb86c32cf51214abfca63625be ] 
+LOG: Repo is in dirty state [ false ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_on_a_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/v1.0.0=de4db35917b268089c81c9ab1b52541bb778f5a0]] ]
+LOG: Including lightweight tag [ refs/tags/v1.0.0 ]
+LOG: key [ AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0] ], tags => [ [DatedRevTag{id=de4db35917b268089c81c9ab1b52541bb778f5a0, tagName='refs/tags/v1.0.0', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0]=[v1.0.0]} ] 
+LOG: HEAD is [ de4db35917b268089c81c9ab1b52541bb778f5a0 ] 
+LOG: Repo is in dirty state [ false ]
+LOG: The commit we're on is a Tag ([ v1.0.0 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_on_a_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/v1.0.0=de4db35917b268089c81c9ab1b52541bb778f5a0]] ]
+LOG: Including lightweight tag [ refs/tags/v1.0.0 ]
+LOG: key [ AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0] ], tags => [ [DatedRevTag{id=de4db35917b268089c81c9ab1b52541bb778f5a0, tagName='refs/tags/v1.0.0', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0]=[v1.0.0]} ] 
+LOG: HEAD is [ de4db35917b268089c81c9ab1b52541bb778f5a0 ] 
+LOG: Repo is in dirty state [ true ]
+LOG: The commit we're on is a Tag ([ v1.0.0 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_on_a_tag]
+LOG: --tags = true
+LOG: --dirty = -banana
+LOG: Tag refs [ [Ref[refs/tags/v1.0.0=de4db35917b268089c81c9ab1b52541bb778f5a0]] ]
+LOG: Including lightweight tag [ refs/tags/v1.0.0 ]
+LOG: key [ AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0] ], tags => [ [DatedRevTag{id=de4db35917b268089c81c9ab1b52541bb778f5a0, tagName='refs/tags/v1.0.0', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0]=[v1.0.0]} ] 
+LOG: HEAD is [ de4db35917b268089c81c9ab1b52541bb778f5a0 ] 
+LOG: Repo is in dirty state [ true ]
+LOG: The commit we're on is a Tag ([ v1.0.0 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_on_a_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/v1.0.0=de4db35917b268089c81c9ab1b52541bb778f5a0]] ]
+LOG: Including lightweight tag [ refs/tags/v1.0.0 ]
+LOG: key [ AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0] ], tags => [ [DatedRevTag{id=de4db35917b268089c81c9ab1b52541bb778f5a0, tagName='refs/tags/v1.0.0', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0]=[v1.0.0]} ] 
+LOG: HEAD is [ de4db35917b268089c81c9ab1b52541bb778f5a0 ] 
+LOG: Repo is in dirty state [ true ]
+LOG: The commit we're on is a Tag ([ v1.0.0 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --dirty = -dirty
+LOG: --abbrev = 0
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ true ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_on_a_tag_dirty]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/v1.0.0=de4db35917b268089c81c9ab1b52541bb778f5a0]] ]
+LOG: Including lightweight tag [ refs/tags/v1.0.0 ]
+LOG: key [ AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0] ], tags => [ [DatedRevTag{id=de4db35917b268089c81c9ab1b52541bb778f5a0, tagName='refs/tags/v1.0.0', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {AnyObjectId[de4db35917b268089c81c9ab1b52541bb778f5a0]=[v1.0.0]} ] 
+LOG: HEAD is [ de4db35917b268089c81c9ab1b52541bb778f5a0 ] 
+LOG: Repo is in dirty state [ false ]
+LOG: The commit we're on is a Tag ([ v1.0.0 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --abbrev = 0
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.308 sec
+Running pl.project13.jgit.DescribeCommandAbbrevIntegrationTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --abbrev = 2
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ true ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_of_git_commit_id]
+LOG: --abbrev = 2
+LOG: Tag refs [ [Ref[refs/tags/v1.0=16c85b8d649a34c40056355af1e1f82b0d2c9d76], Ref[refs/tags/v1.1=ab60db7e7fedcae077af509e6192add421bfbb12], Ref[refs/tags/v1.2=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c], Ref[refs/tags/v1.3=e89f1e7e8e7f24624ed9d19e1d35898339266072], Ref[refs/tags/v1.4=971316a891441fbc2635e33ee9c79cf183d71dbb], Ref[refs/tags/v1.5=8a2e16427355862573140fe9baa1e82ec2e921c6], Ref[refs/tags/v1.6=473aa600d2c22fc4a008d1c1d8cf50562fef5876], Ref[refs/tags/v1.7=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13], Ref[refs/tags/v1.8=b683a0108b943343f0cc0783e8309f8750f2b78c], Ref[refs/tags/v1.9=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396], Ref[refs/tags/v2.0=1740fbbddc35a2c3d7da5421ee4eb61b90664802], Ref[refs/tags/v2.0.1=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab], Ref[refs/tags/v2.0.2=f0c5ac406ddde0a45a885e0ebb7eed15252d487a], Ref[refs/tags/v2.0.3=28728f43f6a9619e78c560830f1db98e271cec07], Ref[refs/tags/v2.0.4=9b0ee30af97d4ae17dffb11bd06ed67fc4451547]] ]
+LOG: Resolved tag [ v1.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 19 01:03:07 2011 +0100] ], points at [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ] 
+LOG: Resolved tag [ v1.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Feb 26 16:44:44 2011 +0100] ], points at [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ] 
+LOG: Resolved tag [ v1.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Wed Apr 27 11:03:51 2011 +0200] ], points at [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ] 
+LOG: Resolved tag [ v1.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat May 7 23:54:24 2011 +0200] ], points at [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ] 
+LOG: Resolved tag [ v1.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 21:52:59 2011 +0200] ], points at [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ] 
+LOG: Resolved tag [ v1.5 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun May 15 23:54:38 2011 +0200] ], points at [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ] 
+LOG: Resolved tag [ v1.6 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 25 21:18:54 2011 +0200] ], points at [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ] 
+LOG: Resolved tag [ v1.7 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jul 30 13:32:42 2011 +0200] ], points at [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ] 
+LOG: Resolved tag [ v1.8 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sun Sep 4 12:54:03 2011 +0200] ], points at [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ] 
+LOG: Resolved tag [ v1.9 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Sep 22 22:51:17 2011 +0200] ], points at [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ] 
+LOG: Resolved tag [ v2.0 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:22:14 2011 +0100] ], points at [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ] 
+LOG: Resolved tag [ v2.0.1 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Dec 24 15:25:30 2011 +0100] ], points at [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ] 
+LOG: Resolved tag [ v2.0.2 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Jan 7 18:16:30 2012 +0100] ], points at [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ] 
+LOG: Resolved tag [ v2.0.3 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Thu Feb 23 09:19:53 2012 +0100] ], points at [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ] 
+LOG: Resolved tag [ v2.0.4 ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Mon Jul 2 10:31:34 2012 +0200] ], points at [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ] 
+LOG: key [ commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------ ], tags => [ [DatedRevTag{id=b683a0108b943343f0cc0783e8309f8750f2b78c, tagName='v1.8', date=4. September 2011 12:54:03 +02:00}] ] 
+LOG: key [ commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------ ], tags => [ [DatedRevTag{id=473aa600d2c22fc4a008d1c1d8cf50562fef5876, tagName='v1.6', date=25. Juli 2011 21:18:54 +02:00}] ] 
+LOG: key [ commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------ ], tags => [ [DatedRevTag{id=8a2e16427355862573140fe9baa1e82ec2e921c6, tagName='v1.5', date=15. Mai 2011 23:54:38 +02:00}] ] 
+LOG: key [ commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------ ], tags => [ [DatedRevTag{id=28728f43f6a9619e78c560830f1db98e271cec07, tagName='v2.0.3', date=23. Februar 2012 09:19:53 +01:00}] ] 
+LOG: key [ commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------ ], tags => [ [DatedRevTag{id=1740fbbddc35a2c3d7da5421ee4eb61b90664802, tagName='v2.0', date=24. Dezember 2011 15:22:14 +01:00}] ] 
+LOG: key [ commit 6cc9d99542458e164822c47488414234b6b59060 0 ------ ], tags => [ [DatedRevTag{id=ab60db7e7fedcae077af509e6192add421bfbb12, tagName='v1.1', date=26. Februar 2011 16:44:44 +01:00}] ] 
+LOG: key [ commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------ ], tags => [ [DatedRevTag{id=3f437b3a14f0fed84f8786d5d7051bb5c0d6936c, tagName='v1.2', date=27. April 2011 11:03:51 +02:00}] ] 
+LOG: key [ commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------ ], tags => [ [DatedRevTag{id=e4da6e59adc8a7de9f029ea3cba8ec0d0b576e13, tagName='v1.7', date=30. Juli 2011 13:32:42 +02:00}] ] 
+LOG: key [ commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------ ], tags => [ [DatedRevTag{id=0ec2c72916ce8ae1db819f1dc78b9a2f1e611396, tagName='v1.9', date=22. September 2011 22:51:17 +02:00}] ] 
+LOG: key [ commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------ ], tags => [ [DatedRevTag{id=971316a891441fbc2635e33ee9c79cf183d71dbb, tagName='v1.4', date=15. Mai 2011 21:52:59 +02:00}] ] 
+LOG: key [ commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------ ], tags => [ [DatedRevTag{id=bd5328a463ef29ec2bd6a7ecf8e51af61a9882ab, tagName='v2.0.1', date=24. Dezember 2011 15:25:30 +01:00}] ] 
+LOG: key [ commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------ ], tags => [ [DatedRevTag{id=16c85b8d649a34c40056355af1e1f82b0d2c9d76, tagName='v1.0', date=19. Februar 2011 01:03:07 +01:00}] ] 
+LOG: key [ commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------ ], tags => [ [DatedRevTag{id=f0c5ac406ddde0a45a885e0ebb7eed15252d487a, tagName='v2.0.2', date=7. Januar 2012 18:16:30 +01:00}] ] 
+LOG: key [ commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------ ], tags => [ [DatedRevTag{id=9b0ee30af97d4ae17dffb11bd06ed67fc4451547, tagName='v2.0.4', date=2. Juli 2012 10:31:34 +02:00}] ] 
+LOG: key [ commit d142945e8c4b15c561601e58573938d6835eb467 0 ------ ], tags => [ [DatedRevTag{id=e89f1e7e8e7f24624ed9d19e1d35898339266072, tagName='v1.3', date=7. Mai 2011 23:54:24 +02:00}] ] 
+LOG: Created map: [ {commit a599a75c3a73adb9f70145e7ae13b42f7160bcdb 0 ------=[v1.8], commit 5205c9924e4b8cc96bba4e672d3b12627f76f30f 0 ------=[v1.6], commit a8974bbdaab8bdf3b263af8fa3e1ae71578496d2 0 ------=[v1.5], commit b4c925845402d0f354e8812020a4380fa4b961de 0 ------=[v2.0.3], commit e2d4fb2d63fb0f25ae168281d7dadfeb131bc110 0 ------=[v2.0], commit 6cc9d99542458e164822c47488414234b6b59060 0 ------=[v1.1], commit 9b6e5f0501f9158a741f705d417b0ad337710984 0 ------=[v1.2], commit c4a7e03ce7e0622b93421499214bb0e9f72cd14d 0 ------=[v1.7], commit e4f4e7a26a89a5aeae65ad0ee638c31c94bbe1dc 0 ------=[v1.9], commit 9640198ad256c0c45f4aee61e474adbd9c52aeb2 0 ------=[v1.4], commit 2e1832a5a66f932f3a12ca8755f6ec2a6c425428 0 ------=[v2.0.1], commit 54acaffab11daf6f34f0ee04eddba64f2bb2265b 0 ------=[v1.0], commit f496b9d3b136572828b04bdb7f24ec9e306e58e3 0 ------=[v2.0.2], commit a3b884764845d40ab1a1abdc293825ae0da55bb8 0 ------=[v2.0.4], commit d142945e8c4b15c561601e58573938d6835eb467 0 ------=[v1.3]} ] 
+LOG: HEAD is [ 7181832b7d9afdeb86c32cf51214abfca63625be ] 
+LOG: Repo is in dirty state [ true ]
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.124 sec
+Running pl.project13.jgit.DescribeResultTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.057 sec
+Running pl.project13.jgit.DescribeCommandTagsIntegrationTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: Including lightweight tag [ refs/tags/lightweight-tag ]
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: key [ AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436] ], tags => [ [DatedRevTag{id=d37a598a7a98531ad1375966642c6b1263129436, tagName='refs/tags/lightweight-tag', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag], AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436]=[lightweight-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --tags = true
+LOG: --match = annotated*
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: Skipping tagRef with name [ refs/tags/lightweight-tag ] as it doesn't match [ ^refs/tags/\Qannotated\E.*\Q\E$ ]
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: Including lightweight tag [ refs/tags/lightweight-tag ]
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: key [ AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436] ], tags => [ [DatedRevTag{id=d37a598a7a98531ad1375966642c6b1263129436, tagName='refs/tags/lightweight-tag', date=17. Mai 0014 11:30:16 +00:53:28}] ] 
+LOG: Created map: [ {commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag], AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436]=[lightweight-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/0.0.1-SNAPSHOT=043e150e2993a461a4dadf072b57e6ec1bbc10ef], Ref[refs/tags/OName-0.0.1=d73cf9d360abc37b646e10e2c814642346ecb688], Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ 0.0.1-SNAPSHOT ] [ PersonIdent[S L, s.lange@mailbox.tu-berlin.de, Sat May 17 11:30:16 2014 +0200] ], points at [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ] 
+LOG: Resolved tag [ OName-0.0.1 ] [ PersonIdent[S L, s.lange@mailbox.tu-berlin.de, Sat May 17 11:30:18 2014 +0200] ], points at [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ] 
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: Including lightweight tag [ refs/tags/lightweight-tag ]
+LOG: key [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ], tags => [ [DatedRevTag{id=043e150e2993a461a4dadf072b57e6ec1bbc10ef, tagName='0.0.1-SNAPSHOT', date=17. Mai 2014 11:30:16 +02:00}, DatedRevTag{id=d73cf9d360abc37b646e10e2c814642346ecb688, tagName='OName-0.0.1', date=17. Mai 2014 11:30:18 +02:00}] ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: key [ AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436] ], tags => [ [DatedRevTag{id=d37a598a7a98531ad1375966642c6b1263129436, tagName='refs/tags/lightweight-tag', date=17. Mai 0014 11:30:18 +00:53:28}] ] 
+LOG: Created map: [ {commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p=[OName-0.0.1, 0.0.1-SNAPSHOT], commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag], AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436]=[lightweight-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+LOG: The commit we're on is a Tag ([ OName-0.0.1 ]) and forceLongFormat == false, returning.
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_lightweight_tag_before_annotated_tag]
+LOG: --tags = true
+LOG: Tag refs [ [Ref[refs/tags/0.0.1-SNAPSHOT=9d07d7c9c99436ddd409142daa0123ee77717fec], Ref[refs/tags/OName-0.0.1=d73cf9d360abc37b646e10e2c814642346ecb688], Ref[refs/tags/annotated-tag=882476235ef06c5f2cc59325a04ba761988cde36], Ref[refs/tags/lightweight-tag=d37a598a7a98531ad1375966642c6b1263129436]] ]
+LOG: Resolved tag [ 0.0.1-SNAPSHOT ] [ PersonIdent[S L, s.lange@mailbox.tu-berlin.de, Sat May 17 11:30:18 2014 +0200] ], points at [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ] 
+LOG: Resolved tag [ OName-0.0.1 ] [ PersonIdent[S L, s.lange@mailbox.tu-berlin.de, Sat May 17 11:30:18 2014 +0200] ], points at [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ] 
+LOG: Resolved tag [ annotated-tag ] [ PersonIdent[Konrad Malawski, konrad.malawski@project13.pl, Sat Aug 25 15:32:41 2012 +0200] ], points at [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ] 
+LOG: Including lightweight tag [ refs/tags/lightweight-tag ]
+LOG: key [ commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p ], tags => [ [DatedRevTag{id=9d07d7c9c99436ddd409142daa0123ee77717fec, tagName='0.0.1-SNAPSHOT', date=17. Mai 2014 11:30:18 +02:00}, DatedRevTag{id=d73cf9d360abc37b646e10e2c814642346ecb688, tagName='OName-0.0.1', date=17. Mai 2014 11:30:18 +02:00}] ] 
+LOG: key [ commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------ ], tags => [ [DatedRevTag{id=882476235ef06c5f2cc59325a04ba761988cde36, tagName='annotated-tag', date=25. August 2012 15:32:41 +02:00}] ] 
+LOG: key [ AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436] ], tags => [ [DatedRevTag{id=d37a598a7a98531ad1375966642c6b1263129436, tagName='refs/tags/lightweight-tag', date=17. Mai 0014 11:30:18 +00:53:28}] ] 
+LOG: Created map: [ {commit b6a73ed747dd8dc98642d731ddbf09824efb9d48 1345901523 -----p=[0.0.1-SNAPSHOT, OName-0.0.1], commit 95975455ef2b1af048f2926b9ba7fb804e22171b 0 ------=[annotated-tag], AnyObjectId[d37a598a7a98531ad1375966642c6b1263129436]=[lightweight-tag]} ] 
+LOG: HEAD is [ b6a73ed747dd8dc98642d731ddbf09824efb9d48 ] 
+LOG: Repo is in dirty state [ false ]
+LOG: The commit we're on is a Tag ([ 0.0.1-SNAPSHOT ]) and forceLongFormat == false, returning.
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.072 sec
+Running pl.project13.jgit.DescribeCommandOptionsTest
+LOG: --always = true
+LOG: --dirty = DEVEL
+LOG: --abbrev = 12
+LOG: --long = true
+LOG: --tags = true
+LOG: --match = *
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 sec
+Running pl.project13.maven.git.log.MavenLoggerBridgeTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec
+Running pl.project13.maven.git.log.StdOutLoggerBridgeTest
+LOG: 
+ERR: 
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0 sec
+Running pl.project13.maven.git.NativeGitProviderTest
+Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 0.011 sec <<< FAILURE!
+Running pl.project13.maven.git.GitSubmodulesTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_with_submodules]
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 sec
+Running pl.project13.maven.git.GitDirLocatorTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.057 sec
+Running pl.project13.maven.git.GitCommitIdMojoTest
+[info] dotGitDirectory /home/snoozer/git/maven-git-commit-id-plugin/.git
+[info] git.build.user.name S L
+[info] git.build.user.email s.lange@mailbox.tu-berlin.de
+[info] git.branch master
+[info] git.commit.id 7a471ab656993e8bbad226282250d9e4d541c810
+[info] git.commit.id.abbrev 7a471ab
+[info] git.commit.user.name S L
+[info] git.commit.user.email s.lange@mailbox.tu-berlin.de
+[info] git.commit.message.full Added scanner close
+
+[info] git.commit.message.short Added scanner close
+[info] git.commit.time 17.05.2014 @ 10:34:48 MESZ
+[info] git.remote.origin.url git@github.com:TheSnoozer/maven-git-commit-id-plugin.git
+[info] git.build.time 17.05.2014 @ 11:30:19 MESZ
+[info] found property git.commit.id.abbrev
+[info] found property git.commit.user.email
+[info] found property git.commit.message.full
+[info] found property git.commit.id
+[info] found property git.commit.message.short
+[info] found property git.commit.user.name
+[info] found property git.build.user.name
+[info] found property git.build.user.email
+[info] found property git.branch
+[info] found property git.commit.time
+[info] found property git.build.time
+[info] found property git.remote.origin.url
+[info] dotGitDirectory /home/snoozer/git/maven-git-commit-id-plugin/.git
+[info] git.build.user.name S L
+[info] git.build.user.email s.lange@mailbox.tu-berlin.de
+[info] git.branch master
+[info] git.commit.id 7a471ab656993e8bbad226282250d9e4d541c810
+[info] git.commit.id.abbrev 7a471ab
+[info] git.commit.user.name S L
+[info] git.commit.user.email s.lange@mailbox.tu-berlin.de
+[info] git.commit.message.full Added scanner close
+
+[info] git.commit.message.short Added scanner close
+[info] git.commit.time 17.05.2014 @ 10:34:48 MESZ
+[info] git.remote.origin.url git@github.com:TheSnoozer/maven-git-commit-id-plugin.git
+[info] git.build.time 17.05.2014 @ 11:30:19 MESZ
+[debug] shouldExclude.apply(git.commit.user.email) = true
+[debug] shouldExclude.apply(git.commit.user.name) = true
+[debug] shouldExclude.apply(git.build.user.name) = true
+[debug] shouldExclude.apply(git.build.user.email) = true
+[debug] shouldExclude.apply(git.remote.origin.url) = true
+[info] found property git.commit.id.abbrev
+[info] found property git.commit.message.full
+[info] found property git.commit.id
+[info] found property git.commit.message.short
+[info] found property git.branch
+[info] found property git.commit.time
+[info] found property git.build.time
+[info] dotGitDirectory /home/snoozer/git/maven-git-commit-id-plugin/.git
+[info] build.user.name S L
+[info] build.user.email s.lange@mailbox.tu-berlin.de
+[info] branch master
+[info] commit.id 7a471ab656993e8bbad226282250d9e4d541c810
+[info] commit.id.abbrev 7a471ab
+[info] commit.user.name S L
+[info] commit.user.email s.lange@mailbox.tu-berlin.de
+[info] commit.message.full Added scanner close
+
+[info] commit.message.short Added scanner close
+[info] commit.time 17.05.2014 @ 10:34:48 MESZ
+[info] remote.origin.url git@github.com:TheSnoozer/maven-git-commit-id-plugin.git
+[info] build.time 17.05.2014 @ 11:30:19 MESZ
+[info] found property commit.time
+[info] found property remote.origin.url
+[info] found property commit.message.full
+[info] found property commit.id.abbrev
+[info] found property commit.id
+[info] found property build.time
+[info] found property commit.user.email
+[info] found property commit.message.short
+[info] found property commit.user.name
+[info] found property branch
+[info] found property build.user.email
+[info] found property build.user.name
+[info] dotGitDirectory /home/snoozer/git/maven-git-commit-id-plugin/.git
+[info] git.build.user.name S L
+[info] git.build.user.email s.lange@mailbox.tu-berlin.de
+[info] git.branch master
+[info] git.commit.id 7a471ab656993e8bbad226282250d9e4d541c810
+[info] git.commit.id.abbrev 7a471ab
+[info] git.commit.user.name S L
+[info] git.commit.user.email s.lange@mailbox.tu-berlin.de
+[info] git.commit.message.full Added scanner close
+
+[info] git.commit.message.short Added scanner close
+[info] git.commit.time 17.05.2014 @ 10:34:48 MESZ
+[info] git.remote.origin.url git@github.com:TheSnoozer/maven-git-commit-id-plugin.git
+[info] git.build.time 17.05.2014 @ 11:30:19 MESZ
+[info] found property git.commit.id.abbrev
+[info] found property git.commit.user.email
+[info] found property git.commit.message.full
+[info] found property git.commit.id
+[info] found property git.commit.message.short
+[info] found property git.commit.user.name
+[info] found property git.build.user.name
+[info] found property git.build.user.email
+[info] found property git.branch
+[info] found property git.commit.time
+[info] found property git.build.time
+[info] found property git.remote.origin.url
+[info] Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.
+[info] Using environment variable based branch name. GIT_BRANCH = mybranch
+[info] Using environment variable based branch name. GIT_BRANCH = mybranch
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.052 sec
+Running pl.project13.maven.git.GitCommitIdMojoIntegrationTest
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+TEST: Will prepare sandbox repository based on: [src/test/resources/_git_one_commit]
+Tests run: 14, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.421 sec <<< FAILURE!
+
+Results :
+
+Tests in error: 
+  testLoadGitData(pl.project13.maven.git.NativeGitProviderTest)
+  testLoadGitDataDetachedWithTags(pl.project13.maven.git.NativeGitProviderTest): Could not initialize class pl.project13.maven.git.NativeGitProvider
+  testLoadGitDataDetachedWithoutTags(pl.project13.maven.git.NativeGitProviderTest): Could not initialize class pl.project13.maven.git.NativeGitProvider
+  shouldResolvePropertiesUsingNativeGitForNonPomProject(pl.project13.maven.git.GitCommitIdMojoIntegrationTest): Could not initialize class pl.project13.maven.git.NativeGitProvider
+
+Tests run: 60, Failures: 0, Errors: 4, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 8.945s
+[INFO] Finished at: Sat May 17 11:30:19 CEST 2014
+[INFO] Final Memory: 23M/408M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.10:test (default-test) on project git-commit-id-plugin: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /home/snoozer/git/maven-git-commit-id-plugin/target/surefire-reports for the individual test results.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
