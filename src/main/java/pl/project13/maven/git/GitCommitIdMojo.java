@@ -29,7 +29,11 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -241,6 +245,17 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
+   * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
+   * use a native GIT executable to fetch information about the repository, witch is in most cases faster but requires
+   * a git executable to be installed in system.
+   *
+   * @parameter default-value="false"
+   * @since 2.1.9
+   */
+
+  private boolean useNativeGit;
+
+  /**
    * Skip the plugin execution.
    *
    * @parameter default-value="false"
@@ -290,15 +305,17 @@ public class GitCommitIdMojo extends AbstractMojo {
       return;
     }
 
-    dotGitDirectory = lookupGitDirectory();
-    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    if (!useNativeGit) {
+      dotGitDirectory = lookupGitDirectory();
+      throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-    if (dotGitDirectory != null) {
-      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
-    } else {
-      log("dotGitDirectory is null, aborting execution!");
-      return;
-    }
+      if (dotGitDirectory != null) {
+        log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+      } else {
+        log("dotGitDirectory is null, aborting execution!");
+        return;
+      }
+	}
 
     try {
       properties = initProperties();
@@ -421,6 +438,26 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+    if (useNativeGit) {
+      loadGitDataWithNativeGit(properties);
+    }else{
+      loadGitDataWithJGit(properties);
+    }
+  }
+
+  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
+    NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
+    File basedir = project.getBasedir().getCanonicalFile();
+    Map<String, String> loadedData;
+
+    loadedData = gitProvider.loadGitData(basedir);
+    
+    for (Map.Entry<String, String> entry : loadedData.entrySet()) {
+      put(properties, entry.getKey(), entry.getValue());
+    }
+  }
+
+  void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
     Repository git = getGitRepository();
     ObjectReader objectReader = git.newObjectReader();
 
