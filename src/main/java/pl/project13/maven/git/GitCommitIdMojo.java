@@ -446,8 +446,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       // git.branch
       String branch = determineBranchName(git, System.getenv());
       put(properties, BRANCH, branch);
-      put(properties, BRANCH_CLASSIFIER, toBranchClassifier(branch));
-
+      
+      String branchClassifier = toBranchClassifier(branch);
+      if (branchClassifier != null) {
+    	  // classifier must be null if empty
+    	  put(properties, BRANCH_CLASSIFIER, branchClassifier);
+      }
+      
       // git.commit.id.describe
       maybePutGitDescribe(properties, git);
 
@@ -649,7 +654,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   protected String toBranchClassifier(String branch) {
     if ("master".equals(branch)) {
-      return "";
+      return null;
     } else {
       // TODO are all branch names valid classifiers?
       return branch;
