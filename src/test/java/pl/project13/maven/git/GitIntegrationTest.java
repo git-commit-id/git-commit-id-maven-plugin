@@ -71,6 +71,7 @@ public abstract class GitIntegrationTest {
     mojoDefaults.put("prefix", "git");
     mojoDefaults.put("dateFormat", "dd.MM.yyyy '@' HH:mm:ss z");
     mojoDefaults.put("failOnNoGitDirectory", true);
+    mojoDefaults.put("useNativeGit", false);
     for (Map.Entry<String, Object> entry : mojoDefaults.entrySet()) {
       setInternalState(mojo, entry.getKey(), entry.getValue());
     }

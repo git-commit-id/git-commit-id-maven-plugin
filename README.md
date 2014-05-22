@@ -112,6 +112,14 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- true is default here, it prints some more information during the build -->
                     <verbose>true</verbose>
 
+					<!-- @since 2.1.9 -->
+					<!-- 
+                        false is default here, if set to true it uses native GIT excutable for 
+						better performance (it must be installed in system and available in system PATH) 
+
+                    -->
+					<useNativeGit>false</useNativeGit>
+
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
                         use this setting, otherwise we'll perform a search trying to
@@ -538,6 +546,7 @@ Notable happy users
 * [neo4j](http://www.neo4j.org/) graph database
 * foundationdb.com
 * [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information)
+* Akamai
 * others I know of but shouldn't tell ;-)
 * many others I don't know of
 
