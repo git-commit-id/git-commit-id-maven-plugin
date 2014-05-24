@@ -143,7 +143,17 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
-                    
+
+                    <!-- @since v2.0.4 -->
+                    <!--
+                         Controls the length of the abbreviated git commit it (git.commit.id.abbrev)
+
+                         Defaults to `7`.
+                         `0` carries the special meaning.
+                         Maximum value is `40`, because of max SHA-1 length.
+                     -->
+                    <abbrevLength>7</abbrevLength>
+
                     <!-- @since 2.1.8 -->
                     <!--
                         skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
@@ -200,16 +210,6 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
-
-					<!-- @since 2.1.1 -->
-					<!--
-                         how many chars should be displayed as the commit object id? 
-                         7 is git's default, 
-                         0 has a special meaning (see end of this README.md), 
-                         and 40 is the maximum value here
-                         HINT: controls the property git.commit.id.abbrev
-                     -->
-					<abbrevLength>7</abbrevLength>
                 </configuration>
 
             </plugin>
