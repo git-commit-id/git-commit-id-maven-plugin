@@ -180,4 +180,26 @@ public class GitCommitIdMojoTest {
     env.put("GIT_BRANCH", "mybranch");
     assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
   }
+  
+  @Test
+  public void loadShortDescribe() {
+    assertShortDescribe("1.0.2-12-g19471", "1.0.2-12");
+    assertShortDescribe("1.0.2-12-g19471-DEV", "1.0.2-12-DEV");
+    assertShortDescribe("V-1.0.2-12-g19471-DEV", "V-1.0.2-12-DEV");
+
+    assertShortDescribe(null, null);
+    assertShortDescribe("12.4.0-1432", "12.4.0-1432");
+    assertShortDescribe("12.6.0", "12.6.0");
+    assertShortDescribe("", "");
+  }
+
+  private void assertShortDescribe(String commitDescribe, String expectedShortDescribe) {
+    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
+    Properties prop = new Properties();
+    if (commitDescribe != null) {
+      prop.put(GitCommitIdMojo.COMMIT_DESCRIBE, commitDescribe);
+    }
+    commitIdMojo.loadShortDescribe(prop);
+    assertThat(prop.getProperty(GitCommitIdMojo.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
+  }
 }
