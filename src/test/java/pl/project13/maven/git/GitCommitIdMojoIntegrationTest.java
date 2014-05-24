@@ -38,6 +38,18 @@ import static org.fest.assertions.MapAssert.entry;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
+  @Test
+
+  public void shouldResolvePropertiesUsingNativeGitForNonPomProject() throws Exception {
+    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("useNativeGit", true);
+
+    mojo.execute();
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
+
 
   @Test
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject() throws Exception {
