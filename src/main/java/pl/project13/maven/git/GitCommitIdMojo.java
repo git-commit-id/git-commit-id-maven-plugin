@@ -66,7 +66,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_ID = "commit.id";
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
-  public static final String COMMIT_SHORT_DESCRIBE = "commit.id.short-describe";
+  public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
   public static final String BUILD_AUTHOR_NAME = "build.user.name";
   public static final String BUILD_AUTHOR_EMAIL = "build.user.email";
   public static final String BUILD_TIME = "build.time";

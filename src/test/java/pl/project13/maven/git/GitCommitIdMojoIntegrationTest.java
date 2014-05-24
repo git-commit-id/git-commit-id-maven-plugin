@@ -272,7 +272,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0"));
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.short-describe", "v1.0.0"));
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe-short", "v1.0.0"));
   }
 
   @Test
@@ -297,7 +297,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.short-describe", "v1.0.0-0"));
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe-short", "v1.0.0-0"));
   }
   
   private void alterMojoSettings(String parameterName, Object parameterValue) {
