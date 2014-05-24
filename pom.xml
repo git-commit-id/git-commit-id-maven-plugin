@@ -221,7 +221,8 @@
             <!--<dirty>-DEVEL</dirty>-->
             <!--<forceLongFormat>false</forceLongFormat>-->
           <!--</gitDescribe>-->
-
+		
+		  <!--<abbrevLength>7</abbrevLength>-->
         <!--</configuration>-->
       <!--</plugin>-->
 
