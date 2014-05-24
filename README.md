@@ -208,6 +208,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
+
+					<!-- @since 2.1.1 -->
+					<!--
+                         how many chars should be displayed as the commit object id? 
+                         7 is git's default, 
+                         0 has a special meaning (see end of this README.md), 
+                         and 40 is the maximum value here
+                         HINT: controls the property git.commit.id.abbrev
+                     -->
+					<abbrevLength>7</abbrevLength>
                 </configuration>
 
             </plugin>
