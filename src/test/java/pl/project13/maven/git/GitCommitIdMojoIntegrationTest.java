@@ -38,6 +38,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.MapAssert.entry;
@@ -423,6 +425,105 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.abbrev", "de4db35917"));
   }
 
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldFormatDate(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    String dateFormat = "MM/dd/yyyy";
+    alterMojoSettings("dateFormat", dateFormat);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
+
+    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    String expectedDate = smf.format(new Date());
+    assertThat(targetProject.getProperties()).includes(entry("git.build.time", expectedDate));
+  }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldSkipGitDescribe(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,7);
+    gitDescribeConfig.setSkip(true);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
+  }
+  
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldMarkGitDescribeAsDirty(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"+dirtySuffix));
+  }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldAlwaysPrintGitDescribe(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,7);
+    gitDescribeConfig.setAlways(true);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
+  }
+  
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev){
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
@@ -440,6 +541,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
