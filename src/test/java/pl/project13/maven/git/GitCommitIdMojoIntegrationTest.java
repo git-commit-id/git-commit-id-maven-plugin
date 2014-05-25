@@ -376,7 +376,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35917"));
   }
 
   @Test
