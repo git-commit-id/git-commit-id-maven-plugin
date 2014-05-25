@@ -379,6 +379,50 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
   }
 
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldGenerateCommitIdAbbrevWithDefaultLength(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("abbrevLength", 7);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.abbrev", "de4db35"));
+  }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldGenerateCommitIdAbbrevWithNonDefaultLength(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("abbrevLength", 10);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.abbrev", "de4db35917"));
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev){
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
