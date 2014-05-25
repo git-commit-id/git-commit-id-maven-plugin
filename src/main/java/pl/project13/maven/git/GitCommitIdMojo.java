@@ -50,8 +50,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 /**
  * Goal which puts git build-time information into property files or maven's properties.
  *
@@ -252,7 +250,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @parameter default-value="false"
    * @since 2.1.9
    */
-
+  @SuppressWarnings("UnusedDeclaration")
   private boolean useNativeGit;
 
   /**
@@ -336,6 +334,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         appendPropertiesToReactorProjects(properties);
       }
     } catch (Exception e) {
+      e.printStackTrace();
       handlePluginFailure(e);
     }
 
@@ -404,7 +403,8 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @return the File representation of the .git directory
    */
-  private File lookupGitDirectory() throws MojoExecutionException {
+  @VisibleForTesting
+  File lookupGitDirectory() throws MojoExecutionException {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
@@ -458,104 +458,16 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    Repository git = getGitRepository();
-    ObjectReader objectReader = git.newObjectReader();
+    JGitProvider jGitProvider = JGitProvider
+				.on(dotGitDirectory)
+				.withLoggerBridge(loggerBridge)
+				.setVerbose(verbose)
+				.setPrefixDot(prefixDot)
+				.setAbbrevLength(abbrevLength)
+				.setDateFormat(dateFormat)
+				.setGitDescribe(gitDescribe);
 
-    // git.user.name
-    String userName = git.getConfig().getString("user", null, "name");
-    put(properties, BUILD_AUTHOR_NAME, userName);
-
-    // git.user.email
-    String userEmail = git.getConfig().getString("user", null, "email");
-    put(properties, BUILD_AUTHOR_EMAIL, userEmail);
-
-    // more details parsed out bellow
-    Ref HEAD = git.getRef(Constants.HEAD);
-    if (HEAD == null) {
-      throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
-    }
-    RevWalk revWalk = new RevWalk(git);
-    RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
-    revWalk.markStart(headCommit);
-
-    try {
-      // git.branch
-      String branch = determineBranchName(git, System.getenv());
-      put(properties, BRANCH, branch);
-
-      // git.commit.id.describe
-      maybePutGitDescribe(properties, git);
-
-      // git.commit.id
-      put(properties, COMMIT_ID, headCommit.getName());
-
-      // git.commit.id.abbrev
-      putAbbrevCommitId(objectReader, properties, headCommit, abbrevLength);
-
-      // git.commit.author.name
-      String commitAuthor = headCommit.getAuthorIdent().getName();
-      put(properties, COMMIT_AUTHOR_NAME, commitAuthor);
-
-      // git.commit.author.email
-      String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-      put(properties, COMMIT_AUTHOR_EMAIL, commitEmail);
-
-      // git commit.message.full
-      String fullMessage = headCommit.getFullMessage();
-      put(properties, COMMIT_MESSAGE_FULL, fullMessage);
-
-      // git commit.message.short
-      String shortMessage = headCommit.getShortMessage();
-      put(properties, COMMIT_MESSAGE_SHORT, shortMessage);
-
-      long timeSinceEpoch = headCommit.getCommitTime();
-      Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
-      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-      put(properties, COMMIT_TIME, smf.format(commitDate));
-
-      // git remote.origin.url
-      String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
-      put(properties, REMOTE_ORIGIN_URL, remoteOriginUrl);
-    } finally {
-      revWalk.dispose();
-    }
-  }
-
-  private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
-    if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
-                                           "Please fix your configuration (the <abbrevLength/> element).");
-    }
-
-    try {
-      AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
-      put(properties, COMMIT_ID_ABBREV, abbreviatedObjectId.name());
-    } catch (IOException e) {
-      throw new MojoExecutionException("Unable to abbreviate commit id! " +
-                                           "You may want to investigate the <abbrevLength/> element in your configuration.", e);
-    }
-  }
-
-  void maybePutGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
-    if (gitDescribe == null || !gitDescribe.isSkip()) {
-      putGitDescribe(properties, repository);
-    }
-  }
-
-  @VisibleForTesting
-  void putGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
-    try {
-      DescribeResult describeResult = DescribeCommand
-          .on(repository)
-          .withLoggerBridge(loggerBridge)
-          .setVerbose(verbose)
-          .apply(gitDescribe)
-          .call();
-
-      put(properties, COMMIT_DESCRIBE, describeResult.toString());
-    } catch (GitAPIException ex) {
-      throw new MojoExecutionException("Unable to obtain git.commit.id.describe information", ex);
-    }
+	jGitProvider.loadGitData(properties);
   }
 
   static int counter;
@@ -587,28 +499,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     return project.getPackaging().equalsIgnoreCase("pom");
   }
 
-  @NotNull
-  private Repository getGitRepository() throws MojoExecutionException {
-    Repository repository;
-
-    FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-    try {
-      repository = repositoryBuilder
-          .setGitDir(dotGitDirectory)
-          .readEnvironment() // scan environment GIT_* variables
-          .findGitDir() // scan up the file system tree
-          .build();
-    } catch (IOException e) {
-      throw new MojoExecutionException("Could not initialize repository...", e);
-    }
-
-    if (repository == null) {
-      throw new MojoExecutionException("Could not create git repository. Are you sure '" + dotGitDirectory + "' is the valid Git root for your project?");
-    }
-
-    return repository;
-  }
-
   private void put(@NotNull Properties properties, String key, String value) {
     putWithoutPrefix(properties, prefixDot + key, value);
   }
@@ -636,50 +526,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private boolean directoryDoesNotExits(File fileLocation) {
     return !directoryExists(fileLocation);
-  }
-
-  /**
-   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
-   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
-   *
-   * @param git
-   * @param env
-   * @return results of git.getBranch() or, if in Jenkins/Hudson, value of GIT_BRANCH
-   */
-  protected String determineBranchName(Repository git, Map<String, String> env) throws IOException {
-    if (runningOnBuildServer(env)) {
-      return determineBranchNameOnBuildServer(git, env);
-    } else {
-      return git.getBranch();
-    }
-  }
-
-  /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
-   * The {@GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
-   */
-  protected String determineBranchNameOnBuildServer(Repository git, Map<String, String> env) throws IOException {
-    String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
-      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
-      return git.getBranch();
-    }else {
-      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
-      return enviromentBasedBranch;
-    }
-  }
-
-  /**
-   * Detects if we're running on Jenkins or Hudson, based on expected env variables.
-   * <p/>
-   * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
-   *
-   * @return true if running
-   * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @param env
-   */
-  private boolean runningOnBuildServer(Map<String, String> env) {
-    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------
@@ -718,5 +564,13 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setExcludeProperties(List<String> excludeProperties) {
     this.excludeProperties = excludeProperties;
+  }
+
+  public void useNativeGit(boolean useNativeGit){
+    this.useNativeGit = useNativeGit;
+  }
+
+  public LoggerBridge getLoggerBridge(){
+    return loggerBridge;
   }
 }
