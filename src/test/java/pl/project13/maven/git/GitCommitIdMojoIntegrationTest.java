@@ -299,10 +299,30 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
-    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
-    gitDescribeConfig.setTags(true);
-    gitDescribeConfig.setForceLongFormat(false);
-    gitDescribeConfig.setAbbrev(7);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false,7);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0"));
+  }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalseAndAbbrevLengthIsNonDefault(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false,10);
     alterMojoSettings("gitDescribe", gitDescribeConfig);
     alterMojoSettings("useNativeGit", useNativeGit);
 
@@ -325,10 +345,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
-    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
-    gitDescribeConfig.setTags(true);
-    gitDescribeConfig.setForceLongFormat(true);
-    gitDescribeConfig.setAbbrev(7);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,7);
     alterMojoSettings("gitDescribe", gitDescribeConfig);
     alterMojoSettings("useNativeGit", useNativeGit);
 
@@ -337,6 +354,37 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
+  }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrueAndAbbrevLengthIsNonDefault(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,10);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35"));
+  }
+
+  private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev){
+    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+    gitDescribeConfig.setTags(true);
+    gitDescribeConfig.setForceLongFormat(forceLongFormat);
+    gitDescribeConfig.setAbbrev(abbrev);
+    return gitDescribeConfig;
   }
 
   private void alterMojoSettings(String parameterName, Object parameterValue) {
