@@ -151,7 +151,17 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
-                    
+
+                    <!-- @since v2.0.4 -->
+                    <!--
+                         Controls the length of the abbreviated git commit it (git.commit.id.abbrev)
+
+                         Defaults to `7`.
+                         `0` carries the special meaning.
+                         Maximum value is `40`, because of max SHA-1 length.
+                     -->
+                    <abbrevLength>7</abbrevLength>
+
                     <!-- @since 2.1.8 -->
                     <!--
                         skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
@@ -288,6 +298,7 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
   String describe;                // =${git.commit.id.describe}
+  String shortDescribe;           // =${git.commit.id.describe-short}
   String commitId;                // =${git.commit.id}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String buildUserName;           // =${git.build.user.name}
@@ -339,6 +350,7 @@ In the end *this is what this service would return*:
      {
          "branch" : "testing-maven-git-plugin",
          "describe" : "v2.1.0-2-g2346463",
+         "describeShort" : "v2.1.0-2",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
          "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
          "commitIdAbbrev" : "787e39f",
@@ -402,6 +414,7 @@ public GitRepositoryState(Properties properties)
 {
    this.branch = properties.get("git.branch").toString();
    this.describe = properties.get("git.commit.id.describe").toString();
+   this.describeShort = properties.get("git.commit.id.describe-short").toString();
    this.commitId = properties.get("git.commit.id").toString();
    this.buildUserName = properties.get("git.build.user.name").toString();
    this.buildUserEmail = properties.get("git.build.user.email").toString();
@@ -459,6 +472,9 @@ Other outputs may look like:
                 *It does NOT include the "g" prefix, that is used in the "full" describe output format!*
 
 For more details (on when what output will be returned etc), see <code>man git-describe</code> (or here: [git-describe](http://www.kernel.org/pub/software/scm/git/docs/git-describe.html)). In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.
+
+**describe-short** is also provided, in case you want to display this property to non-techy users, which would panic on the sight of a hash (last part of the describe string) - this property is simply
+*the describe output, with the hash part stripped out*.
 
 git-describe and a small "gotcha" with tags
 -------------------------------------------
