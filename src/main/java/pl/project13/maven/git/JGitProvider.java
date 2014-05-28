@@ -41,6 +41,10 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public class JGitProvider extends GitDataProvider {
 
   private File dotGitDirectory;
+  private Repository git;
+  private ObjectReader objectReader;
+  private RevWalk revWalk;
+  private RevCommit headCommit;
 
   @NotNull
   public static JGitProvider on(@NotNull File dotGitDirectory) {
@@ -85,81 +89,109 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{    
-    Repository git = getGitRepository();
-    ObjectReader objectReader = git.newObjectReader();
+  protected void init() throws MojoExecutionException{
+    git = getGitRepository();
+    objectReader = git.newObjectReader();
+  }
 
-    // git.user.name
+  @Override
+  protected String getBuildAuthorName(){
     String userName = git.getConfig().getString("user", null, "name");
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, userName);
+    return userName;
+  }
 
-    // git.user.email
+  @Override
+  protected String getBuildAuthorEmail(){
     String userEmail = git.getConfig().getString("user", null, "email");
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, userEmail);
+    return userEmail;
+  }
 
-    // more details parsed out bellow
-    Ref HEAD = git.getRef(Constants.HEAD);
-    if (HEAD == null) {
-      throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
-    }
-    RevWalk revWalk = new RevWalk(git);
-    RevCommit headCommit = revWalk.parseCommit(HEAD.getObjectId());
-    revWalk.markStart(headCommit);
-
-    try {
-      // git.branch
-      String branch = determineBranchName(git, System.getenv());
-      put(properties, GitCommitIdMojo.BRANCH, branch);
-
-      // git.commit.id.describe
-      maybePutGitDescribe(properties, git);
-
-      // git.commit.id
-      put(properties, GitCommitIdMojo.COMMIT_ID, headCommit.getName());
-
-      // git.commit.id.abbrev
-      putAbbrevCommitId(objectReader, properties, headCommit, abbrevLength);
-
-      // git.commit.author.name
-      String commitAuthor = headCommit.getAuthorIdent().getName();
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, commitAuthor);
-
-      // git.commit.author.email
-      String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, commitEmail);
-
-      // git commit.message.full
-      String fullMessage = headCommit.getFullMessage();
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_FULL, fullMessage);
-
-      // git commit.message.short
-      String shortMessage = headCommit.getShortMessage();
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_SHORT, shortMessage);
-
-      long timeSinceEpoch = headCommit.getCommitTime();
-      Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
-      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-      put(properties, GitCommitIdMojo.COMMIT_TIME, smf.format(commitDate));
-
-      // git remote.origin.url
-      String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
-      put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, remoteOriginUrl);
-    } finally {
-      revWalk.dispose();
+  @Override
+  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException{
+    try{
+      // more details parsed out bellow
+      Ref HEAD = git.getRef(Constants.HEAD);
+      if (HEAD == null) {
+        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
+      }
+      revWalk = new RevWalk(git);
+      headCommit = revWalk.parseCommit(HEAD.getObjectId());
+      revWalk.markStart(headCommit);
+    }catch(Exception e){
+      throw new MojoExecutionException("Error", e);
     }
   }
 
-  void maybePutGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
-    boolean isGitDescribeOptOutByDefault = (super.gitDescribe == null);
-    boolean isGitDescribeOptOutByConfiguration = (super.gitDescribe != null && !super.gitDescribe.isSkip());
-    
-    if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      putGitDescribe(properties, repository);
-    }
+  @Override
+  protected String getBranchName() throws IOException{
+    String branch = determineBranchName(git, System.getenv());
+    return branch;
   }
+
+  @Override
+  protected String getGitDescribe() throws MojoExecutionException{
+    String gitDescribe = getGitDescribe(git);
+    return gitDescribe;
+  }
+
+  @Override
+  protected String getCommitId(){
+    String commitId = headCommit.getName();
+    return commitId;
+  }
+
+  @Override
+  protected String getAbbrevCommitId() throws MojoExecutionException{
+    String abbrevCommitId = getAbbrevCommitId(objectReader, headCommit, abbrevLength);
+    return abbrevCommitId;
+  }
+
+  @Override
+  protected String getCommitAuthorName(){
+    String commitAuthor = headCommit.getAuthorIdent().getName();
+    return commitAuthor;
+  }
+
+  @Override
+  protected String getCommitAuthorEmail(){
+    String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
+    return commitEmail;
+  }
+
+  @Override
+  protected String getCommitMessageFull(){
+    String fullMessage = headCommit.getFullMessage();
+    return fullMessage;
+  }
+
+  @Override
+  protected String getCommitMessageShort(){
+    String shortMessage = headCommit.getShortMessage();
+    return shortMessage;
+  }
+
+  @Override
+  protected String getCommitTime(){
+    long timeSinceEpoch = headCommit.getCommitTime();
+    Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
+    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    return smf.format(commitDate);
+  }
+
+  @Override
+  protected String getRemoteOriginUrl(){
+    String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
+    return remoteOriginUrl;
+  }
+
+  @Override
+  protected void finalCleanUp(){
+    revWalk.dispose();
+  }
+
 
   @VisibleForTesting
-  void putGitDescribe(@NotNull Properties properties, @NotNull Repository repository) throws MojoExecutionException {
+  String getGitDescribe(@NotNull Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(repository)
@@ -168,22 +200,19 @@ public class JGitProvider extends GitDataProvider {
           .apply(super.gitDescribe)
           .call();
 
-      put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, describeResult.toString());
+      return describeResult.toString();
     } catch (GitAPIException ex) {
       ex.printStackTrace();
       throw new MojoExecutionException("Unable to obtain git.commit.id.describe information", ex);
     }
   }
 
-  private void putAbbrevCommitId(ObjectReader objectReader, Properties properties, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
-    if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
-                                           "Please fix your configuration (the <abbrevLength/> element).");
-    }
+  private String getAbbrevCommitId(ObjectReader objectReader, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
+    validateAbbrevLength(abbrevLength);
 
     try {
       AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
-      put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, abbreviatedObjectId.name());
+      return abbreviatedObjectId.name();
     } catch (IOException e) {
       throw new MojoExecutionException("Unable to abbreviate commit id! " +
                                            "You may want to investigate the <abbrevLength/> element in your configuration.", e);

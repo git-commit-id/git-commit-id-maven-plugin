@@ -68,9 +68,6 @@ public class GitCommitIdMojoTest {
     when(mojo.project.getPackaging()).thenReturn("jar");
 
     jGitProvider = JGitProvider.on(mojo.lookupGitDirectory()).withLoggerBridge(mojo.getLoggerBridge());
-
-    jGitProvider = spy(jGitProvider);
-    doNothing().when(jGitProvider).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
   @Test
