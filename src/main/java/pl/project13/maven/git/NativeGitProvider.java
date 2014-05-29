@@ -99,12 +99,12 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getBuildAuthorName(){
-    return tryToRunGitCommand(canonical, "config --global user.name", null);
+    return tryToRunGitCommand(canonical, "config --global user.name");
   }
 
   @Override
   protected String getBuildAuthorEmail(){
-    return tryToRunGitCommand(canonical, "config --global user.email", null);
+    return tryToRunGitCommand(canonical, "config --global user.email");
   }
 
   @Override
@@ -119,7 +119,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected String getGitDescribe() throws MojoExecutionException{
     String argumentsForGitDescribe = getArgumentsForGitDescribe(super.gitDescribe);
-    String gitDescribe = tryToRunGitCommand(canonical, "describe " + argumentsForGitDescribe, null);
+    String gitDescribe = tryToRunGitCommand(canonical, "describe " + argumentsForGitDescribe);
     return gitDescribe;
   }
 
@@ -159,12 +159,12 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitId(){
-    return tryToRunGitCommand(canonical, "rev-parse HEAD", null);
+    return tryToRunGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
   protected String getAbbrevCommitId() throws MojoExecutionException{
-    // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD", null);
+    // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD");
     // but minimum length for --short is 4, our abbrevLength could be 2
     String commitId = getCommitId();
     String abbrevCommitId = "";
@@ -178,27 +178,27 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitAuthorName(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"", null);
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"");
   }
 
   @Override
   protected String getCommitAuthorEmail(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"", null);
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"");
   }
 
   @Override
   protected String getCommitMessageFull(){
-     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"", null);
+     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"");
   }
 
   @Override
   protected String getCommitMessageShort(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"", null);
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"");
   }
 
   @Override
   protected String getCommitTime(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"", null);
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"");
   }
 
   @Override
@@ -237,18 +237,20 @@ public class NativeGitProvider extends GitDataProvider {
       String env = System.getenv("GIT_PATH");
       String exec = (env == null) ? "git" : env;
       String command = String.format("%s %s", exec, gitCommand);
-      return getRunner().run(directory, command).trim();
+
+      String result = getRunner().run(directory, command).trim();
+      return result;
     }catch(IOException ex) {
-      throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: " + gitCommand, ex);
+      throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: 'git " + gitCommand + "'", ex);
     }
   }
 
-  private String tryToRunGitCommand(File directory, String gitCommand, String defaultValue) {
-    String retValue;
+  private String tryToRunGitCommand(File directory, String gitCommand) {
+    String retValue = "";
     try {
       retValue = runGitCommand(directory, gitCommand);
     } catch (MojoExecutionException ex) {
-      retValue = defaultValue;
+      // do nothing
     }
     return retValue;
   }
@@ -262,7 +264,7 @@ public class NativeGitProvider extends GitDataProvider {
 
 
   private String getBranch(File canonical) {
-    String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD", null);
+    String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
     if (branch != null) {
       branch = branch.replace("refs/heads/", "");
     }
@@ -276,19 +278,20 @@ public class NativeGitProvider extends GitDataProvider {
   protected static class Runner implements CliRunner {
     @Override
     public String run(File directory, String command) throws IOException {
+      String output = "";
       try {
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         Process proc = builder.directory(directory).start();
-        proc.waitFor();
-        String output = convertStreamToString(proc.getInputStream());
+        proc.waitFor();        
         if (proc.exitValue() != 0) {
           String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),output);
           throw new IOException(message);
         }
-        return output;
+        output = convertStreamToString(proc.getInputStream());    
       } catch (InterruptedException ex) {
         throw new IOException(ex);
       }
+      return output;
     }
   }
 
