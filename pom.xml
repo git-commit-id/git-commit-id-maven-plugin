@@ -206,20 +206,17 @@
           <!--</execution>-->
         <!--</executions>-->
         <!--<configuration>-->
+          <!--<verbose>true</verbose>-->
+          <!--<skip>false</skip>-->
           <!--<prefix>git</prefix>-->
+          <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
+          <!--<generateGitPropertiesFile>true</generateGitPropertiesFile>-->
+          <!--<generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>-->
 
           <!--<dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>-->
-
-          <!--<verbose>true</verbose>-->
-
-          <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
-
-          <!--<generateGitPropertiesFile>true</generateGitPropertiesFile>-->
-          <!--<generateGitPropertiesFilename>testing.properties</generateGitPropertiesFilename>-->
-
-          <!--<excludeProperties>-->
-            <!--<excludeProperty>git.commit.*</excludeProperty>-->
-          <!--</excludeProperties>-->
+          <!--<useNativeGit>false</useNativeGit>-->
+          <!--<abbrevLength>7</abbrevLength>-->
+          <!--<format>properties</format>-->
 
           <!--<gitDescribe>-->
             <!--<skip>false</skip>-->
@@ -228,11 +225,16 @@
             <!--<dirty>-DEVEL</dirty>-->
             <!--<forceLongFormat>false</forceLongFormat>-->
           <!--</gitDescribe>-->
-		
-		  <!--<abbrevLength>7</abbrevLength>-->
+
+          <!--<excludeProperties>-->
+            <!--<excludeProperty>git.commit.*</excludeProperty>-->
+            <!--<excludeProperty>git.remote.origin.url</excludeProperty>-->
+          <!--</excludeProperties>-->
+
+          <!--<failOnNoGitDirectory>true</failOnNoGitDirectory>-->
+          <!--<failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>-->
         <!--</configuration>-->
       <!--</plugin>-->
-
       <!-- Setting built-in java compiler properties -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
