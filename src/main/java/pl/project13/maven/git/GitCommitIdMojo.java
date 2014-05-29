@@ -304,18 +304,16 @@ public class GitCommitIdMojo extends AbstractMojo {
       return;
     }
 
-    if (!useNativeGit) {
-      dotGitDirectory = lookupGitDirectory();
-      throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    dotGitDirectory = lookupGitDirectory();
+    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
 
-      if (dotGitDirectory != null) {
-        log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
-      } else {
-        log("dotGitDirectory is null, aborting execution!");
-        return;
-      }
-	}
-
+    if (dotGitDirectory != null) {
+      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+    } else {
+      log("dotGitDirectory is null, aborting execution!");
+      return;
+    }
+    
     try {
       properties = initProperties();
 
@@ -360,7 +358,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-    	loggerBridge.debug("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
+        loggerBridge.debug("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
     }
