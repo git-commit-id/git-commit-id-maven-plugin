@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.maven.git.util.PropertyManager;
 
 /**
 *
@@ -102,21 +103,9 @@ public abstract class GitDataProvider {
     }
   }
 
-  // TODO SL: clean this up
   protected void put(@NotNull Properties properties, String key, String value) {
-    putWithoutPrefix(properties, prefixDot + key, value);
-  }
-
-  private void putWithoutPrefix(@NotNull Properties properties, String key, String value) {
-    if (!isNotEmpty(value)) {
-      value = "Unknown";
-    }
-
-    log(key, value);
-    properties.put(key, value);
-  }
-
-  private boolean isNotEmpty(@Nullable String value) {
-    return null != value && !" ".equals(value.trim().replaceAll(" ", ""));
+    String keyWithPrefix = prefixDot + key;
+    log(keyWithPrefix, value);
+    PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 }
