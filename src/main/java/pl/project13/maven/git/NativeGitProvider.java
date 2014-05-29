@@ -17,92 +17,184 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import org.apache.maven.plugin.MojoExecutionException;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.MavenLoggerBridge;
 
 import static java.nio.charset.Charset.defaultCharset;
 
-/**
-*
-* @author Krzysztof Suszyński <krzysztof.suszynski@gmail.com>
-*/
-public class NativeGitProvider {
+
+public class NativeGitProvider extends GitDataProvider {
 
   private transient CliRunner runner;
 
-  private static final String FORMAT;
-
-  private static final Map<String, String> PARSE_MAP;
-
   private String dateFormat;
+
+  File directory;
+
+  File canonical;
 
   private static final int REMOTE_COLS = 3;
 
-  static {
-    String fileName = "/git-log-format.xml";
-    InputStream inputStream = NativeGitProvider.class.getResourceAsStream(fileName);
-    FORMAT = convertStreamToString(inputStream);
-    PARSE_MAP = new LinkedHashMap<String, String>();
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_ID, "commit/hash");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_ID_ABBREV, "commit/abbr");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_AUTHOR_NAME, "committer/name");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, "committer/email");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_MESSAGE_SHORT, "commit/subject");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_MESSAGE_FULL, "commit/body");
-    PARSE_MAP.put(GitCommitIdMojo.COMMIT_TIME, "committer/date");
-    PARSE_MAP.put(GitCommitIdMojo.BUILD_AUTHOR_NAME, "author/name");
-    PARSE_MAP.put(GitCommitIdMojo.BUILD_AUTHOR_EMAIL, "author/email");
-  }
-
-  public NativeGitProvider(CliRunner runner, String dateFormat) {
+  private NativeGitProvider(CliRunner runner, String dateFormat) {
     this.runner = runner;
     this.dateFormat = dateFormat;
   }
 
-  public NativeGitProvider(String dateFormat) {
-    this.dateFormat = dateFormat;
+  @NotNull
+  public static NativeGitProvider on(@NotNull File dotGitDirectory) {
+    return new NativeGitProvider(dotGitDirectory);
   }
 
-  /**
-   * Loads a git repository information using native git executable.
-   */
-  public Map<String, String> loadGitData(File directory) throws MojoExecutionException {
-    File canonical;
+  NativeGitProvider(@NotNull File dotGitDirectory){
+    this.directory = dotGitDirectory;
+  }
+
+
+ @NotNull
+  public NativeGitProvider withLoggerBridge(LoggerBridge bridge) {
+    super.loggerBridge = bridge;
+    return this;
+  }
+
+  @NotNull
+  public NativeGitProvider setVerbose(boolean verbose) {
+    super.verbose = verbose;
+    super.loggerBridge.setVerbose(verbose);
+    return this;
+  }
+
+  public NativeGitProvider setPrefixDot(String prefixDot) {
+    super.prefixDot = prefixDot;
+    return this;
+  }
+
+  public NativeGitProvider setAbbrevLength(int abbrevLength) {
+    super.abbrevLength = abbrevLength;
+    return this;
+  }
+
+  public NativeGitProvider setDateFormat(String dateFormat) {
+    super.dateFormat = dateFormat;
+    return this;
+  }
+
+  public NativeGitProvider setGitDescribe(GitDescribeConfig gitDescribe){
+    super.gitDescribe = gitDescribe;
+    return this;
+  }
+
+  @Override
+  protected void init() throws MojoExecutionException{
     try{
       canonical = directory.getCanonicalFile();
     } catch (IOException ex) {
       throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + directory, ex);
-	}
-
-    try {
-      Map<String, String> map = new LinkedHashMap<String, String>();
-      map.put(GitCommitIdMojo.COMMIT_DESCRIBE, tryToRunGitCommand(canonical, "describe --tags", null));
-      map.put(GitCommitIdMojo.BRANCH, getBranch(canonical));
-      map.put(GitCommitIdMojo.REMOTE_ORIGIN_URL, getOriginRemote(canonical));
-      String format = FORMAT.replaceFirst("<\\?xml.+\\?>", "").replaceAll("\\s+", "");
-      String logCommand = String.format("log -1 --format=%s", format);
-      String xml = runGitCommand(canonical, logCommand);
-      readFromFormatedXml(map, xml);
-      return map;
-    } catch (Exception ex) {
-      throw new MojoExecutionException("Unsupported GIT output - has it changed?!", ex);
     }
   }
 
-  private String getOriginRemote(File directory) throws IOException, MojoExecutionException {
-    String remotes = runGitCommand(directory, "remote -v");
-    for (String line : remotes.split("\n")) {
-      String trimmed = line.trim();
-      if (trimmed.startsWith("origin")) {
-        String[] splited = trimmed.split("\\s+");
-        if (splited.length != REMOTE_COLS) {
-          throw new MojoExecutionException("Unsupported GIT output - verbose remote address:" + line);
-        }
-        return splited[1];
-      }
+  @Override
+  protected String getBuildAuthorName(){
+    return tryToRunGitCommand(canonical, "config --global user.name", null);
+  }
+
+  @Override
+  protected String getBuildAuthorEmail(){
+    return tryToRunGitCommand(canonical, "config --global user.email", null);
+  }
+
+  @Override
+  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException{
+  }
+
+  @Override
+  protected String getBranchName() throws IOException{
+    return getBranch(canonical);
+  }
+
+  @Override
+  protected String getGitDescribe() throws MojoExecutionException{
+    // TODO add GitDescribeConfig-Options 
+    return tryToRunGitCommand(canonical, "describe --tags", null);
+  }
+
+  @Override
+  protected String getCommitId(){
+    return tryToRunGitCommand(canonical, "rev-parse HEAD", null);
+  }
+
+  @Override
+  protected String getAbbrevCommitId() throws MojoExecutionException{
+    // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD", null);
+    // but minimum length for --short is 4, our abbrevLength could be 2
+    String commitId = getCommitId();
+    String abbrevCommitId = "";
+
+    if(commitId != null && !commitId.isEmpty()){
+      abbrevCommitId = commitId.substring(0, abbrevLength);
     }
-    return null;
+
+    return abbrevCommitId;
+  }
+
+  @Override
+  protected String getCommitAuthorName(){
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"", null);
+  }
+
+  @Override
+  protected String getCommitAuthorEmail(){
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"", null);
+  }
+
+  @Override
+  protected String getCommitMessageFull(){
+     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"", null);
+  }
+
+  @Override
+  protected String getCommitMessageShort(){
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"", null);
+  }
+
+  @Override
+  protected String getCommitTime(){
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"", null);
+  }
+
+  @Override
+  protected String getRemoteOriginUrl() throws MojoExecutionException{
+    return getOriginRemote(canonical);
+  }
+
+  @Override
+  protected void finalCleanUp(){
+  }
+
+
+
+  private String getOriginRemote(File directory) throws MojoExecutionException {
+    String remoteUrl = null;
+    try{
+      String remotes = runGitCommand(directory, "remote -v");
+      for (String line : remotes.split("\n")) {
+        String trimmed = line.trim();
+        if (trimmed.startsWith("origin")) {
+          String[] splited = trimmed.split("\\s+");
+          if (splited.length != REMOTE_COLS) {
+            throw new MojoExecutionException("Unsupported GIT output - verbose remote address:" + line);
+          }
+          remoteUrl =  splited[1];
+        }
+      }
+    }catch(Exception e){
+      throw new MojoExecutionException("Error ", e);
+    }
+    return remoteUrl;
   }
 
   private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
@@ -133,24 +225,6 @@ public class NativeGitProvider {
     return runner;
   }
 
-  private void readFromFormatedXml(Map<String, String> map, String xml) throws MojoExecutionException {
-    try {
-      DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = builderFactory.newDocumentBuilder();
-      String withProlog = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + xml;
-      ByteArrayInputStream bais = new ByteArrayInputStream(withProlog.getBytes(defaultCharset()));
-      Document document = builder.parse(bais);
-      XPath xPath = XPathFactory.newInstance().newXPath();
-      for (Map.Entry<String, String> entry : PARSE_MAP.entrySet()) {
-        String propertyName = entry.getKey();
-        String path = entry.getValue();
-        String value = xPath.compile("/props/" + path).evaluate(document);
-        map.put(propertyName, postprocesValue(value, propertyName));
-      }
-    } catch (Exception ex) {
-      throw new MojoExecutionException("Something went wrong readingTheFormatedXml.", ex);
-    }
-  }
 
   private String getBranch(File canonical) {
     String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD", null);
@@ -159,18 +233,6 @@ public class NativeGitProvider {
     }
     return branch;
   }
-
-  private String postprocesValue(String value, String propertyName) throws ParseException {
-    if (propertyName.equals(GitCommitIdMojo.COMMIT_TIME)) {
-      SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z", Locale.US);
-      Date date = parser.parse(value);
-      SimpleDateFormat smf = new SimpleDateFormat(dateFormat, Locale.US);
-      return smf.format(date);
-    } else {
-      return value;
-    }
-  }
-
 
   public interface CliRunner {
     String run(File directory, String command) throws IOException;
@@ -210,7 +272,7 @@ public class NativeGitProvider {
       }
     }catch(Exception e){
       e.printStackTrace();
-	}finally{
+    }finally{
       scanner.close();
     }
     return nextContent;

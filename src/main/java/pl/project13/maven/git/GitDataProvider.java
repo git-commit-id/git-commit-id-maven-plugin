@@ -41,7 +41,7 @@ public abstract class GitDataProvider {
   protected abstract String getCommitMessageFull();
   protected abstract String getCommitMessageShort();
   protected abstract String getCommitTime();
-  protected abstract String getRemoteOriginUrl();
+  protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
   protected abstract void finalCleanUp();
 
   public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{

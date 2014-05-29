@@ -469,15 +469,17 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    NativeGitProvider gitProvider = new NativeGitProvider(dateFormat);
     File basedir = project.getBasedir().getCanonicalFile();
-    Map<String, String> loadedData;
+    NativeGitProvider nativeGitProvider = NativeGitProvider
+      .on(basedir)
+      .withLoggerBridge(loggerBridge)
+			.setVerbose(verbose)
+      .setPrefixDot(prefixDot)
+      .setAbbrevLength(abbrevLength)
+			.setDateFormat(dateFormat)
+      .setGitDescribe(gitDescribe);
 
-    loadedData = gitProvider.loadGitData(basedir);
-    
-    for (Map.Entry<String, String> entry : loadedData.entrySet()) {
-      put(properties, entry.getKey(), entry.getValue());
-    }
+    nativeGitProvider.loadGitData(properties);    
   }
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
@@ -490,7 +492,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 				.setDateFormat(dateFormat)
 				.setGitDescribe(gitDescribe);
 
-	jGitProvider.loadGitData(properties);
+    jGitProvider.loadGitData(properties);
   }
 
   static int counter;

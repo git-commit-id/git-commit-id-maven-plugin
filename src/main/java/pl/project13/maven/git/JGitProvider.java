@@ -179,7 +179,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getRemoteOriginUrl(){
+  protected String getRemoteOriginUrl() throws MojoExecutionException{
     String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
     return remoteOriginUrl;
   }
