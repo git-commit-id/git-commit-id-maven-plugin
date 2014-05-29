@@ -37,7 +37,6 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -523,13 +522,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    Properties properties = targetProject.getProperties();
-
-    for(Entry<Object, Object> e : properties.entrySet()) {
-      System.out.println("[***] " + e);
-    }
-
-    assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b"));
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
   }
   
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev){
