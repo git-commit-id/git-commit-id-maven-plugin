@@ -53,13 +53,15 @@ public abstract class GitDataProvider {
     
     try {
       prepareGitToExtractMoreDetailedReproInformation();
+      validateAbbrevLength(abbrevLength);
+
       // git.branch
       put(properties, GitCommitIdMojo.BRANCH, getBranchName());
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
       put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
-      // git.commit.id.abbrev
+      // git.commit.id.abbrev      
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
       // git.commit.author.name
       put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());

@@ -118,8 +118,43 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getGitDescribe() throws MojoExecutionException{
-    // TODO add GitDescribeConfig-Options 
-    return tryToRunGitCommand(canonical, "describe --tags", null);
+    String argumentsForGitDescribe = getArgumentsForGitDescribe(super.gitDescribe);
+    String gitDescribe = tryToRunGitCommand(canonical, "describe " + argumentsForGitDescribe, null);
+    return gitDescribe;
+  }
+
+  private String getArgumentsForGitDescribe(GitDescribeConfig gitDescribe){
+    if(gitDescribe != null){
+      return getArgumentsForGitDescribeAndDescibeNotNull(gitDescribe);
+    }else{
+      return "";
+    }
+  }
+  
+  private String getArgumentsForGitDescribeAndDescibeNotNull(GitDescribeConfig gitDescribe){
+    StringBuilder argumentsForGitDescribe = new StringBuilder();
+
+    if(gitDescribe.isAlways()){
+      argumentsForGitDescribe.append("--always ");
+    }
+
+    String dirtyMark = gitDescribe.getDirty();
+    if(dirtyMark != null && !dirtyMark.isEmpty()){
+      // Option: --dirty[=<mark>]
+      // TODO: Code Injection? Or does the CliRunner escape Arguments?
+      argumentsForGitDescribe.append("--dirty=" + dirtyMark + " ");
+    }
+
+    argumentsForGitDescribe.append("--abbrev=" + gitDescribe.getAbbrev() + " ");
+
+    if(gitDescribe.getTags()){
+      argumentsForGitDescribe.append("--tags ");
+    }
+
+    if(gitDescribe.getForceLongFormat()){
+      argumentsForGitDescribe.append("--long ");
+    }
+    return argumentsForGitDescribe.toString();
   }
 
   @Override
@@ -247,8 +282,7 @@ public class NativeGitProvider extends GitDataProvider {
         proc.waitFor();
         String output = convertStreamToString(proc.getInputStream());
         if (proc.exitValue() != 0) {
-          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),
-                  output);
+          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),output);
           throw new IOException(message);
         }
         return output;

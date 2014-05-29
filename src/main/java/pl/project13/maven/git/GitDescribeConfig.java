@@ -149,7 +149,7 @@ public class GitDescribeConfig {
    * <p/>
    * <pre>false</pre> by default.
    */
-  private Boolean forceLongFormat;
+  private boolean forceLongFormat;
 
   public GitDescribeConfig() {
   }
@@ -207,7 +207,7 @@ public class GitDescribeConfig {
     return forceLongFormat;
   }
 
-  public void setForceLongFormat(Boolean forceLongFormat) {
+  public void setForceLongFormat(boolean forceLongFormat) {
     this.forceLongFormat = forceLongFormat;
   }
 

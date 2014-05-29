@@ -208,8 +208,6 @@ public class JGitProvider extends GitDataProvider {
   }
 
   private String getAbbrevCommitId(ObjectReader objectReader, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
-    validateAbbrevLength(abbrevLength);
-
     try {
       AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
       return abbreviatedObjectId.name();
