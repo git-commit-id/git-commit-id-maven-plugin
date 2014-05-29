@@ -51,8 +51,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   public static Collection defaultParameter() {
     return Arrays.asList(new Object[] {
       Boolean.FALSE,
-      // TODO SL: set to true, if native git is integrated
-      Boolean.FALSE
+      Boolean.TRUE
     });
   }
 
