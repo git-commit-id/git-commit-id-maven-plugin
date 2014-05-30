@@ -11,6 +11,8 @@ import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 /**
 *
 * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
@@ -57,7 +59,7 @@ public abstract class GitDataProvider {
       validateAbbrevLength(abbrevLength);
 
       // git.branch
-      put(properties, GitCommitIdMojo.BRANCH, getBranchName());
+      put(properties, GitCommitIdMojo.BRANCH, determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
@@ -94,6 +96,49 @@ public abstract class GitDataProvider {
     if (abbrevLength < 2 || abbrevLength > 40) {
       throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
+    }
+  }
+
+  /**
+   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
+   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
+   *
+   * @param env
+   * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
+   */
+  protected String determineBranchName(Map<String, String> env) throws IOException {
+    if (runningOnBuildServer(env)) {
+      return determineBranchNameOnBuildServer(env);
+    } else {
+      return getBranchName();
+    }
+  }
+
+  /**
+   * Detects if we're running on Jenkins or Hudson, based on expected env variables.
+   * <p/>
+   * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
+   *
+   * @return true if running
+   * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
+   * @param env
+   */
+  private boolean runningOnBuildServer(Map<String, String> env) {
+    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
+  }
+
+  /**
+   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
+   * The {@GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
+   */
+  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
+    String enviromentBasedBranch = env.get("GIT_BRANCH");
+    if(isNullOrEmpty(enviromentBasedBranch)) {
+      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
+      return getBranchName();
+    }else {
+      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
+      return enviromentBasedBranch;
     }
   }
 

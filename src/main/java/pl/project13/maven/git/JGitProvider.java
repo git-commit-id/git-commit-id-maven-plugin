@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 /**
 *
 * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
@@ -124,7 +122,7 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getBranchName() throws IOException{
-    String branch = determineBranchName(git, System.getenv());
+    String branch = git.getBranch();
     return branch;
   }
 
@@ -217,49 +215,6 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  /**
-   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
-   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
-   *
-   * @param git
-   * @param env
-   * @return results of git.getBranch() or, if in Jenkins/Hudson, value of GIT_BRANCH
-   */
-  protected String determineBranchName(Repository git, Map<String, String> env) throws IOException {
-    if (runningOnBuildServer(env)) {
-      return determineBranchNameOnBuildServer(git, env);
-    } else {
-      return git.getBranch();
-    }
-  }
-
-  /**
-   * Detects if we're running on Jenkins or Hudson, based on expected env variables.
-   * <p/>
-   * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
-   *
-   * @return true if running
-   * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @param env
-   */
-  private boolean runningOnBuildServer(Map<String, String> env) {
-    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
-  }
-
-  /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
-   * The {@GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
-   */
-  protected String determineBranchNameOnBuildServer(Repository git, Map<String, String> env) throws IOException {
-    String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
-      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
-      return git.getBranch();
-    }else {
-      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
-      return enviromentBasedBranch;
-    }
-  }
 
   @NotNull
   private Repository getGitRepository() throws MojoExecutionException {
@@ -281,5 +236,12 @@ public class JGitProvider extends GitDataProvider {
     }
 
     return repository;
+  }
+
+  // SETTERS FOR TESTS ----------------------------------------------------
+
+  @VisibleForTesting
+  public void setRepository (Repository git){
+    this.git = git;
   }
 }
