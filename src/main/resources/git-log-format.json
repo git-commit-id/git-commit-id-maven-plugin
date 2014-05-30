@@ -1,0 +1,18 @@
+{
+  "commit": {
+    "abbr": "%h",
+    "hash": "%H",
+    "subject": "%s",
+    "body": "%b"
+  },
+  "committer":{
+    "name" : "%cn",
+    "email" : "%ce",
+    "date" : "%ci"
+  },
+  "author":{
+    "name" : "%an",
+    "email" : "%ae",
+    "date" : "%ai"
+  }
+}

@@ -11,16 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import org.apache.maven.plugin.MojoExecutionException;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
@@ -34,9 +28,11 @@ public class NativeGitProvider extends GitDataProvider {
 
   private String dateFormat;
 
-  File directory;
+  File dotGitDirectory;
 
   File canonical;
+
+  JSONObject gitJsonData;
 
   private static final int REMOTE_COLS = 3;
 
@@ -51,7 +47,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   NativeGitProvider(@NotNull File dotGitDirectory){
-    this.directory = dotGitDirectory;
+    this.dotGitDirectory = dotGitDirectory;
   }
 
 
@@ -91,20 +87,29 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected void init() throws MojoExecutionException{
     try{
-      canonical = directory.getCanonicalFile();
-    } catch (IOException ex) {
-      throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + directory, ex);
+      canonical = dotGitDirectory.getCanonicalFile();
+      String fileName = "/git-log-format.json";
+      InputStream inputStream = NativeGitProvider.class.getResourceAsStream(fileName);
+
+      String FORMAT = convertStreamToString(inputStream).replaceAll("\\s+", "");
+
+      String logCommand = String.format("log -1 --format=%s", FORMAT);
+      String jsonData = runGitCommand(canonical, logCommand);
+
+      gitJsonData = (JSONObject) JSONSerializer.toJSON(jsonData); 
+    } catch (Exception ex) {
+      throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex);
     }
   }
 
   @Override
   protected String getBuildAuthorName(){
-    return tryToRunGitCommand(canonical, "config --global user.name");
+    return gitJsonData.getJSONObject("author").getString("name");
   }
 
   @Override
   protected String getBuildAuthorEmail(){
-    return tryToRunGitCommand(canonical, "config --global user.email");
+    return gitJsonData.getJSONObject("author").getString("email");
   }
 
   @Override
@@ -114,6 +119,14 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected String getBranchName() throws IOException{
     return getBranch(canonical);
+  }
+
+  private String getBranch(File canonical) {
+    String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
+    if (branch != null) {
+      branch = branch.replace("refs/heads/", "");
+    }
+    return branch;
   }
 
   @Override
@@ -159,7 +172,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitId(){
-    return tryToRunGitCommand(canonical, "rev-parse HEAD");
+    return gitJsonData.getJSONObject("commit").getString("hash");
   }
 
   @Override
@@ -178,27 +191,28 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitAuthorName(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"");
+    return gitJsonData.getJSONObject("committer").getString("name");
   }
 
   @Override
   protected String getCommitAuthorEmail(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"");
+    return gitJsonData.getJSONObject("committer").getString("email");
   }
 
   @Override
   protected String getCommitMessageFull(){
-     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"");
+    // TODO
+    return gitJsonData.getJSONObject("commit").getString("subject");
   }
 
   @Override
   protected String getCommitMessageShort(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"");
+    return gitJsonData.getJSONObject("commit").getString("subject");
   }
 
   @Override
   protected String getCommitTime(){
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"");
+    return gitJsonData.getJSONObject("committer").getString("date");
   }
 
   @Override
@@ -209,8 +223,6 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected void finalCleanUp(){
   }
-
-
 
   private String getOriginRemote(File directory) throws MojoExecutionException {
     String remoteUrl = null;
@@ -232,6 +244,16 @@ public class NativeGitProvider extends GitDataProvider {
     return remoteUrl;
   }
 
+  private String tryToRunGitCommand(File directory, String gitCommand) {
+    String retValue = "";
+    try {
+      retValue = runGitCommand(directory, gitCommand);
+    } catch (MojoExecutionException ex) {
+      // do nothing
+    }
+    return retValue;
+  }
+
   private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
     try {
       String env = System.getenv("GIT_PATH");
@@ -245,14 +267,24 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 
-  private String tryToRunGitCommand(File directory, String gitCommand) {
-    String retValue = "";
-    try {
-      retValue = runGitCommand(directory, gitCommand);
-    } catch (MojoExecutionException ex) {
-      // do nothing
+  private static String convertStreamToString(InputStream inputStream) {
+    if(inputStream == null){
+      IllegalArgumentException e = new IllegalArgumentException("Something went wrong InputStream is null");
+      e.printStackTrace();
+      throw e;
     }
-    return retValue;
+    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+    String nextContent = "";
+    try{
+      if(scanner.hasNext()){
+        nextContent = scanner.next();
+      }
+    }catch(Exception e){
+      e.printStackTrace();
+    }finally{
+      scanner.close();
+    }
+    return nextContent;
   }
 
   private CliRunner getRunner() {
@@ -263,13 +295,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
 
-  private String getBranch(File canonical) {
-    String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
-    if (branch != null) {
-      branch = branch.replace("refs/heads/", "");
-    }
-    return branch;
-  }
+  // CLI RUNNER
 
   public interface CliRunner {
     String run(File directory, String command) throws IOException;
@@ -293,25 +319,5 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return output;
     }
-  }
-
-  private static String convertStreamToString(InputStream inputStream) {
-    if(inputStream == null){
-      IllegalArgumentException e = new IllegalArgumentException("Something went wrong InputStream is null");
-      e.printStackTrace();
-      throw e;
-    }
-    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-    String nextContent = "";
-    try{
-      if(scanner.hasNext()){
-        nextContent = scanner.next();
-      }
-    }catch(Exception e){
-      e.printStackTrace();
-    }finally{
-      scanner.close();
-    }
-    return nextContent;
-  }
+  } 
 }

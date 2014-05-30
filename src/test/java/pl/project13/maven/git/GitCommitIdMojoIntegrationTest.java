@@ -524,6 +524,36 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
   }
+
+  @Test
+  @Parameters(method = "defaultParameter")
+  public void performance(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true,7);
+    gitDescribeConfig.setAlways(true);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    long startTime = System.currentTimeMillis();
+    for(int i=0;i<1000;i++){
+      mojo.execute();
+    }
+    long estimatedTime = System.currentTimeMillis() - startTime;
+    System.out.println("[***] Time: " + estimatedTime + " ms for useNativeGit=" +useNativeGit);
+
+    // then
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
+  }
+  
   
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev){
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
