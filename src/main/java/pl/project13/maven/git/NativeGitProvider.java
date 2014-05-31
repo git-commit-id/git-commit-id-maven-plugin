@@ -96,10 +96,7 @@ public class NativeGitProvider extends GitDataProvider {
       String FORMAT = convertStreamToString(inputStream).replaceAll("\\s+", "");
 
       String logCommand = String.format("log -1 --format=%s", FORMAT);
-      String jsonData = "";
-      while(jsonData.isEmpty()){
-        jsonData = runGitCommand(canonical, logCommand);
-      }
+      String jsonData = runGitCommand(canonical, logCommand);
 
       gitJsonData = (JSONObject) JSONSerializer.toJSON(jsonData); 
     } catch (Exception ex) {
@@ -309,34 +306,19 @@ public class NativeGitProvider extends GitDataProvider {
   protected static class Runner implements CliRunner {
     @Override
     public String run(File directory, String command) throws IOException {
-      String output = "{}";
-      try {
+      String output = "";
+      try{
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-        Process proc = builder.directory(directory).start();
-        
-        final InputStream is = proc.getInputStream();
-        final StringBuilder commandResult = new StringBuilder();
-        new Thread(new Runnable() {
-            public void run(){
-                try {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        commandResult.append(line);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                      is.close();
-                     } catch (IOException e) {
-                      e.printStackTrace();
-                     }
-                }
-            }
-        }).start();
-
+        final Process proc = builder.directory(directory).start();
         proc.waitFor();
+        final InputStream is = proc.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        final StringBuilder commandResult = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          commandResult.append(line);
+        }
+
         if (proc.exitValue() != 0) {
           String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),output);
           throw new IOException(message);
