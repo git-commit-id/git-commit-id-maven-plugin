@@ -134,9 +134,9 @@ public class GitDescribeConfig {
    * tags to be included in the search, enable this option.
    * </p>
    *
-   * @parameter
+   * @parameter default-value=false
    */
-  private Boolean tags;
+  private boolean tags;
 
   /**
    * <pre>--long</pre>
@@ -203,7 +203,7 @@ public class GitDescribeConfig {
     this.skip = skip;
   }
 
-  public Boolean getForceLongFormat() {
+  public boolean getForceLongFormat() {
     return forceLongFormat;
   }
 
@@ -211,11 +211,11 @@ public class GitDescribeConfig {
     this.forceLongFormat = forceLongFormat;
   }
 
-  public Boolean getTags() {
+  public boolean getTags() {
     return tags;
   }
 
-  public void setTags(Boolean tags) {
+  public void setTags(boolean tags) {
     this.tags = tags;
   }
 

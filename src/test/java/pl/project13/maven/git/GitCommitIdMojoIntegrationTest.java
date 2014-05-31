@@ -540,6 +540,29 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldWorkWithEmptyGitDescribe(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
+
+  @Test
   @Parameters(method = "performanceParameter")
   @Ignore("performance Test only")
   public void performance(boolean useNativeGit, int iterations) throws Exception {
