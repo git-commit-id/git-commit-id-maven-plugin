@@ -55,6 +55,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     });
   }
 
+  public static Collection performanceParameter() {
+    return Arrays.asList(new Object[][]{
+              {Boolean.FALSE, 1},
+              {Boolean.TRUE, 1},
+              {Boolean.FALSE, 10},
+              {Boolean.TRUE, 10},
+              {Boolean.FALSE, 100},
+              {Boolean.TRUE, 100},
+              {Boolean.FALSE, 1000},              
+              {Boolean.TRUE, 1000}              
+    });
+  }
+
   @Test
   @Parameters(method = "defaultParameter")
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit) throws Exception {
@@ -526,8 +539,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  @Parameters(method = "defaultParameter")
-  public void performance(boolean useNativeGit) throws Exception {
+  @Parameters(method = "performanceParameter")
+  public void performance(boolean useNativeGit, int iterations) throws Exception {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
         .withChildProject("my-jar-module", "jar")
@@ -544,11 +557,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // when
     long startTime = System.currentTimeMillis();
-    for(int i=0;i<1000;i++){
+    for(int i=0;i<iterations;i++){
       mojo.execute();
     }
     long estimatedTime = System.currentTimeMillis() - startTime;
-    System.out.println("[***] Time: " + estimatedTime + " ms for useNativeGit=" +useNativeGit);
+    System.out.println("[***] Iterations: " +iterations+ " Time: " + estimatedTime + " ms for useNativeGit=" +useNativeGit);
 
     // then
     assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
