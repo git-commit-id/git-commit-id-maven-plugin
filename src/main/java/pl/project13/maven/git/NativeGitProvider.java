@@ -10,18 +10,12 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.apache.maven.plugin.MojoExecutionException;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import java.io.*;
-
-
-import static java.nio.charset.Charset.defaultCharset;
 
 
 public class NativeGitProvider extends GitDataProvider {
@@ -33,8 +27,6 @@ public class NativeGitProvider extends GitDataProvider {
   File dotGitDirectory;
 
   File canonical;
-
-  JSONObject gitJsonData;
 
   private static final int REMOTE_COLS = 3;
 
@@ -90,15 +82,6 @@ public class NativeGitProvider extends GitDataProvider {
   protected void init() throws MojoExecutionException{
     try{
       canonical = dotGitDirectory.getCanonicalFile();
-      String fileName = "/git-log-format.json";
-      InputStream inputStream = NativeGitProvider.class.getResourceAsStream(fileName);
-
-      String FORMAT = convertStreamToString(inputStream).replaceAll("\\s+", "");
-
-      String logCommand = String.format("log -1 --format=%s", FORMAT);
-      String jsonData = runGitCommand(canonical, logCommand);
-
-      gitJsonData = (JSONObject) JSONSerializer.toJSON(jsonData); 
     } catch (Exception ex) {
       throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex);
     }
@@ -106,12 +89,12 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getBuildAuthorName(){
-    return gitJsonData.getJSONObject("author").getString("name");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%an\"");
   }
 
   @Override
   protected String getBuildAuthorEmail(){
-    return gitJsonData.getJSONObject("author").getString("email");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ae\"");
   }
 
   @Override
@@ -174,7 +157,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitId(){
-    return gitJsonData.getJSONObject("commit").getString("hash");
+    return tryToRunGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
@@ -193,28 +176,27 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitAuthorName(){
-    return gitJsonData.getJSONObject("committer").getString("name");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"");
   }
 
   @Override
   protected String getCommitAuthorEmail(){
-    return gitJsonData.getJSONObject("committer").getString("email");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"");
   }
 
   @Override
   protected String getCommitMessageFull(){
-    // TODO
-    return gitJsonData.getJSONObject("commit").getString("subject");
+     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"");
   }
 
   @Override
   protected String getCommitMessageShort(){
-    return gitJsonData.getJSONObject("commit").getString("subject");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"");
   }
 
   @Override
   protected String getCommitTime(){
-    return gitJsonData.getJSONObject("committer").getString("date");
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"");
   }
 
   @Override
@@ -269,26 +251,6 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 
-  private static String convertStreamToString(InputStream inputStream) {
-    if(inputStream == null){
-      IllegalArgumentException e = new IllegalArgumentException("Something went wrong InputStream is null");
-      e.printStackTrace();
-      throw e;
-    }
-    Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
-    String nextContent = "";
-    try{
-      if(scanner.hasNext()){
-        nextContent = scanner.next();
-      }
-    }catch(Exception e){
-      e.printStackTrace();
-    }finally{
-      scanner.close();
-    }
-    return nextContent;
-  }
-
   private CliRunner getRunner() {
     if (runner == null) {
       runner = new Runner();
@@ -323,7 +285,7 @@ public class NativeGitProvider extends GitDataProvider {
           String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),output);
           throw new IOException(message);
         }
-        output = commandResult.toString();//convertStreamToString(proc.getInputStream());
+        output = commandResult.toString();
       } catch (InterruptedException ex) {
         throw new IOException(ex);
       }
