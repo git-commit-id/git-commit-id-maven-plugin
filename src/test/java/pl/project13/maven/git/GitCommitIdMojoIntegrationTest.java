@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Collection;
@@ -540,11 +541,12 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "performanceParameter")
+  @Ignore("performance Test only")
   public void performance(boolean useNativeGit, int iterations) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
+   mavenSandbox.withParentProject("my-pom-project", "pom")
         .withChildProject("my-jar-module", "jar")
-        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
         .create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -564,7 +566,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     System.out.println("[***] Iterations: " +iterations+ " Time: " + estimatedTime + " ms for useNativeGit=" +useNativeGit);
 
     // then
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "0b0181b"));
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
   
   
