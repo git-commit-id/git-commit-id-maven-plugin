@@ -35,7 +35,7 @@ A detailed description of using the pluing is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.1.9**.
+The current version is **2.1.10**.
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -70,7 +70,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
     <packaging>war</packaging>
     <version>0.1</version>
     <name>my-git-plugin-sample-app</name>
-    <url>http://www.blog.project13.pl</url>
+    <url>http://www.project13.pl</url>
 
     <dependencies />
 
@@ -93,7 +93,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.1.9</version>
+                <version>2.1.10</version>
                 <executions>
                     <execution>
                         <goals>
@@ -112,13 +112,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- false is default here, it prints some more information during the build -->
                     <verbose>false</verbose>
 
-					<!-- @since 2.1.9 -->
-					<!-- 
-                        false is default here, if set to true it uses native GIT excutable for 
-						better performance (it must be installed in system and available in system PATH) 
-
+                    <!-- @since 2.1.10 -->
+                    <!-- 
+                      false is default here, if set to true it uses native `git` excutable for extracting all data.
+                      This usualy has better performance than the default (jgit) implemenation, but requires you to 
+                      have git available as executable for the build as well as *might break unexpectedly* when you 
+                      upgrade your system-wide git installation.
+                       
+                      As rule of thumb - stay on `jgit` (keep this `false`) until you notice performance problems.
                     -->
-					<useNativeGit>false</useNativeGit>
+                    <useNativeGit>false</useNativeGit>
 
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
@@ -531,6 +534,7 @@ Optional parameters:
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
+* **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
@@ -553,19 +557,19 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @mostr - for bugfixes and a framework to do integration testing,
 * @fredcooke - for consistent feedback and suggestions,
 * @MrOnion - for a small yet fast bugfix,
-* @TheSnoozer - for helping out others on issues as well as his contributions,
+* @cardil and @TheSnoozer - for helping with getting the native git support shipped,
 * ... many others - thank you for your contributions,
 * ... you! - for using the plugin :-)
 
 Notable happy users
 ===================
 
-* [neo4j](http://www.neo4j.org/) graph database
-* foundationdb.com
-* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information)
-* Akamai
-* others I know of but shouldn't tell ;-)
-* many others I don't know of
+* [neo4j](http://www.neo4j.org/) – graph database
+* [foundationdb](http://foundationdb.com) – another open source database
+* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information) – yes, the upstream Spring project is using us
+* Akamai, Sabre,
+* others I know of, but can't tell,
+* many others I don't know of.
 
 License
 =======
@@ -579,7 +583,4 @@ and maybe someone else has some idea or would like to upvote your issue.
 
 In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
 
-
-
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ktoso/maven-git-commit-id-plugin/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
