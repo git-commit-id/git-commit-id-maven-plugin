@@ -112,6 +112,14 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- false is default here, it prints some more information during the build -->
                     <verbose>false</verbose>
 
+					<!-- @since 2.1.9 -->
+					<!-- 
+                        false is default here, if set to true it uses native GIT excutable for 
+						better performance (it must be installed in system and available in system PATH) 
+
+                    -->
+					<useNativeGit>false</useNativeGit>
+
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
                         use this setting, otherwise we'll perform a search trying to
@@ -545,6 +553,7 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @mostr - for bugfixes and a framework to do integration testing,
 * @fredcooke - for consistent feedback and suggestions,
 * @MrOnion - for a small yet fast bugfix,
+* @TheSnoozer - for helping out others on issues as well as his contributions,
 * ... many others - thank you for your contributions,
 * ... you! - for using the plugin :-)
 

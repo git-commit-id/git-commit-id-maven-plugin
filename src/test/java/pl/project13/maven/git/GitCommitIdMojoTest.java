@@ -37,32 +37,47 @@ import static org.mockito.Mockito.*;
  *
  * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
+// todo remove this test in favor of complete intgration tests
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
+  JGitProvider jGitProvider;
 
   @Before
   public void setUp() throws Exception {
+    File dotGitDirectory = AvailableGitTestRepo.GIT_COMMIT_ID.getDir();
+    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+    gitDescribeConfig.setSkip(false);
+
+    String prefix = "git";
+    int abbrevLength = 7;
+    String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
+    boolean verbose = true;
+
     mojo = new GitCommitIdMojo();
-    mojo.setDotGitDirectory(new File(".git/"));
-    mojo.setPrefix("git");
-    mojo.setAbbrevLength(7);
-    mojo.setDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
-    mojo.setVerbose(true);
+    mojo.setDotGitDirectory(dotGitDirectory);
+    mojo.setPrefix(prefix);
+    mojo.setAbbrevLength(abbrevLength);
+    mojo.setDateFormat(dateFormat);
+    mojo.setVerbose(verbose);
+    mojo.useNativeGit(false);
+    mojo.setGitDescribe(gitDescribeConfig);
+
 
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
 
-    mojo = spy(mojo);
-    doNothing().when(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory()).withLoggerBridge(mojo.getLoggerBridge());
   }
 
   @Test
+  @SuppressWarnings("")
   public void shouldIncludeExpectedProperties() throws Exception {
     mojo.execute();
 
     Properties properties = mojo.getProperties();
+
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
@@ -74,12 +89,10 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
   @Test
+  @SuppressWarnings("")
   public void shouldExcludeAsConfiguredProperties() throws Exception {
     // given
     mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
@@ -106,13 +119,10 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo).putGitDescribe(any(Properties.class), any(Repository.class));
   }
 
-
   @Test
+  @SuppressWarnings("")
   public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties() throws Exception {
     // given
     mojo.setPrefix("");
@@ -140,8 +150,7 @@ public class GitCommitIdMojoTest {
     mojo.execute();
 
     // then
-    verify(mojo).maybePutGitDescribe(any(Properties.class), any(Repository.class));
-    verify(mojo, never()).putGitDescribe(any(Properties.class), any(Repository.class));
+    assertThat(mojo.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
 
   @Test
@@ -154,31 +163,31 @@ public class GitCommitIdMojoTest {
     String ciUrl = "http://myciserver.com";
 
     when(git.getBranch()).thenReturn(detachedHeadSHA1);
-
+    jGitProvider.setRepository(git);
     // when
     // in a detached head state, getBranch() will return the SHA1...standard behavior
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
 
     // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
     env.put("JENKINS_URL", "http://myjenkinsserver.com");
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
 
     // now set GIT_BRANCH too and see that the branch name from env var is returned
     env.clear();
     env.put("JENKINS_URL", ciUrl);
     env.put("GIT_BRANCH", "mybranch");
-    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
-
+    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
+  
     // same, but for hudson
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
     env.put("HUDSON_URL", ciUrl);
-    assertThat("mybranch").isEqualTo(mojo.determineBranchName(git, env));
+    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
 
     // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
-    assertThat(detachedHeadSHA1).isEqualTo(mojo.determineBranchName(git, env));
+    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
   }
   
   @Test
