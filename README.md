@@ -109,8 +109,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- that's the default value -->
                     <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
 
-                    <!-- true is default here, it prints some more information during the build -->
-                    <verbose>true</verbose>
+                    <!-- false is default here, it prints some more information during the build -->
+                    <verbose>false</verbose>
 
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
