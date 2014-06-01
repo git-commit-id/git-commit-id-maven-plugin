@@ -568,7 +568,7 @@ Notable happy users
 * [neo4j](http://www.neo4j.org/) – graph database
 * [foundationdb](http://foundationdb.com) – another open source database
 * [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information) – yes, the upstream Spring project is using us
-* Akamai, Sabre,
+* Akamai, Sabre, EasyDITA,
 * others I know of, but can't tell,
 * many others I don't know of.
 
