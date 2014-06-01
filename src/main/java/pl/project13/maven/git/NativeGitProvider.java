@@ -17,7 +17,10 @@ import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import java.io.*;
 
-
+/**
+* The idea of native git and major parts of this code was introduced by Krzysztof Suszyński <krzysztof.suszynski@gmail.com>
+* in PR#93 (https://github.com/ktoso/maven-git-commit-id-plugin/pull/93/)
+*/
 public class NativeGitProvider extends GitDataProvider {
 
   private transient CliRunner runner;
