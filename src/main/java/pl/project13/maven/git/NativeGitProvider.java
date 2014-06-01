@@ -284,7 +284,7 @@ public class NativeGitProvider extends GitDataProvider {
         final StringBuilder commandResult = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
-          commandResult.append(line);
+          commandResult.append(line + "\n");
         }
 
         if (proc.exitValue() != 0) {

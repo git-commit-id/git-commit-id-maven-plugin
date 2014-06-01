@@ -150,7 +150,15 @@ public abstract class GitDataProvider {
 
   protected void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
+    if (!isNotEmpty(value)) {
+      value = "Unknown";
+    }
+
     log(keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
+  }
+
+  private static boolean isNotEmpty(@Nullable String value) {
+    return null != value && !value.matches("[ ]*");
   }
 }

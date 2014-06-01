@@ -55,35 +55,11 @@ public class NativeGitProviderTest {
 
     NativeGitProvider nativeGit = mock(NativeGitProvider.class);
     StringBuilder testRemoteURL = new StringBuilder();
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (fetch)\n");
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (push)\n");
+    testRemoteURL.append("remote git://github.com/JaneDoe/maven-git-commit-id-plugin.git (fetch)\n");
+    testRemoteURL.append("remote git://github.com/JaneDoe/maven-git-commit-id-plugin.git (push)\n");
 
-    testRemoteURL.append("origin  "+expectedRemoteUrl+" (fetch)\n");
-    testRemoteURL.append("origin	"+expectedRemoteUrl+" (push)");
-
-    when(nativeGit.runGitCommand(any(File.class),any(String.class))).thenReturn(testRemoteURL.toString());
-    when(nativeGit.getOriginRemote(any(File.class))).thenCallRealMethod();
-
-    // when
-    String result = nativeGit.getOriginRemote(new File(".git"));
-    
-    // then
-    assertThat(result).isNotNull();
-    assertThat(result).isSameAs(expectedRemoteUrl);
-  }
-
-  @Test
-  public void testGetOriginRemoteWithoutNewLine() throws MojoExecutionException {
-    // given
-    String expectedRemoteUrl = "git@github.com:JohnDoe/maven-git-commit-id-plugin.git";
-
-    NativeGitProvider nativeGit = mock(NativeGitProvider.class);
-    StringBuilder testRemoteURL = new StringBuilder();
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (fetch)");
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (push)");
-
-    testRemoteURL.append("origin  "+expectedRemoteUrl+" (fetch)");
-    testRemoteURL.append("origin	"+expectedRemoteUrl+" (push)");
+    testRemoteURL.append("origin "+expectedRemoteUrl+" (fetch)\n");
+    testRemoteURL.append("origin "+expectedRemoteUrl+" (push)");
 
     when(nativeGit.runGitCommand(any(File.class),any(String.class))).thenReturn(testRemoteURL.toString());
     when(nativeGit.getOriginRemote(any(File.class))).thenCallRealMethod();
@@ -93,7 +69,7 @@ public class NativeGitProviderTest {
     
     // then
     assertThat(result).isNotNull();
-    assertThat(result).isSameAs(expectedRemoteUrl);
+    assertThat(result.equals(expectedRemoteUrl)).isTrue();
   }
 
   @Test
@@ -101,8 +77,8 @@ public class NativeGitProviderTest {
     // given
     NativeGitProvider nativeGit = mock(NativeGitProvider.class);
     StringBuilder testRemoteURL = new StringBuilder();
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (fetch)\n");
-    testRemoteURL.append("remote	git://github.com/JaneDoe/maven-git-commit-id-plugin.git (push)");
+    testRemoteURL.append("remote git://github.com/JaneDoe/maven-git-commit-id-plugin.git (fetch)\n");
+    testRemoteURL.append("remote git://github.com/JaneDoe/maven-git-commit-id-plugin.git (push)");
 
     when(nativeGit.runGitCommand(any(File.class),any(String.class))).thenReturn(testRemoteURL.toString());
     when(nativeGit.getOriginRemote(any(File.class))).thenCallRealMethod();

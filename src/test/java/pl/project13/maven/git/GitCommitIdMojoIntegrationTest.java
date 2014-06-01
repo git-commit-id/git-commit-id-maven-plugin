@@ -585,6 +585,32 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  @Parameters(method = "defaultParameter")
+  public void shouldGenerateOriginRemoteUrl(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
+        .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("gitDescribe", null);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertGitPropertiesPresentInProject(properties);
+
+    String remoteUrl = (String) properties.get("git.remote.origin.url");
+    assertThat(remoteUrl.isEmpty()).isFalse();
+  }
+
+  @Test
   @Parameters(method = "performanceParameter")
   @Ignore("performance Test only")
   public void performance(boolean useNativeGit, int iterations) throws Exception {
