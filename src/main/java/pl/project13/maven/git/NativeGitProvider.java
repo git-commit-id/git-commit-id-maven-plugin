@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.apache.maven.plugin.MojoExecutionException;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.*;
 
 /**
@@ -211,8 +212,9 @@ public class NativeGitProvider extends GitDataProvider {
   protected void finalCleanUp(){
   }
 
-  private String getOriginRemote(File directory) throws MojoExecutionException {
-    String remoteUrl = null;
+  @VisibleForTesting
+  String getOriginRemote(File directory) throws MojoExecutionException {
+    String remoteUrl = "";
     try{
       String remotes = runGitCommand(directory, "remote -v");
       for (String line : remotes.split("\n")) {
@@ -241,7 +243,8 @@ public class NativeGitProvider extends GitDataProvider {
     return retValue;
   }
 
-  private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
+  @VisibleForTesting
+  String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
     try {
       String env = System.getenv("GIT_PATH");
       String exec = (env == null) ? "git" : env;
