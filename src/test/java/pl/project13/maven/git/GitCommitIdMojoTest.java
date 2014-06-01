@@ -37,6 +37,7 @@ import static org.mockito.Mockito.*;
  *
  * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
+// todo remove this test in favor of complete intgration tests
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
@@ -44,7 +45,7 @@ public class GitCommitIdMojoTest {
 
   @Before
   public void setUp() throws Exception {
-    File dotGitDirectory = new File(new File(".git/").getAbsolutePath());
+    File dotGitDirectory = AvailableGitTestRepo.GIT_COMMIT_ID.getDir();
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setSkip(false);
 
@@ -71,6 +72,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
+  @SuppressWarnings("")
   public void shouldIncludeExpectedProperties() throws Exception {
     mojo.execute();
 
@@ -90,6 +92,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
+  @SuppressWarnings("")
   public void shouldExcludeAsConfiguredProperties() throws Exception {
     // given
     mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
@@ -118,8 +121,8 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
   }
 
-
   @Test
+  @SuppressWarnings("")
   public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties() throws Exception {
     // given
     mojo.setPrefix("");

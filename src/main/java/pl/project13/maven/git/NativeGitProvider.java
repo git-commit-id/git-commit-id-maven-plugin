@@ -1,20 +1,10 @@
 package pl.project13.maven.git;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.google.common.base.Splitter;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
+
 import java.io.*;
 
 
@@ -40,12 +30,12 @@ public class NativeGitProvider extends GitDataProvider {
     return new NativeGitProvider(dotGitDirectory);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory){
+  NativeGitProvider(@NotNull File dotGitDirectory) {
     this.dotGitDirectory = dotGitDirectory;
   }
 
 
- @NotNull
+  @NotNull
   public NativeGitProvider withLoggerBridge(LoggerBridge bridge) {
     super.loggerBridge = bridge;
     return this;
@@ -73,14 +63,14 @@ public class NativeGitProvider extends GitDataProvider {
     return this;
   }
 
-  public NativeGitProvider setGitDescribe(GitDescribeConfig gitDescribe){
+  public NativeGitProvider setGitDescribe(GitDescribeConfig gitDescribe) {
     super.gitDescribe = gitDescribe;
     return this;
   }
 
   @Override
-  protected void init() throws MojoExecutionException{
-    try{
+  protected void init() throws MojoExecutionException {
+    try {
       canonical = dotGitDirectory.getCanonicalFile();
     } catch (Exception ex) {
       throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex);
@@ -88,21 +78,21 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getBuildAuthorName(){
+  protected String getBuildAuthorName() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%an\"");
   }
 
   @Override
-  protected String getBuildAuthorEmail(){
+  protected String getBuildAuthorEmail() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ae\"");
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException{
+  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException {
   }
 
   @Override
-  protected String getBranchName() throws IOException{
+  protected String getBranchName() throws IOException {
     return getBranch(canonical);
   }
 
@@ -115,29 +105,29 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getGitDescribe() throws MojoExecutionException{
+  protected String getGitDescribe() throws MojoExecutionException {
     String argumentsForGitDescribe = getArgumentsForGitDescribe(super.gitDescribe);
     String gitDescribe = tryToRunGitCommand(canonical, "describe " + argumentsForGitDescribe);
     return gitDescribe;
   }
 
-  private String getArgumentsForGitDescribe(GitDescribeConfig gitDescribe){
-    if(gitDescribe != null){
+  private String getArgumentsForGitDescribe(GitDescribeConfig gitDescribe) {
+    if (gitDescribe != null) {
       return getArgumentsForGitDescribeAndDescibeNotNull(gitDescribe);
-    }else{
+    } else {
       return "";
     }
   }
-  
-  private String getArgumentsForGitDescribeAndDescibeNotNull(GitDescribeConfig gitDescribe){
+
+  private String getArgumentsForGitDescribeAndDescibeNotNull(GitDescribeConfig gitDescribe) {
     StringBuilder argumentsForGitDescribe = new StringBuilder();
 
-    if(gitDescribe.isAlways()){
+    if (gitDescribe.isAlways()) {
       argumentsForGitDescribe.append("--always ");
     }
 
     String dirtyMark = gitDescribe.getDirty();
-    if(dirtyMark != null && !dirtyMark.isEmpty()){
+    if (dirtyMark != null && !dirtyMark.isEmpty()) {
       // Option: --dirty[=<mark>]
       // TODO: Code Injection? Or does the CliRunner escape Arguments?
       argumentsForGitDescribe.append("--dirty=" + dirtyMark + " ");
@@ -145,29 +135,29 @@ public class NativeGitProvider extends GitDataProvider {
 
     argumentsForGitDescribe.append("--abbrev=" + gitDescribe.getAbbrev() + " ");
 
-    if(gitDescribe.getTags()){
+    if (gitDescribe.getTags()) {
       argumentsForGitDescribe.append("--tags ");
     }
 
-    if(gitDescribe.getForceLongFormat()){
+    if (gitDescribe.getForceLongFormat()) {
       argumentsForGitDescribe.append("--long ");
     }
     return argumentsForGitDescribe.toString();
   }
 
   @Override
-  protected String getCommitId(){
+  protected String getCommitId() {
     return tryToRunGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
-  protected String getAbbrevCommitId() throws MojoExecutionException{
+  protected String getAbbrevCommitId() throws MojoExecutionException {
     // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD");
     // but minimum length for --short is 4, our abbrevLength could be 2
     String commitId = getCommitId();
     String abbrevCommitId = "";
 
-    if(commitId != null && !commitId.isEmpty()){
+    if (commitId != null && !commitId.isEmpty()) {
       abbrevCommitId = commitId.substring(0, abbrevLength);
     }
 
@@ -175,55 +165,58 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getCommitAuthorName(){
+  protected String getCommitAuthorName() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"");
   }
 
   @Override
-  protected String getCommitAuthorEmail(){
+  protected String getCommitAuthorEmail() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ce\"");
   }
 
   @Override
-  protected String getCommitMessageFull(){
-     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"");
+  protected String getCommitMessageFull() {
+    return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%B\"");
   }
 
   @Override
-  protected String getCommitMessageShort(){
+  protected String getCommitMessageShort() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%s\"");
   }
 
   @Override
-  protected String getCommitTime(){
+  protected String getCommitTime() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"");
   }
 
   @Override
-  protected String getRemoteOriginUrl() throws MojoExecutionException{
+  protected String getRemoteOriginUrl() throws MojoExecutionException {
     return getOriginRemote(canonical);
   }
 
   @Override
-  protected void finalCleanUp(){
+  protected void finalCleanUp() {
   }
 
   private String getOriginRemote(File directory) throws MojoExecutionException {
     String remoteUrl = null;
-    try{
+    try {
       String remotes = runGitCommand(directory, "remote -v");
-      for (String line : remotes.split("\n")) {
+
+      // welcome to text output parsing hell! - no `\n` is not enough
+      for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
         String trimmed = line.trim();
+
         if (trimmed.startsWith("origin")) {
           String[] splited = trimmed.split("\\s+");
-          if (splited.length != REMOTE_COLS) {
-            throw new MojoExecutionException("Unsupported GIT output - verbose remote address:" + line);
+          if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
+            throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
           }
-          remoteUrl =  splited[1];
+          remoteUrl = splited[1];
         }
       }
-    }catch(Exception e){
-      throw new MojoExecutionException("Error ", e);
+    } catch (Exception e) {
+      throw new MojoExecutionException("Error while obtaining origin remote", e);
     }
     return remoteUrl;
   }
@@ -246,7 +239,7 @@ public class NativeGitProvider extends GitDataProvider {
 
       String result = getRunner().run(directory, command).trim();
       return result;
-    }catch(IOException ex) {
+    } catch (IOException ex) {
       throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: 'git " + gitCommand + "'", ex);
     }
   }
@@ -269,7 +262,7 @@ public class NativeGitProvider extends GitDataProvider {
     @Override
     public String run(File directory, String command) throws IOException {
       String output = "";
-      try{
+      try {
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
         proc.waitFor();
@@ -282,7 +275,7 @@ public class NativeGitProvider extends GitDataProvider {
         }
 
         if (proc.exitValue() != 0) {
-          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(),output);
+          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(), output);
           throw new IOException(message);
         }
         output = commandResult.toString();
@@ -291,5 +284,5 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return output;
     }
-  } 
+  }
 }

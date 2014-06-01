@@ -33,21 +33,21 @@ public class MavenLoggerBridge implements LoggerBridge {
   @Override
   public void log(Object... parts) {
     if (verbose) {
-      logger.info(Joiner.on(" ").join(parts));
+      logger.info(Joiner.on(" ").useForNull("null").join(parts));
     }
   }
 
   @Override
   public void error(Object... parts) {
     if (verbose) {
-      logger.error(Joiner.on(" ").join(parts));
+      logger.error(Joiner.on(" ").useForNull("null").join(parts));
     }
   }
   
   @Override
   public void debug(Object... parts) {
     if (verbose) {
-      logger.debug(Joiner.on(" ").join(parts));
+      logger.debug(Joiner.on(" ").useForNull("null").join(parts));
     }
   }
 

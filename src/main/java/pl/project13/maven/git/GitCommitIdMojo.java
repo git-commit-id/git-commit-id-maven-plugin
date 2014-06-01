@@ -28,19 +28,8 @@ import com.google.common.io.Files;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pl.project13.jgit.DescribeCommand;
-import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -49,7 +38,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Goal which puts git build-time information into property files or maven's properties.
@@ -376,7 +368,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (failOnUnableToExtractRepoInfo) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     } else {
-      loggerBridge.error(e.getMessage());
+      loggerBridge.error(e.getMessage(), com.google.common.base.Throwables.getStackTraceAsString(e));
     }
   }
 
