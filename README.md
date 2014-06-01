@@ -558,6 +558,7 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @fredcooke - for consistent feedback and suggestions,
 * @MrOnion - for a small yet fast bugfix,
 * @cardil and @TheSnoozer - for helping with getting the native git support shipped,
+* all the other contributors (as of writing 25) which can be on the [contributors tab](https://github.com/ktoso/maven-git-commit-id-plugin/graphs/contributors) - thanks guys,
 * ... many others - thank you for your contributions,
 * ... you! - for using the plugin :-)
 
