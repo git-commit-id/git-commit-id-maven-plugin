@@ -106,14 +106,6 @@
       <version>2.0</version>
     </dependency>
 
-    <!-- JSON -->
-    <dependency>
-        <groupId>net.sf.json-lib</groupId>
-        <artifactId>json-lib</artifactId>
-        <version>2.4</version>
-        <classifier>jdk15</classifier>
-    </dependency>
-
     <!-- Joda Time -->
     <dependency>
       <groupId>joda-time</groupId>
@@ -180,12 +172,12 @@
       <scope>test</scope>
     </dependency>
 
-	<dependency>
-	  <groupId>pl.pragmatists</groupId>
-	  <artifactId>JUnitParams</artifactId>
-	  <version>1.0.2</version>
-	  <scope>test</scope>
-	</dependency>
+    <dependency>
+      <groupId>pl.pragmatists</groupId>
+      <artifactId>JUnitParams</artifactId>
+      <version>1.0.2</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -197,7 +189,6 @@
         <includes>
           <include>**/*.properties</include>
           <include>**/*.xml</include>
-          <include>**/*.json</include>
         </includes>
       </resource>
     </resources>
