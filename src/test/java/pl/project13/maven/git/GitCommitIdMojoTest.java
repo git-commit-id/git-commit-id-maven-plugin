@@ -79,7 +79,7 @@ public class GitCommitIdMojoTest {
     Properties properties = mojo.getProperties();
 
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
@@ -114,7 +114,7 @@ public class GitCommitIdMojoTest {
 
     // these stay
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
