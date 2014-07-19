@@ -591,8 +591,4 @@ public class GitCommitIdMojo extends AbstractMojo {
   public LoggerBridge getLoggerBridge(){
     return loggerBridge;
   }
-
-  public String getGitPropertiesFilename(){
-    return generateGitPropertiesFilename;
-  }
 }
