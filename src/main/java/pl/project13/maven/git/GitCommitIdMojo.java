@@ -490,7 +490,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void generatePropertiesFile(@NotNull Properties properties, File base, String propertiesFilename) throws IOException {
     FileWriter fileWriter = null;
-    File gitPropsFile = new File(base, propertiesFilename);
+    File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
     try {
       Files.createParentDirs(gitPropsFile);
 
@@ -510,6 +510,19 @@ public class GitCommitIdMojo extends AbstractMojo {
       Closeables.closeQuietly(fileWriter);
     }
   }
+
+  @VisibleForTesting
+  File craftPropertiesOutputFile(File base, String propertiesFilename){
+    File returnPath = new File(base, propertiesFilename);
+
+    File currentPropertiesFilepath = new File(propertiesFilename);
+    if(currentPropertiesFilepath.isAbsolute()){
+       returnPath = currentPropertiesFilepath;
+    }
+
+    return returnPath;
+  }
+
 
   boolean isPomProject(@NotNull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");

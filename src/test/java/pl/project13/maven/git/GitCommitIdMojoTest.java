@@ -211,4 +211,27 @@ public class GitCommitIdMojoTest {
     commitIdMojo.loadShortDescribe(prop);
     assertThat(prop.getProperty(GitCommitIdMojo.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
   }
+
+  @Test
+  public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
+    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
+    File baseDir = new File(".");
+    String targetDir = baseDir.getCanonicalPath() + "/";
+    String generateGitPropertiesFilename = "target/classes/git.properties";
+    
+    File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
+    assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
+  }
+
+  @Test
+  public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
+    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
+    File baseDir = new File(".");
+    String targetDir = baseDir.getCanonicalPath() + "/";
+    String generateGitPropertiesFilename = targetDir + "target/classes/git.properties";
+
+    File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
+    assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
+  }
+
 }
