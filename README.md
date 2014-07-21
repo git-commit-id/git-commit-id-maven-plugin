@@ -529,7 +529,7 @@ Optional parameters:
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
-* **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the file to be generated properties file can be relative to ${project.basedir} or can be a full path
+* **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the to be generated properties file. The path can be relative to ${project.basedir} (e.g. target/classes/git.properties) or can be a full path (e.g. ${project.build.outputDirectory}/git.properties).
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
 * **failOnUnableToExtractRepoInfo** - `(default: true)` By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
