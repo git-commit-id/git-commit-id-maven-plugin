@@ -148,6 +148,8 @@ public class GitDescribeConfig {
    * since tag v1.2 that points at object deadbee....).
    * <p/>
    * <pre>false</pre> by default.
+   *
+   * @parameter default-value=false
    */
   private boolean forceLongFormat;
 

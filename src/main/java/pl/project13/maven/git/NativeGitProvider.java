@@ -128,9 +128,14 @@ public class NativeGitProvider extends GitDataProvider {
 
     String dirtyMark = gitDescribe.getDirty();
     if (dirtyMark != null && !dirtyMark.isEmpty()) {
-      // Option: --dirty[=<mark>]
       // TODO: Code Injection? Or does the CliRunner escape Arguments?
       argumentsForGitDescribe.append("--dirty=" + dirtyMark + " ");
+    }
+
+    String matchOption = gitDescribe.getMatch();
+    if (matchOption != null && !matchOption.isEmpty()) {
+      // TODO: Code Injection? Or does the CliRunner escape Arguments?
+      argumentsForGitDescribe.append("--match=" + matchOption + " ");
     }
 
     argumentsForGitDescribe.append("--abbrev=" + gitDescribe.getAbbrev() + " ");
