@@ -214,7 +214,10 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         
                         <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
                         <dirty>-dirty</dirty>
-                                                
+
+                        <!-- Only consider tags matching the given pattern. This can be used to avoid leaking private tags from the repository. -->
+                        <match>*</match>
+                
                         <!-- 
                              always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
                              The distance will always be 0 if you're "on" the tag. 
