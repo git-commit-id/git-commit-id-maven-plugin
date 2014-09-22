@@ -242,6 +242,43 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
+  @Parameters(value = {"UTF-8", "ISO-8859-1"})
+  public void shouldGenerateCustomPropertiesFileJsonWithCustomEncoding(String encoding) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
+                .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    String targetFilePath = "target/classes/custom-git.properties";
+    File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
+    Charset charset = Charset.forName(encoding);
+
+    setProjectToExecuteMojoIn(targetProject);
+    alterMojoSettings("generateGitPropertiesFile", true);
+    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
+    alterMojoSettings("format", "json");
+    alterMojoSettings("useNativeGit", true);
+    alterMojoSettings("encoding", charset.name());
+    // when
+    try {
+      mojo.execute();
+
+      // then
+      assertThat(expectedFile).exists();
+      String json = Files.toString(expectedFile, charset);
+      ObjectMapper om = new ObjectMapper();
+      Map<String, String> map = new HashMap<String, String>();
+      map = om.readValue(json, map.getClass());
+      assertThat(map.size() > 10);
+    } finally {
+      FileUtils.forceDelete(expectedFile);
+    }
+  }
+
+  @Test
   @Parameters(method = "useNativeGit")
   public void shouldSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
     // given
