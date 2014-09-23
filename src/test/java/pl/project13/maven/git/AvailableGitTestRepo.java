@@ -57,7 +57,7 @@ public enum AvailableGitTestRepo {
    */
   WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag"),
   WITH_TAG_ON_DIFFERENT_BRANCH("src/test/resources/_git_with_tag_on_different_branch"),
-
+  WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS("src/test/resources/_git_one_commit_with_umlaut"),
   MAVEN_GIT_COMMIT_ID_PLUGIN(".git");
 
   private String dir;

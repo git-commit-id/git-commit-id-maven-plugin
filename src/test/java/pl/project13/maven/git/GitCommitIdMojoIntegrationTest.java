@@ -211,7 +211,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
                 .create(CleanUp.CLEANUP_FIRST);
 
     MavenProject targetProject = mavenSandbox.getChildProject();
@@ -224,17 +224,16 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
     alterMojoSettings("format", "json");
     alterMojoSettings("useNativeGit", useNativeGit);
-
     // when
     try {
       mojo.execute();
 
       // then
       assertThat(expectedFile).exists();
-      String json = Files.toString(expectedFile, Charset.defaultCharset());
+      String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
       ObjectMapper om = new ObjectMapper();
       Map<String, String> map = new HashMap<String, String>();
-      map = om.readValue(expectedFile, map.getClass());
+      map = om.readValue(json, map.getClass());
       assertThat(map.size() > 10);
     } finally {
       FileUtils.forceDelete(expectedFile);
