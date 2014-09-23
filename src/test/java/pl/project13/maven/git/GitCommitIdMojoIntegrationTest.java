@@ -211,7 +211,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
                 .create(CleanUp.CLEANUP_FIRST);
 
     MavenProject targetProject = mavenSandbox.getChildProject();
@@ -224,51 +224,13 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
     alterMojoSettings("format", "json");
     alterMojoSettings("useNativeGit", useNativeGit);
-
     // when
     try {
       mojo.execute();
 
       // then
       assertThat(expectedFile).exists();
-      String json = Files.toString(expectedFile, Charset.defaultCharset());
-      ObjectMapper om = new ObjectMapper();
-      Map<String, String> map = new HashMap<String, String>();
-      map = om.readValue(expectedFile, map.getClass());
-      assertThat(map.size() > 10);
-    } finally {
-      FileUtils.forceDelete(expectedFile);
-    }
-  }
-
-  @Test
-  @Parameters(value = {"UTF-8", "ISO-8859-1"})
-  public void shouldGenerateCustomPropertiesFileJsonWithCustomEncoding(String encoding) throws Exception {
-    // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
-                .create(CleanUp.CLEANUP_FIRST);
-
-    MavenProject targetProject = mavenSandbox.getChildProject();
-
-    String targetFilePath = "target/classes/custom-git.properties";
-    File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
-    Charset charset = Charset.forName(encoding);
-
-    setProjectToExecuteMojoIn(targetProject);
-    alterMojoSettings("generateGitPropertiesFile", true);
-    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
-    alterMojoSettings("format", "json");
-    alterMojoSettings("useNativeGit", true);
-    alterMojoSettings("encoding", charset.name());
-    // when
-    try {
-      mojo.execute();
-
-      // then
-      assertThat(expectedFile).exists();
-      String json = Files.toString(expectedFile, charset);
+      String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
       ObjectMapper om = new ObjectMapper();
       Map<String, String> map = new HashMap<String, String>();
       map = om.readValue(json, map.getClass());
