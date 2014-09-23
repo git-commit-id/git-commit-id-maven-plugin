@@ -77,6 +77,25 @@ public class GitDirLocator {
    */
   @Nullable
   private File findProjectGitDirectory() {
+
+    try {
+      // First, search up the file system hierarchy, then the project hierarchy...
+      File baseDir = this.mavenProject.getBasedir().getCanonicalFile();
+
+      while(baseDir != null) {
+        File gitDir = new File(baseDir, Constants.DOT_GIT);
+
+        if (isExistingDirectory(gitDir)) {
+          return gitDir;
+        }
+
+        baseDir = baseDir.getParentFile();
+      }
+    } catch(IOException e) {
+      e.printStackTrace();
+      // pass
+    }
+
     MavenProject currentProject = this.mavenProject;
 
     while (currentProject != null) {

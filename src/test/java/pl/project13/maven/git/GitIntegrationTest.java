@@ -18,9 +18,13 @@
 package pl.project13.maven.git;
 
 import com.google.common.base.Optional;
+import com.google.common.io.Files;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
 
 import java.io.File;
@@ -32,7 +36,7 @@ import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public abstract class GitIntegrationTest {
 
-  final String SANDBOX_DIR = "target/sandbox";
+  final String SANDBOX_DIR = Files.createTempDir().getAbsolutePath();
 
   protected GitCommitIdMojo mojo;
   protected FileSystemMavenSandbox mavenSandbox;
@@ -42,6 +46,11 @@ public abstract class GitIntegrationTest {
     mavenSandbox = new FileSystemMavenSandbox(SANDBOX_DIR);
     mojo = new GitCommitIdMojo();
     initializeMojoWithDefaults(mojo);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    FileUtils.deleteDirectory(new File(SANDBOX_DIR));
   }
 
   protected Git git() throws IOException, InterruptedException {
