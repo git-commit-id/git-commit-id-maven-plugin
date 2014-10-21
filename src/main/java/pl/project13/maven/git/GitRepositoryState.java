@@ -19,7 +19,11 @@ package pl.project13.maven.git;
 
 //import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 
+import com.google.common.base.Joiner;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * A spring controlled bean that will be injected
@@ -42,6 +46,7 @@ public class GitRepositoryState {
   String commitMessageFull;       // =${git.commit.message.full}
   String commitMessageShort;      // =${git.commit.message.short}
   String commitTime;              // =${git.commit.time}
+  Set<String> tags;              // =${git.tags}
 
   String mavenProjectVersion;     // =${maven.project.version}
 
@@ -144,6 +149,14 @@ public class GitRepositoryState {
     this.mavenProjectVersion = mavenProjectVersion;
   }
 
+  public Set<String> getTags() {
+    return tags;
+  }
+
+  public void setTags(Set<String> tags) {
+    this.tags = tags;
+  }
+
   /**
    * If you need it as json but don't have jackson installed etc
    *
@@ -164,6 +177,8 @@ public class GitRepositoryState {
     appendProperty(sb, "buildTime", buildTime);
     appendProperty(sb, "buildUserName", buildUserName);
     appendProperty(sb, "buildUserEmail", buildUserEmail);
+
+    appendProperty(sb, "tags", Joiner.on(",").join(tags));
 
     appendProperty(sb, "mavenProjectVersion", mavenProjectVersion);
 

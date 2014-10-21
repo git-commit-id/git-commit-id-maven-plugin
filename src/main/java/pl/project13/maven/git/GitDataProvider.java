@@ -1,15 +1,13 @@
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import java.io.IOException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import java.util.*;
 import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -45,6 +43,7 @@ public abstract class GitDataProvider {
   protected abstract String getCommitMessageShort();
   protected abstract String getCommitTime();
   protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
+  protected abstract String getTags() throws MojoExecutionException;
   protected abstract void finalCleanUp();
 
   public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
@@ -53,7 +52,7 @@ public abstract class GitDataProvider {
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, getBuildAuthorName());
     // git.user.email
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
-    
+
     try {
       prepareGitToExtractMoreDetailedReproInformation();
       validateAbbrevLength(abbrevLength);
@@ -78,7 +77,10 @@ public abstract class GitDataProvider {
       put(properties, GitCommitIdMojo.COMMIT_TIME, getCommitTime());
       // git remote.origin.url
       put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, getRemoteOriginUrl());
-    }finally{
+
+      //
+      put(properties, GitCommitIdMojo.TAGS, getTags());
+    } finally {
       finalCleanUp();
     }
   }
@@ -86,7 +88,7 @@ public abstract class GitDataProvider {
   private void maybePutGitDescribe(@NotNull Properties properties) throws MojoExecutionException{
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
-    
+
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
       put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, getGitDescribe());
     }
@@ -103,7 +105,7 @@ public abstract class GitDataProvider {
    * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
    * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
    *
-   * @param env
+   * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
   protected String determineBranchName(Map<String, String> env) throws IOException {
@@ -116,12 +118,12 @@ public abstract class GitDataProvider {
 
   /**
    * Detects if we're running on Jenkins or Hudson, based on expected env variables.
-   * <p/>
+   *
    * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
    *
    * @return true if running
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @param env
+   * @param env environment settings
    */
   private boolean runningOnBuildServer(Map<String, String> env) {
     return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
@@ -129,7 +131,7 @@ public abstract class GitDataProvider {
 
   /**
    * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
-   * The {@GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
+   * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
     String enviromentBasedBranch = env.get("GIT_BRANCH");
@@ -143,7 +145,7 @@ public abstract class GitDataProvider {
   }
 
   void log(String... parts) {
-    if(loggerBridge!=null){
+    if (loggerBridge != null) {
       loggerBridge.log((Object[]) parts);
     }
   }

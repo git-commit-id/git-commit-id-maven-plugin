@@ -70,6 +70,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public static final String COMMIT_TIME = "commit.time";
   public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
+  public static final String TAGS = "tags";
 
   /**
    * The maven project.
@@ -92,7 +93,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Tell git-commit-id to inject the git properties into all
    * reactor projects not just the current one.
-   * <p/>
+   *
    * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
    * Basically, injecting into all projects may slow down the build and you don't always need this feature.
    *
@@ -124,7 +125,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Specifies whether plugin should generate properties file.
    * By default it will not generate any additional file,
    * and only add properties to maven project's properties for further filtering
-   * <p/>
+   *
    * If set to "true" properties will be fully generated with no placeholders inside.
    *
    * @parameter default-value="false"
@@ -136,7 +137,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Decide where to generate the git.properties file. By default, the ${project.build.outputDirectory}/git.properties
    * file will be updated - of course you must first set generateGitPropertiesFile = true to force git-commit-id
    * into generateFile mode.
-   * <p/>
+   *
    * The path here is relative to your projects src directory.
    *
    * @parameter default-value="${project.build.outputDirectory}/git.properties"
@@ -155,7 +156,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Configuration for the <pre>git-describe</pre> command.
    * You can modify the dirty marker, abbrev length and other options here.
-   * <p/>
+   *
    * If not specified, default values will be used.
    *
    * @parameter
@@ -168,12 +169,12 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Configure the "git.commit.id.abbrev" property to be at least of length N.
    * N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
    * </p>
-   * <p/>
+   *
    * <p>
    * An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
    * To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
    * </p>
-   * <p/>
+   *
    * <b>Example:</b>
    * <p>
    * You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
@@ -224,10 +225,10 @@ public class GitCommitIdMojo extends AbstractMojo {
    * By default the plugin will fail the build if unable to obtain enough data for a complete run,
    * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
    * things to the repository, you may want to set this value to false.
-   * <p/>
+   *
    * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
    * if unable to obtain git meta data - yet the build will continue to run (without failing).
-   * <p/>
+   *
    * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
    *
    * @parameter default-value="true"
@@ -304,7 +305,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       log("dotGitDirectory is null, aborting execution!");
       return;
     }
-    
+
     try {
       properties = initProperties();
 
@@ -332,8 +333,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void filterNot(Properties properties, @Nullable List<String> exclusions) {
-    if (exclusions == null)
+    if (exclusions == null) {
       return;
+    }
 
     List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, new Function<String, Predicate<CharSequence>>() {
       @Override
@@ -349,7 +351,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        loggerBridge.debug("shouldExclude.apply(" + key +") = " + shouldExclude.apply(key));
+        loggerBridge.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
     }
@@ -394,8 +396,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @return the File representation of the .git directory
    */
-  @VisibleForTesting
-  File lookupGitDirectory() throws MojoExecutionException {
+  @VisibleForTesting File lookupGitDirectory() throws MojoExecutionException {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
@@ -427,7 +428,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(commitDate));
   }
-  
+
   void loadShortDescribe(@NotNull Properties properties) {
     //removes git hash part from describe
     String commitDescribe = properties.getProperty(prefixDot + COMMIT_DESCRIBE);
@@ -452,7 +453,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
     if (useNativeGit) {
       loadGitDataWithNativeGit(properties);
-    }else{
+    } else {
       loadGitDataWithJGit(properties);
     }
   }
@@ -462,24 +463,24 @@ public class GitCommitIdMojo extends AbstractMojo {
     NativeGitProvider nativeGitProvider = NativeGitProvider
       .on(basedir)
       .withLoggerBridge(loggerBridge)
-			.setVerbose(verbose)
+      .setVerbose(verbose)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
-			.setDateFormat(dateFormat)
+      .setDateFormat(dateFormat)
       .setGitDescribe(gitDescribe);
 
-    nativeGitProvider.loadGitData(properties);    
+    nativeGitProvider.loadGitData(properties);
   }
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
     JGitProvider jGitProvider = JGitProvider
-				.on(dotGitDirectory)
-				.withLoggerBridge(loggerBridge)
-				.setVerbose(verbose)
-				.setPrefixDot(prefixDot)
-				.setAbbrevLength(abbrevLength)
-				.setDateFormat(dateFormat)
-				.setGitDescribe(gitDescribe);
+      .on(dotGitDirectory)
+      .withLoggerBridge(loggerBridge)
+      .setVerbose(verbose)
+      .setPrefixDot(prefixDot)
+      .setAbbrevLength(abbrevLength)
+      .setDateFormat(dateFormat)
+      .setGitDescribe(gitDescribe);
 
     jGitProvider.loadGitData(properties);
   }
@@ -507,13 +508,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  @VisibleForTesting
-  File craftPropertiesOutputFile(File base, String propertiesFilename){
+  @VisibleForTesting File craftPropertiesOutputFile(File base, String propertiesFilename) {
     File returnPath = new File(base, propertiesFilename);
 
     File currentPropertiesFilepath = new File(propertiesFilename);
-    if(currentPropertiesFilepath.isAbsolute()){
-       returnPath = currentPropertiesFilepath;
+    if (currentPropertiesFilepath.isAbsolute()) {
+      returnPath = currentPropertiesFilepath;
     }
 
     return returnPath;
@@ -580,11 +580,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.excludeProperties = excludeProperties;
   }
 
-  public void useNativeGit(boolean useNativeGit){
+  public void useNativeGit(boolean useNativeGit) {
     this.useNativeGit = useNativeGit;
   }
 
-  public LoggerBridge getLoggerBridge(){
+  public LoggerBridge getLoggerBridge() {
     return loggerBridge;
   }
 }

@@ -44,6 +44,10 @@ public abstract class GitIntegrationTest {
     initializeMojoWithDefaults(mojo);
   }
 
+  protected Git git(String dir) throws IOException, InterruptedException {
+    return Git.open(dotGitDir(Optional.of(dir)));
+  }
+
   protected Git git() throws IOException, InterruptedException {
     return Git.open(dotGitDir(projectDir()));
   }

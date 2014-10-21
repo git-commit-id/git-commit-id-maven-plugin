@@ -1,11 +1,22 @@
 package pl.project13.maven.git;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 
 public class NativeGitProvider extends GitDataProvider {
@@ -187,6 +198,37 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected String getCommitTime() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%ci\"");
+  }
+
+  @Override
+  protected String getTags() throws MojoExecutionException {
+    final String branch = tryToRunGitCommand(canonical, "rev-parse --abbrev-ref HEAD");
+
+    String out = tryToRunGitCommand(canonical, "log -n 1 --pretty=format:'%d'");
+    String[] nms = out
+      .replaceAll("HEAD", "")
+      .replaceAll("\\)", "")
+      .replaceAll("\\(", "")
+      .replaceAll("'", "")
+      .replaceAll("tag: ", "")
+      .replaceAll(",", "")
+      .trim()
+      .split(" ");
+
+
+    ImmutableList<String> cleanTags = FluentIterable.from(Arrays.asList(nms)).
+      transform(new Function<String, String>() {
+        @Override public String apply(String input) {
+          return input.trim();
+        }
+      }).
+      filter(new Predicate<String>() {
+        @Override public boolean apply(String input) {
+          return !input.equals(branch);
+        }
+      }).toList();
+
+    return Joiner.on(",").join(cleanTags);
   }
 
   @Override

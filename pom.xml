@@ -14,8 +14,8 @@
   <name>Git Commit Id Plugin Maven Mojo</name>
   <description>
     git-commit-id-plugin is a plugin quite similar to
-    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber
-    only supports svn (which is very sad) and cvs (which is even more sad).
+    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at
+    the time when I started this plugin only supported CVS and SVN, something had to be done.
     This plugin makes basic repository information available through maven resources. This can be used to display
     "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
     it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
@@ -46,7 +46,7 @@
       <id>ktoso</id>
       <name>Konrad Malawski</name>
       <email>konrad.malawski@java.pl</email>
-      <organization>Project13.pl</organization>
+      <organization>project13.pl</organization>
       <url>http://blog.project13.pl</url>
     </developer>
   </developers>
@@ -98,12 +98,6 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.2.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>2.0</version>
     </dependency>
 
     <!-- Joda Time -->
@@ -165,7 +159,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.commons</groupId>
+      <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.3.2</version>
       <type>jar</type>
@@ -247,22 +241,22 @@
         </configuration>
       </plugin>
 
-      <plugin>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>3.2</version>
-        <executions>
-          <execution>
-            <id>generated-helpmojo</id>
-            <goals>
-              <goal>helpmojo</goal>
-            </goals>
-            <configuration>
-              <goalPrefix>git-commit-id</goalPrefix>
-              <helpPackageName>pl.project13.maven</helpPackageName>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+      <!--<plugin>-->
+        <!--<artifactId>maven-plugin-plugin</artifactId>-->
+        <!--<version>${maven-plugin-api.version}</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>generated-helpmojo</id>-->
+            <!--<goals>-->
+              <!--<goal>helpmojo</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+              <!--<goalPrefix>git-commit-id</goalPrefix>-->
+              <!--<helpPackageName>pl.project13.maven</helpPackageName>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      <!--</plugin>-->
     </plugins>
   </build>
 

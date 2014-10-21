@@ -54,25 +54,8 @@ import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Implements git's <pre>describe</pre> command.
- * <p/>
- * <code><pre>
- *  usage: git describe [options] <committish>*
- *  or: git describe [options] --dirty
- * <p/>
- *   --contains            find the tag that comes after the commit
- *   --debug               debug search strategy on stderr
- *   --all                 use any ref in .git/refs
- *   --tags                use any tag in .git/refs/tags
- *   --long                always use long format
- *   --abbrev[=<n>]        use <n> digits to display SHA-1s
- *   --exact-match         only output exact matches
- *   --candidates <n>      consider <n> most recent tags (default: 10)
- *   --match <pattern>     only consider tags matching <pattern>
- *   --always              show abbreviated commit object as fallback
- *   --dirty[=<mark>]      append <mark> on dirty working tree (default: "-dirty")
- * </pre></code>
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
+ * @author Konrad Malawski
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
@@ -153,9 +136,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * <pre>--always</pre>
-   * <p/>
+   *
    * Show uniquely abbreviated commit object as fallback.
-   * <p/>
+   *
    * <pre>true</pre> by default.
    */
   @NotNull
@@ -167,13 +150,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * <pre>--long</pre>
-   * <p/>
+   *
    * Always output the long format (the tag, the number of commits and the abbreviated commit name)
    * even when it matches a tag. This is useful when you want to see parts of the commit object name
    * in "describe" output, even when the commit in question happens to be a tagged version. Instead
    * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
    * since tag v1.2 that points at object deadbee....).
-   * <p/>
+   *
    * <pre>false</pre> by default.
    */
   @NotNull
@@ -187,11 +170,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * <pre>--abbrev=N</pre>
-   * <p/>
+   *
    * Instead of using the default <em>7 hexadecimal digits</em> as the abbreviated object name,
    * use <b>N</b> digits, or as many digits as needed to form a unique object name.
-   * <p/>
-   * An <n> of 0 will suppress long format, only showing the closest tag.
+   *
+   * An `n` of 0 will suppress long format, only showing the closest tag.
    */
   @NotNull
   public DescribeCommand abbrev(@Nullable Integer n) {
@@ -210,22 +193,22 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Instead of using only the annotated tags, use any tag found in .git/refs/tags.
    * This option enables matching a lightweight (non-annotated) tag.
    * </p>
-   * <p/>
+   *
    * <p>Searching for lightweight tags is <b>false</b> by default.</p>
-   * <p/>
+   *
    * Example:
    * <pre>
    *    b6a73ed - (HEAD, master)
    *    d37a598 - (v1.0-fixed-stuff) - a lightweight tag (with no message)
    *    9597545 - (v1.0) - an annotated tag
    *
-   *  > git describe
+   *  $ git describe
    *    annotated-tag-2-gb6a73ed     # the nearest "annotated" tag is found
    *
-   *  > git describe --tags
+   *  $ git describe --tags
    *    lightweight-tag-1-gb6a73ed   # the nearest tag (including lightweights) is found
    * </pre>
-   * <p/>
+   *
    * <p>
    * Using only annotated tags to mark builds may be useful if you're using tags to help yourself with annotating
    * things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
@@ -249,7 +232,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   /**
-   * Apply all configuration options passed in with {@param config}.
+   * Apply all configuration options passed in with `config`.
    * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
    *
    * @return itself, after applying the settings
@@ -342,7 +325,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Prepares the final result of this command.
    * It tries to put as much information as possible into the result,
    * and will fallback to a plain commit hash if nothing better is returnable.
-   * <p/>
+   *
    * The exact logic is following what <pre>git-describe</pre> would do.
    */
   private DescribeResult createDescribeResult(ObjectReader objectReader, ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {

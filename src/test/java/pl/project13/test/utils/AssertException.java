@@ -27,7 +27,7 @@ import static pl.project13.test.utils.AssertException.ExceptionMatch.EXCEPTION_C
  * Allows expecting and intercepting exceptions in a nice way.
  * Use it to intercept exceptions in your tests, in a way that allows
  * sticking to the given/when/then flow, and validate exception throws on
- * <p/>
+ *
  * SoftwareBirr 02.2012
  *
  * @author Konrad Malawski (konrad.malawski@java.pl)

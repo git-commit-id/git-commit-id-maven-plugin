@@ -2,7 +2,8 @@ maven git commit id plugin
 ==================================
 [![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.svg?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
 
-git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber only supports svn (which is very sad) and cvs (which is even more sad, and makes bunnies cry) I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
+git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber at the time when I started this plugin only supported CVS and SVN, something had to be done.
+I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
 
 Use cases
 =========
@@ -35,7 +36,7 @@ A detailed description of using the pluing is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.1.10**.
+The current version is **2.1.11**:
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -93,7 +94,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.1.10</version>
+                <version>2.1.11</version>
                 <executions>
                     <execution>
                         <goals>
@@ -239,6 +240,7 @@ Now you just have to include such a properties file in your project under `/src/
 
 ```
 git.branch=${git.branch}
+git.commit.tags=${git.tags}
 
 git.commit.id.describe=${git.commit.id.describe}
 
@@ -270,6 +272,7 @@ Start out with with adding the above steps to your project, next paste this **gi
 
     <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
         <property name="branch" value="${git.branch}"/>
+        <property name="tags" value="${git.tags}"/>
         <property name="describe" value="${git.commit.id.describe}"/>
         <property name="commitId" value="${git.commit.id}"/>
         <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
@@ -300,6 +303,7 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
+  String branch;                  // =${git.tags} // comma separated tag names
   String describe;                // =${git.commit.id.describe}
   String shortDescribe;           // =${git.commit.id.describe-short}
   String commitId;                // =${git.commit.id}
@@ -352,6 +356,7 @@ In the end *this is what this service would return*:
 ```json
      {
          "branch" : "testing-maven-git-plugin",
+         "tags" : "v2.1.11,testing",
          "describe" : "v2.1.0-2-g2346463",
          "describeShort" : "v2.1.0-2",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
@@ -416,6 +421,7 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 public GitRepositoryState(Properties properties)
 {
    this.branch = properties.get("git.branch").toString();
+   this.tags = properties.get("git.tags").toString();
    this.describe = properties.get("git.commit.id.describe").toString();
    this.describeShort = properties.get("git.commit.id.describe-short").toString();
    this.commitId = properties.get("git.commit.id").toString();

@@ -18,12 +18,15 @@
 package pl.project13.maven.git;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
@@ -562,6 +565,38 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldExtractTagsOnGivenCommit(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject("my-jar-project", "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+      .create(CleanUp.CLEANUP_FIRST);
+
+    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("gitDescribe", null);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertGitPropertiesPresentInProject(properties);
+
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
+    assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
+
+    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+      .containsOnly("lightweight-tag", "newest-tag");
   }
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {

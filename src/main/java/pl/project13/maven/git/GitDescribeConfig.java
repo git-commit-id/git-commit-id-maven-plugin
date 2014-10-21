@@ -26,7 +26,7 @@ public class GitDescribeConfig {
 
   /**
    * If you don't use describe, you can always disable it and make the build a bit faster.
-   * <p/>
+   *
    * Although it's highly recommended to use <pre>git-describe</pre> to identify your build state,
    * so think twice before disabeling it.
    *
@@ -113,7 +113,7 @@ public class GitDescribeConfig {
    * </p>
    *
    * <p>Searching for lightweight tags is <b>false</b> by default.</p>
-   * <p/>
+   *
    *
    * Example:
    * <pre>
@@ -140,13 +140,13 @@ public class GitDescribeConfig {
 
   /**
    * <pre>--long</pre>
-   * <p/>
+   *
    * Always output the long format (the tag, the number of commits and the abbreviated commit name)
    * even when it matches a tag. This is useful when you want to see parts of the commit object name
    * in "describe" output, even when the commit in question happens to be a tagged version. Instead
    * of just emitting the tag name, it will describe such a commit as v1.2-0-gdeadbee (0th commit
    * since tag v1.2 that points at object deadbee....).
-   * <p/>
+   *
    * <pre>false</pre> by default.
    */
   private boolean forceLongFormat;

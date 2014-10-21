@@ -33,7 +33,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Represents the result of a <code>git describe</code> command.
- * <p/>
+ *
  * See {@link pl.project13.jgit.DescribeResult#toString()} for a detailed information how this result looks like.
  */
 public class DescribeResult {
@@ -115,7 +115,7 @@ public class DescribeResult {
    *   |    |--------------- the number of commits away from the found tag. So "2414721" is 14 commits ahead of "v1.0.4", in this example.
    *   |-------------------- the "nearest" tag, to the mentioned commit.
    * </pre>
-   * <p/>
+   *
    * Other outputs may look like:
    * <pre>
    * v1.0.4 -- if the repository is "on a tag"
@@ -123,7 +123,7 @@ public class DescribeResult {
    * 2414721 -- a plain commit id hash if not tags were defined (of determined "near" this commit).
    *            It does NOT include the "g" prefix, that is used in the "full" describe output format!
    * </pre>
-   * <p/>
+   *
    * For more details (on when what output will be returned etc), see <code>man git-describe</code>.
    * In general, you can assume it's a "best effort" approach, to give you as much info about the repo state as possible.
    *
@@ -170,7 +170,7 @@ public class DescribeResult {
    * This is following git's behaviour - so any git tooling should be happy with this output.
    * </p>
    * <p>
-   * Notes about the abbriverated object id:<br/>
+   * Notes about the abbriverated object id:
    * Git will try to use your given abbrev lenght, but when it's to short to guarantee uniqueness -
    * a longer one will be used (which WILL guarantee uniqueness).
    * If you need the full commit id, it's always available via {@link pl.project13.jgit.DescribeResult#commitObjectId()}.
