@@ -46,7 +46,7 @@ public class GitDirLocator {
 
     if (manuallyConfiguredDir.exists()) {
 
-      // If manuallyConfiguredDir is a directory then we can use it as the git path. 
+      // If manuallyConfiguredDir is a directory then we can use it as the git path.
       if (manuallyConfiguredDir.isDirectory()) {
         return manuallyConfiguredDir;
       }
@@ -158,7 +158,14 @@ public class GitDirLocator {
         }
 
         // All seems ok so return the "gitdir" value read from the file.
-        return new File(file.getParentFile(), parts[1]);
+        File gitDir = new File(parts[1]);
+        if (gitDir.isAbsolute()) {
+          // gitdir value is an absolute path. Return as-is
+          return gitDir;
+        } else {
+          // gitdir value is relative.
+          return new File(file.getParentFile(), parts[1]);
+        }
       } catch (FileNotFoundException e) {
         return null;
       } finally {
