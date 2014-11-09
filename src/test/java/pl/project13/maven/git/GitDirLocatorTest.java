@@ -42,14 +42,18 @@ public class GitDirLocatorTest {
   public void shouldUseTheManuallySpecifiedDirectory() throws Exception {
     // given
     File dotGitDir = Files.createTempDir();
+    try {
 
-    // when
-    GitDirLocator locator = new GitDirLocator(project, reactorProjects);
-    File foundDirectory = locator.lookupGitDirectory(dotGitDir);
+      // when
+      GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+      File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
-    // then
-    assert foundDirectory != null;
-    assertThat(foundDirectory.getAbsolutePath()).isEqualTo(dotGitDir.getAbsolutePath());
+      // then
+      assert foundDirectory != null;
+      assertThat(foundDirectory.getAbsolutePath()).isEqualTo(dotGitDir.getAbsolutePath());
+    } finally {
+      dotGitDir.delete();
+    }
   }
 
 }
