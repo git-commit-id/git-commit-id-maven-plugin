@@ -216,7 +216,9 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected void finalCleanUp() {
-    revWalk.dispose();
+    if (revWalk != null) {
+      revWalk.dispose();
+    }
   }
 
 
