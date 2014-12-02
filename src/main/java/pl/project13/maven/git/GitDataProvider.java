@@ -37,6 +37,7 @@ public abstract class GitDataProvider {
   protected abstract String getGitDescribe() throws MojoExecutionException;
   protected abstract String getCommitId();
   protected abstract String getAbbrevCommitId() throws MojoExecutionException;
+  protected abstract boolean isDirty() throws MojoExecutionException;
   protected abstract String getCommitAuthorName();
   protected abstract String getCommitAuthorEmail();
   protected abstract String getCommitMessageFull();
@@ -65,6 +66,8 @@ public abstract class GitDataProvider {
       put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
       // git.commit.id.abbrev      
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
+      // git.files.dirty
+      put(properties, GitCommitIdMojo.FILES_DIRTY, isDirty()? "true" : "false");
       // git.commit.author.name
       put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());
       // git.commit.author.email
