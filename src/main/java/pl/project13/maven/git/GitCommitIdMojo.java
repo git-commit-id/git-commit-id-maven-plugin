@@ -25,6 +25,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -258,6 +259,19 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean skip = false;
 
   /**
+   * In a multi-module build, only run once.  This probably won't "do the right thing" if your project has more than
+   * one git repository.  If you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
+   * the file in the directory where you started your build.
+   *
+   * The git.* maven properties are available in all modules.
+   *
+   * @parameter default-value="false"
+   * @since 2.1.12
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private boolean runOnlyOnce = false;
+
+  /**
    * Can be used to exclude certain properties from being emited into the resulting file.
    * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
    * or the email of the committer etc.
@@ -274,6 +288,16 @@ public class GitCommitIdMojo extends AbstractMojo {
   private List<String> excludeProperties = Collections.emptyList();
 
   /**
+   * The Maven Session Object
+   *
+   * @parameter expression="${session}"
+   * @required
+   * @readonly
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  protected MavenSession session;
+
+  /**
    * The properties we store our data in and then expose them
    */
   private Properties properties;
@@ -288,8 +312,15 @@ public class GitCommitIdMojo extends AbstractMojo {
     loggerBridge.setVerbose(verbose);
 
     if (skip) {
-      log("skip is true, return");
+      log("skip is enabled, skipping execution!");
       return;
+    }
+
+    if (runOnlyOnce) {
+      if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
+        log("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+        return;
+      }
     }
 
     if (isPomProject(project) && skipPoms) {

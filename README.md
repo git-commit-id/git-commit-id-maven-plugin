@@ -173,6 +173,21 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     -->
                     <skip>false</skip>
 
+                    <!-- @since 2.1.12 -->
+                    <!--
+                       Use with caution!
+
+                       In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project.
+                       This probably won't "do the right thing" if your project has more than one git repository.
+
+                       Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
+                       only generate the file in the directory where you started your build (!).
+
+                       The `git.*` maven properties are available in all modules.
+                       Default value is `false`.
+                    -->
+                    <runOnlyOnce>false</runOnlyOnce>
+
                     <!-- @since 2.1.9 -->
                     <!--
                         Can be used to exclude certain properties from being emited into the resulting file.
@@ -543,6 +558,7 @@ Optional parameters:
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
 * **failOnUnableToExtractRepoInfo** - `(default: true)` By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
+* **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
