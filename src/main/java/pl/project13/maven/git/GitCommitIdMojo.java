@@ -259,10 +259,10 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * In a multi-module build, only run once.  This probably won't "do the right thing" if your project has more than
-   * one git repository.  It you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
+   * one git repository.  If you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
    * the file in the directory where you started your build.
    *
-   * The git.* parameters are available in all modules.
+   * The git.* variables are available in all modules.
    *
    * @parameter default-value="false"
    * @since 2.1.12
