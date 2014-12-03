@@ -1,0 +1,17 @@
+add file.txt
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Wed Dec 3 00:35:29 2014 -0500
+#
+# On branch master
+#
+# Initial commit
+#
+# Changes to be committed:
+#	new file:   file.txt
+#
+# Untracked files:
+#	_git_dir/
+#
