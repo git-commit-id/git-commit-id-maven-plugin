@@ -262,7 +262,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * one git repository.  If you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
    * the file in the directory where you started your build.
    *
-   * The git.* variables are available in all modules.
+   * The git.* maven properties are available in all modules.
    *
    * @parameter default-value="false"
    * @since 2.1.12
