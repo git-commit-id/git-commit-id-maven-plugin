@@ -136,6 +136,16 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
+  protected boolean isDirty() throws MojoExecutionException {
+    Git gitObject = Git.wrap(git);
+    try {
+      return !gitObject.status().call().isClean();
+    } catch (GitAPIException e) {
+      throw new MojoExecutionException("Failed to get git status: " + e.getMessage(), e);
+    }
+  }
+
+  @Override
   protected String getCommitAuthorName() {
     String commitAuthor = headCommit.getAuthorIdent().getName();
     return commitAuthor;

@@ -176,6 +176,12 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
+  protected boolean isDirty() throws MojoExecutionException {
+    String output = tryToRunGitCommand(canonical, "status --porcelain");
+    return !output.trim().isEmpty();
+  }
+
+  @Override
   protected String getCommitAuthorName() {
     return tryToRunGitCommand(canonical, "log -1 --pretty=format:\"%cn\"");
   }
