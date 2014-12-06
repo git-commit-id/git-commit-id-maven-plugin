@@ -106,6 +106,8 @@ public class JGitProvider extends GitDataProvider {
       revWalk = new RevWalk(git);
       headCommit = revWalk.parseCommit(HEAD.getObjectId());
       revWalk.markStart(headCommit);
+    } catch (MojoExecutionException e) {
+      throw e;
     } catch (Exception e) {
       throw new MojoExecutionException("Error", e);
     }
