@@ -216,6 +216,7 @@
             <!--<skip>false</skip>-->
             <!--<always>false</always>-->
             <!--<abbrev>7</abbrev>-->
+            <!--<match>*</match>-->
             <!--<dirty>-DEVEL</dirty>-->
             <!--<forceLongFormat>false</forceLongFormat>-->
           <!--</gitDescribe>-->

@@ -599,6 +599,40 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       .containsOnly("lightweight-tag", "newest-tag");
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
+                .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    Map<String,String> gitTagMap = new HashMap<String,String>();
+    gitTagMap.put("v2.1.8", "4f787aa37d5d9c06780278f0cf92553d304820a2");
+    gitTagMap.put("v2.1.9", "a9dba4a25b64ab288d90cd503785b830d2e189a2");
+
+    for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
+      String gitDescribeMatchNeedle = entry.getKey();
+      String commitIdOfMatchNeedle = entry.getValue();
+
+      GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
+      gitDescribeConfig.setMatch(gitDescribeMatchNeedle);
+      alterMojoSettings("gitDescribe", gitDescribeConfig);
+      alterMojoSettings("useNativeGit", useNativeGit);
+
+      // when
+      mojo.execute();
+
+      // then
+      assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", gitDescribeMatchNeedle));
+      assertThat(targetProject.getProperties().get("git.commit.id")).isNotEqualTo(commitIdOfMatchNeedle);
+    }
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);

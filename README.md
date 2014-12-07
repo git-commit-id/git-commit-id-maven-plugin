@@ -215,7 +215,10 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         
                         <!-- when the build is triggered while the repo is in "dirty state", append this suffix -->
                         <dirty>-dirty</dirty>
-                                                
+
+                        <!-- Only consider tags matching the given pattern. This can be used to avoid leaking private tags from the repository. -->
+                        <match>*</match>
+                
                         <!-- 
                              always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
                              The distance will always be 0 if you're "on" the tag. 
@@ -535,12 +538,16 @@ Optional parameters:
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
-* **generateGitPropertiesFilename** - `(default: src/main/resources/git.properties)` - The path for the to be generated properties file, it's relative to ${project.basedir}
+* **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the to be generated properties file. The path can be relative to ${project.basedir} (e.g. target/classes/git.properties) or can be a full path (e.g. ${project.build.outputDirectory}/git.properties).
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
+* **failOnUnableToExtractRepoInfo** - `(default: true)` By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
+* **abbrevLength** - `(default: 7)` Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
+* **format** - `(default: properties)` The format to save properties in. Valid options are "properties" (default) and "json". Properties will be saved to the generateGitPropertiesFilename if generateGitPropertiesFile is set to `true`.
+
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
@@ -548,7 +555,8 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git bevaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
 * **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
 * **dirty** - `(default: "")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be inclided in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
-* **tags** - `(default: false)`
+* **tags** - `(default: false)` if true this option enables matching a lightweight (non-annotated) tag.
+* **match** - `(default: *)` only consider tags matching the given pattern (can be used to avoid leaking private tags made from the repository)
 * **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.
 * **always** - `(default: true)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
