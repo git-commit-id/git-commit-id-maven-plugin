@@ -5,12 +5,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListTagCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -22,7 +25,9 @@ import pl.project13.maven.git.log.LoggerBridge;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
@@ -36,44 +41,19 @@ public class JGitProvider extends GitDataProvider {
   private RevCommit headCommit;
 
   @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory) {
-    return new JGitProvider(dotGitDirectory);
+  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
+    return new JGitProvider(dotGitDirectory, loggerBridge);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory) {
+  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
+    super(loggerBridge);
     this.dotGitDirectory = dotGitDirectory;
-  }
-
-  @NotNull
-  public JGitProvider withLoggerBridge(LoggerBridge bridge) {
-    super.loggerBridge = bridge;
-    return this;
   }
 
   @NotNull
   public JGitProvider setVerbose(boolean verbose) {
     super.verbose = verbose;
     super.loggerBridge.setVerbose(verbose);
-    return this;
-  }
-
-  public JGitProvider setPrefixDot(String prefixDot) {
-    super.prefixDot = prefixDot;
-    return this;
-  }
-
-  public JGitProvider setAbbrevLength(int abbrevLength) {
-    super.abbrevLength = abbrevLength;
-    return this;
-  }
-
-  public JGitProvider setDateFormat(String dateFormat) {
-    super.dateFormat = dateFormat;
-    return this;
-  }
-
-  public JGitProvider setGitDescribe(GitDescribeConfig gitDescribe) {
-    super.gitDescribe = gitDescribe;
     return this;
   }
 

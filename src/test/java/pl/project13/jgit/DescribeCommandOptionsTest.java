@@ -84,8 +84,8 @@ public class DescribeCommandOptionsTest {
   @Test
   public void apply_shouldDelegateToAllOptions() throws Exception {
     // given
-      final String DEVEL = "DEVEL";
-      final String MATCH = "*";
+    final String DEVEL = "DEVEL";
+    final String MATCH = "*";
     final int ABBREV = 12;
 
     GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);

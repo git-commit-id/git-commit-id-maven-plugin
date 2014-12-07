@@ -4,7 +4,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -13,44 +12,34 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 
 public class NativeGitProvider extends GitDataProvider {
 
-  private transient CliRunner runner;
+  private transient ProcessRunner runner;
 
-  private String dateFormat;
+  final File dotGitDirectory;
 
-  File dotGitDirectory;
-
-  File canonical;
+  final File canonical;
 
   private static final int REMOTE_COLS = 3;
 
-  private NativeGitProvider(CliRunner runner, String dateFormat) {
-    this.runner = runner;
-    this.dateFormat = dateFormat;
-  }
-
   @NotNull
-  public static NativeGitProvider on(@NotNull File dotGitDirectory) {
-    return new NativeGitProvider(dotGitDirectory);
+  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
+    return new NativeGitProvider(dotGitDirectory, loggerBridge);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory) {
+  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
+    super(loggerBridge);
     this.dotGitDirectory = dotGitDirectory;
+    try {
+      this.canonical = dotGitDirectory.getCanonicalFile();
+    } catch (Exception ex) {
+      throw new RuntimeException(new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex));
+    }
   }
 
-
-  @NotNull
-  public NativeGitProvider withLoggerBridge(LoggerBridge bridge) {
-    super.loggerBridge = bridge;
-    return this;
-  }
 
   @NotNull
   public NativeGitProvider setVerbose(boolean verbose) {
@@ -59,33 +48,9 @@ public class NativeGitProvider extends GitDataProvider {
     return this;
   }
 
-  public NativeGitProvider setPrefixDot(String prefixDot) {
-    super.prefixDot = prefixDot;
-    return this;
-  }
-
-  public NativeGitProvider setAbbrevLength(int abbrevLength) {
-    super.abbrevLength = abbrevLength;
-    return this;
-  }
-
-  public NativeGitProvider setDateFormat(String dateFormat) {
-    super.dateFormat = dateFormat;
-    return this;
-  }
-
-  public NativeGitProvider setGitDescribe(GitDescribeConfig gitDescribe) {
-    super.gitDescribe = gitDescribe;
-    return this;
-  }
-
   @Override
   protected void init() throws MojoExecutionException {
-    try {
-      canonical = dotGitDirectory.getCanonicalFile();
-    } catch (Exception ex) {
-      throw new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex);
-    }
+    // noop ...
   }
 
   @Override
@@ -117,46 +82,38 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getGitDescribe() throws MojoExecutionException {
-    String argumentsForGitDescribe = getArgumentsForGitDescribe(super.gitDescribe);
-    String gitDescribe = tryToRunGitCommand(canonical, "describe " + argumentsForGitDescribe);
+    final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
+    final String gitDescribe = tryToRunGitCommand(canonical, "describe" + argumentsForGitDescribe);
     return gitDescribe;
   }
 
-  private String getArgumentsForGitDescribe(GitDescribeConfig gitDescribe) {
-    if (gitDescribe != null) {
-      return getArgumentsForGitDescribeAndDescibeNotNull(gitDescribe);
-    } else {
-      return "";
-    }
-  }
+  private String getArgumentsForGitDescribe(GitDescribeConfig describeConfig) {
+    if (describeConfig == null) return "";
 
-  private String getArgumentsForGitDescribeAndDescibeNotNull(GitDescribeConfig gitDescribe) {
     StringBuilder argumentsForGitDescribe = new StringBuilder();
 
-    if (gitDescribe.isAlways()) {
-      argumentsForGitDescribe.append("--always ");
+    if (describeConfig.isAlways()) {
+      argumentsForGitDescribe.append(" --always");
     }
 
-    String dirtyMark = gitDescribe.getDirty();
+    final String dirtyMark = describeConfig.getDirty();
     if (dirtyMark != null && !dirtyMark.isEmpty()) {
-      // TODO: Code Injection? Or does the CliRunner escape Arguments?
-      argumentsForGitDescribe.append("--dirty=" + dirtyMark + " ");
+      argumentsForGitDescribe.append(" --dirty=" + dirtyMark);
     }
 
-    String matchOption = gitDescribe.getMatch();
+    final String matchOption = describeConfig.getMatch();
     if (matchOption != null && !matchOption.isEmpty()) {
-      // TODO: Code Injection? Or does the CliRunner escape Arguments?
-      argumentsForGitDescribe.append("--match=" + matchOption + " ");
+      argumentsForGitDescribe.append(" --match=" + matchOption);
     }
 
-    argumentsForGitDescribe.append("--abbrev=" + gitDescribe.getAbbrev() + " ");
+    argumentsForGitDescribe.append(" --abbrev=" + describeConfig.getAbbrev());
 
-    if (gitDescribe.getTags()) {
-      argumentsForGitDescribe.append("--tags ");
+    if (describeConfig.getTags()) {
+      argumentsForGitDescribe.append(" --tags");
     }
 
-    if (gitDescribe.getForceLongFormat()) {
-      argumentsForGitDescribe.append("--long ");
+    if (describeConfig.getForceLongFormat()) {
+      argumentsForGitDescribe.append(" --long");
     }
     return argumentsForGitDescribe.toString();
   }
@@ -182,8 +139,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected boolean isDirty() throws MojoExecutionException {
-    String output = tryToRunGitCommand(canonical, "status --porcelain");
-    return !output.trim().isEmpty();
+    return !tryCheckEmptyRunGitCommand(canonical, "status -s");
   }
 
   @Override
@@ -284,58 +240,144 @@ public class NativeGitProvider extends GitDataProvider {
     return retValue;
   }
 
-  private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
+  /**
+   * Runs a maven command and returns {@code true} if output was non empty.
+   * Can be used to short cut reading output from command when we know it may be a rather long one.
+   * */
+  private boolean tryCheckEmptyRunGitCommand(File directory, String gitCommand) {
     try {
       String env = System.getenv("GIT_PATH");
       String exec = (env == null) ? "git" : env;
       String command = String.format("%s %s", exec, gitCommand);
 
-      String result = getRunner().run(directory, command).trim();
-      return result;
+      boolean empty = getRunner().runEmpty(directory, command);
+      return !empty;
     } catch (IOException ex) {
-      throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " + "Tried to run: 'git " + gitCommand + "'", ex);
+      return false;
+      // do nothing...
     }
   }
 
-  private CliRunner getRunner() {
+  private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
+    try {
+      final String env = System.getenv("GIT_PATH");
+      final String exec = (env == null) ? "git" : env;
+      final String command = String.format("%s %s", exec, gitCommand);
+
+      final String result = getRunner().run(directory, command.trim()).trim();
+      return result;
+    } catch (IOException ex) {
+      if (ex.getMessage().contains("exited with invalid status")) {
+        throw new RuntimeException("Failed to execute git command (`git " + gitCommand + "` @ " + directory +")!", ex);
+      } else {
+        throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " +
+                                           "Tried to run: 'git " + gitCommand + "'", ex);
+      }
+    }
+  }
+
+  private ProcessRunner getRunner() {
     if (runner == null) {
-      runner = new Runner();
+      runner = new JavaProcessRunner();
     }
     return runner;
   }
 
-
-  // CLI RUNNER
-
-  public interface CliRunner {
+  public interface ProcessRunner {
+    /** Run a command and return the entire output as a String - naive, we know. */
     String run(File directory, String command) throws IOException;
+    /** Run a command and return false if it contains at least one output line*/
+    boolean runEmpty(File directory, String command) throws IOException;
   }
 
-  protected static class Runner implements CliRunner {
+  protected static class JavaProcessRunner implements ProcessRunner {
     @Override
-    public String run(File directory, String command) throws IOException {
-      String output = "";
+        public String run(File directory, String command) throws IOException {
+          String output = "";
+          try {
+            ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+            final Process proc = builder.directory(directory).start();
+            proc.waitFor();
+            final InputStream is = proc.getInputStream();
+            final InputStream err = proc.getErrorStream();
+
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            final StringBuilder commandResult = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+              commandResult.append(line);
+            }
+
+            if (proc.exitValue() != 0) {
+              final StringBuilder errMsg = readStderr(err);
+
+              final String message = String.format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", proc.exitValue(), output, errMsg.toString());
+              throw new IOException(message);
+            }
+            output = commandResult.toString();
+          } catch (InterruptedException ex) {
+            throw new IOException(ex);
+          }
+          return output;
+        }
+
+    private StringBuilder readStderr(InputStream err) throws IOException {
+      String line;
+      final BufferedReader errReader = new BufferedReader(new InputStreamReader(err));
+      final StringBuilder errMsg = new StringBuilder();
+      while((line = errReader.readLine())!=null){
+        errMsg.append(line);
+      }
+      return errMsg;
+    }
+
+//    @Override
+//    public String run(File directory, String command) throws IOException {
+//      String output;
+//      try {
+//        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+//        final Process proc = builder.directory(directory).start();
+//        proc.waitFor();
+//        InputStream is = proc.getInputStream();
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+//        final StringBuilder commandResult = new StringBuilder();
+//
+//        String line;
+//        while ((line = reader.readLine()) != null) {
+//          commandResult.append(line);
+//        }
+//
+//        output = commandResult.toString();
+//
+//        if (proc.exitValue() != 0) {
+//          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(), output);
+//          throw new IOException(message);
+//        }
+//      } catch (InterruptedException e) {
+//        throw new RuntimeException("Unable to attach to git process!", e);
+//      }
+//      return output;
+//    }
+
+    @Override
+    public boolean runEmpty(File directory, String command) throws IOException {
+      boolean empty = true;
+
       try {
-        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        ProcessBuilder builder = new ProcessBuilder(Lists.asList("/bin/sh", "-c", command.split("\\s")));
         final Process proc = builder.directory(directory).start();
         proc.waitFor();
         final InputStream is = proc.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        final StringBuilder commandResult = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-          commandResult.append(line);
+
+        if (reader.readLine() != null) {
+          empty = false;
         }
 
-        if (proc.exitValue() != 0) {
-          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(), output);
-          throw new IOException(message);
-        }
-        output = commandResult.toString();
       } catch (InterruptedException ex) {
         throw new IOException(ex);
       }
-      return output;
+      return empty; // was non-empty
     }
   }
 }

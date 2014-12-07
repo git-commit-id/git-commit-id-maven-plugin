@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class GitCommitIdMojoTest {
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
 
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory()).withLoggerBridge(mojo.getLoggerBridge());
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
   }
 
   @Test
@@ -194,6 +195,7 @@ public class GitCommitIdMojoTest {
   @Test
   public void loadShortDescribe() {
     assertShortDescribe("1.0.2-12-g19471", "1.0.2-12");
+    assertShortDescribe("v1.0.0-0-gde4db35917", "v1.0.0-0");
     assertShortDescribe("1.0.2-12-g19471-DEV", "1.0.2-12-DEV");
     assertShortDescribe("V-1.0.2-12-g19471-DEV", "V-1.0.2-12-DEV");
 

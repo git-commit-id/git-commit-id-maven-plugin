@@ -32,7 +32,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=false
    */
-  private boolean skip;
+  private boolean skip = false;
 
   /**
    * <pre>--always</pre>
@@ -42,18 +42,18 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=true
    */
-  private boolean always;
+  private boolean always = true;
 
   /**
    * <pre>--dirty[=mark]</pre>
    * Describe the working tree. It means describe HEAD and appends mark (<pre>-dirty</pre> by default) if the
    * working tree is dirty.
    *
-   * <b>-devel</b> by default, following git's behaviour.
+   * <b>empty</b> by default, following git's behaviour.
    *
-   * @parameter default-value="devel"
+   * @parameter default-value=""
    */
-  private String dirty;
+  private String dirty = "";
 
   /**
    *<pre>--match glob-pattern</pre>
@@ -63,7 +63,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value="*"
    */
-  private String match;
+  private String match = "*";
 
   /**
    * <pre>--abbrev=N</pre>
@@ -103,7 +103,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=7
    */
-  private int abbrev;
+  private int abbrev = 7;
 
   /**
    * <pre>--tags</pre>
@@ -136,7 +136,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=false
    */
-  private boolean tags;
+  private boolean tags = false;
 
   /**
    * <pre>--long</pre>
@@ -151,7 +151,7 @@ public class GitDescribeConfig {
    *
    * @parameter default-value=false
    */
-  private boolean forceLongFormat;
+  private boolean forceLongFormat = false;
 
   public GitDescribeConfig() {
   }

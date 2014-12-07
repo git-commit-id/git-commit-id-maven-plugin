@@ -12,10 +12,10 @@ import java.util.Properties;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
-*
-* @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
-*/
+ * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
+ */
 public abstract class GitDataProvider {
+
   @NotNull
   protected LoggerBridge loggerBridge;
 
@@ -27,7 +27,31 @@ public abstract class GitDataProvider {
 
   protected String dateFormat;
 
-  protected GitDescribeConfig gitDescribe;
+  protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
+
+  public GitDataProvider(@NotNull LoggerBridge loggerBridge) {
+    this.loggerBridge = loggerBridge;
+  }
+
+  public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
+    this.gitDescribe = gitDescribe;
+    return this;
+  }
+
+  public GitDataProvider setPrefixDot(String prefixDot) {
+    this.prefixDot = prefixDot;
+    return this;
+  }
+
+  public GitDataProvider setAbbrevLength(int abbrevLength) {
+    this.abbrevLength = abbrevLength;
+    return this;
+  }
+
+  public GitDataProvider setDateFormat(String dateFormat) {
+    this.dateFormat = dateFormat;
+    return this;
+  }
 
   protected abstract void init() throws MojoExecutionException;
   protected abstract String getBuildAuthorName();
@@ -148,9 +172,7 @@ public abstract class GitDataProvider {
   }
 
   void log(String... parts) {
-    if (loggerBridge != null) {
-      loggerBridge.log((Object[]) parts);
-    }
+    loggerBridge.log((Object[]) parts);
   }
 
   protected void put(@NotNull Properties properties, String key, String value) {

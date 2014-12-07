@@ -161,7 +161,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   @NotNull
   public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
-    if (forceLongFormat != null) {
+    if (forceLongFormat != null && forceLongFormat) {
       this.forceLongFormat = forceLongFormat;
       log("--long =", forceLongFormat);
     }
@@ -217,7 +217,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   @NotNull
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
-    if (includeLightweightTagsInSearch != null) {
+    if (includeLightweightTagsInSearch != null && includeLightweightTagsInSearch) {
       tagsFlag = includeLightweightTagsInSearch;
       log("--tags =", includeLightweightTagsInSearch);
     }
@@ -275,8 +275,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   @NotNull
   public DescribeCommand match(@Nullable String pattern) {
-    matchOption = Optional.fromNullable(pattern);
-    log("--match =", matchOption.or(""));
+    if (!"*".equals(pattern)) {
+      matchOption = Optional.fromNullable(pattern);
+      log("--match =", matchOption.or(""));
+    }
     return this;
   }
 
