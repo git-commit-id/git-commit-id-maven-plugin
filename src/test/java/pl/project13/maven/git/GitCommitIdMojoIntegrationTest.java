@@ -640,6 +640,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
       gitDescribeConfig.setMatch(gitDescribeMatchNeedle);
+      gitDescribeConfig.setAlways(false);
+
       alterMojoSettings("gitDescribe", gitDescribeConfig);
       alterMojoSettings("useNativeGit", useNativeGit);
 
@@ -648,7 +650,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.describe");
-      assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).isEqualTo(gitDescribeMatchNeedle + "-66-g1c6cf6f");
+      assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).startsWith(gitDescribeMatchNeedle);
 
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id");
       assertThat(targetProject.getProperties().get("git.commit.id")).isNotEqualTo(commitIdOfMatchNeedle);
