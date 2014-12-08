@@ -154,7 +154,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                     <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
-                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <failOnNoGitDirectory>true</failOnNoGitDirectory>
 
                     <!-- @since v2.0.4 -->
                     <!--
