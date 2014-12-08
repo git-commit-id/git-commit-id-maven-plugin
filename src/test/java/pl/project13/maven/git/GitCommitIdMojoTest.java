@@ -80,9 +80,9 @@ public class GitCommitIdMojoTest {
     Properties properties = mojo.getProperties();
 
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.dirty"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.files.dirty"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));

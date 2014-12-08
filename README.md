@@ -258,6 +258,7 @@ Now you just have to include such a properties file in your project under `/src/
 
 ```
 git.branch=${git.branch}
+git.dirty=${git.dirty}
 git.commit.tags=${git.tags}
 
 git.commit.id.describe=${git.commit.id.describe}
@@ -290,6 +291,7 @@ Start out with with adding the above steps to your project, next paste this **gi
 
     <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
         <property name="branch" value="${git.branch}"/>
+        <property name="dirty" value="${git.dirty}"/>
         <property name="tags" value="${git.tags}"/>
         <property name="describe" value="${git.commit.id.describe}"/>
         <property name="commitId" value="${git.commit.id}"/>
@@ -321,7 +323,8 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
-  String branch;                  // =${git.tags} // comma separated tag names
+  String dirty;                   // =${git.dirty}
+  String tags;                    // =${git.tags} // comma separated tag names
   String describe;                // =${git.commit.id.describe}
   String shortDescribe;           // =${git.commit.id.describe-short}
   String commitId;                // =${git.commit.id}
@@ -374,6 +377,7 @@ In the end *this is what this service would return*:
 ```json
      {
          "branch" : "testing-maven-git-plugin",
+         "dirty" : "false",
          "tags" : "v2.1.11,testing",
          "describe" : "v2.1.0-2-g2346463",
          "describeShort" : "v2.1.0-2",
@@ -439,6 +443,7 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 public GitRepositoryState(Properties properties)
 {
    this.branch = properties.get("git.branch").toString();
+   this.dirty = properties.get("git.dirty").toString();
    this.tags = properties.get("git.tags").toString();
    this.describe = properties.get("git.commit.id.describe").toString();
    this.describeShort = properties.get("git.commit.id.describe-short").toString();
@@ -612,5 +617,3 @@ The best way to ask for features / improvements is [via the Issues section on gi
 and maybe someone else has some idea or would like to upvote your issue.
 
 In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/ktoso/maven-git-commit-id-plugin/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

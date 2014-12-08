@@ -90,8 +90,8 @@ public abstract class GitDataProvider {
       put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
       // git.commit.id.abbrev      
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
-      // git.files.dirty
-      put(properties, GitCommitIdMojo.FILES_DIRTY, Boolean.toString(isDirty()));
+      // git.dirty
+      put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));
       // git.commit.author.name
       put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());
       // git.commit.author.email

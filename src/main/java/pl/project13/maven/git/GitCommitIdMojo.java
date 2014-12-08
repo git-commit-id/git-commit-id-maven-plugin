@@ -58,9 +58,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
+  public static final String DIRTY = "dirty";
   public static final String COMMIT_ID = "commit.id";
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
-  public static final String FILES_DIRTY = "commit.files.dirty";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
   public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
   public static final String BUILD_AUTHOR_NAME = "build.user.name";

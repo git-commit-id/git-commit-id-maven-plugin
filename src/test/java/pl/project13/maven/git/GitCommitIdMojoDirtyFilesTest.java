@@ -66,7 +66,7 @@ public class GitCommitIdMojoDirtyFilesTest {
 
     Properties properties = mojo.getProperties();
 
-    assertThat(properties.get("git.commit.files.dirty")).isEqualTo("false");
+    assertThat(properties.get("git.dirty")).isEqualTo("false");
   }
 
   @Test
@@ -98,6 +98,6 @@ public class GitCommitIdMojoDirtyFilesTest {
 
     Properties properties = mojo.getProperties();
 
-    assertThat(properties.get("git.commit.files.dirty")).isEqualTo("true");
+    assertThat(properties.get("git.dirty")).isEqualTo("true");
   }
 }
