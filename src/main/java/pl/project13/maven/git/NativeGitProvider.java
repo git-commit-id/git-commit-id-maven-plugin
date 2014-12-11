@@ -73,9 +73,15 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   private String getBranch(File canonical) {
-    String branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
-    if (branch != null) {
-      branch = branch.replace("refs/heads/", "");
+    String branch = null;
+    try{
+      branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
+      if (branch != null) {
+        branch = branch.replace("refs/heads/", "");
+      }
+    }catch(RuntimeException e){
+      // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
+      branch = getCommitId();
     }
     return branch;
   }
