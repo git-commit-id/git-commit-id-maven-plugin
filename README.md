@@ -36,7 +36,7 @@ A detailed description of using the pluing is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.1.11**:
+The current version is **2.1.12** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.1.12)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -94,7 +94,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.1.11</version>
+                <version>2.1.12</version>
                 <executions>
                     <execution>
                         <goals>
@@ -378,7 +378,7 @@ In the end *this is what this service would return*:
      {
          "branch" : "testing-maven-git-plugin",
          "dirty" : "false",
-         "tags" : "v2.1.11,testing",
+         "tags" : "v2.1.12,testing",
          "describe" : "v2.1.0-2-g2346463",
          "describeShort" : "v2.1.0-2",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
