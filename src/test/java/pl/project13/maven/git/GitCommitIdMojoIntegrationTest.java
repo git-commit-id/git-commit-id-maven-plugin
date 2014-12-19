@@ -662,6 +662,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribeConfig.setTags(true);
     gitDescribeConfig.setForceLongFormat(forceLongFormat);
     gitDescribeConfig.setAbbrev(abbrev);
+    gitDescribeConfig.setDirty("");
     return gitDescribeConfig;
   }
 
