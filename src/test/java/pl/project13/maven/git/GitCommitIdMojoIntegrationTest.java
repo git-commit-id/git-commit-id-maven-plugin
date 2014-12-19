@@ -631,8 +631,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     Map<String,String> gitTagMap = new HashMap<String,String>();
-    gitTagMap.put("v2.1.8", "4f787aa37d5d9c06780278f0cf92553d304820a2");
-    gitTagMap.put("v2.1.9", "a9dba4a25b64ab288d90cd503785b830d2e189a2");
+    gitTagMap.put("v2.1.11", "4308260db9582682a686b473390a5261ccacd6ef");
+    gitTagMap.put("v2.1.12", "42a0a939e6d5cd17389640170c969d519c14b302");
 
     for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();
@@ -662,6 +662,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribeConfig.setTags(true);
     gitDescribeConfig.setForceLongFormat(forceLongFormat);
     gitDescribeConfig.setAbbrev(abbrev);
+    gitDescribeConfig.setDirty("");
     return gitDescribeConfig;
   }
 
