@@ -40,7 +40,6 @@ import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -535,25 +534,32 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (gitPropsFile.exists( )) {
       final Properties persistedProperties;
 
-      if (isJsonFormat) {
-        log("Reading exising json file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+      try {
+        if (isJsonFormat) {
+          log("Reading exising json file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
 
-        persistedProperties = readJsonProperties( gitPropsFile );
+          persistedProperties = readJsonProperties( gitPropsFile );
+        }
+        else {
+          log("Reading exising properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+
+          persistedProperties = readProperties( gitPropsFile );
+        }
+
+        final Properties propertiesCopy = (Properties) localProperties.clone( );
+
+        final String buildTimeProperty = prefixDot + BUILD_TIME;
+
+        propertiesCopy.remove( buildTimeProperty );
+        persistedProperties.remove( buildTimeProperty );
+
+        shouldGenerate = ! propertiesCopy.equals( persistedProperties );
       }
-      else {
-        log("Reading exising properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
-
-        persistedProperties = readProperties( gitPropsFile );
+      catch ( CannotReadFileException ex ) {
+        // Read has failed, regenerate file
+        log("Cannot read properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+        shouldGenerate = true;
       }
-
-      final Properties propertiesCopy = (Properties) localProperties.clone( );
-
-      final String buildTimeProperty = prefixDot + BUILD_TIME;
-
-      propertiesCopy.remove( buildTimeProperty );
-      persistedProperties.remove( buildTimeProperty );
-
-      shouldGenerate = ! propertiesCopy.equals( persistedProperties );
     }
 
     if (shouldGenerate) {
@@ -616,7 +622,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @SuppressWarnings( "resource" )
-  static Properties readJsonProperties(@NotNull File jsonFile) {
+  static Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
     final HashMap<String, Object> propertiesMap;
 
     {
@@ -635,7 +641,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         propertiesMap = mapper.readValue(reader, mapTypeRef);
       } catch (final Exception ex) {
-        throw new RuntimeException("Cannot read from git properties file: " + jsonFile, ex);
+        throw new CannotReadFileException(ex);
       } finally {
         Closeables.closeQuietly(closeable);
       }
@@ -651,8 +657,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @SuppressWarnings( "resource" )
-  static Properties readProperties(@NotNull File propertiesFile)
-  {
+  static Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
     Closeable closeable = null;
 
     try {
@@ -662,17 +667,28 @@ public class GitCommitIdMojo extends AbstractMojo {
       final InputStreamReader reader = new InputStreamReader(fis, Charsets.UTF_8);
       closeable = reader;
 
-      final Properties retVal = new Properties( );
+      final Properties retVal = new Properties();
 
       retVal.load(reader);
 
       return retVal;
     }
     catch (final Exception ex) {
-      throw new RuntimeException("Cannot read from git properties file: " + propertiesFile, ex);
+      throw new CannotReadFileException(ex);
     }
     finally {
       Closeables.closeQuietly(closeable);
+    }
+  }
+
+  static class CannotReadFileException
+    extends Exception
+  {
+    private static final long serialVersionUID = -6290782570018307756L;
+
+    CannotReadFileException( Throwable cause )
+    {
+      super( cause );
     }
   }
 
