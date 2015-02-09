@@ -142,13 +142,13 @@ public class JGitProvider extends GitDataProvider {
   @Override
   protected String getCommitMessageFull() {
     String fullMessage = headCommit.getFullMessage();
-    return fullMessage;
+    return fullMessage.trim();
   }
 
   @Override
   protected String getCommitMessageShort() {
     String shortMessage = headCommit.getShortMessage();
-    return shortMessage;
+    return shortMessage.trim();
   }
 
   @Override
