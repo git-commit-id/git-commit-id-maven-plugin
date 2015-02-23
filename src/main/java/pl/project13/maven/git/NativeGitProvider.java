@@ -55,26 +55,26 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getBuildAuthorName() {
-      try {
-          return runGitCommand(canonical, "config --get user.name");
-      } catch (NativeCommandException e) {
-          if (e.getExitCode() == 1) { // No config file found
-              return "";
-          }
-          throw Throwables.propagate(e);
+    try {
+      return runGitCommand(canonical, "config --get user.name");
+    } catch (NativeCommandException e) {
+      if (e.getExitCode() == 1) { // No config file found
+        return "";
       }
+      throw Throwables.propagate(e);
+    }
   }
 
   @Override
   protected String getBuildAuthorEmail() {
-      try {
-          return runGitCommand(canonical, "config --get user.email");
-      } catch (NativeCommandException e) {
-          if (e.getExitCode() == 1) { // No config file found
-              return "";
-          }
-          throw Throwables.propagate(e);
+    try {
+      return runGitCommand(canonical, "config --get user.email");
+    } catch (NativeCommandException e) {
+      if (e.getExitCode() == 1) { // No config file found
+        return "";
       }
+      throw Throwables.propagate(e);
+    }
   }
 
   @Override
@@ -94,13 +94,13 @@ public class NativeGitProvider extends GitDataProvider {
         branch = branch.replace("refs/heads/", "");
       }
     } catch(NativeCommandException e) {
-        // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
-        String err = e.getStderr();
-        if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
-            branch = getCommitId();
-        } else {
-            throw Throwables.propagate(e);
-        }
+      // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
+      String err = e.getStderr();
+      if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
+        branch = getCommitId();
+      } else {
+        throw Throwables.propagate(e);
+      }
     }
     return branch;
   }
@@ -215,15 +215,15 @@ public class NativeGitProvider extends GitDataProvider {
 
     // welcome to text output parsing hell! - no `\n` is not enough
     for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
-        String trimmed = line.trim();
+      String trimmed = line.trim();
 
-        if (trimmed.startsWith("origin")) {
-            String[] splited = trimmed.split("\\s+");
-            if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
-                throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
-            }
-            remoteUrl = splited[1];
+      if (trimmed.startsWith("origin")) {
+        String[] splited = trimmed.split("\\s+");
+        if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
+          throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
         }
+        remoteUrl = splited[1];
+      }
     }
     return remoteUrl;
   }
@@ -250,31 +250,30 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   private String runQuietGitCommand(File directory, String gitCommand) {
-      final String env = System.getenv("GIT_PATH");
-      final String exec = (env == null) ? "git" : env;
-      final String command = String.format("%s %s", exec, gitCommand);
+    final String env = System.getenv("GIT_PATH");
+    final String exec = (env == null) ? "git" : env;
+    final String command = String.format("%s %s", exec, gitCommand);
 
-      try {
-          return getRunner().run(directory, command.trim()).trim();
-      } catch (IOException e) {
-          throw Throwables.propagate(e);
-      }
+    try {
+      return getRunner().run(directory, command.trim()).trim();
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private String runGitCommand(File directory, String gitCommand) throws NativeCommandException {
-      final String env = System.getenv("GIT_PATH");
-      final String exec = (env == null) ? "git" : env;
-      final String command = String.format("%s %s", exec, gitCommand);
+    final String env = System.getenv("GIT_PATH");
+    final String exec = (env == null) ? "git" : env;
+    final String command = String.format("%s %s", exec, gitCommand);
 
-      try {
-          return getRunner().run(directory, command.trim()).trim();
-      } catch (NativeCommandException e) {
-          throw e;
-      } catch (IOException e) {
-          throw Throwables.propagate(e);
-      }
+    try {
+      return getRunner().run(directory, command.trim()).trim();
+    } catch (NativeCommandException e) {
+      throw e;
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
-
 
   private ProcessRunner getRunner() {
     if (runner == null) {
@@ -292,48 +291,48 @@ public class NativeGitProvider extends GitDataProvider {
 
   public static class NativeCommandException extends IOException
   {
-      private final int exitCode;
-      private final String command;
-      private final File directory;
-      private final String stdout;
-      private final String stderr;
+    private final int exitCode;
+    private final String command;
+    private final File directory;
+    private final String stdout;
+    private final String stderr;
 
-      public NativeCommandException(int exitCode,
-                                    String command,
-                                    File directory,
-                                    String stdout,
-                                    String stderr) {
-          this.exitCode = exitCode;
-          this.command = command;
-          this.directory = directory;
-          this.stdout = stdout;
-          this.stderr = stderr;
-      }
+    public NativeCommandException(int exitCode,
+                                  String command,
+                                  File directory,
+                                  String stdout,
+                                  String stderr) {
+      this.exitCode = exitCode;
+      this.command = command;
+      this.directory = directory;
+      this.stdout = stdout;
+      this.stderr = stderr;
+    }
 
-      public int getExitCode() {
-          return exitCode;
-      }
+    public int getExitCode() {
+      return exitCode;
+    }
 
-      public String getCommand() {
-          return command;
-      }
+    public String getCommand() {
+      return command;
+    }
 
-      public File getDirectory() {
-          return directory;
-      }
+    public File getDirectory() {
+      return directory;
+    }
 
-      public String getStdout() {
-          return stdout;
-      }
+    public String getStdout() {
+      return stdout;
+    }
 
-      public String getStderr() {
-          return stderr;
-      }
+    public String getStderr() {
+      return stderr;
+    }
 
-      @Override
-      public String getMessage() {
-          return format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", exitCode, stdout, stderr);
-      }
+    @Override
+    public String getMessage() {
+      return format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", exitCode, stdout, stderr);
+    }
   }
 
   protected static class JavaProcessRunner implements ProcessRunner {

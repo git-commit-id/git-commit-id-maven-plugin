@@ -33,119 +33,118 @@ import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 public class NativeAndJGitProviderTest extends GitIntegrationTest
 {
-    public static final String[] GIT_KEYS = new String[] {
-                    "git.build.time",
-                    "git.branch",
-                    "git.commit.id",
-                    "git.commit.id.abbrev",
-                    "git.commit.id.describe",
-                    "git.build.user.name",
-                    "git.build.user.email",
-                    "git.commit.user.name",
-                    "git.commit.user.email",
-                    "git.commit.message.full",
-                    "git.commit.message.short",
-                    "git.commit.time",
-                    "git.remote.origin.url"
-    };
+  public static final String[] GIT_KEYS = new String[] {
+    "git.build.time",
+    "git.branch",
+    "git.commit.id",
+    "git.commit.id.abbrev",
+    "git.commit.id.describe",
+    "git.build.user.name",
+    "git.build.user.email",
+    "git.commit.user.name",
+    "git.commit.user.email",
+    "git.commit.message.full",
+    "git.commit.message.short",
+    "git.commit.time",
+    "git.remote.origin.url"
+  };
 
-    // Can't be static, not thread safe.
-    public final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
+  // Can't be static, not thread safe.
+  public final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
 
-    @Test
-    public void testCompareBasic() throws Exception
-    {
-        // Test on all available basic repos to ensure that the output is identical.
-        for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-            mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
-            MavenProject targetProject = mavenSandbox.getParentProject();
-            verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
-        }
+  @Test
+  public void testCompareBasic() throws Exception
+  {
+    // Test on all available basic repos to ensure that the output is identical.
+    for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
+      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      MavenProject targetProject = mavenSandbox.getParentProject();
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+    }
+  }
+
+  @Test
+  public void testCompareSubrepoInRoot() throws Exception
+  {
+    for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
+      if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
+        continue; // Don't create a subrepo based off the plugin repo itself.
+      }
+      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      MavenProject targetProject = mavenSandbox.getParentProject();
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+    }
+  }
+
+  @Test
+  public void testCompareSubrepoInChild() throws Exception
+  {
+    for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
+      if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
+        continue; // Don't create a subrepo based off the plugin repo itself.
+      }
+      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      MavenProject targetProject = mavenSandbox.getChildProject();
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+    }
+  }
+
+  private void verifyNativeAndJGit(MavenProject targetProject, DateFormat format) throws Exception
+  {
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("useNativeGit", false);
+    alterMojoSettings("skipPoms", false);
+    mojo.execute();
+    Properties jgitProps = createCopy(targetProject.getProperties());
+
+    alterMojoSettings("useNativeGit", true);
+    mojo.execute();
+    Properties nativeProps = createCopy(targetProject.getProperties());
+
+    assertGitPropertiesPresentInProject(jgitProps);
+    assertGitPropertiesPresentInProject(nativeProps);
+
+    for (String key : GIT_KEYS) {
+      if (!key.equals("git.build.time")) { // git.build.time is excused because the two runs happened at different times.
+        assertEquals("Key difference for key: '" + key + "'", jgitProps.getProperty(key), nativeProps.getProperty(key));
+      }
+      else {
+        // Ensure that the date formats are parseable and within reason. If running all the git commands on the
+        // native provider takes more than 60 seconds, then something is seriously wrong.
+        long jGitBuildTimeInMs = format.parse(jgitProps.getProperty(key)).getTime();
+        long nativeBuildTimeInMs = format.parse(nativeProps.getProperty(key)).getTime();
+        Assert.assertTrue("Time ran backwards, jgitTime after nativeTime!", jGitBuildTimeInMs <= nativeBuildTimeInMs);
+        Assert.assertTrue("Build ran too slow.", (nativeBuildTimeInMs - jGitBuildTimeInMs) < 60000L); // If native takes more than 1 minute, something is wrong.
+      }
     }
 
-    @Test
-    public void testCompareSubrepoInRoot() throws Exception
-    {
-        for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-            if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
-                continue; // Don't create a subrepo based off the plugin repo itself.
-            }
-            mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
-            MavenProject targetProject = mavenSandbox.getParentProject();
-            verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
-        }
+    // Check the commit time to be equal in ms, too.
+    long jGitCommitTimeInMs = format.parse(jgitProps.getProperty("git.commit.time")).getTime();
+    long nativeCommitTimeInMs = format.parse(nativeProps.getProperty("git.commit.time")).getTime();
+
+    assertEquals("commit times parse to different time stamps", jGitCommitTimeInMs, nativeCommitTimeInMs);
+  }
+
+  private void alterMojoSettings(String parameterName, Object parameterValue)
+  {
+    setInternalState(mojo, parameterName, parameterValue);
+  }
+
+  private Properties createCopy(Properties orig)
+  {
+    Properties p = new Properties();
+    for (String key : orig.stringPropertyNames()) {
+      p.setProperty(key, orig.getProperty(key));
     }
 
-    @Test
-    public void testCompareSubrepoInChild() throws Exception
-    {
-        for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-            if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
-                continue; // Don't create a subrepo based off the plugin repo itself.
-            }
-            mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
-            MavenProject targetProject = mavenSandbox.getChildProject();
-            verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
-        }
+    return p;
+  }
+
+  private void assertGitPropertiesPresentInProject(Properties properties)
+  {
+    for (String key : GIT_KEYS) {
+      assertThat(properties).satisfies(new ContainsKeyCondition(key));
     }
-
-
-    private void verifyNativeAndJGit(MavenProject targetProject, DateFormat format) throws Exception
-    {
-        setProjectToExecuteMojoIn(targetProject);
-
-        alterMojoSettings("useNativeGit", false);
-        alterMojoSettings("skipPoms", false);
-        mojo.execute();
-        Properties jgitProps = createCopy(targetProject.getProperties());
-
-        alterMojoSettings("useNativeGit", true);
-        mojo.execute();
-        Properties nativeProps = createCopy(targetProject.getProperties());
-
-        assertGitPropertiesPresentInProject(jgitProps);
-        assertGitPropertiesPresentInProject(nativeProps);
-
-        for (String key : GIT_KEYS) {
-            if (!key.equals("git.build.time")) { // git.build.time is excused because the two runs happened at different times.
-                assertEquals("Key difference for key: '" + key + "'", jgitProps.getProperty(key), nativeProps.getProperty(key));
-            }
-            else {
-                // Ensure that the date formats are parseable and within reason. If running all the git commands on the
-                // native provider takes more than 60 seconds, then something is seriously wrong.
-                long jGitBuildTimeInMs = format.parse(jgitProps.getProperty(key)).getTime();
-                long nativeBuildTimeInMs = format.parse(nativeProps.getProperty(key)).getTime();
-                Assert.assertTrue("Time ran backwards, jgitTime after nativeTime!", jGitBuildTimeInMs <= nativeBuildTimeInMs);
-                Assert.assertTrue("Build ran too slow.", (nativeBuildTimeInMs - jGitBuildTimeInMs) < 60000L); // If native takes more than 1 minute, something is wrong.
-            }
-        }
-
-        // Check the commit time to be equal in ms, too.
-        long jGitCommitTimeInMs = format.parse(jgitProps.getProperty("git.commit.time")).getTime();
-        long nativeCommitTimeInMs = format.parse(nativeProps.getProperty("git.commit.time")).getTime();
-
-        assertEquals("commit times parse to different time stamps", jGitCommitTimeInMs, nativeCommitTimeInMs);
-    }
-
-    private void alterMojoSettings(String parameterName, Object parameterValue)
-    {
-        setInternalState(mojo, parameterName, parameterValue);
-    }
-
-    private Properties createCopy(Properties orig)
-    {
-        Properties p = new Properties();
-        for (String key : orig.stringPropertyNames()) {
-            p.setProperty(key, orig.getProperty(key));
-        }
-
-        return p;
-    }
-
-    private void assertGitPropertiesPresentInProject(Properties properties)
-    {
-        for (String key : GIT_KEYS) {
-            assertThat(properties).satisfies(new ContainsKeyCondition(key));
-        }
-    }
+  }
 }
