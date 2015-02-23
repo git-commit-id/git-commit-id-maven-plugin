@@ -49,8 +49,8 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     "git.remote.origin.url"
   };
 
-  // Can't be static, not thread safe.
-  public final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("dd.MM.yyyy '@' HH:mm:ss z");
+  public static final String DEFAULT_FORMAT_STRING  = "dd.MM.yyyy '@' HH:mm:ss z";
+  public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
   @Test
   public void testCompareBasic() throws Exception
@@ -59,7 +59,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
       MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -72,7 +72,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       }
       mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
       MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -85,16 +85,31 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       }
       mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
       MavenProject targetProject = mavenSandbox.getChildProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT);
+      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
-  private void verifyNativeAndJGit(MavenProject targetProject, DateFormat format) throws Exception
+  @Test
+  public void testCompareISO8601Time() throws Exception
+  {
+    // Test on all available basic repos to ensure that the output is identical.
+    for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
+      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      MavenProject targetProject = mavenSandbox.getParentProject();
+      verifyNativeAndJGit(targetProject, ISO8601_FORMAT_STRING);
+    }
+  }
+
+  private void verifyNativeAndJGit(MavenProject targetProject, String formatString) throws Exception
   {
     setProjectToExecuteMojoIn(targetProject);
 
-    alterMojoSettings("useNativeGit", false);
     alterMojoSettings("skipPoms", false);
+    alterMojoSettings("dateFormat", formatString);
+
+    DateFormat format = new SimpleDateFormat(formatString);
+
+    alterMojoSettings("useNativeGit", false);
     mojo.execute();
     Properties jgitProps = createCopy(targetProject.getProperties());
 
