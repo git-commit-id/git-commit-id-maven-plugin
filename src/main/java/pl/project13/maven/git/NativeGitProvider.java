@@ -1,6 +1,7 @@
 package pl.project13.maven.git;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -52,12 +53,26 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getBuildAuthorName() {
-    return tryToRunGitCommand(canonical, "config user.name");
+      try {
+          return runGitCommand(canonical, "config --get user.name");
+      } catch (NativeCommandException e) {
+          if (e.getExitCode() == 1) { // No config file found
+              return "";
+          }
+          throw Throwables.propagate(e);
+      }
   }
 
   @Override
   protected String getBuildAuthorEmail() {
-    return tryToRunGitCommand(canonical, "config user.email");
+      try {
+          return runGitCommand(canonical, "config --get user.email");
+      } catch (NativeCommandException e) {
+          if (e.getExitCode() == 1) { // No config file found
+              return "";
+          }
+          throw Throwables.propagate(e);
+      }
   }
 
   @Override
@@ -72,21 +87,24 @@ public class NativeGitProvider extends GitDataProvider {
   private String getBranch(File canonical) {
     String branch = null;
     try{
-      branch = tryToRunGitCommand(canonical, "symbolic-ref HEAD");
+      branch = runGitCommand(canonical, "symbolic-ref HEAD");
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
-    }catch(RuntimeException e){
-      // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
-      branch = getCommitId();
+    } catch(NativeCommandException e) {
+        // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
+        if (e.getExitCode() == 1) {
+            branch = getCommitId();
+        }
+        throw Throwables.propagate(e);
     }
     return branch;
   }
 
   @Override
-  protected String getGitDescribe() throws MojoExecutionException {
+  protected String getGitDescribe() {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
-    final String gitDescribe = tryToRunGitCommand(canonical, "describe" + argumentsForGitDescribe);
+    final String gitDescribe = runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
     return gitDescribe;
   }
 
@@ -123,11 +141,11 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitId() {
-    return tryToRunGitCommand(canonical, "rev-parse HEAD");
+    return runQuietGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
-  protected String getAbbrevCommitId() throws MojoExecutionException {
+  protected String getAbbrevCommitId() {
     // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD");
     // but minimum length for --short is 4, our abbrevLength could be 2
     String commitId = getCommitId();
@@ -147,34 +165,34 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitAuthorName() {
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:%an");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%an");
   }
 
   @Override
   protected String getCommitAuthorEmail() {
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:%ae");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae");
   }
 
   @Override
   protected String getCommitMessageFull() {
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:%B");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%B");
   }
 
   @Override
   protected String getCommitMessageShort() {
-    return tryToRunGitCommand(canonical, "log -1 --pretty=format:%s");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%s");
   }
 
   @Override
   protected String getCommitTime() {
-    String value =  tryToRunGitCommand(canonical, "log -1 --pretty=format:%ct");
+    String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     return smf.format(Long.parseLong(value)*1000L);
   }
 
   @Override
-  protected String getTags() throws MojoExecutionException {
-    final String result = tryToRunGitCommand(canonical, "tag --contains");
+  protected String getTags() {
+    final String result = runQuietGitCommand(canonical, "tag --contains");
     return result.replace('\n', ',');
   }
 
@@ -189,35 +207,21 @@ public class NativeGitProvider extends GitDataProvider {
 
   private String getOriginRemote(File directory) throws MojoExecutionException {
     String remoteUrl = null;
-    try {
-      String remotes = runGitCommand(directory, "remote -v");
+    String remotes = runQuietGitCommand(directory, "remote -v");
 
-      // welcome to text output parsing hell! - no `\n` is not enough
-      for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
+    // welcome to text output parsing hell! - no `\n` is not enough
+    for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
         String trimmed = line.trim();
 
         if (trimmed.startsWith("origin")) {
-          String[] splited = trimmed.split("\\s+");
-          if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
-            throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
-          }
-          remoteUrl = splited[1];
+            String[] splited = trimmed.split("\\s+");
+            if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
+                throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
+            }
+            remoteUrl = splited[1];
         }
-      }
-    } catch (Exception e) {
-      throw new MojoExecutionException("Error while obtaining origin remote", e);
     }
     return remoteUrl;
-  }
-
-  private String tryToRunGitCommand(File directory, String gitCommand) {
-    String retValue = "";
-    try {
-      retValue = runGitCommand(directory, gitCommand);
-    } catch (MojoExecutionException ex) {
-      // do nothing
-    }
-    return retValue;
   }
 
   /**
@@ -241,23 +245,32 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 
-  private String runGitCommand(File directory, String gitCommand) throws MojoExecutionException {
-    try {
+  private String runQuietGitCommand(File directory, String gitCommand) {
       final String env = System.getenv("GIT_PATH");
       final String exec = (env == null) ? "git" : env;
       final String command = String.format("%s %s", exec, gitCommand);
 
-      final String result = getRunner().run(directory, command.trim()).trim();
-      return result;
-    } catch (IOException ex) {
-      if (ex.getMessage().contains("exited with invalid status")) {
-        throw new RuntimeException("Failed to execute git command (`git " + gitCommand + "` @ " + directory +")!", ex);
-      } else {
-        throw new MojoExecutionException("Could not run GIT command - GIT is not installed or not exists in system path? " +
-                                           "Tried to run: 'git " + gitCommand + "'", ex);
+      try {
+          return getRunner().run(directory, command.trim()).trim();
+      } catch (IOException e) {
+          throw Throwables.propagate(e);
       }
-    }
   }
+
+  private String runGitCommand(File directory, String gitCommand) throws NativeCommandException {
+      final String env = System.getenv("GIT_PATH");
+      final String exec = (env == null) ? "git" : env;
+      final String command = String.format("%s %s", exec, gitCommand);
+
+      try {
+          return getRunner().run(directory, command.trim()).trim();
+      } catch (NativeCommandException e) {
+          throw e;
+      } catch (IOException e) {
+          throw Throwables.propagate(e);
+      }
+  }
+
 
   private ProcessRunner getRunner() {
     if (runner == null) {
@@ -271,6 +284,32 @@ public class NativeGitProvider extends GitDataProvider {
     String run(File directory, String command) throws IOException;
     /** Run a command and return false if it contains at least one output line*/
     boolean runEmpty(File directory, String command) throws IOException;
+  }
+
+  public static class NativeCommandException extends IOException
+  {
+      private final int exitCode;
+      private final String command;
+      private final File directory;
+
+      public NativeCommandException(int exitCode, String command, File directory, String message) {
+          super(message);
+          this.exitCode = exitCode;
+          this.command = command;
+          this.directory = directory;
+      }
+
+      public int getExitCode() {
+          return exitCode;
+      }
+
+      public String getCommand() {
+          return command;
+      }
+
+      public File getDirectory() {
+          return directory;
+      }
   }
 
   protected static class JavaProcessRunner implements ProcessRunner {
@@ -295,7 +334,7 @@ public class NativeGitProvider extends GitDataProvider {
               final StringBuilder errMsg = readStderr(err);
 
               final String message = String.format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", proc.exitValue(), output, errMsg.toString());
-              throw new IOException(message);
+              throw new NativeCommandException(proc.exitValue(), command, directory, message);
             }
             output = commandResult.toString();
           } catch (InterruptedException ex) {

@@ -3,8 +3,10 @@ package pl.project13.maven.git;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -18,6 +20,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
+
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -66,13 +69,13 @@ public class JGitProvider extends GitDataProvider {
   @Override
   protected String getBuildAuthorName() {
     String userName = git.getConfig().getString("user", null, "name");
-    return userName;
+    return Objects.firstNonNull(userName, "");
   }
 
   @Override
   protected String getBuildAuthorEmail() {
     String userEmail = git.getConfig().getString("user", null, "email");
-    return userEmail;
+    return Objects.firstNonNull(userEmail, "");
   }
 
   @Override
