@@ -622,17 +622,17 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
+    mavenSandbox.withParentProject("my-plugin-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
                 .create(CleanUp.CLEANUP_FIRST);
-    MavenProject targetProject = mavenSandbox.getChildProject();
+    MavenProject targetProject = mavenSandbox.getParentProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
     Map<String,String> gitTagMap = new HashMap<String,String>();
-    gitTagMap.put("v2.1.8", "4f787aa37d5d9c06780278f0cf92553d304820a2");
-    gitTagMap.put("v2.1.9", "a9dba4a25b64ab288d90cd503785b830d2e189a2");
+    gitTagMap.put("v2.1.11", "56c5a491720ce35ae8f8626be1d3414728f1b953");
+    gitTagMap.put("v2.1.12", "e9879658209ee81d7bf50ceedd028737f0b1cd0c");
 
     for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();

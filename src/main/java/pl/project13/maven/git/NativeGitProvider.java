@@ -1,5 +1,7 @@
 package pl.project13.maven.git;
 
+import static java.lang.String.format;
+
 import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
@@ -93,10 +95,12 @@ public class NativeGitProvider extends GitDataProvider {
       }
     } catch(NativeCommandException e) {
         // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
-        if (e.getExitCode() == 1) {
+        String err = e.getStderr();
+        if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
             branch = getCommitId();
+        } else {
+            throw Throwables.propagate(e);
         }
-        throw Throwables.propagate(e);
     }
     return branch;
   }
@@ -291,12 +295,19 @@ public class NativeGitProvider extends GitDataProvider {
       private final int exitCode;
       private final String command;
       private final File directory;
+      private final String stdout;
+      private final String stderr;
 
-      public NativeCommandException(int exitCode, String command, File directory, String message) {
-          super(message);
+      public NativeCommandException(int exitCode,
+                                    String command,
+                                    File directory,
+                                    String stdout,
+                                    String stderr) {
           this.exitCode = exitCode;
           this.command = command;
           this.directory = directory;
+          this.stdout = stdout;
+          this.stderr = stderr;
       }
 
       public int getExitCode() {
@@ -309,6 +320,19 @@ public class NativeGitProvider extends GitDataProvider {
 
       public File getDirectory() {
           return directory;
+      }
+
+      public String getStdout() {
+          return stdout;
+      }
+
+      public String getStderr() {
+          return stderr;
+      }
+
+      @Override
+      public String getMessage() {
+          return format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", exitCode, stdout, stderr);
       }
   }
 
@@ -332,9 +356,7 @@ public class NativeGitProvider extends GitDataProvider {
 
             if (proc.exitValue() != 0) {
               final StringBuilder errMsg = readStderr(err);
-
-              final String message = String.format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", proc.exitValue(), output, errMsg.toString());
-              throw new NativeCommandException(proc.exitValue(), command, directory, message);
+              throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
             }
             output = commandResult.toString();
           } catch (InterruptedException ex) {

@@ -135,8 +135,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     private Properties createCopy(Properties orig)
     {
         Properties p = new Properties();
-        for (Object o : orig.keySet()) {
-            String key = o.toString();
+        for (String key : orig.stringPropertyNames()) {
             p.setProperty(key, orig.getProperty(key));
         }
 
