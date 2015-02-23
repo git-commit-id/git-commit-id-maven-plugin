@@ -25,6 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.common.io.Files;
+
 /**
  * Quick and dirty maven projects tree structure to create on disk during integration tests
  * Can have both parent and child projects set up
@@ -118,7 +120,14 @@ public class FileSystemMavenSandbox {
 
   private void createGitRepoIfRequired() throws IOException {
     if (gitRepoTargetDir != null) {
-      FileUtils.copyDirectory(gitRepoSourceDir, new File(gitRepoTargetDir, ".git"));
+      File gitFolder = new File(gitRepoTargetDir, ".git");
+      FileUtils.copyDirectory(gitRepoSourceDir, gitFolder);
+      // As the WITH_NO_CHANGES and WITH_CHANGES git trees contain empty
+      // folders whose existence is crucial for the native git to run (jgit does not mind)
+      // *and* because empty folders are silently omitted from git checkins, ensure that
+      // these folders exist
+      Files.createParentDirs(new File(gitFolder, "refs/heads"));
+      Files.createParentDirs(new File(gitFolder, "refs/tags"));
     }
   }
 
