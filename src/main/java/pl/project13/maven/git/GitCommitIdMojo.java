@@ -99,7 +99,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
    * Basically, injecting into all projects may slow down the build and you don't always need this feature.
    *
-   * @parameter default-value="true"
+   * @parameter default-value="false"
    */
   @SuppressWarnings("UnusedDeclaration")
   private boolean injectAllReactorProjects;
@@ -359,7 +359,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (injectAllReactorProjects) {
-        appendPropertiesToReactorProjects(properties);
+        appendPropertiesToReactorProjects(properties, prefixDot);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -408,14 +408,16 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
+  private void appendPropertiesToReactorProjects(@NotNull Properties properties, @NotNull String trimmedPrefixWithDot) {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
       log(mavenProject.getName(), "] project", mavenProject.getName());
 
       for (Object key : properties.keySet()) {
-        mavenProperties.put(key, properties.get(key));
+        if (key.toString().startsWith(trimmedPrefixWithDot)) {
+            mavenProperties.put(key, properties.get(key));
+        }
       }
     }
   }
