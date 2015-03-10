@@ -49,11 +49,11 @@ public class GitDescribeConfig {
    * Describe the working tree. It means describe HEAD and appends mark (<pre>-dirty</pre> by default) if the
    * working tree is dirty.
    *
-   * <b>empty</b> by default, following git's behaviour.
+   * <b>-dirty</b> by default, following git's behaviour.
    *
-   * @parameter default-value=""
+   * @parameter default-value="-dirty"
    */
-  private String dirty = "";
+  private String dirty = "-dirty";
 
   /**
    *<pre>--match glob-pattern</pre>
