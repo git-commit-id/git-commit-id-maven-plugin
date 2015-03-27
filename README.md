@@ -2,7 +2,7 @@ maven git commit id plugin
 ==================================
 [![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.svg?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
 
-git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 fo example but as buildnumber at the time when I started this plugin only supported CVS and SVN, something had to be done.
+git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at the time when I started this plugin only supported CVS and SVN, something had to be done.
 I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
 
 Use cases
@@ -13,13 +13,13 @@ If you develop your maven project inside an git repository you may want to know 
 
 I worked in a team where the testers would come up to the development team and say: "hey, feature X is still broken!", to which a dev would reply "But I fixed it this morning!". Then they'd investigate a bit, only to see that the next version which would be deployed very soon included the needed fix, yet the developer already marked it as "ready for testing".
 
-The fix here is obvious: include the version you fixed some bug in the issue comment where you mark it as "ready for testing". You can eiter do this via smart tooling (recommended), or just manually put in a comment like "fixed in v1.4.3-324-g45xhbghv" (that's a git-describe output - explained in detail bellow), so the testing crew knows it doesn't make sense to pickup testing of this feature untill at least "324" (or greater) is included in the version output (it means "number of commits away from the mentioned tag" - readup on git-describe to understand how it works).
+The fix here is obvious: include the version you fixed some bug in the issue comment where you mark it as "ready for testing". You can either do this via smart tooling (recommended), or just manually put in a comment like "fixed in v1.4.3-324-g45xhbghv" (that's a git-describe output - explained in detail bellow), so the testing crew knows it doesn't make sense to pickup testing of this feature until at least "324" (or greater) is included in the version output (it means "number of commits away from the mentioned tag" - readup on git-describe to understand how it works).
 
 Make your distributed deployment aware of versions
 ---------------------------------------------
-Let's say you have a large distrubuted deployment where the servers need to talk to each other using some protocol. You have them configured to keep talking with servers of the same major + minor version number. So a server running "3.3.233" may still talk with one that has "3.3.120" - the protocol is guaranteed to not have changed in these versions.
+Let's say you have a large distributed deployment where the servers need to talk to each other using some protocol. You have them configured to keep talking with servers of the same major + minor version number. So a server running "3.3.233" may still talk with one that has "3.3.120" - the protocol is guaranteed to not have changed in these versions.
 
-And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking wiht each other until only the "new" nodes are left.
+And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking with each other until only the "new" nodes are left.
 
 Using this plugin, you can easily expose the information needed - based on git tags for example. 
 One might say that this is usually accomplished by using `${project.version}` and I generally would agree, but maybe tags would fit your use case better than a plain version. :-)
@@ -116,7 +116,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- @since 2.1.10 -->
                     <!-- 
                       false is default here, if set to true it uses native `git` excutable for extracting all data.
-                      This usualy has better performance than the default (jgit) implemenation, but requires you to 
+                      This usually has better performance than the default (jgit) implemenation, but requires you to 
                       have git available as executable for the build as well as *might break unexpectedly* when you 
                       upgrade your system-wide git installation.
                        
@@ -560,7 +560,7 @@ Optional parameters:
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the to be generated properties file. The path can be relative to ${project.basedir} (e.g. target/classes/git.properties) or can be a full path (e.g. ${project.build.outputDirectory}/git.properties).
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
-* **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory can not be found. When set to false and no .git directory is found the plugin will skip execution.
+* **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory cannot be found. When set to false and no .git directory is found the plugin will skip execution.
 * **failOnUnableToExtractRepoInfo** - `(default: true)` By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 * **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
@@ -573,7 +573,7 @@ Optional parameters:
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
 
-* **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git bevaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
+* **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git behaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
 * **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
 * **dirty** - `(default: "-dirty")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be inclided in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
 * **tags** - `(default: false)` if true this option enables matching a lightweight (non-annotated) tag.
