@@ -35,6 +35,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
 {
   public static final String[] GIT_KEYS = new String[] {
     "git.build.time",
+    "git.build.host",
     "git.branch",
     "git.commit.id",
     "git.commit.id.abbrev",

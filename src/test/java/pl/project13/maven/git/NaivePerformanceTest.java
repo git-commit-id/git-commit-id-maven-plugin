@@ -93,6 +93,7 @@ public class NaivePerformanceTest extends GitIntegrationTest {
 
   private void assertGitPropertiesPresentInProject(Properties properties) {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));

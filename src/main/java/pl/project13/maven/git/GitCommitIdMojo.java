@@ -40,6 +40,8 @@ import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -71,6 +73,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String BUILD_AUTHOR_NAME = "build.user.name";
   public static final String BUILD_AUTHOR_EMAIL = "build.user.email";
   public static final String BUILD_TIME = "build.time";
+  public static final String BUILD_HOST = "build.host";
   public static final String COMMIT_AUTHOR_NAME = "commit.user.name";
   public static final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
   public static final String COMMIT_MESSAGE_FULL = "commit.message.full";
@@ -355,6 +358,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       loadGitData(properties);
       loadBuildTimeData(properties);
+      loadBuildHostData(properties);
       loadShortDescribe(properties);
       filterNot(properties, excludeProperties);
       logProperties(properties);
@@ -470,6 +474,16 @@ public class GitCommitIdMojo extends AbstractMojo {
     Date buildDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(buildDate));
+  }
+
+  void loadBuildHostData(@NotNull Properties properties) {
+    String buildHost;
+    try {
+      buildHost = InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      buildHost = "UNKNOWN";
+    }
+    put(properties, BUILD_HOST, buildHost);
   }
 
   void loadShortDescribe(@NotNull Properties properties) {
