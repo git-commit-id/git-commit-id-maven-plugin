@@ -266,6 +266,7 @@ git.commit.id.describe=${git.commit.id.describe}
 git.build.user.name=${git.build.user.name}
 git.build.user.email=${git.build.user.email}
 git.build.time=${git.build.time}
+git.build.host=${git.build.host}
 
 git.commit.id=${git.commit.id}
 git.commit.id.abbrev=${git.commit.id.abbrev}
@@ -332,6 +333,7 @@ public class GitRepositoryState {
   String buildUserName;           // =${git.build.user.name}
   String buildUserEmail;          // =${git.build.user.email}
   String buildTime;               // =${git.build.time}
+  String buildHost;               // =${git.build.host}
   String commitUserName;          // =${git.commit.user.name}
   String commitUserEmail;         // =${git.commit.user.email}
   String commitMessageFull;       // =${git.commit.message.full}
@@ -451,6 +453,7 @@ public GitRepositoryState(Properties properties)
    this.buildUserName = properties.get("git.build.user.name").toString();
    this.buildUserEmail = properties.get("git.build.user.email").toString();
    this.buildTime = properties.get("git.build.time").toString();
+   this.buildHost = properties.get("git.build.host").toString();
    this.commitUserName = properties.get("git.commit.user.name").toString();
    this.commitUserEmail = properties.get("git.commit.user.email").toString();
    this.commitMessageShort = properties.get("git.commit.message.short").toString();
