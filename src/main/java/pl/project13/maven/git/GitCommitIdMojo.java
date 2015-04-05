@@ -477,11 +477,11 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadBuildHostData(@NotNull Properties properties) {
-    String buildHost;
+    String buildHost = null;
     try {
-      buildHost = InetAddress.getLocalHost().getHostName();
+      buildHost = InetAddress.getLocalHost().toString();
     } catch (UnknownHostException e) {
-      buildHost = "UNKNOWN";
+      log("Unable to get build host");
     }
     put(properties, BUILD_HOST, buildHost);
   }
