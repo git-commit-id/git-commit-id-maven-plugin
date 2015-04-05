@@ -27,6 +27,7 @@ import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 
@@ -219,19 +220,19 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath();
+    String generateGitPropertiesFilename = Paths.get(targetDir, "target", "classes", "git.properties").toString();
     
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
-    assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
+    assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
   }
 
   @Test
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = targetDir + "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath();
+    String generateGitPropertiesFilename = Paths.get(targetDir, "target", "classes", "git.properties").toString();
 
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
