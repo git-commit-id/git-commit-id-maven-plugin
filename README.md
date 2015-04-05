@@ -585,6 +585,12 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 
 All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
 
+Maintainers
+===========
+This project is currently maintained thanks to: @ktoso (founder), @TheSnoozer
+
+
+
 Notable contributions
 =====================
 I'd like to give a big thanks to some of these folks, for their suggestions and / or pull requests that helped make this plugin as popular as it is today:
@@ -615,5 +621,3 @@ You're free to use it as you wish, the full license text is attached in the LICE
 
 The best way to ask for features / improvements is [via the Issues section on github - it's better than email](https://github.com/ktoso/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
 and maybe someone else has some idea or would like to upvote your issue.
-
-In all other cases, feel free to contact me by sending an email to `konrad.malawski@java.pl`, I'll definitely write back. :-)
