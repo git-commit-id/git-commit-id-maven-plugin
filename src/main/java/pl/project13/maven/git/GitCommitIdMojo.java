@@ -481,7 +481,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      log("Unable to get build host");
+      log("Unable to get build host, skipping property " + BUILD_HOST + ". Error message was: " + e.getMessage());
     }
     put(properties, BUILD_HOST, buildHost);
   }
