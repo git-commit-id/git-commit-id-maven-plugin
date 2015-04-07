@@ -69,9 +69,9 @@
   </scm>
 
   <properties>
-    <maven-plugin-api.version>2.2.1</maven-plugin-api.version>
+    <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
 
-    <jgit.version>3.4.1.201406201815-r</jgit.version>
+    <jgit.version>3.7.0.201502260915-r</jgit.version>
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.5-beta</mockito.version>
 
@@ -91,11 +91,6 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
-      <version>${maven-plugin-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
       <version>${maven-plugin-api.version}</version>
     </dependency>
 

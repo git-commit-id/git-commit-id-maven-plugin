@@ -3,6 +3,7 @@ package pl.project13.maven.git;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -69,13 +70,13 @@ public class JGitProvider extends GitDataProvider {
   @Override
   protected String getBuildAuthorName() {
     String userName = git.getConfig().getString("user", null, "name");
-    return Objects.firstNonNull(userName, "");
+    return MoreObjects.firstNonNull(userName, "");
   }
 
   @Override
   protected String getBuildAuthorEmail() {
     String userEmail = git.getConfig().getString("user", null, "email");
-    return Objects.firstNonNull(userEmail, "");
+    return MoreObjects.firstNonNull(userEmail, "");
   }
 
   @Override
