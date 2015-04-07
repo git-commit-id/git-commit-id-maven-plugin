@@ -295,7 +295,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The Maven Session Object
    *
-   * @parameter expression="${session}"
+   * @parameter property="session"
    * @required
    * @readonly
    */
