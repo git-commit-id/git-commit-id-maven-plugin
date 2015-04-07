@@ -168,7 +168,7 @@ public class FileSystemMavenSandbox {
   @NotNull
   private MavenProject createProject(File basedir, String packaging) {
     MavenProject project = new MavenProject();
-    project.setBasedir(basedir);
+    project.setFile(new File(basedir + FILE_SEPARATOR + "pom.xml"));
     project.setPackaging(packaging);
     return project;
   }
