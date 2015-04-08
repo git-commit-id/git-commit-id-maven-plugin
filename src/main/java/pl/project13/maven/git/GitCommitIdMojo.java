@@ -82,7 +82,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The maven project.
    *
-   * @parameter property="project"
+   * @parameter property="project" default-value="${project}"
    * @readonly
    */
   @SuppressWarnings("UnusedDeclaration")
@@ -91,7 +91,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Contains the full list of projects in the reactor.
    *
-   * @parameter property="reactorProjects"
+   * @parameter property="reactorProjects" default-value="${reactorProjects}"
    * @readonly
    */
   @SuppressWarnings("UnusedDeclaration")
