@@ -85,12 +85,12 @@ public class JGitProvider extends GitDataProvider {
       // more details parsed out bellow
       Ref head = git.getRef(Constants.HEAD);
       if (head == null) {
-        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've set the dotGitDirectory property of this plugin to a valid path?");
+        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
       revWalk = new RevWalk(git);
       ObjectId headObjectId = head.getObjectId();
       if(headObjectId == null){
-        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you've some commits in the dotGitDirectory?");
+        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you have some commits in the dotGitDirectory?");
       }
       headCommit = revWalk.parseCommit(headObjectId);
       revWalk.markStart(headCommit);
