@@ -55,6 +55,11 @@ But I highly recommend using only stable versions, from maven central... :-)
 </pluginRepositories>
 ```
 
+If you just would like to see what the plugin can do, you can clone the repository and run
+```
+mvn clean install -Dmaven.test.skip=true && mvn clean package -Pdemo -Dmaven.test.skip=true
+```
+
 Using the plugin
 ----------------
 It's really simple to setup this plugin; below is a sample pom that you may base your **pom.xml** on. Note that it binds to the initialize phase by default such that all Git properties are available for use throughout the build lifecycle.
