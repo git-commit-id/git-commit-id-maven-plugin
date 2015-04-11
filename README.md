@@ -299,6 +299,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="commitTime" value="${git.commit.time}"/>
         <property name="buildTime" value="${git.build.time}"/>
+        <property name="buildHost" value="${git.build.host}"/>
         <property name="buildUserName" value="${git.build.user.name}"/>
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="commitMessageFull" value="${git.commit.message.full}"/>
