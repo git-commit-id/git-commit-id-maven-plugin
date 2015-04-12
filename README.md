@@ -109,6 +109,13 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                 </executions>
 
                 <configuration>
+                    <!--
+                        If you'd like to tell the plugin where your .git directory is,
+                        use this setting, otherwise we'll perform a search trying to
+                        figure out the right directory. It's better to add it explicite IMHO.
+                    -->
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+
                     <!-- that's the default value, you don't have to set it -->
                     <prefix>git</prefix>
 
@@ -118,30 +125,21 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- false is default here, it prints some more information during the build -->
                     <verbose>false</verbose>
 
-                    <!-- @since 2.1.10 -->
-                    <!-- 
-                      false is default here, if set to true it uses native `git` excutable for extracting all data.
-                      This usually has better performance than the default (jgit) implemenation, but requires you to 
-                      have git available as executable for the build as well as *might break unexpectedly* when you 
-                      upgrade your system-wide git installation.
-                       
-                      As rule of thumb - stay on `jgit` (keep this `false`) until you notice performance problems.
-                    -->
-                    <useNativeGit>false</useNativeGit>
-
-                    <!--
-                        If you'd like to tell the plugin where your .git directory is,
-                        use this setting, otherwise we'll perform a search trying to
-                        figure out the right directory. It's better to add it explicite IMHO.
-                    -->
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-
                     <!-- ALTERNATE SETUP - GENERATE FILE -->
                     <!--
                         If you want to keep git information, even in your WAR file etc,
                         use this mode, which will generate a properties file (with filled out values)
                         which you can then normally read using new Properties().load(/**/)
                     -->
+
+                    <!-- this is false by default, forces the plugin to generate the git.properties file -->
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+
+                    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+                    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+
+                    <!-- Denotes the format to save properties in. Valid options are "properties" (default) and "json". Properties will be saved to the generateGitPropertiesFilename if generateGitPropertiesFile is set to `true`. -->
+                    <format>properties</format>
 
                     <!--
                         this is true by default; You may want to set this to false, if the plugin should run inside a
@@ -151,25 +149,21 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     -->
                     <skipPoms>true</skipPoms>
 
-                    <!-- this is false by default, forces the plugin to generate the git.properties file -->
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <!-- @since 2.1.4 -->
+                    <!-- 
+                        Tell maven-git-commit-id to inject the git properties into all reactor projects not just the current one.
+                        For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
+                        The property is set to ``false`` by default to prevent the overriding of properties that may be unrelated to the project.
+                    -->
+                    <injectAllReactorProjects>false</injectAllReactorProjects>
 
-                    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-                    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
-
-                    <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->
                     <!-- @since 2.0.4 -->
+                    <!-- true by default, controls whether the plugin will fail when no .git directory is found, when set to false the plugin will just skip execution -->                    
                     <failOnNoGitDirectory>true</failOnNoGitDirectory>
 
-                    <!-- @since v2.0.4 -->
-                    <!--
-                         Controls the length of the abbreviated git commit it (git.commit.id.abbrev)
-
-                         Defaults to `7`.
-                         `0` carries the special meaning.
-                         Maximum value is `40`, because of max SHA-1 length.
-                     -->
-                    <abbrevLength>7</abbrevLength>
+                    <!-- @since 2.1.5 -->
+                    <!-- true by default, controls whether the plugin will fail if it was unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false. -->
+                    <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
 
                     <!-- @since 2.1.8 -->
                     <!--
@@ -208,6 +202,26 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                       <!-- <excludeProperty>git.user.*</excludeProperty> -->
                     </excludeProperties>
 
+                    <!-- @since 2.1.10 -->
+                    <!-- 
+                      false is default here, if set to true it uses native `git` excutable for extracting all data.
+                      This usually has better performance than the default (jgit) implemenation, but requires you to 
+                      have git available as executable for the build as well as *might break unexpectedly* when you 
+                      upgrade your system-wide git installation.
+                       
+                      As rule of thumb - stay on `jgit` (keep this `false`) until you notice performance problems.
+                    -->
+                    <useNativeGit>false</useNativeGit>
+
+                    <!-- @since v2.0.4 -->
+                    <!--
+                         Controls the length of the abbreviated git commit it (git.commit.id.abbrev)
+
+                         Defaults to `7`.
+                         `0` carries the special meaning.
+                         Maximum value is `40`, because of max SHA-1 length.
+                     -->
+                    <abbrevLength>7</abbrevLength>
 
                     <!-- @since 2.1.0 -->
                     <!-- 
@@ -262,24 +276,25 @@ Note that the resources filtering is important for this plugin to work, don't om
 Now you just have to include such a properties file in your project under `/src/main/resources` (and call it **git.properties** for example) and maven will put the appropriate properties in the placeholders:
 
 ```
+git.tags=${git.tags}
 git.branch=${git.branch}
 git.dirty=${git.dirty}
-git.commit.tags=${git.tags}
-
-git.commit.id.describe=${git.commit.id.describe}
-
-git.build.user.name=${git.build.user.name}
-git.build.user.email=${git.build.user.email}
-git.build.time=${git.build.time}
-git.build.host=${git.build.host}
+git.remote.origin.url=${git.remote.origin.url}
 
 git.commit.id=${git.commit.id}
 git.commit.id.abbrev=${git.commit.id.abbrev}
+git.commit.id.describe=${git.commit.id.describe}
+git.commit.id.describe-short=${git.commit.id.describe-short}
 git.commit.user.name=${git.commit.user.name}
 git.commit.user.email=${git.commit.user.email}
 git.commit.message.full=${git.commit.message.full}
 git.commit.message.short=${git.commit.message.short}
 git.commit.time=${git.commit.time}
+
+git.build.user.name=${git.build.user.name}
+git.build.user.email=${git.build.user.email}
+git.build.time=${git.build.time}
+git.build.host=${git.build.host}
 ```
 
 The `git` prefix may be configured in the plugin declaration above.
@@ -296,21 +311,25 @@ Start out with with adding the above steps to your project, next paste this **gi
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <bean name="gitRepositoryInformation" class="pl.project13.maven.example.git.GitRepositoryState">
+        <property name="tags" value="${git.tags}"/>
         <property name="branch" value="${git.branch}"/>
         <property name="dirty" value="${git.dirty}"/>
-        <property name="tags" value="${git.tags}"/>
-        <property name="describe" value="${git.commit.id.describe}"/>
+        <property name="remoteOriginUrl" value="${git.remote.origin.url}"/>
+
         <property name="commitId" value="${git.commit.id}"/>
         <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
-        <property name="commitTime" value="${git.commit.time}"/>
-        <property name="buildTime" value="${git.build.time}"/>
-        <property name="buildHost" value="${git.build.host}"/>
-        <property name="buildUserName" value="${git.build.user.name}"/>
-        <property name="buildUserEmail" value="${git.build.user.email}"/>
-        <property name="commitMessageFull" value="${git.commit.message.full}"/>
-        <property name="commitMessageShort" value="${git.commit.message.short}"/>
+        <property name="describe" value="${git.commit.id.describe}"/>
+        <property name="describeShort"  value="${git.commit.id.describe-short}"/>
         <property name="commitUserName" value="${git.commit.user.name}"/>
         <property name="commitUserEmail" value="${git.commit.user.email}"/>
+        <property name="commitMessageFull" value="${git.commit.message.full}"/>
+        <property name="commitMessageShort" value="${git.commit.message.short}"/>
+        <property name="commitTime" value="${git.commit.time}"/>
+
+        <property name="buildUserName" value="${git.build.user.name}"/>
+        <property name="buildUserEmail" value="${git.build.user.email}"/>
+        <property name="buildTime" value="${git.build.time}"/>
+        <property name="buildHost" value="${git.build.host}"/>
     </bean>
 </beans>
 ```
@@ -329,23 +348,26 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 */
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
+  String tags;                    // =${git.tags} // comma separated tag names
   String branch;                  // =${git.branch}
   String dirty;                   // =${git.dirty}
-  String tags;                    // =${git.tags} // comma separated tag names
-  String describe;                // =${git.commit.id.describe}
-  String shortDescribe;           // =${git.commit.id.describe-short}
+  String remoteOriginUrl;         // =${git.remote.origin.url}
+
   String commitId;                // =${git.commit.id}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
-  String buildUserName;           // =${git.build.user.name}
-  String buildUserEmail;          // =${git.build.user.email}
-  String buildTime;               // =${git.build.time}
-  String buildHost;               // =${git.build.host}
+  String describe;                // =${git.commit.id.describe}
+  String describeShort;           // =${git.commit.id.describe-short}
   String commitUserName;          // =${git.commit.user.name}
   String commitUserEmail;         // =${git.commit.user.email}
   String commitMessageFull;       // =${git.commit.message.full}
   String commitMessageShort;      // =${git.commit.message.short}
   String commitTime;              // =${git.commit.time}
 
+  String buildUserName;           // =${git.build.user.name}
+  String buildUserEmail;          // =${git.build.user.email}
+  String buildTime;               // =${git.build.time}
+  String buildHost;               // =${git.build.host}
+  
   public GitRepositoryState() {
   }
   /* Generate setters and getters here */
@@ -384,14 +406,14 @@ In the end *this is what this service would return*:
 
 ```json
      {
+         "tags" : "v2.1.13,testing",
          "branch" : "testing-maven-git-plugin",
          "dirty" : "false",
-         "tags" : "v2.1.13,testing",
-         "describe" : "v2.1.0-2-g2346463",
-         "describeShort" : "v2.1.0-2",
-         "commitTime" : "06.01.1970 @ 16:16:26 CET",
+         "remoteOriginUrl" : "git@github.com\:ktoso/maven-git-commit-id-plugin.git",
          "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
          "commitIdAbbrev" : "787e39f",
+         "describe" : "v2.1.0-2-g2346463",
+         "describeShort" : "v2.1.0-2",
          "commitUserName" : "Konrad Malawski",
          "commitUserEmail" : "konrad.malawski@java.pl",
          "commitMessageFull" : "releasing my fun plugin :-)
@@ -399,13 +421,14 @@ In the end *this is what this service would return*:
                                 + cleaned up directory structure
                                 + added license etc",
          "commitMessageShort" : "releasing my fun plugin :-)",
-         "buildTime" : "06.01.1970 @ 16:17:53 CET",
+         "commitTime" : "06.01.1970 @ 16:16:26 CET",
+         
          "buildUserName" : "Konrad Malawski",
-         "buildUserEmail" : "konrad.malawski@java.pl"
+         "buildUserEmail" : "konrad.malawski@java.pl",
+         "buildTime" : "06.01.1970 @ 16:17:53 CET",
+         "buildHost" : "github.com"
      }
 ```
-
-That's all folks! **Happy hacking!**
 
 The easier way: generate git.properties
 =======================================
@@ -450,21 +473,25 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 ```java
 public GitRepositoryState(Properties properties)
 {
-   this.branch = properties.get("git.branch").toString();
-   this.dirty = properties.get("git.dirty").toString();
-   this.tags = properties.get("git.tags").toString();
-   this.describe = properties.get("git.commit.id.describe").toString();
-   this.describeShort = properties.get("git.commit.id.describe-short").toString();
-   this.commitId = properties.get("git.commit.id").toString();
-   this.buildUserName = properties.get("git.build.user.name").toString();
-   this.buildUserEmail = properties.get("git.build.user.email").toString();
-   this.buildTime = properties.get("git.build.time").toString();
-   this.buildHost = properties.get("git.build.host").toString();
-   this.commitUserName = properties.get("git.commit.user.name").toString();
-   this.commitUserEmail = properties.get("git.commit.user.email").toString();
-   this.commitMessageShort = properties.get("git.commit.message.short").toString();
-   this.commitMessageFull = properties.get("git.commit.message.full").toString();
-   this.commitTime = properties.get("git.commit.time").toString();
+  this.tags = properties.get("git.tags").toString();
+  this.branch = properties.get("git.branch").toString();
+  this.dirty = properties.get("git.dirty").toString();
+  this.remoteOriginUrl = properties.get("git.remote.origin.url").toString();
+
+  this.commitId = properties.get("git.commit.id").toString();
+  this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
+  this.describe = properties.get("git.commit.id.describe").toString();
+  this.describeShort = properties.get("git.commit.id.describe-short").toString();
+  this.commitUserName = properties.get("git.commit.user.name").toString();
+  this.commitUserEmail = properties.get("git.commit.user.email").toString();
+  this.commitMessageFull = properties.get("git.commit.message.full").toString();
+  this.commitMessageShort = properties.get("git.commit.message.short").toString();
+  this.commitTime = properties.get("git.commit.time").toString();
+
+  this.buildUserName = properties.get("git.build.user.name").toString();
+  this.buildUserEmail = properties.get("git.build.user.email").toString();
+  this.buildTime = properties.get("git.build.time").toString();
+  this.buildHost = properties.get("git.build.host").toString();
 }
 ```
 
@@ -568,15 +595,16 @@ Optional parameters:
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the to be generated properties file. The path can be relative to ${project.basedir} (e.g. target/classes/git.properties) or can be a full path (e.g. ${project.build.outputDirectory}/git.properties).
+* **format** - `(default: properties)` Denotes the format to save properties in. Valid options are "properties" (default) and "json". Properties will be saved to the generateGitPropertiesFilename if generateGitPropertiesFile is set to `true`.
 * **skipPoms** - `(default: true)` - Force the plugin to run even if you're inside of an pom packaged project.
+* **injectAllReactorProjects** - `(default: false)` - Tell maven-git-commit-id to inject the git properties into all reactor projects not just the current one. The property is set to ``false`` by default to prevent the overriding of properties that may be unrelated to the project. If you need to expose your git properties to another maven module (e.g. maven-antrun-plugin) you need to set it to ``true``. However, setting this option can have an impact on your build. For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory cannot be found. When set to false and no .git directory is found the plugin will skip execution.
-* **failOnUnableToExtractRepoInfo** - `(default: true)` By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
+* **failOnUnableToExtractRepoInfo** - `(default: true)` *(available since v2.1.5)* - By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 * **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
-* **abbrevLength** - `(default: 7)` Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
-* **format** - `(default: properties)` The format to save properties in. Valid options are "properties" (default) and "json". Properties will be saved to the generateGitPropertiesFilename if generateGitPropertiesFile is set to `true`.
+* **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 
 
 **gitDescribe**:
@@ -597,7 +625,6 @@ All options are documented in the code, so just use `ctrl + q` (intellij @ linux
 Maintainers
 ===========
 This project is currently maintained thanks to: @ktoso (founder), @TheSnoozer
-
 
 
 Notable contributions
@@ -630,3 +657,5 @@ You're free to use it as you wish, the full license text is attached in the LICE
 
 The best way to ask for features / improvements is [via the Issues section on github - it's better than email](https://github.com/ktoso/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
 and maybe someone else has some idea or would like to upvote your issue.
+
+That's all folks! **Happy hacking!**
