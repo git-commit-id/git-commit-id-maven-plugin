@@ -122,7 +122,6 @@
     </dependency>
 
     <!-- JGit -->
-
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
@@ -188,48 +187,7 @@
     </resources>
 
     <plugins>
-      <!--<plugin>-->
-        <!--<groupId>pl.project13.maven</groupId>-->
-        <!--<artifactId>git-commit-id-plugin</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<goals>-->
-              <!--<goal>revision</goal>-->
-            <!--</goals>-->
-          <!--</execution>-->
-        <!--</executions>-->
-        <!--<configuration>-->
-          <!--<verbose>true</verbose>-->
-          <!--<skip>false</skip>-->
-          <!--<prefix>git</prefix>-->
-          <!--<dotGitDirectory>${project.basedir}/.git</dotGitDirectory>-->
-          <!--<generateGitPropertiesFile>true</generateGitPropertiesFile>-->
-          <!--<generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>-->
-
-          <!--<dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>-->
-          <!--<useNativeGit>false</useNativeGit>-->
-          <!--<abbrevLength>7</abbrevLength>-->
-          <!--<format>properties</format>-->
-
-          <!--<gitDescribe>-->
-            <!--<skip>false</skip>-->
-            <!--<always>false</always>-->
-            <!--<abbrev>7</abbrev>-->
-            <!--<match>*</match>-->
-            <!--<dirty>-DEVEL</dirty>-->
-            <!--<forceLongFormat>false</forceLongFormat>-->
-          <!--</gitDescribe>-->
-
-          <!--<excludeProperties>-->
-            <!--<excludeProperty>git.commit.*</excludeProperty>-->
-            <!--<excludeProperty>git.remote.origin.url</excludeProperty>-->
-          <!--</excludeProperties>-->
-
-          <!--<failOnNoGitDirectory>true</failOnNoGitDirectory>-->
-          <!--<failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>-->
-        <!--</configuration>-->
-      <!--</plugin>-->
+      <!-- if you would like to run the git-commit-id-plugin for your build, you could also include it here instead using a profile (see README.md) -->
       <!-- Setting built-in java compiler properties -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -290,6 +248,51 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>demo</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>${project.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>revision</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <verbose>true</verbose>
+              <skip>false</skip>
+              <prefix>git</prefix>
+              <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+              <generateGitPropertiesFile>true</generateGitPropertiesFile>
+              <generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>
+              <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+              <useNativeGit>false</useNativeGit>
+              <abbrevLength>7</abbrevLength>
+              <format>properties</format>
+              <gitDescribe>
+                <skip>false</skip>
+                <always>false</always>
+                <abbrev>7</abbrev>
+                <match>*</match>
+                <dirty>-DEVEL</dirty>
+                <forceLongFormat>false</forceLongFormat>
+              </gitDescribe>
+              <excludeProperties>
+                <excludeProperty>git.commit.*</excludeProperty>
+                <excludeProperty>git.remote.origin.url</excludeProperty>
+              </excludeProperties>
+              <failOnNoGitDirectory>false</failOnNoGitDirectory>
+              <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+            </configuration>
           </plugin>
         </plugins>
       </build>
