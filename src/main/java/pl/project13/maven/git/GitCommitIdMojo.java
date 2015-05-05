@@ -296,6 +296,35 @@ public class GitCommitIdMojo extends AbstractMojo {
   private List<String> excludeProperties = Collections.emptyList();
 
   /**
+   * Can be used to exclude certain properties from being emited into the resulting file.
+   * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
+   * or the email of the committer etc.
+   *
+   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to include both, the {@code name},
+   * as well as {@code email} properties into the resulting files.
+   *
+   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+   *
+   * @parameter
+   * @since 2.1.14
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private List<String> includeProperties = Collections.emptyList();
+
+  /**
+   * Can be used to add some properties in order to gather everything in the same file.
+   *
+   * For instance, you can set the maven project version or any dependency information.
+   *
+   * The key is the property name, the value is the value.
+   *
+   * @parameter
+   * @since 2.1.14
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private Map<String, String> additionalProperties = Collections.emptyMap();
+
+  /**
    * The Maven Session Object
    *
    * @parameter property="session"
@@ -360,7 +389,9 @@ public class GitCommitIdMojo extends AbstractMojo {
       loadBuildTimeData(properties);
       loadBuildHostData(properties);
       loadShortDescribe(properties);
+      filter(properties, includeProperties);
       filterNot(properties, excludeProperties);
+      addAdditionalProperties(properties, additionalProperties);
       logProperties(properties);
 
       if (generateGitPropertiesFile) {
@@ -378,7 +409,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void filterNot(Properties properties, @Nullable List<String> exclusions) {
-    if (exclusions == null) {
+    if (exclusions == null || exclusions.isEmpty()) {
       return;
     }
 
@@ -399,6 +430,37 @@ public class GitCommitIdMojo extends AbstractMojo {
         loggerBridge.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
+    }
+  }
+
+  private void filter(Properties properties, @Nullable List<String> inclusions) {
+    if (inclusions == null || inclusions.isEmpty()) {
+      return;
+    }
+
+    List<Predicate<CharSequence>> includePredicates = Lists.transform(inclusions, new Function<String, Predicate<CharSequence>>() {
+      @Override
+      public Predicate<CharSequence> apply(String exclude) {
+        return Predicates.containsPattern(exclude);
+      }
+    });
+
+    Predicate<CharSequence> shouldInclude = Predicates.alwaysFalse();
+    for (Predicate<CharSequence> predicate : includePredicates) {
+      shouldInclude = Predicates.or(shouldInclude, predicate);
+    }
+
+    for (String key : properties.stringPropertyNames()) {
+      if (!shouldInclude.apply(key)) {
+        loggerBridge.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
+        properties.remove(key);
+      }
+    }
+  }
+
+  private void addAdditionalProperties(Properties properties, Map<String, String> additionalProperties) {
+    for (Map.Entry<String, String> additionalProperty : additionalProperties.entrySet()) {
+      properties.put(additionalProperty.getKey(), additionalProperty.getValue());
     }
   }
 
@@ -754,6 +816,14 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setExcludeProperties(List<String> excludeProperties) {
     this.excludeProperties = excludeProperties;
+  }
+
+  public void setIncludeProperties(List<String> includeProperties) {
+    this.includeProperties = includeProperties;
+  }
+
+  public void setAdditionalProperties(Map<String, String> additionalProperties) {
+    this.additionalProperties = additionalProperties;
   }
 
   public void useNativeGit(boolean useNativeGit) {
