@@ -73,6 +73,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String BUILD_AUTHOR_NAME = "build.user.name";
   public static final String BUILD_AUTHOR_EMAIL = "build.user.email";
   public static final String BUILD_TIME = "build.time";
+  public static final String BUILD_VERSION = "build.version";
   public static final String BUILD_HOST = "build.host";
   public static final String COMMIT_AUTHOR_NAME = "commit.user.name";
   public static final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
@@ -296,9 +297,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   private List<String> excludeProperties = Collections.emptyList();
 
   /**
-   * Can be used to exclude certain properties from being emited into the resulting file.
-   * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
-   * or the email of the committer etc.
+   * Can be used to include only certain properties into the resulting file.
+   * Will be overruled by the exclude properties.
    *
    * Each value may be globbing, that is, you can write {@code git.commit.user.*} to include both, the {@code name},
    * as well as {@code email} properties into the resulting files.
@@ -309,20 +309,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @since 2.1.14
    */
   @SuppressWarnings("UnusedDeclaration")
-  private List<String> includeProperties = Collections.emptyList();
-
-  /**
-   * Can be used to add some properties in order to gather everything in the same file.
-   *
-   * For instance, you can set the maven project version or any dependency information.
-   *
-   * The key is the property name, the value is the value.
-   *
-   * @parameter
-   * @since 2.1.14
-   */
-  @SuppressWarnings("UnusedDeclaration")
-  private Map<String, String> additionalProperties = Collections.emptyMap();
+  private List<String> includeOnlyProperties = Collections.emptyList();
 
   /**
    * The Maven Session Object
@@ -386,12 +373,11 @@ public class GitCommitIdMojo extends AbstractMojo {
       prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
       loadGitData(properties);
-      loadBuildTimeData(properties);
+      loadBuildVersionAndTimeData(properties);
       loadBuildHostData(properties);
       loadShortDescribe(properties);
-      filter(properties, includeProperties);
+      filter(properties, includeOnlyProperties);
       filterNot(properties, excludeProperties);
-      addAdditionalProperties(properties, additionalProperties);
       logProperties(properties);
 
       if (generateGitPropertiesFile) {
@@ -455,12 +441,6 @@ public class GitCommitIdMojo extends AbstractMojo {
         loggerBridge.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
         properties.remove(key);
       }
-    }
-  }
-
-  private void addAdditionalProperties(Properties properties, Map<String, String> additionalProperties) {
-    for (Map.Entry<String, String> additionalProperty : additionalProperties.entrySet()) {
-      properties.put(additionalProperty.getKey(), additionalProperty.getValue());
     }
   }
 
@@ -532,10 +512,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     return keyString.startsWith(prefixDot);
   }
 
-  void loadBuildTimeData(@NotNull Properties properties) {
+  void loadBuildVersionAndTimeData(@NotNull Properties properties) {
     Date buildDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     put(properties, BUILD_TIME, smf.format(buildDate));
+    put(properties, BUILD_VERSION, project.getVersion());
   }
 
   void loadBuildHostData(@NotNull Properties properties) {
@@ -818,12 +799,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.excludeProperties = excludeProperties;
   }
 
-  public void setIncludeProperties(List<String> includeProperties) {
-    this.includeProperties = includeProperties;
-  }
-
-  public void setAdditionalProperties(Map<String, String> additionalProperties) {
-    this.additionalProperties = additionalProperties;
+  public void setIncludeOnlyProperties(List<String> includeOnlyProperties) {
+    this.includeOnlyProperties = includeOnlyProperties;
   }
 
   public void useNativeGit(boolean useNativeGit) {

@@ -67,6 +67,7 @@ public class GitCommitIdMojoTest {
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
+    when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
     jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
   }
@@ -123,9 +124,9 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldIncludeAsConfiguredProperties() throws Exception {
+  public void shouldIncludeOnlyAsConfiguredProperties() throws Exception {
     // given
-    mojo.setIncludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id$"));
+    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id$"));
 
     // when
     mojo.execute();
@@ -154,7 +155,7 @@ public class GitCommitIdMojoTest {
   @Test
   public void shouldExcludeAndIncludeAsConfiguredProperties() throws Exception {
     // given
-    mojo.setIncludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
+    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
     mojo.setExcludeProperties(ImmutableList.of("git.build.user.email"));
 
     // when
@@ -166,7 +167,7 @@ public class GitCommitIdMojoTest {
     // explicitly included
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
 
-    // explicitly excluded
+    // explicitly excluded -> overrules include only properties
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
 
     // glob included
@@ -181,28 +182,6 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
-  }
-
-  @Test
-  public void shouldAddAdditionalProperties() throws Exception {
-    // given
-    String buildVersionKey = "build.version";
-    String ExpectedBuildVersion = "2.0.14";
-    String jGitVersionKey = "jgit.version";
-    String expectedJGitVersion = "3.7.0.201502260915-r";
-    mojo.setAdditionalProperties(ImmutableMap.of(buildVersionKey, ExpectedBuildVersion, jGitVersionKey, expectedJGitVersion));
-
-    // when
-    mojo.execute();
-
-    // then
-    Properties properties = mojo.getProperties();
-
-    // added properties
-    assertThat(properties).satisfies(new ContainsKeyCondition(buildVersionKey));
-    assertThat(properties).satisfies(new ContainsKeyCondition(jGitVersionKey));
-    assertThat(properties.get(buildVersionKey)).isEqualTo(ExpectedBuildVersion);
-    assertThat(properties.get(jGitVersionKey)).isEqualTo(expectedJGitVersion);
   }
 
   @Test
