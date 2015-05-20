@@ -18,12 +18,12 @@
 package pl.project13.maven.git;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,14 +53,13 @@ public class GitCommitIdMojoTest {
     String prefix = "git";
     int abbrevLength = 7;
     String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
-    boolean verbose = true;
 
     mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(dotGitDirectory);
     mojo.setPrefix(prefix);
     mojo.setAbbrevLength(abbrevLength);
     mojo.setDateFormat(dateFormat);
-    mojo.setVerbose(verbose);
+    mojo.setVerbose(true);
     mojo.useNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
 
@@ -68,6 +67,7 @@ public class GitCommitIdMojoTest {
     mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
     when(mojo.project.getPackaging()).thenReturn("jar");
+    when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
     jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
   }
@@ -121,6 +121,67 @@ public class GitCommitIdMojoTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+  }
+
+  @Test
+  public void shouldIncludeOnlyAsConfiguredProperties() throws Exception {
+    // given
+    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id$"));
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = mojo.getProperties();
+
+    // explicitly included
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+
+    // glob included
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
+
+    // these excluded
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.abbrev"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
+  }
+
+  @Test
+  public void shouldExcludeAndIncludeAsConfiguredProperties() throws Exception {
+    // given
+    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
+    mojo.setExcludeProperties(ImmutableList.of("git.build.user.email"));
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = mojo.getProperties();
+
+    // explicitly included
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+
+    // explicitly excluded -> overrules include only properties
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
+
+    // glob included
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
+
+    // these excluded
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.abbrev"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
   }
 
   @Test

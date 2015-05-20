@@ -204,6 +204,20 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                       <!-- <excludeProperty>git.user.*</excludeProperty> -->
                     </excludeProperties>
 
+                    <!-- @since 2.1.14 -->
+                    <!--
+                        Can be used to include only certain properties into the resulting file.
+                        Will be overruled by the exclude properties.
+
+                        Each value may be globbing, that is, you can write {@code git.commit.user.*} to include both, the {@code name},
+                        as well as {@code email} properties into the resulting files.
+
+                        Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+                    -->
+                    <includeOnlyProperties>
+                      <!-- <includeOnlyProperty>^git.commit.id$</includeOnlyProperty> -->
+                    </includeOnlyProperties>
+
                     <!-- @since 2.1.10 -->
                     <!-- 
                       false is default here, if set to true it uses native `git` excutable for extracting all data.
@@ -605,6 +619,7 @@ Optional parameters:
 * **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
 * **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
+* **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 
