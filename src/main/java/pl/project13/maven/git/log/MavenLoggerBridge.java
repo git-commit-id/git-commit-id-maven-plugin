@@ -15,19 +15,37 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package pl.project13.maven.git.log;
 
+import java.util.Properties;
+
 import com.google.common.base.Joiner;
+
 import org.apache.maven.plugin.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.impl.SimpleLogger;
+import org.slf4j.impl.SimpleLoggerFactory;
 
 public class MavenLoggerBridge implements LoggerBridge {
 
-  private final Log logger;
+  private Logger logger;
   private boolean verbose;
 
-  public MavenLoggerBridge(Log logger, boolean verbose) {
-    this.logger = logger;
+  public MavenLoggerBridge(Log log, boolean verbose) {
+    setSimpleLoggerPorperties();
+    this.logger = new SimpleLoggerFactory().getLogger(getClass().getName());
     this.verbose = verbose;
+  }
+
+  private void setSimpleLoggerPorperties() {
+    Properties sysProperties = System.getProperties();
+    if(!sysProperties.containsKey(SimpleLogger.SHOW_THREAD_NAME_KEY)){
+      System.setProperty(SimpleLogger.SHOW_THREAD_NAME_KEY, String.valueOf(false));
+    }
+    if(!sysProperties.containsKey(SimpleLogger.LEVEL_IN_BRACKETS_KEY)){
+      System.setProperty(SimpleLogger.LEVEL_IN_BRACKETS_KEY, String.valueOf(true));
+    }
   }
 
   @Override
@@ -43,7 +61,7 @@ public class MavenLoggerBridge implements LoggerBridge {
       logger.error(Joiner.on(" ").useForNull("null").join(parts));
     }
   }
-  
+
   @Override
   public void debug(Object... parts) {
     if (verbose) {
@@ -54,6 +72,10 @@ public class MavenLoggerBridge implements LoggerBridge {
   @Override
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
+  }
+
+  protected void setLogger(Logger logger){
+    this.logger = logger;
   }
 
 }

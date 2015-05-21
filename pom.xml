@@ -72,6 +72,7 @@
     <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
 
     <jgit.version>3.7.0.201502260915-r</jgit.version>
+    <slf4j.version>1.7.12</slf4j.version>
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.5-beta</mockito.version>
 
@@ -126,6 +127,18 @@
       <groupId>org.eclipse.jgit</groupId>
       <artifactId>org.eclipse.jgit</artifactId>
       <version>${jgit.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
     </dependency>
 
     <!-- Test stuff -->

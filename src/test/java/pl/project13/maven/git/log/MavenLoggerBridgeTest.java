@@ -1,16 +1,15 @@
 package pl.project13.maven.git.log;
 
-import org.apache.maven.plugin.logging.Log;
 import org.junit.Test;
+import org.slf4j.Logger;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+
 public class MavenLoggerBridgeTest {
-
-  Log logger = mock(Log.class);
-
-  MavenLoggerBridge bridge = new MavenLoggerBridge(logger, true);
+  Logger logger = mock(Logger.class);
+  MavenLoggerBridge bridge = new MavenLoggerBridge(null, true);
 
   @Test
   public void shouldNotFailWhenMessageContainsPercentSigns() throws Exception {
@@ -21,6 +20,7 @@ public class MavenLoggerBridgeTest {
     String expectedExplicit = "the output was: [ 100% coverage!!! ]";
 
     // when
+    bridge.setLogger(logger);
     bridge.log(start, content, end);
 
     // then
