@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
@@ -53,6 +54,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public static final String DEFAULT_FORMAT_STRING  = "dd.MM.yyyy '@' HH:mm:ss z";
   public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
+  @Ignore
   @Test
   public void testCompareBasic() throws Exception
   {
@@ -64,6 +66,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     }
   }
 
+  @Ignore
   @Test
   public void testCompareSubrepoInRoot() throws Exception
   {
@@ -77,6 +80,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     }
   }
 
+  @Ignore
   @Test
   public void testCompareSubrepoInChild() throws Exception
   {
@@ -90,6 +94,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     }
   }
 
+  @Ignore
   @Test
   public void testCompareISO8601Time() throws Exception
   {
