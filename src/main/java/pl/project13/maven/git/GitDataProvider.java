@@ -69,6 +69,8 @@ public abstract class GitDataProvider {
   protected abstract String getCommitTime();
   protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
   protected abstract String getTags() throws MojoExecutionException;
+  protected abstract String getClosestTagName() throws MojoExecutionException;
+  protected abstract String getClosestTagCommitCount() throws MojoExecutionException;
   protected abstract void finalCleanUp();
 
   public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
@@ -107,6 +109,9 @@ public abstract class GitDataProvider {
 
       //
       put(properties, GitCommitIdMojo.TAGS, getTags());
+      
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, getClosestTagName());
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
     } finally {
       finalCleanUp();
     }

@@ -49,11 +49,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-
 /**
  * Implements git's <pre>describe</pre> command.
  *
@@ -63,7 +58,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private LoggerBridge loggerBridge;
 
-//   todo not yet implemented options:
+//  TODO not yet implemented options:
 //  private boolean containsFlag = false;
 //  private boolean allFlag = false;
 //  private boolean tagsFlag = false;
@@ -307,7 +302,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     // get commits, up until the nearest tag
-    List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+    List<RevCommit> commits = new JGitCommon().findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
     // if there is no tags or any tag is not on that branch then return generic describe
     if (foundZeroTags(tagObjectIdToName) || commits.isEmpty()) {
@@ -317,7 +312,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     // check how far away from a tag we are
 
-    int distance = distanceBetween(repo, headCommit, commits.get(0));
+    int distance = new JGitCommon().distanceBetween(repo, headCommit, commits.get(0));
     String tagName = tagObjectIdToName.get(commits.get(0)).iterator().next();
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
@@ -398,102 +393,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
-    RevWalk revWalk = new RevWalk(repo);
-    try {
-      revWalk.markStart(head);
-
-      for (RevCommit commit : revWalk) {
-        ObjectId objId = commit.getId();
-        if (tagObjectIdToName.size() > 0) {
-          List<String> maybeList = tagObjectIdToName.get(objId);
-          if (maybeList != null && maybeList.get(0) != null) {
-            return Collections.singletonList(commit);
-          }
-        }
-      }
-
-      return Collections.emptyList();
-    } catch (Exception e) {
-      throw new RuntimeException("Unable to find commits until some tag", e);
-    }
-  }
-
-  /**
-   * Calculates the distance (number of commits) between the given parent and child commits.
-   *
-   * @return distance (number of commits) between the given commits
-   * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
-   */
-  private int distanceBetween(@NotNull Repository repo, @NotNull RevCommit child, @NotNull RevCommit parent) {
-    RevWalk revWalk = new RevWalk(repo);
-
-    try {
-      revWalk.markStart(child);
-
-      Set<ObjectId> seena = newHashSet();
-      Set<ObjectId> seenb = newHashSet();
-      Queue<RevCommit> q = newLinkedList();
-
-      q.add(revWalk.parseCommit(child));
-      int distance = 0;
-      ObjectId parentId = parent.getId();
-
-      while (q.size() > 0) {
-        RevCommit commit = q.remove();
-        ObjectId commitId = commit.getId();
-
-        if (seena.contains(commitId)) {
-          continue;
-        }
-        seena.add(commitId);
-
-        if (parentId.equals(commitId)) {
-          // don't consider commits that are included in this commit
-          seeAllParents(revWalk, commit, seenb);
-          // remove things we shouldn't have included
-          for (ObjectId oid : seenb) {
-            if (seena.contains(oid)) {
-              distance--;
-            }
-          }
-          seena.addAll(seenb);
-          continue;
-        }
-
-        for (ObjectId oid : commit.getParents()) {
-          if (!seena.contains(oid)) {
-            q.add(revWalk.parseCommit(oid));
-          }
-        }
-        distance++;
-      }
-
-      return distance;
-
-    } catch (Exception e) {
-      throw new RuntimeException(String.format("Unable to calculate distance between [%s] and [%s]", child, parent), e);
-    } finally {
-      revWalk.dispose();
-    }
-  }
-
-  private void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
-    Queue<RevCommit> q = newLinkedList();
-    q.add(child);
-
-    while (q.size() > 0) {
-      RevCommit commit = q.remove();
-      for (ObjectId oid : commit.getParents()) {
-        if (seen.contains(oid)) {
-          continue;
-        }
-        seen.add(oid);
-        q.add(revWalk.parseCommit(oid));
-      }
-    }
-  }
-
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
 	  String matchPattern = createMatchPattern();
@@ -519,10 +418,5 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   private void log(Object... parts) {
     loggerBridge.log(parts);
   }
-
-  private void error(Object... parts) {
-    loggerBridge.error(parts);
-  }
-
 }
 

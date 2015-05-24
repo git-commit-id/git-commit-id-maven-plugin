@@ -204,6 +204,25 @@ public class NativeGitProvider extends GitDataProvider {
   protected String getRemoteOriginUrl() throws MojoExecutionException {
     return getOriginRemote(canonical);
   }
+  
+  @Override
+  protected String getClosestTagName(){
+    try {
+      return runGitCommand(canonical, "describe --abbrev=0 --tags");
+    } catch (NativeCommandException ignore) {
+      // could not find any tags to describe
+    }
+    return "";
+  }
+
+  @Override
+  protected String getClosestTagCommitCount(){
+    String closestTagName = getClosestTagName();
+    if(closestTagName != null && !closestTagName.trim().isEmpty()){
+      return runQuietGitCommand(canonical, "rev-list "+closestTagName+"..HEAD --count");
+    }
+    return "";
+  }
 
   @Override
   protected void finalCleanUp() {

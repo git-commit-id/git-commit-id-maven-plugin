@@ -82,6 +82,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_TIME = "commit.time";
   public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
   public static final String TAGS = "tags";
+  public static final String CLOSEST_TAG_NAME = "closest.tag.name";
+  public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
 
   /**
    * The maven project.

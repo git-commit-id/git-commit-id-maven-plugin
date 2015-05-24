@@ -188,6 +188,28 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
+  protected String getClosestTagName() throws MojoExecutionException {
+    Repository repo = getGitRepository();
+    try {
+      return new JGitCommon().getClosestTagName(loggerBridge,repo);
+    } catch (Throwable t) {
+      // could not find any tags to describe
+    }
+    return "";
+  }
+
+  @Override
+  protected String getClosestTagCommitCount() throws MojoExecutionException {
+    Repository repo = getGitRepository();
+    try {
+      return new JGitCommon().getClosestTagCommitCount(loggerBridge,repo,headCommit);
+    } catch (Throwable t) {
+      // could not find any tags to describe
+    }
+    return "";
+  }
+
+  @Override
   protected void finalCleanUp() {
     if (revWalk != null) {
       revWalk.dispose();
