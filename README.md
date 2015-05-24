@@ -306,11 +306,14 @@ git.commit.user.email=${git.commit.user.email}
 git.commit.message.full=${git.commit.message.full}
 git.commit.message.short=${git.commit.message.short}
 git.commit.time=${git.commit.time}
+git.closest.tag.name=${git.closest.tag.name}
+git.closest.tag.commit.count=${git.closest.tag.commit.count}
 
 git.build.user.name=${git.build.user.name}
 git.build.user.email=${git.build.user.email}
 git.build.time=${git.build.time}
 git.build.host=${git.build.host}
+git.build.version=${git.build.version}
 ```
 
 The `git` prefix may be configured in the plugin declaration above.
@@ -341,11 +344,14 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="commitMessageFull" value="${git.commit.message.full}"/>
         <property name="commitMessageShort" value="${git.commit.message.short}"/>
         <property name="commitTime" value="${git.commit.time}"/>
+        <property name="closestTagName" value="${git.closest.tag.name}"/>
+        <property name="closestTagCommitCount" value="${git.closest.tag.commit.count}"/>
 
         <property name="buildUserName" value="${git.build.user.name}"/>
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="buildTime" value="${git.build.time}"/>
         <property name="buildHost" value="${git.build.host}"/>
+        <porperty name="buildVersion" value="${git.build.version}"/>
     </bean>
 </beans>
 ```
@@ -378,12 +384,15 @@ public class GitRepositoryState {
   String commitMessageFull;       // =${git.commit.message.full}
   String commitMessageShort;      // =${git.commit.message.short}
   String commitTime;              // =${git.commit.time}
+  String closestTagName;          // =${git.closest.tag.name}
+  String closestTagCommitCount;   // =${git.closest.tag.commit.count}
 
   String buildUserName;           // =${git.build.user.name}
   String buildUserEmail;          // =${git.build.user.email}
   String buildTime;               // =${git.build.time}
   String buildHost;               // =${git.build.host}
-  
+  String buildVersion             // =${git.build.version}
+
   public GitRepositoryState() {
   }
   /* Generate setters and getters here */
@@ -438,11 +447,14 @@ In the end *this is what this service would return*:
                                 + added license etc",
          "commitMessageShort" : "releasing my fun plugin :-)",
          "commitTime" : "06.01.1970 @ 16:16:26 CET",
+         "closestTagName" : "v2.1.0",
+         "closestTagCommitCount" : "2",
          
          "buildUserName" : "Konrad Malawski",
          "buildUserEmail" : "konrad.malawski@java.pl",
          "buildTime" : "06.01.1970 @ 16:17:53 CET",
-         "buildHost" : "github.com"
+         "buildHost" : "github.com",
+         "buildVersion" : "v2.1.0-SNAPSHOT"
      }
 ```
 
@@ -503,11 +515,14 @@ public GitRepositoryState(Properties properties)
   this.commitMessageFull = properties.get("git.commit.message.full").toString();
   this.commitMessageShort = properties.get("git.commit.message.short").toString();
   this.commitTime = properties.get("git.commit.time").toString();
+  this.closestTagName = properties.get("git.closest.tag.name").toString();
+  this.closestTagCommitCount = properties.get("git.closest.tag.commit.count").toString();
 
   this.buildUserName = properties.get("git.build.user.name").toString();
   this.buildUserEmail = properties.get("git.build.user.email").toString();
   this.buildTime = properties.get("git.build.time").toString();
   this.buildHost = properties.get("git.build.host").toString();
+  this.buildVersion = properties.get("git.build.version").toString();
 }
 ```
 
