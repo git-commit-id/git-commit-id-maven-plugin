@@ -476,7 +476,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private static void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
+  private void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
     Queue<RevCommit> q = newLinkedList();
     q.add(child);
 
