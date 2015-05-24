@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.Status;
@@ -37,6 +38,7 @@ import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -494,108 +496,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
-    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = newHashMap();
-
-    RevWalk walk = new RevWalk(repo);
-    try {
-      walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
-
-      List<Ref> tagRefs = Git.wrap(repo).tagList().call();
-      String matchPattern = createMatchPattern();
-      Pattern regex = Pattern.compile(matchPattern);
-      log("Tag refs [", tagRefs, "]");
-
-      for (Ref tagRef : tagRefs) {
-        walk.reset();
-        String name = tagRef.getName();
-        if (!regex.matcher(name).matches()) {
-          log("Skipping tagRef with name [", name, "] as it doesn't match [", matchPattern, "]");
-          continue;
-        }
-        ObjectId resolvedCommitId = repo.resolve(name);
-
-        // todo that's a bit of a hack...
-        try {
-          final RevTag revTag = walk.parseTag(resolvedCommitId);
-          ObjectId taggedCommitId = revTag.getObject().getId();
-          log("Resolved tag [",revTag.getTagName(),"] [",revTag.getTaggerIdent(),"], points at [",taggedCommitId,"] ");
-
-          // sometimes a tag, may point to another tag, so we need to unpack it
-          while (isTagId(taggedCommitId)) {
-            taggedCommitId = walk.parseTag(taggedCommitId).getObject().getId();
-          }
-
-          if (commitIdsToTags.containsKey(taggedCommitId)) {
-            commitIdsToTags.get(taggedCommitId).add(new DatedRevTag(revTag));
-          } else {
-            commitIdsToTags.put(taggedCommitId, newArrayList(new DatedRevTag(revTag)));
-          }
-
-        } catch (IncorrectObjectTypeException ex) {
-          // it's an lightweight tag! (yeah, really)
-          if (tagsFlag) {
-            // --tags means "include lightweight tags"
-            log("Including lightweight tag [", name, "]");
-
-            DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
-
-            if (commitIdsToTags.containsKey(resolvedCommitId)) {
-              commitIdsToTags.get(resolvedCommitId).add(datedRevTag);
-            } else {
-              commitIdsToTags.put(resolvedCommitId, newArrayList(datedRevTag));
-            }
-          }
-        } catch (Exception ignored) {
-          error("Failed while parsing [",tagRef,"] -- ", Throwables.getStackTraceAsString(ignored));
-        }
-      }
-
-      for (Map.Entry<ObjectId, List<DatedRevTag>> entry : commitIdsToTags.entrySet()) {
-        log("key [",entry.getKey(),"], tags => [",entry.getValue(),"] ");
-      }
-
-      Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
-
+	  String matchPattern = createMatchPattern();
+	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = new JGitCommon().getCommitIdsToTags(loggerBridge, repo, tagsFlag, matchPattern);
+      Map<ObjectId, List<String>> commitIdsToTagNames = new JGitCommon().transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
       log("Created map: [",commitIdsToTagNames,"] ");
 
       return commitIdsToTagNames;
-    } catch (Exception e) {
-      log("Unable to locate tags\n[",Throwables.getStackTraceAsString(e),"]");
-    } finally {
-      walk.release();
-    }
-
-    return Collections.emptyMap();
-  }
-
-  /** Checks if the given object id resolved to a tag object */
-  private boolean isTagId(ObjectId objectId) {
-    return objectId.toString().startsWith("tag ");
-  }
-
-  private HashMap<ObjectId, List<String>> transformRevTagsMapToDateSortedTagNames(Map<ObjectId, List<DatedRevTag>> commitIdsToTags) {
-    HashMap<ObjectId, List<String>> commitIdsToTagNames = newHashMap();
-    for (Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry : commitIdsToTags.entrySet()) {
-      List<DatedRevTag> tags = objectIdListEntry.getValue();
-
-      List<DatedRevTag> newTags = newArrayList(tags);
-      Collections.sort(newTags, new Comparator<DatedRevTag>() {
-        @Override
-        public int compare(DatedRevTag revTag, DatedRevTag revTag2) {
-          return revTag2.date.compareTo(revTag.date);
-        }
-      });
-
-      List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {
-        @Override
-        public String apply(DatedRevTag input) {
-          return trimFullTagName(input.tagName);
-        }
-      });
-
-      commitIdsToTagNames.put(objectIdListEntry.getKey(), tagNames);
-    }
-    return commitIdsToTagNames;
   }
 
   private String createMatchPattern() {
@@ -608,11 +514,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     buf.append(matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q"));
     buf.append("\\E$");
     return buf.toString();
-  }
-
-  @VisibleForTesting
-  static String trimFullTagName(@NotNull String tagName) {
-    return tagName.replaceFirst("refs/tags/", "");
   }
 
   private void log(Object... parts) {

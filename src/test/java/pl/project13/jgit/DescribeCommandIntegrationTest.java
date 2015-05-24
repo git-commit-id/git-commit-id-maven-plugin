@@ -432,18 +432,6 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     assertThat(objectId.getName()).isNotEmpty();
   }
 
-  @Test
-  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
-    // given
-    String fullName = "refs/tags/v1.0.0";
-
-    // when
-    String simpleName = DescribeCommand.trimFullTagName(fullName);
-
-    // then
-    assertThat(simpleName).isEqualTo("v1.0.0");
-  }
-
   String abbrev(@NotNull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
