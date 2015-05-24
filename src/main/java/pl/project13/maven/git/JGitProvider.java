@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
+import pl.project13.jgit.JGitCommon;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.File;
@@ -175,42 +176,14 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getTags() throws MojoExecutionException {
-    RevWalk walk = null;
     try {
       Repository repo = getGitRepository();
-      Git git = Git.wrap(repo);
-      walk = new RevWalk(repo);
-      List<Ref> tagRefs = git.tagList().call();
-
-      final ObjectId headId = headCommit.toObjectId();
-      final RevWalk finalWalk = walk;
-      Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-        @Override public boolean apply(Ref tagRef) {
-          boolean lightweightTag = tagRef.getObjectId().equals(headId);
-
-          try {
-            // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
-            return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
-          } catch (IOException e) {
-            return false;
-          }
-        }
-      });
-
-      Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-        @Override public String apply(Ref input) {
-          return input.getName().replaceAll("refs/tags/", "");
-        }
-      });
-
+      ObjectId headId = headCommit.toObjectId();
+      Collection<String> tags = new JGitCommon().getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
       loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
       return "";
-    } finally {
-      if (walk != null) {
-        walk.dispose();
-      }
     }
   }
 
