@@ -54,6 +54,7 @@ public class JGitProvider extends GitDataProvider {
   private ObjectReader objectReader;
   private RevWalk revWalk;
   private RevCommit headCommit;
+  private JGitCommon jGitCommon;
 
   @NotNull
   public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
@@ -63,6 +64,7 @@ public class JGitProvider extends GitDataProvider {
   JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
     super(loggerBridge);
     this.dotGitDirectory = dotGitDirectory;
+    this.jGitCommon = new JGitCommon();
   }
 
   @NotNull
@@ -189,7 +191,7 @@ public class JGitProvider extends GitDataProvider {
     try {
       Repository repo = getGitRepository();
       ObjectId headId = headCommit.toObjectId();
-      Collection<String> tags = new JGitCommon().getTags(repo,headId);
+      Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
       loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
@@ -201,7 +203,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagName() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return new JGitCommon().getClosestTagName(loggerBridge,repo);
+      return jGitCommon.getClosestTagName(loggerBridge,repo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -212,7 +214,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagCommitCount() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return new JGitCommon().getClosestTagCommitCount(loggerBridge,repo,headCommit);
+      return jGitCommon.getClosestTagCommitCount(loggerBridge,repo,headCommit);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -232,6 +234,7 @@ public class JGitProvider extends GitDataProvider {
       DescribeResult describeResult = DescribeCommand
         .on(repository)
         .withLoggerBridge(super.loggerBridge)
+        .withJGitCommon(jGitCommon)
         .setVerbose(super.verbose)
         .apply(super.gitDescribe)
         .call();

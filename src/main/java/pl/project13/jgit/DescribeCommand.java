@@ -48,6 +48,7 @@ import java.util.*;
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private LoggerBridge loggerBridge;
+  private JGitCommon jGitCommon;
 
 //  TODO not yet implemented options:
 //  private boolean containsFlag = false;
@@ -119,6 +120,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
     this.loggerBridge = bridge;
+    return this;
+  }
+
+  @NotNull
+  public DescribeCommand withJGitCommon(JGitCommon jGitCommon) {
+    this.jGitCommon = jGitCommon;
     return this;
   }
 
@@ -293,7 +300,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     // get commits, up until the nearest tag
-    List<RevCommit> commits = new JGitCommon().findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+    List<RevCommit> commits = jGitCommon.findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
 
     // if there is no tags or any tag is not on that branch then return generic describe
     if (foundZeroTags(tagObjectIdToName) || commits.isEmpty()) {
@@ -303,7 +310,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     // check how far away from a tag we are
 
-    int distance = new JGitCommon().distanceBetween(repo, headCommit, commits.get(0));
+    int distance = jGitCommon.distanceBetween(repo, headCommit, commits.get(0));
     String tagName = tagObjectIdToName.get(commits.get(0)).iterator().next();
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
@@ -387,8 +394,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
 	  String matchPattern = createMatchPattern();
-	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = new JGitCommon().getCommitIdsToTags(loggerBridge, repo, tagsFlag, matchPattern);
-      Map<ObjectId, List<String>> commitIdsToTagNames = new JGitCommon().transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
+	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(loggerBridge, repo, tagsFlag, matchPattern);
+      Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
       log("Created map: [",commitIdsToTagNames,"] ");
 
       return commitIdsToTagNames;
