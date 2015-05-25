@@ -21,7 +21,6 @@ package pl.project13.maven.git;
 import com.google.common.base.Joiner;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,7 +28,6 @@ import java.util.Set;
  * with properties about the repository state at build time.
  * This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @since 1.0
  */
 //@JsonWriteNullProperties(true)

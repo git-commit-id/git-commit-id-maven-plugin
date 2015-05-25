@@ -36,7 +36,6 @@ import static org.mockito.Mockito.*;
 /**
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
 // todo remove this test in favor of complete intgration tests
 public class GitCommitIdMojoTest {

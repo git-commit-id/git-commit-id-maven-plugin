@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * Encapsulates logic to locate a valid .git directory.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
 public class GitDirLocator {
   final MavenProject mavenProject;

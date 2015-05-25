@@ -59,10 +59,6 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-
-/**
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
- */
 public class JGitCommon {
   public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException{
     RevWalk walk = null;

@@ -53,7 +53,6 @@ import java.util.Properties;
 /**
  * Goal which puts git build-time information into property files or maven's properties.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @goal revision
  * @phase initialize
  * @requiresProject

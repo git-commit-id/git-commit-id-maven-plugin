@@ -33,7 +33,6 @@ import com.google.common.io.Files;
  * Copies sample git repository from prototype location to newly created project
  * Has ability to set target project for storing git repository
  *
- * @author mostr
  */
 public class FileSystemMavenSandbox {
 

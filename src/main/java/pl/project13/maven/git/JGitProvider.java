@@ -18,12 +18,8 @@
 package pl.project13.maven.git;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
@@ -51,9 +47,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
- */
 public class JGitProvider extends GitDataProvider {
 
   private File dotGitDirectory;

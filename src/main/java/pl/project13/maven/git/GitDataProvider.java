@@ -28,9 +28,6 @@ import java.util.Properties;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-/**
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
- */
 public abstract class GitDataProvider {
 
   @NotNull
