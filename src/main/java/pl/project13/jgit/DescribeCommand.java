@@ -105,6 +105,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     super(repo);
     initDefaultLoggerBridge(verbose);
     setVerbose(verbose);
+    this.jGitCommon = new JGitCommon();
   }
 
   private void initDefaultLoggerBridge(boolean verbose) {
@@ -120,12 +121,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
     this.loggerBridge = bridge;
-    return this;
-  }
-
-  @NotNull
-  public DescribeCommand withJGitCommon(JGitCommon jGitCommon) {
-    this.jGitCommon = jGitCommon;
     return this;
   }
 

@@ -234,7 +234,6 @@ public class JGitProvider extends GitDataProvider {
       DescribeResult describeResult = DescribeCommand
         .on(repository)
         .withLoggerBridge(super.loggerBridge)
-        .withJGitCommon(jGitCommon)
         .setVerbose(super.verbose)
         .apply(super.gitDescribe)
         .call();
