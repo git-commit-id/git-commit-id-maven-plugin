@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -430,18 +430,6 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId objectId = res.commitObjectId();
     assert objectId != null;
     assertThat(objectId.getName()).isNotEmpty();
-  }
-
-  @Test
-  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
-    // given
-    String fullName = "refs/tags/v1.0.0";
-
-    // when
-    String simpleName = DescribeCommand.trimFullTagName(fullName);
-
-    // then
-    assertThat(simpleName).isEqualTo("v1.0.0");
   }
 
   String abbrev(@NotNull String id) {

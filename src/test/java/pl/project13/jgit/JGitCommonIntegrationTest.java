@@ -15,33 +15,23 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.log;
+package pl.project13.jgit;
 
 import org.junit.Test;
-import org.slf4j.Logger;
+import pl.project13.maven.git.GitIntegrationTest;
+import static org.fest.assertions.Assertions.assertThat;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-
-public class MavenLoggerBridgeTest {
-  Logger logger = mock(Logger.class);
-  MavenLoggerBridge bridge = new MavenLoggerBridge(null, true);
+public class JGitCommonIntegrationTest extends GitIntegrationTest {
 
   @Test
-  public void shouldNotFailWhenMessageContainsPercentSigns() throws Exception {
+  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
     // given
-    String start = "the output was: [";
-    String content = "100% coverage!!!";
-    String end = "]";
-    String expectedExplicit = "the output was: [ 100% coverage!!! ]";
+    String fullName = "refs/tags/v1.0.0";
 
     // when
-    bridge.setLogger(logger);
-    bridge.log(start, content, end);
+    String simpleName = new JGitCommon().trimFullTagName(fullName);
 
     // then
-    verify(logger).info(expectedExplicit);
+    assertThat(simpleName).isEqualTo("v1.0.0");
   }
-
 }

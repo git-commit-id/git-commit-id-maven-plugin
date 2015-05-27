@@ -1,3 +1,20 @@
+/*
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ *
+ * git-commit-id-plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * git-commit-id-plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -11,9 +28,6 @@ import java.util.Properties;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-/**
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
- */
 public abstract class GitDataProvider {
 
   @NotNull
@@ -69,6 +83,8 @@ public abstract class GitDataProvider {
   protected abstract String getCommitTime();
   protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
   protected abstract String getTags() throws MojoExecutionException;
+  protected abstract String getClosestTagName() throws MojoExecutionException;
+  protected abstract String getClosestTagCommitCount() throws MojoExecutionException;
   protected abstract void finalCleanUp();
 
   public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
@@ -107,6 +123,9 @@ public abstract class GitDataProvider {
 
       //
       put(properties, GitCommitIdMojo.TAGS, getTags());
+      
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, getClosestTagName());
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
     } finally {
       finalCleanUp();
     }

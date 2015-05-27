@@ -1,12 +1,25 @@
+/*
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ *
+ * git-commit-id-plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * git-commit-id-plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package pl.project13.maven.git;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
@@ -24,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
+import pl.project13.jgit.JGitCommon;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.File;
@@ -33,9 +47,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
- */
 public class JGitProvider extends GitDataProvider {
 
   private File dotGitDirectory;
@@ -43,6 +54,7 @@ public class JGitProvider extends GitDataProvider {
   private ObjectReader objectReader;
   private RevWalk revWalk;
   private RevCommit headCommit;
+  private JGitCommon jGitCommon;
 
   @NotNull
   public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
@@ -52,6 +64,7 @@ public class JGitProvider extends GitDataProvider {
   JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
     super(loggerBridge);
     this.dotGitDirectory = dotGitDirectory;
+    this.jGitCommon = new JGitCommon();
   }
 
   @NotNull
@@ -175,43 +188,37 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getTags() throws MojoExecutionException {
-    RevWalk walk = null;
     try {
       Repository repo = getGitRepository();
-      Git git = Git.wrap(repo);
-      walk = new RevWalk(repo);
-      List<Ref> tagRefs = git.tagList().call();
-
-      final ObjectId headId = headCommit.toObjectId();
-      final RevWalk finalWalk = walk;
-      Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-        @Override public boolean apply(Ref tagRef) {
-          boolean lightweightTag = tagRef.getObjectId().equals(headId);
-
-          try {
-            // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
-            return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
-          } catch (IOException e) {
-            return false;
-          }
-        }
-      });
-
-      Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-        @Override public String apply(Ref input) {
-          return input.getName().replaceAll("refs/tags/", "");
-        }
-      });
-
+      ObjectId headId = headCommit.toObjectId();
+      Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
       loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
       return "";
-    } finally {
-      if (walk != null) {
-        walk.dispose();
-      }
     }
+  }
+
+  @Override
+  protected String getClosestTagName() throws MojoExecutionException {
+    Repository repo = getGitRepository();
+    try {
+      return jGitCommon.getClosestTagName(loggerBridge,repo);
+    } catch (Throwable t) {
+      // could not find any tags to describe
+    }
+    return "";
+  }
+
+  @Override
+  protected String getClosestTagCommitCount() throws MojoExecutionException {
+    Repository repo = getGitRepository();
+    try {
+      return jGitCommon.getClosestTagCommitCount(loggerBridge,repo,headCommit);
+    } catch (Throwable t) {
+      // could not find any tags to describe
+    }
+    return "";
   }
 
   @Override

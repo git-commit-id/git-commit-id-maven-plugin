@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -657,6 +657,95 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     }
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWhenOnATag(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+                .create(CleanUp.CLEANUP_FIRST);
+
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 7);
+    gitDescribeConfig.setDirty("-dirty"); // checking if dirty works as expected
+
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.name");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.name")).isEqualTo("v1.0.0");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.commit.count");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("0");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWhenOnATagAndDirty(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+                .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.name");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.name")).isEqualTo("v1.0.0");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.commit.count");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("0");
+  }  
+
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWhenCommitHasTwoTags(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject("my-jar-project", "jar")
+      .withNoChildProject()
+      .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+      .create(CleanUp.CLEANUP_FIRST);
+
+    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("gitDescribe", null);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    // AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS ==> Where the newest-tag was created latest
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.name");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.name")).isEqualTo("newest-tag");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.commit.count");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("0");
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
@@ -685,5 +774,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.name"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.commit.count"));
+
   }
 }

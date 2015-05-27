@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -33,7 +33,6 @@ import com.google.common.io.Files;
  * Copies sample git repository from prototype location to newly created project
  * Has ability to set target project for storing git repository
  *
- * @author mostr
  */
 public class FileSystemMavenSandbox {
 

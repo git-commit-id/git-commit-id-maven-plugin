@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,6 @@ import static pl.project13.test.utils.AssertException.ExceptionMatch.EXCEPTION_C
  *
  * SoftwareBirr 02.2012
  *
- * @author Konrad Malawski (konrad.malawski@java.pl)
  * @see <a href="https://github.com/softwaremill/softwaremill-common/blob/master/softwaremill-test/softwaremill-test-util/src/main/java/pl/softwaremill/common/test/util/AssertException.java">AssertException in softwaremill-common/softwaremill-test-util</a>
  */
 public class AssertException {

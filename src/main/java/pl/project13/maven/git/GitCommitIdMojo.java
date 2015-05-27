@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,7 +53,6 @@ import java.util.Properties;
 /**
  * Goal which puts git build-time information into property files or maven's properties.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  * @goal revision
  * @phase initialize
  * @requiresProject
@@ -82,6 +81,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String COMMIT_TIME = "commit.time";
   public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
   public static final String TAGS = "tags";
+  public static final String CLOSEST_TAG_NAME = "closest.tag.name";
+  public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
 
   /**
    * The maven project.

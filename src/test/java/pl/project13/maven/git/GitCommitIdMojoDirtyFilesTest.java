@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,24 +17,16 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
+
 import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.lib.Repository;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-/**
- * @author Adam Batkin
- */
 public class GitCommitIdMojoDirtyFilesTest {
 
   @Test

@@ -1,5 +1,5 @@
 /*
- * This file is part of git-commit-id-plugin by Konrad Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -36,7 +36,6 @@ import static org.mockito.Mockito.*;
 /**
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
- * @author <a href="mailto:konrad.malawski@java.pl">Konrad 'ktoso' Malawski</a>
  */
 // todo remove this test in favor of complete intgration tests
 public class GitCommitIdMojoTest {
