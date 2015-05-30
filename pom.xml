@@ -212,7 +212,7 @@
           <target>${java.target}</target>
         </configuration>
       </plugin>
-      <!-- we need to create a uber war for https://github.com/ktoso/maven-git-commit-id-plugin/issues/196 -->
+      <!-- we need to create a uber-jar for https://github.com/ktoso/maven-git-commit-id-plugin/issues/196 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
