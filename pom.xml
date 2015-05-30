@@ -212,6 +212,33 @@
           <target>${java.target}</target>
         </configuration>
       </plugin>
+      <!-- we need to create a uber war for https://github.com/ktoso/maven-git-commit-id-plugin/issues/196 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>pl.project13.maven.git.GitCommitIdMojo</mainClass>
+                </transformer>
+              </transformers>
+              <artifactSet>
+                <includes>
+                  <include>org.slf4j:*</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <!--<plugin>-->
         <!--<artifactId>maven-plugin-plugin</artifactId>-->
