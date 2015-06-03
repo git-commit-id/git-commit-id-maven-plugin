@@ -624,15 +624,16 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-plugin-project", "jar")
                 .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG)
                 .create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getParentProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
+    String headCommitId = "b0c6d28b3b83bf7b905321bae67d9ca4c75a203f";
     Map<String,String> gitTagMap = new HashMap<String,String>();
-    gitTagMap.put("v2.1.14", "29dc3016a3aace7149b3b50dc92573b0915ba125");
-    gitTagMap.put("v2.1.15", "b899499b3cf549238a8a30799faee47b3505b5bf");
+    gitTagMap.put("v1.0", "f830b5f85cad3d33ba50d04c3d1454e1ae469057");
+    gitTagMap.put("v2.0", "0e3495783c56589213ee5f2ae8900e2dc1b776c4");
 
     for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();
@@ -654,6 +655,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id");
       assertThat(targetProject.getProperties().get("git.commit.id")).isNotEqualTo(commitIdOfMatchNeedle);
+      assertThat(targetProject.getProperties().get("git.commit.id")).isEqualTo(headCommitId);
     }
   }
 
