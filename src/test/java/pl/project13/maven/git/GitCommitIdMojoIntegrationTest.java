@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
- */
+ */	
 
 package pl.project13.maven.git;
 
@@ -631,8 +631,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     Map<String,String> gitTagMap = new HashMap<String,String>();
-    gitTagMap.put("v2.1.11", "56c5a491720ce35ae8f8626be1d3414728f1b953");
-    gitTagMap.put("v2.1.12", "e9879658209ee81d7bf50ceedd028737f0b1cd0c");
+    gitTagMap.put("v2.1.14", "29dc3016a3aace7149b3b50dc92573b0915ba125");
+    gitTagMap.put("v2.1.15", "b899499b3cf549238a8a30799faee47b3505b5bf");
 
     for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();
