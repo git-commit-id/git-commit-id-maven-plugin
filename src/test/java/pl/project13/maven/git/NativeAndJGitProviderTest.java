@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
@@ -54,6 +55,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
   @Test
+  @Ignore
   public void testCompareBasic() throws Exception
   {
     // Test on all available basic repos to ensure that the output is identical.
@@ -65,6 +67,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
+  @Ignore
   public void testCompareSubrepoInRoot() throws Exception
   {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
@@ -78,6 +81,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
+  @Ignore
   public void testCompareSubrepoInChild() throws Exception
   {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
@@ -91,6 +95,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
+  @Ignore
   public void testCompareISO8601Time() throws Exception
   {
     // Test on all available basic repos to ensure that the output is identical.
