@@ -60,6 +60,14 @@ public enum AvailableGitTestRepo {
   WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag"),
   WITH_TAG_ON_DIFFERENT_BRANCH("src/test/resources/_git_with_tag_on_different_branch"),
   WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS("src/test/resources/_git_one_commit_with_umlaut"),
+  /**
+    * <pre>
+    * b0c6d28b3b83bf7b905321bae67d9ca4c75a203f 2015-06-04 00:50:18 +0200  (HEAD, master)
+    * 0e3495783c56589213ee5f2ae8900e2dc1b776c4 2015-06-03 23:59:10 +0200  (tag: v2.0)
+    * f830b5f85cad3d33ba50d04c3d1454e1ae469057 2015-06-03 23:57:53 +0200  (tag: v1.0)
+    * </pre>
+    */
+  WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG("src/test/resources/_git_three_commits_and_two_tags_currently_on_commit_without_tag"),
   MAVEN_GIT_COMMIT_ID_PLUGIN(".git");
 
   private String dir;

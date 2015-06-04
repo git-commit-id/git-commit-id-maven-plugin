@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
- */
+ */	
 
 package pl.project13.maven.git;
 
@@ -624,15 +624,16 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-plugin-project", "jar")
                 .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG)
                 .create(CleanUp.CLEANUP_FIRST);
     MavenProject targetProject = mavenSandbox.getParentProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
+    String headCommitId = "b0c6d28b3b83bf7b905321bae67d9ca4c75a203f";
     Map<String,String> gitTagMap = new HashMap<String,String>();
-    gitTagMap.put("v2.1.11", "56c5a491720ce35ae8f8626be1d3414728f1b953");
-    gitTagMap.put("v2.1.12", "e9879658209ee81d7bf50ceedd028737f0b1cd0c");
+    gitTagMap.put("v1.0", "f830b5f85cad3d33ba50d04c3d1454e1ae469057");
+    gitTagMap.put("v2.0", "0e3495783c56589213ee5f2ae8900e2dc1b776c4");
 
     for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();
@@ -654,6 +655,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id");
       assertThat(targetProject.getProperties().get("git.commit.id")).isNotEqualTo(commitIdOfMatchNeedle);
+      assertThat(targetProject.getProperties().get("git.commit.id")).isEqualTo(headCommitId);
     }
   }
 
