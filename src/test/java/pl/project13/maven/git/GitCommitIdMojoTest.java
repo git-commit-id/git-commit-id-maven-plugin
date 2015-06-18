@@ -80,7 +80,7 @@ public class GitCommitIdMojoTest {
 
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.dirty"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
@@ -115,7 +115,7 @@ public class GitCommitIdMojoTest {
 
     // these stay
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
@@ -125,7 +125,7 @@ public class GitCommitIdMojoTest {
   @Test
   public void shouldIncludeOnlyAsConfiguredProperties() throws Exception {
     // given
-    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id$"));
+    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$"));
 
     // when
     mojo.execute();
@@ -139,7 +139,7 @@ public class GitCommitIdMojoTest {
     // glob included
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
 
@@ -176,7 +176,7 @@ public class GitCommitIdMojoTest {
 
     // these excluded
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
