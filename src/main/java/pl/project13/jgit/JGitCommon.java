@@ -217,7 +217,7 @@ public class JGitCommon {
     } catch (Exception e) {
       loggerBridge.log("Unable to locate tags\n[",Throwables.getStackTraceAsString(e),"]");
     } finally {
-      walk.release();
+      walk.close();
     }
     return Collections.emptyMap();
   }
