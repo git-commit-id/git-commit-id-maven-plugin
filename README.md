@@ -42,6 +42,14 @@ The current version is **2.1.15** ([changelist](https://github.com/ktoso/maven-g
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
+Migration Issues you may come across when using the latest 2.2.X
+-----------------------------
+If you are already using the git-commit-id-plugin and would like to move to the latest major release (2.2.X) there are some design choices we made to fix some of your issues.
+1. We dropped the support of Java 1.6 (if you still rely on this version, the version 2.1.15 still has support for this and you may want to check the fixed issues since then before reporting a new one)
+2. We renamed git.commit.id to git.commit.id.full to enable full compability with json (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/122)
+
+I think especially the second one will strike all of our users and we really would like to apologize for any inconvenience :-)
+
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
 If you really want to use **snapshots**, here's the repository they are deployed to. 
