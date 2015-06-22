@@ -42,6 +42,14 @@ The current version is **2.1.15** ([changelist](https://github.com/ktoso/maven-g
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
+Migration Issues you may come across when using the latest 2.2.X
+-----------------------------
+If you are already using the git-commit-id-plugin and would like to move to the latest major release (2.2.X) there are some design choices we made to fix some of your issues.
+1. We dropped the support of Java 1.6 (if you still rely on this version, the version 2.1.15 still has support for this and you may want to check the fixed issues since then before reporting a new one)
+2. We renamed git.commit.id to git.commit.id.full to enable full compability with json (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/122)
+
+I think especially the second one will strike all of our users and we really would like to apologize for any inconvenience :-)
+
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
 If you really want to use **snapshots**, here's the repository they are deployed to. 
@@ -215,7 +223,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
                     -->
                     <includeOnlyProperties>
-                      <!-- <includeOnlyProperty>^git.commit.id$</includeOnlyProperty> -->
+                      <!-- <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty> -->
                     </includeOnlyProperties>
 
                     <!-- @since 2.1.10 -->
@@ -297,7 +305,7 @@ git.branch=${git.branch}
 git.dirty=${git.dirty}
 git.remote.origin.url=${git.remote.origin.url}
 
-git.commit.id=${git.commit.id}
+git.commit.id.full=${git.commit.id.full}
 git.commit.id.abbrev=${git.commit.id.abbrev}
 git.commit.id.describe=${git.commit.id.describe}
 git.commit.id.describe-short=${git.commit.id.describe-short}
@@ -335,7 +343,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="dirty" value="${git.dirty}"/>
         <property name="remoteOriginUrl" value="${git.remote.origin.url}"/>
 
-        <property name="commitId" value="${git.commit.id}"/>
+        <property name="commitId" value="${git.commit.id.full}"/>
         <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="describe" value="${git.commit.id.describe}"/>
         <property name="describeShort"  value="${git.commit.id.describe-short}"/>
@@ -375,7 +383,7 @@ public class GitRepositoryState {
   String dirty;                   // =${git.dirty}
   String remoteOriginUrl;         // =${git.remote.origin.url}
 
-  String commitId;                // =${git.commit.id}
+  String commitId;                // =${git.commit.id.full}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String describe;                // =${git.commit.id.describe}
   String describeShort;           // =${git.commit.id.describe-short}
@@ -506,7 +514,7 @@ public GitRepositoryState(Properties properties)
   this.dirty = properties.get("git.dirty").toString();
   this.remoteOriginUrl = properties.get("git.remote.origin.url").toString();
 
-  this.commitId = properties.get("git.commit.id").toString();
+  this.commitId = properties.get("git.commit.id.full").toString();
   this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
   this.describe = properties.get("git.commit.id.describe").toString();
   this.describeShort = properties.get("git.commit.id.describe-short").toString();

@@ -76,7 +76,7 @@
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.5-beta</mockito.version>
 
-    <java.target>1.6</java.target>
+    <java.target>1.7</java.target>
     <sourceEncoding>UTF-8</sourceEncoding>
     <outputEncoding>UTF-8</outputEncoding>
     <fest-assert.version>1.4</fest-assert.version>

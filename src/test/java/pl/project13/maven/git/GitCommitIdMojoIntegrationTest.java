@@ -653,9 +653,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.describe");
       assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).startsWith(gitDescribeMatchNeedle);
 
-      assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id");
-      assertThat(targetProject.getProperties().get("git.commit.id")).isNotEqualTo(commitIdOfMatchNeedle);
-      assertThat(targetProject.getProperties().get("git.commit.id")).isEqualTo(headCommitId);
+      assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.full");
+      assertThat(targetProject.getProperties().get("git.commit.id.full")).isNotEqualTo(commitIdOfMatchNeedle);
+      assertThat(targetProject.getProperties().get("git.commit.id.full")).isEqualTo(headCommitId);
     }
   }
 
@@ -765,7 +765,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));

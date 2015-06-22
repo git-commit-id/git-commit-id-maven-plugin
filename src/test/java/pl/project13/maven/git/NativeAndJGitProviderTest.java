@@ -37,7 +37,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     "git.build.time",
     "git.build.host",
     "git.branch",
-    "git.commit.id",
+    "git.commit.id.full",
     "git.commit.id.abbrev",
     "git.commit.id.describe",
     "git.build.user.name",
