@@ -176,7 +176,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getCommitTime() {
     long timeSinceEpoch = headCommit.getCommitTime();
     Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(commitDate);
   }
 

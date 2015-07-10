@@ -206,7 +206,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected String getCommitTime() {
     String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value)*1000L);
   }
 
