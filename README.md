@@ -132,6 +132,15 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- that's the default value -->
                     <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
 
+                    <!-- @since 2.2.0 -->
+                    <!-- 
+                         If you want to set the timezone of the dateformat to anything in particular you can do this by using this option. 
+                         As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones. 
+                         The default value we'll use the timezone use the timezone that's shipped with java (java.util.TimeZone.getDefault().getID()). 
+                         *Note*: If you plan to set the java's timezone by using `MAVEN_OPTS=-Duser.timezone=UTC mvn clean package`, `mvn clean package -Duser.timezone=UTC` or any other configuration keep in mind that this option will override those settings and will not take other configurations into account!
+                    -->
+                    <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+
                     <!-- false is default here, it prints some more information during the build -->
                     <verbose>false</verbose>
 
@@ -631,6 +640,7 @@ Optional parameters:
 * **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. `${project.basedir}/.git` is the default value and will most probably be ok for single module projects, in other cases please use `../` to get higher up in the dir tree. An example would be: `${project.basedir}/../.git` which I'm currently using in my projects :-)
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
 * **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* **dateFormatTimeZone** - `(default: empty)` *(available since v2.2.0)* is a TimeZone String (e.g. 'America/Los_Angeles', 'GMT+10', 'PST') and can be used to set the timezone of the *dateFormat* to anything in particular. As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones. The default value we'll use the timezone use the timezone that's shipped with java (java.util.TimeZone.getDefault().getID()). *Note*: If you plan to set the java's timezone by using `MAVEN_OPTS=-Duser.timezone=UTC mvn clean package`, `mvn clean package -Duser.timezone=UTC` or any other configuration keep in mind that this option will override those settings and will not take other configurations into account!
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
 * **generateGitPropertiesFilename** - `(default: ${project.build.outputDirectory}/git.properties)` - The path for the to be generated properties file. The path can be relative to ${project.basedir} (e.g. target/classes/git.properties) or can be a full path (e.g. ${project.build.outputDirectory}/git.properties).

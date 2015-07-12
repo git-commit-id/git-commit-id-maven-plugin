@@ -25,6 +25,8 @@ import pl.project13.maven.git.util.PropertyManager;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -40,6 +42,8 @@ public abstract class GitDataProvider {
   protected int abbrevLength;
 
   protected String dateFormat;
+
+  protected String dateFormatTimeZone;
 
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
@@ -64,6 +68,11 @@ public abstract class GitDataProvider {
 
   public GitDataProvider setDateFormat(String dateFormat) {
     this.dateFormat = dateFormat;
+    return this;
+  }
+
+  public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone){
+    this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
 
@@ -188,6 +197,14 @@ public abstract class GitDataProvider {
       log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
       return enviromentBasedBranch;
     }
+  }
+
+  protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
+    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    if(dateFormatTimeZone != null){
+      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
+    }
+    return smf;
   }
 
   void log(String... parts) {

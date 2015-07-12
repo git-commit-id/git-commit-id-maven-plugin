@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 /**
  * Goal which puts git build-time information into property files or maven's properties.
@@ -223,6 +224,20 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @SuppressWarnings("UnusedDeclaration")
   private String dateFormat;
+
+  /**
+   * The timezone used in the date format that's used for any dates exported by this plugin.
+   * It should be a valid Timezone string (e.g. 'America/Los_Angeles', 'GMT+10', 'PST').
+   * As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones.
+   * Please review https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html for more information on this issue.
+   * will use the timezone that's shipped with java as a default (java.util.TimeZone.getDefault().getID())
+   * 
+   * @parameter
+   */
+  @SuppressWarnings("UnusedDeclaration")
+  private String dateFormatTimeZone;
+
+
 
   /**
    * Specifies whether the plugin should fail if it can't find the .git directory. The default
@@ -516,6 +531,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   void loadBuildVersionAndTimeData(@NotNull Properties properties) {
     Date buildDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    if(dateFormatTimeZone != null){
+      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
+    }
     put(properties, BUILD_TIME, smf.format(buildDate));
     put(properties, BUILD_VERSION, project.getVersion());
   }
@@ -568,6 +586,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
+      .setDateFormatTimeZone(dateFormatTimeZone)
       .setGitDescribe(gitDescribe);
 
     nativeGitProvider.loadGitData(properties);
@@ -580,6 +599,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
+      .setDateFormatTimeZone(dateFormatTimeZone)
       .setGitDescribe(gitDescribe);
 
     jGitProvider.loadGitData(properties);

@@ -748,6 +748,50 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("0");
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldUseDateFormatTimeZone(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+                .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    // RFC 822 time zone: Sign TwoDigitHours Minutes
+    String dateFormat = "Z"; // we want only the timezone (formated in RFC 822) out of the dateformat (easier for asserts)
+    String expectedTimeZoneOffset = "+0200";
+    String executionTimeZoneOffset = "-0800";
+    TimeZone expectedTimeZone = TimeZone.getTimeZone("GMT" + expectedTimeZoneOffset);
+    TimeZone executionTimeZone = TimeZone.getTimeZone("GMT" + executionTimeZoneOffset);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("dateFormat", dateFormat);
+    alterMojoSettings("dateFormatTimeZone", expectedTimeZone.getID());
+
+    // override the default timezone for execution and testing
+    TimeZone currentDefaultTimeZone = TimeZone.getDefault();
+    TimeZone.setDefault(executionTimeZone);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.stringPropertyNames()).contains("git.commit.time");
+    assertThat(properties.getProperty("git.commit.time")).isEqualTo(expectedTimeZoneOffset);
+
+    assertThat(properties.stringPropertyNames()).contains("git.build.time");
+    assertThat(properties.getProperty("git.build.time")).isEqualTo(expectedTimeZoneOffset);
+
+    // set the timezone back
+    TimeZone.setDefault(currentDefaultTimeZone);
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
