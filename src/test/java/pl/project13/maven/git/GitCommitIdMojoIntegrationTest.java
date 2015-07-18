@@ -792,6 +792,30 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     TimeZone.setDefault(currentDefaultTimeZone);
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateCommitIdOldFashioned(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+                .create(CleanUp.CLEANUP_FIRST);
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("generateCommitIdOldFashioned", true);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.stringPropertyNames()).contains("git.commit.id");
+    assertThat(properties.stringPropertyNames()).excludes("git.commit.id.full");
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
