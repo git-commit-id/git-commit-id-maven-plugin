@@ -336,9 +336,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    * However, due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
    * That's the point where this switch comes into place!
    * By default it is set to 'true' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. With keeping the switch set to 'true' the plugin will print a warning that using this switch set to 'true' is deprecated and may be removed in a future release. However keeping it to 'true' by default preserve backwards compatibility and allows to migrate to the new properties when it's convenient.
-   * If you set this switch to 'false' the plugin will export the formerly known property 'git.commit.id' to 'git.commit.id.full'.
+   * If you set this switch to 'false' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full'.
    *
-   * Note: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting the accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when 'prefix' is set to it's default value.
+   * *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
    *
    * @parameter default-value="true"
    * @since 2.2.0

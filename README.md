@@ -46,9 +46,13 @@ Migration Issues you may come across when using the latest 2.2.X
 -----------------------------
 If you are already using the git-commit-id-plugin and would like to move to the latest major release (2.2.X) there are some design choices we made to fix some of your issues.
 1. We dropped the support of Java 1.6 (if you still rely on this version, the version 2.1.15 still has support for this and you may want to check the fixed issues since then before reporting a new one)
-2. We renamed git.commit.id to git.commit.id.full to enable full compability with json (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/122)
+2. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to change the export of the property from 'git.commit.id' to 'git.commit.id.full'.
+   However, due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away we introduced a switch called 'generateCommitIdOldFashioned'.
+   By default it is set to 'true' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. With keeping the switch set to 'true' the plugin will print a warning that using this switch set to 'true' is deprecated and may be removed in a future release. However keeping it to 'true' by default preserve backwards compatibility and allows to migrate to the new properties when it's convenient.
+   If you set this switch to 'false' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full'.
 
-I think especially the second one will strike all of our users and we really would like to apologize for any inconvenience :-)
+   *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
+
 
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
