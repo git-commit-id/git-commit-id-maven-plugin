@@ -44,16 +44,7 @@ You can check the available versions by visiting [search.maven.org](http://searc
 
 Migration Issues you may come across when using the latest 2.2.X
 -----------------------------
-If you are already using the git-commit-id-plugin and would like to move to the latest major release (2.2.X) there are some design choices we made to fix some of your issues.
-1. We dropped the support of Java 1.6 (if you still rely on this version, the version 2.1.15 still has support for this and you may want to check the fixed issues since then before reporting a new one)
-2. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to change the export of the property from 'git.commit.id' to 'git.commit.id.full'.
-   However, due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-   To overcome this issue we introduced a switch called 'generateCommitIdOldFashioned'.
-   By default it is set to 'true' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. With keeping the switch set to 'true' the plugin will print a warning that using this switch set to 'true' is deprecated and may be removed in a future release. However keeping it to 'true' by default preserve backwards compatibility and allows to migrate to the new properties when it's convenient.
-   If you set this switch to 'false' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full'.
-
-   *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
-
+If you are already using the git-commit-id-plugin and would like to move to the latest major release (2.2.X) there are some design choices that resulted in the fact that we needed to dropped the support of Java 1.6 (if you still rely on this version, the version 2.1.15 still has support for this and you may want to check the fixed issues since then before reporting a new one)
 
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
@@ -261,6 +252,23 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                      -->
                     <abbrevLength>7</abbrevLength>
 
+
+                    <!-- @since v2.2.0 -->
+                    <!--
+                         The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
+                         Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
+                         We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
+                         In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
+
+                         Currently the switch allows two different options:
+                         1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
+                         2. If you set this switch to 'full' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full' and therefore will generate a fully valid json object in the exporting mechanism.
+
+                         *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
+                         *Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
+                    -->
+                    <commitIdGenerationMode>flat</commitIdGenerationMode>
+
                     <!-- @since 2.1.0 -->
                     <!-- 
                         read up about git-describe on the in man, or it's homepage - it's a really powerful versioning helper 
@@ -318,8 +326,9 @@ git.tags=${git.tags}
 git.branch=${git.branch}
 git.dirty=${git.dirty}
 git.remote.origin.url=${git.remote.origin.url}
-
-git.commit.id.full=${git.commit.id.full}
+  git.commit.id=${git.commit.id}
+  OR (depends on commitIdGenerationMode)
+  git.commit.id.full=${git.commit.id.full}
 git.commit.id.abbrev=${git.commit.id.abbrev}
 git.commit.id.describe=${git.commit.id.describe}
 git.commit.id.describe-short=${git.commit.id.describe-short}
@@ -358,6 +367,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="remoteOriginUrl" value="${git.remote.origin.url}"/>
 
         <property name="commitId" value="${git.commit.id.full}"/>
+        <!-- OR value="${git.commit.id}" depending on your configuration of commitIdGenerationMode -->
         <property name="commitIdAbbrev" value="${git.commit.id.abbrev}"/>
         <property name="describe" value="${git.commit.id.describe}"/>
         <property name="describeShort"  value="${git.commit.id.describe-short}"/>
@@ -397,7 +407,7 @@ public class GitRepositoryState {
   String dirty;                   // =${git.dirty}
   String remoteOriginUrl;         // =${git.remote.origin.url}
 
-  String commitId;                // =${git.commit.id.full}
+  String commitId;                // =${git.commit.id.full} OR ${git.commit.id}
   String commitIdAbbrev;          // =${git.commit.id.abbrev}
   String describe;                // =${git.commit.id.describe}
   String describeShort;           // =${git.commit.id.describe-short}
@@ -528,7 +538,7 @@ public GitRepositoryState(Properties properties)
   this.dirty = properties.get("git.dirty").toString();
   this.remoteOriginUrl = properties.get("git.remote.origin.url").toString();
 
-  this.commitId = properties.get("git.commit.id.full").toString();
+  this.commitId = properties.get("git.commit.id.full").toString(); // OR properties.get("git.commit.id") depending on your configuration
   this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
   this.describe = properties.get("git.commit.id.describe").toString();
   this.describeShort = properties.get("git.commit.id.describe-short").toString();
@@ -660,7 +670,12 @@ Optional parameters:
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
+* **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
+1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
+2. If you set this switch to 'full' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full' and therefore will generate a fully valid json object in the exporting mechanism.
 
+*Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
+*Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.

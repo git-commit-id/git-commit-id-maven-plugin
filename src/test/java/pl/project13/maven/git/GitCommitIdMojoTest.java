@@ -61,6 +61,7 @@ public class GitCommitIdMojoTest {
     mojo.setVerbose(true);
     mojo.useNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setCommitIdGenerationMode("full");
 
 
     mojo.runningTests = true;

@@ -805,7 +805,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     alterMojoSettings("useNativeGit", useNativeGit);
-    alterMojoSettings("generateCommitIdOldFashioned", true);
+    alterMojoSettings("commitIdGenerationMode", "flat");
 
     // when
     mojo.execute();
