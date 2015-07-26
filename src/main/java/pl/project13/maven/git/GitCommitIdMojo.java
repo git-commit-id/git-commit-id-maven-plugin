@@ -404,16 +404,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     try {
-      if(commitIdGenerationMode == null){
-        commitIdGenerationMode = "flat";
-      }
-      switch(commitIdGenerationMode.toLowerCase()){
+      switch(CommitIdGenerationModeEnum.getValue(commitIdGenerationMode)){
       default:
         loggerBridge.warn("Detected wrong setting for 'commitIdGenerationMode' will fallback to default 'flat'-Mode!");
-      case "flat":
+      case FLAT:
         COMMIT_ID = COMMIT_ID_FLAT;
         break;
-      case "full":
+      case FULL:
         COMMIT_ID = COMMIT_ID_FULL;
         break;
       }
