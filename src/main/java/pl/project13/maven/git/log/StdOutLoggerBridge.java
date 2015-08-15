@@ -40,6 +40,13 @@ public class StdOutLoggerBridge implements LoggerBridge {
       System.out.println("ERR: " + Joiner.on(" ").join(parts));
     }
   }
+
+  @Override
+  public void warn(Object... parts) {
+    if(verbose) {
+      System.out.println("WRN: " + Joiner.on(" ").join(parts));
+    }
+  }
   
   @Override
   public void debug(Object... parts) {

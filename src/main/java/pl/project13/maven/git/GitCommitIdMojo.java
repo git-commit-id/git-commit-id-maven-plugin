@@ -66,7 +66,10 @@ public class GitCommitIdMojo extends AbstractMojo {
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
   public static final String DIRTY = "dirty";
-  public static final String COMMIT_ID = "commit.id.full";
+  public static final String COMMIT_ID_FLAT = "commit.id";
+  public static final String COMMIT_ID_FULL = "commit.id.full";
+  public static String COMMIT_ID = COMMIT_ID_FLAT;
+
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
   public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
@@ -328,6 +331,24 @@ public class GitCommitIdMojo extends AbstractMojo {
   private List<String> includeOnlyProperties = Collections.emptyList();
 
   /**
+   * The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
+   * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
+   * We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
+   * In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
+   *
+   * Currently the switch allows two different options:
+   * 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
+   * 2. If you set this switch to 'full' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full' and therefore will generate a fully valid json object in the exporting mechanism.
+   *
+   * *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
+   * *Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
+   *
+   * @parameter default-value="flat"
+   * @since 2.2.0
+   */
+  private String commitIdGenerationMode;
+
+  /**
    * The Maven Session Object
    *
    * @parameter property="session"
@@ -383,6 +404,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     try {
+      switch(CommitIdGenerationModeEnum.getValue(commitIdGenerationMode)){
+      default:
+        loggerBridge.warn("Detected wrong setting for 'commitIdGenerationMode' will fallback to default 'flat'-Mode!");
+      case FLAT:
+        COMMIT_ID = COMMIT_ID_FLAT;
+        break;
+      case FULL:
+        COMMIT_ID = COMMIT_ID_FULL;
+        break;
+      }
+
       properties = initProperties();
 
       String trimmedPrefix = prefix.trim();
@@ -826,6 +858,10 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void useNativeGit(boolean useNativeGit) {
     this.useNativeGit = useNativeGit;
+  }
+
+  public void setCommitIdGenerationMode(String commitIdGenerationMode){
+    this.commitIdGenerationMode = commitIdGenerationMode;
   }
 
   public LoggerBridge getLoggerBridge() {

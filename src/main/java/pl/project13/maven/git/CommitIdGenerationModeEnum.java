@@ -14,13 +14,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+package pl.project13.maven.git;
 
-package pl.project13.maven.git.log;
-
-public interface LoggerBridge {
-  void log(Object... parts);
-  void error(Object... parts);
-  void warn(Object... parts);
-  void debug(Object... parts);
-  void setVerbose(boolean verbose);
+public enum CommitIdGenerationModeEnum{
+  FULL,
+  FLAT,
+  UNKNOWN;
+	
+  public static CommitIdGenerationModeEnum getValue(String o){
+    if(o != null){
+      for(CommitIdGenerationModeEnum v : values()){
+        if(v.name().toString().equalsIgnoreCase(o)){
+          return v;
+        }
+      }
+    }
+    return CommitIdGenerationModeEnum.UNKNOWN;
+  }	
 }
