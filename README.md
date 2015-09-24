@@ -150,8 +150,11 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- this is false by default, forces the plugin to generate the git.properties file -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
-                    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-                    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+                    <!-- 
+                        The path for the to be generated properties file, it's relative to ${project.basedir} 
+                        The default value is ${project.build.outputDirectory}/git.properties
+                    -->
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 
                     <!-- Denotes the format to save properties in. Valid options are "properties" (default) and "json". Properties will be saved to the generateGitPropertiesFilename if generateGitPropertiesFile is set to `true`. -->
                     <format>properties</format>
