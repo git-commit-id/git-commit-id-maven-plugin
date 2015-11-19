@@ -66,6 +66,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
   public static final String DIRTY = "dirty";
+  public static final String DIRTY_MARK = "dirty.mark";
   public static final String COMMIT_ID_FLAT = "commit.id";
   public static final String COMMIT_ID_FULL = "commit.id.full";
   public static String COMMIT_ID = COMMIT_ID_FLAT;
@@ -234,7 +235,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones.
    * Please review https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html for more information on this issue.
    * will use the timezone that's shipped with java as a default (java.util.TimeZone.getDefault().getID())
-   * 
+   *
    * @parameter
    */
   @SuppressWarnings("UnusedDeclaration")
