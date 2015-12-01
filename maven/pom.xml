@@ -1,0 +1,228 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>pl.project13.maven</groupId>
+    <artifactId>git-commit-id-plugin-parent</artifactId>
+    <version>2.2.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>git-commit-id-plugin</artifactId>
+  <packaging>maven-plugin</packaging>
+  <name>Git Commit Id Plugin Maven Mojo</name>
+  <description>
+    git-commit-id-plugin is a plugin quite similar to
+    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at
+    the time when I started this plugin only supported CVS and SVN, something had to be done.
+    This plugin makes basic repository information available through maven resources. This can be used to display
+    "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
+    it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
+    developers life easier.
+
+    The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
+    {
+    "branch" : "testing-maven-git-plugin",
+    "commitTime" : "06.01.1970 @ 16:16:26 CET",
+    "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
+    "commitUserName" : "Konrad Malawski",
+    "commitUserEmail" : "konrad.malawski@java.pl",
+    "commitMessageFull" : "releasing my fun plugin :-) + fixed some typos + cleaned up directory structure + added
+    license etc",
+    "commitMessageShort" : "releasing my fun plugin :-)",
+    "buildTime" : "06.01.1970 @ 16:17:53 CET",
+    "buildUserName" : "Konrad Malawski",
+    "buildUserEmail" : "konrad.malawski@java.pl"
+    }
+
+    Note that the data is exported via maven resource filtering and is really easy to use with spring -
+    which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
+  </description>
+
+  <prerequisites>
+    <maven>[${maven-plugin-api.version},)</maven>
+  </prerequisites>
+
+  <properties>
+    <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
+
+    <jgit.version>4.0.0.201506090130-r</jgit.version>
+    <slf4j.version>1.7.12</slf4j.version>
+    <junit.version>4.12</junit.version>
+    <mockito.version>2.0.5-beta</mockito.version>
+
+    <fest-assert.version>1.4</fest-assert.version>
+  </properties>
+
+  <dependencies>
+    <!-- MAVEN -->
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>${maven-plugin-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-core</artifactId>
+      <version>${maven-plugin-api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>git-commit-id-plugin-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.5.1</version>
+    </dependency>
+
+    <!-- Joda Time -->
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.7</version>
+    </dependency>
+
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>18.0</version>
+    </dependency>
+
+    <!-- IntelliJ Annotations -->
+    <dependency>
+      <groupId>com.intellij</groupId>
+      <artifactId>annotations</artifactId>
+      <version>12.0</version>
+    </dependency>
+
+    <!-- JGit -->
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+
+    <!-- Test stuff -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <version>${fest-assert.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>3.0.21</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>pl.pragmatists</groupId>
+      <artifactId>JUnitParams</artifactId>
+      <version>1.0.4</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <!-- we need to create a uber-jar for https://github.com/ktoso/maven-git-commit-id-plugin/issues/196 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>pl.project13.maven.git.GitCommitIdMojo</mainClass>
+                </transformer>
+              </transformers>
+              <artifactSet>
+                <includes>
+                  <include>org.slf4j:*</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!--<plugin>-->
+        <!--<artifactId>maven-plugin-plugin</artifactId>-->
+        <!--<version>${maven-plugin-api.version}</version>-->
+        <!--<executions>-->
+          <!--<execution>-->
+            <!--<id>generated-helpmojo</id>-->
+            <!--<goals>-->
+              <!--<goal>helpmojo</goal>-->
+            <!--</goals>-->
+            <!--<configuration>-->
+              <!--<goalPrefix>git-commit-id</goalPrefix>-->
+              <!--<helpPackageName>pl.project13.maven</helpPackageName>-->
+            <!--</configuration>-->
+          <!--</execution>-->
+        <!--</executions>-->
+      <!--</plugin>-->
+    </plugins>
+  </build>
+
+</project>
+

@@ -68,7 +68,7 @@ public enum AvailableGitTestRepo {
     * </pre>
     */
   WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG("src/test/resources/_git_three_commits_and_two_tags_currently_on_commit_without_tag"),
-  MAVEN_GIT_COMMIT_ID_PLUGIN(".git");
+  MAVEN_GIT_COMMIT_ID_PLUGIN("../.git");
 
   private String dir;
 
