@@ -35,6 +35,9 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import pl.project13.git.api.GitDescribeConfig;
+import pl.project13.git.api.GitException;
+import pl.project13.git.api.GitProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -602,39 +605,49 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    if (useNativeGit) {
-      loadGitDataWithNativeGit(properties);
-    } else {
-      loadGitDataWithJGit(properties);
+    try {
+      if (useNativeGit) {
+        loadGitDataWithNativeGit(properties);
+      } else {
+        loadGitDataWithJGit(properties);
+      }
+    } catch (GitException e) {
+      throw new MojoExecutionException("Could not load git data", e);
     }
   }
 
-  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException, GitException {
     final File basedir = project.getBasedir().getCanonicalFile();
 
-    GitDataProvider nativeGitProvider = NativeGitProvider
+    final GitProvider nativeGitProvider = NativeGitProvider
       .on(basedir, loggerBridge)
       .setVerbose(verbose)
-      .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
       .setDateFormatTimeZone(dateFormatTimeZone)
       .setGitDescribe(gitDescribe);
 
-    nativeGitProvider.loadGitData(properties);
+    new GitDataProvider(nativeGitProvider, loggerBridge)
+      .setPrefixDot(prefixDot)
+      .setAbbrevLength(abbrevLength)
+      .setGitDescribe(gitDescribe)
+      .loadGitData(properties);
   }
 
-  void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    GitDataProvider jGitProvider = JGitProvider
+  void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException, GitException {
+    final GitProvider jGitProvider = JGitProvider
       .on(dotGitDirectory, loggerBridge)
       .setVerbose(verbose)
-      .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
       .setDateFormatTimeZone(dateFormatTimeZone)
       .setGitDescribe(gitDescribe);
 
-    jGitProvider.loadGitData(properties);
+    new GitDataProvider(jGitProvider, loggerBridge)
+      .setPrefixDot(prefixDot)
+      .setAbbrevLength(abbrevLength)
+      .setGitDescribe(gitDescribe)
+      .loadGitData(properties);
   }
 
   void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws IOException {

@@ -46,7 +46,6 @@
   <properties>
     <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
 
-    <jgit.version>4.0.0.201506090130-r</jgit.version>
     <slf4j.version>1.7.12</slf4j.version>
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.5-beta</mockito.version>
@@ -78,32 +77,16 @@
       <version>2.5.1</version>
     </dependency>
 
-    <!-- Joda Time -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.7</version>
-    </dependency>
-
     <!-- Guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>18.0</version>
     </dependency>
 
     <!-- IntelliJ Annotations -->
     <dependency>
       <groupId>com.intellij</groupId>
       <artifactId>annotations</artifactId>
-      <version>12.0</version>
-    </dependency>
-
-    <!-- JGit -->
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
     </dependency>
 
     <dependency>

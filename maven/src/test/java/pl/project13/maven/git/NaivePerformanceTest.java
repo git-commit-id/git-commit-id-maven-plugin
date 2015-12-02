@@ -23,6 +23,8 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
+
+import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 import java.util.Arrays;

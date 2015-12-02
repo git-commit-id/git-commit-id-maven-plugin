@@ -21,6 +21,8 @@ package pl.project13.maven.git;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 
+import pl.project13.git.api.GitDescribeConfig;
+
 import java.io.File;
 import java.util.Properties;
 

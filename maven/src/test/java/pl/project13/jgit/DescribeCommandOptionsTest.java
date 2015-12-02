@@ -20,7 +20,8 @@ package pl.project13.jgit;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.mockito.Matchers;
-import pl.project13.maven.git.GitDescribeConfig;
+
+import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.test.utils.AssertException;
 
 import static org.mockito.Mockito.*;

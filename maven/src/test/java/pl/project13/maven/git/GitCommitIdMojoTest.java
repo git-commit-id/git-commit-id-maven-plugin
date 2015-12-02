@@ -20,6 +20,9 @@ package pl.project13.maven.git;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+
+import pl.project13.git.api.GitDescribeConfig;
+
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
@@ -42,6 +45,7 @@ public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
   JGitProvider jGitProvider;
+  GitDataProvider dataProvider;
 
   @Before
   public void setUp() throws Exception {
@@ -70,6 +74,7 @@ public class GitCommitIdMojoTest {
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
     jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
+    dataProvider = new GitDataProvider(jGitProvider, mojo.getLoggerBridge());
   }
 
   @Test
@@ -217,7 +222,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
+  public void shouldUseJenkinsBranchInfoWhenAvailable() throws Exception {
     // given
     Repository git = mock(Repository.class);
     Map<String, String> env = Maps.newHashMap();
@@ -229,28 +234,28 @@ public class GitCommitIdMojoTest {
     jGitProvider.setRepository(git);
     // when
     // in a detached head state, getBranch() will return the SHA1...standard behavior
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSHA1).isEqualTo(dataProvider.determineBranchName(env));
 
     // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
     env.put("JENKINS_URL", "http://myjenkinsserver.com");
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSHA1).isEqualTo(dataProvider.determineBranchName(env));
 
     // now set GIT_BRANCH too and see that the branch name from env var is returned
     env.clear();
     env.put("JENKINS_URL", ciUrl);
     env.put("GIT_BRANCH", "mybranch");
-    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat("mybranch").isEqualTo(dataProvider.determineBranchName(env));
   
     // same, but for hudson
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
     env.put("HUDSON_URL", ciUrl);
-    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat("mybranch").isEqualTo(dataProvider.determineBranchName(env));
 
     // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSHA1).isEqualTo(dataProvider.determineBranchName(env));
   }
   
   @Test
