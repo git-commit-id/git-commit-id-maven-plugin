@@ -17,37 +17,37 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.MojoExecutionException;
-import org.jetbrains.annotations.NotNull;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.util.PropertyManager;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.text.SimpleDateFormat;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class GitDataProvider {
+import pl.project13.git.api.GitDescribeConfig;
+import pl.project13.git.api.GitException;
+import pl.project13.git.api.GitProvider;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.util.PropertyManager;
+
+public final class GitDataProvider {
+
+  @NotNull
+  private final GitProvider provider;
 
   @NotNull
   protected LoggerBridge loggerBridge;
-
-  protected boolean verbose;
 
   protected String prefixDot;
 
   protected int abbrevLength;
 
-  protected String dateFormat;
-
-  protected String dateFormatTimeZone;
-
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
-  public GitDataProvider(@NotNull LoggerBridge loggerBridge) {
+  public GitDataProvider(@NotNull GitProvider provider, @NotNull LoggerBridge loggerBridge) {
+    this.provider = provider;
     this.loggerBridge = loggerBridge;
   }
 
@@ -66,45 +66,15 @@ public abstract class GitDataProvider {
     return this;
   }
 
-  public GitDataProvider setDateFormat(String dateFormat) {
-    this.dateFormat = dateFormat;
-    return this;
-  }
-
-  public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone){
-    this.dateFormatTimeZone = dateFormatTimeZone;
-    return this;
-  }
-
-  protected abstract void init() throws MojoExecutionException;
-  protected abstract String getBuildAuthorName();
-  protected abstract String getBuildAuthorEmail();
-  protected abstract void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException;
-  protected abstract String getBranchName() throws IOException;
-  protected abstract String getGitDescribe() throws MojoExecutionException;
-  protected abstract String getCommitId();
-  protected abstract String getAbbrevCommitId() throws MojoExecutionException;
-  protected abstract boolean isDirty() throws MojoExecutionException;
-  protected abstract String getCommitAuthorName();
-  protected abstract String getCommitAuthorEmail();
-  protected abstract String getCommitMessageFull();
-  protected abstract String getCommitMessageShort();
-  protected abstract String getCommitTime();
-  protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
-  protected abstract String getTags() throws MojoExecutionException;
-  protected abstract String getClosestTagName() throws MojoExecutionException;
-  protected abstract String getClosestTagCommitCount() throws MojoExecutionException;
-  protected abstract void finalCleanUp();
-
-  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
-    init();
+  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException, GitException {
+    provider.init();
     // git.user.name
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, getBuildAuthorName());
+    put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, provider.getBuildAuthorName());
     // git.user.email
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
+    put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, provider.getBuildAuthorEmail());
 
     try {
-      prepareGitToExtractMoreDetailedReproInformation();
+      provider.prepareGitToExtractMoreDetailedReproInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
@@ -112,40 +82,40 @@ public abstract class GitDataProvider {
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
-      put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
+      put(properties, GitCommitIdMojo.COMMIT_ID, provider.getCommitId());
       // git.commit.id.abbrev      
-      put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
+      put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, provider.getAbbrevCommitId());
       // git.dirty
-      put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));
+      put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(provider.isDirty()));
       // git.commit.author.name
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());
+      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, provider.getCommitAuthorName());
       // git.commit.author.email
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, getCommitAuthorEmail());
+      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, provider.getCommitAuthorEmail());
       // git.commit.message.full
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_FULL, getCommitMessageFull());
+      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_FULL, provider.getCommitMessageFull());
       // git.commit.message.short
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_SHORT, getCommitMessageShort());
+      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_SHORT, provider.getCommitMessageShort());
       // git.commit.time
-      put(properties, GitCommitIdMojo.COMMIT_TIME, getCommitTime());
+      put(properties, GitCommitIdMojo.COMMIT_TIME, provider.getCommitTime());
       // git remote.origin.url
-      put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, getRemoteOriginUrl());
+      put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, provider.getRemoteOriginUrl());
 
       //
-      put(properties, GitCommitIdMojo.TAGS, getTags());
+      put(properties, GitCommitIdMojo.TAGS, provider.getTags());
       
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, getClosestTagName());
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, provider.getClosestTagName());
+      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, provider.getClosestTagCommitCount());
     } finally {
-      finalCleanUp();
+        provider.finalCleanUp();
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws MojoExecutionException{
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitException {
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, getGitDescribe());
+      put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, provider.getGitDescribe());
     }
   }
 
@@ -163,11 +133,11 @@ public abstract class GitDataProvider {
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
-  protected String determineBranchName(Map<String, String> env) throws IOException {
+  protected String determineBranchName(Map<String, String> env) throws GitException {
     if (runningOnBuildServer(env)) {
       return determineBranchNameOnBuildServer(env);
     } else {
-      return getBranchName();
+      return provider.getBranchName();
     }
   }
 
@@ -188,23 +158,15 @@ public abstract class GitDataProvider {
    * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
    * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
-  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
+  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitException {
     String enviromentBasedBranch = env.get("GIT_BRANCH");
     if(isNullOrEmpty(enviromentBasedBranch)) {
       log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
-      return getBranchName();
+      return provider.getBranchName();
     }else {
       log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
       return enviromentBasedBranch;
     }
-  }
-
-  protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if(dateFormatTimeZone != null){
-      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
-    }
-    return smf;
   }
 
   void log(String... parts) {

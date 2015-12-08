@@ -33,8 +33,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.jgit.dummy.DatedRevTag;
-import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 import pl.project13.maven.git.util.Pair;

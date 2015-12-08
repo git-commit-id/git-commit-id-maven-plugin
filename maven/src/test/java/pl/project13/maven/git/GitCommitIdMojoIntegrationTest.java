@@ -29,6 +29,8 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 import pl.project13.test.utils.AssertException;
 
