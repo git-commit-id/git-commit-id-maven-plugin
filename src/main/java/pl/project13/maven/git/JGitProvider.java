@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -38,14 +39,12 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.jgit.JGitCommon;
-import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public class JGitProvider extends GitDataProvider {
 
@@ -57,21 +56,14 @@ public class JGitProvider extends GitDataProvider {
   private JGitCommon jGitCommon;
 
   @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    return new JGitProvider(dotGitDirectory, loggerBridge);
+  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
+    return new JGitProvider(dotGitDirectory, mojo);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    super(loggerBridge);
+  JGitProvider(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
+    super(mojo);
     this.dotGitDirectory = dotGitDirectory;
     this.jGitCommon = new JGitCommon();
-  }
-
-  @NotNull
-  public JGitProvider setVerbose(boolean verbose) {
-    super.verbose = verbose;
-    super.loggerBridge.setVerbose(verbose);
-    return this;
   }
 
   @Override
@@ -194,7 +186,7 @@ public class JGitProvider extends GitDataProvider {
       Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
-      loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
+      mojo.getLog().error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
       return "";
     }
   }
@@ -203,7 +195,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagName() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(loggerBridge,repo);
+      return jGitCommon.getClosestTagName(repo, mojo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -214,7 +206,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagCommitCount() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(loggerBridge,repo,headCommit);
+      return jGitCommon.getClosestTagCommitCount(repo, headCommit, mojo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -233,8 +225,7 @@ public class JGitProvider extends GitDataProvider {
     try {
       DescribeResult describeResult = DescribeCommand
         .on(repository)
-        .withLoggerBridge(super.loggerBridge)
-        .setVerbose(super.verbose)
+        .withMojo(mojo)
         .apply(super.gitDescribe)
         .call();
 

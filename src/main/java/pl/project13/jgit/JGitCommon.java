@@ -33,6 +33,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.maven.plugin.Mojo;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -45,18 +46,14 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.dummy.DatedRevTag;
-import pl.project13.maven.git.log.LoggerBridge;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class JGitCommon {
@@ -97,16 +94,16 @@ public class JGitCommon {
     }
   }
 
-  public String getClosestTagName(@NotNull LoggerBridge loggerBridge,@NotNull Repository repo){
-    Map<ObjectId, List<DatedRevTag>> map = getClosestTagAsMap(loggerBridge,repo);
+  public String getClosestTagName(@NotNull Repository repo, @NotNull Mojo mojo){
+    Map<ObjectId, List<DatedRevTag>> map = getClosestTagAsMap(repo, mojo);
     for(Map.Entry<ObjectId, List<DatedRevTag>> entry : map.entrySet()){
       return trimFullTagName(entry.getValue().get(0).tagName);
     }
     return "";
   }
 
-  public String getClosestTagCommitCount(@NotNull LoggerBridge loggerBridge,@NotNull Repository repo, RevCommit headCommit){    
-    HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(loggerBridge,repo));
+  public String getClosestTagCommitCount(@NotNull Repository repo, RevCommit headCommit, @NotNull Mojo mojo){
+    HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo, mojo));
     ObjectId obj = (ObjectId) map.keySet().toArray()[0];
     
     RevWalk walk = new RevWalk(repo);
@@ -117,11 +114,11 @@ public class JGitCommon {
     return String.valueOf(distance);
   }
 
-  private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull LoggerBridge loggerBridge,@NotNull Repository repo){
+  private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo, @NotNull Mojo mojo){
     Map<ObjectId, List<DatedRevTag>> mapWithClosestTagOnly = newHashMap();
     boolean includeLightweightTags = true;
     String matchPattern = ".*";
-    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(loggerBridge,repo,includeLightweightTags,matchPattern);
+    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, includeLightweightTags, matchPattern, mojo);
     LinkedHashMap<ObjectId, List<DatedRevTag>> sortedCommitIdsToTags = sortByDatedRevTag(commitIdsToTags);
 
     for(Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()){
@@ -154,7 +151,7 @@ public class JGitCommon {
     return result;
   }
 
-  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull LoggerBridge loggerBridge,@NotNull Repository repo, boolean includeLightweightTags, String matchPattern){
+  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern, @NotNull Mojo mojo){
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = newHashMap();
 
     RevWalk walk = new RevWalk(repo);
@@ -163,13 +160,13 @@ public class JGitCommon {
 
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
       Pattern regex = Pattern.compile(matchPattern);
-      loggerBridge.log("Tag refs [", tagRefs, "]");
+      mojo.getLog().info("Tag refs [" + tagRefs + "]");
 
       for (Ref tagRef : tagRefs) {
         walk.reset();
         String name = tagRef.getName();
         if (!regex.matcher(name).matches()) {
-          loggerBridge.log("Skipping tagRef with name [", name, "] as it doesn't match [", matchPattern, "]");
+          mojo.getLog().info("Skipping tagRef with name [" + name + "] as it doesn't match [" + matchPattern + "]");
           continue;
         }
         ObjectId resolvedCommitId = repo.resolve(name);
@@ -178,7 +175,7 @@ public class JGitCommon {
         try {
           final RevTag revTag = walk.parseTag(resolvedCommitId);
           ObjectId taggedCommitId = revTag.getObject().getId();
-          loggerBridge.log("Resolved tag [",revTag.getTagName(),"] [",revTag.getTaggerIdent(),"], points at [",taggedCommitId,"] ");
+          mojo.getLog().info("Resolved tag [" + revTag.getTagName() + "] [" + revTag.getTaggerIdent() + "], points at [" + taggedCommitId + "] ");
 
           // sometimes a tag, may point to another tag, so we need to unpack it
           while (isTagId(taggedCommitId)) {
@@ -195,7 +192,7 @@ public class JGitCommon {
           // it's an lightweight tag! (yeah, really)
           if (includeLightweightTags) {
             // --tags means "include lightweight tags"
-            loggerBridge.log("Including lightweight tag [", name, "]");
+            mojo.getLog().info("Including lightweight tag [" + name + "]");
 
             DatedRevTag datedRevTag = new DatedRevTag(resolvedCommitId, name);
 
@@ -206,16 +203,16 @@ public class JGitCommon {
             }
           }
         } catch (Exception ignored) {
-          loggerBridge.error("Failed while parsing [",tagRef,"] -- ", Throwables.getStackTraceAsString(ignored));
+          mojo.getLog().info("Failed while parsing [" + tagRef + "] -- ", ignored);
         }
       }
 
       for (Map.Entry<ObjectId, List<DatedRevTag>> entry : commitIdsToTags.entrySet()) {
-        loggerBridge.log("key [",entry.getKey(),"], tags => [",entry.getValue(),"] ");
+        mojo.getLog().info("key [" + entry.getKey() + "], tags => [" + entry.getValue() + "] ");
       }
         return commitIdsToTags;
     } catch (Exception e) {
-      loggerBridge.log("Unable to locate tags\n[",Throwables.getStackTraceAsString(e),"]");
+      mojo.getLog().info("Unable to locate tags", e);
     } finally {
       walk.close();
     }

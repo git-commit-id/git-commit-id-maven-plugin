@@ -35,8 +35,8 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.maven.git.log.VerboseLog;
+import pl.project13.maven.git.log.VerboseLogger;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.*;
@@ -68,6 +68,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String DIRTY = "dirty";
   public static final String COMMIT_ID_FLAT = "commit.id";
   public static final String COMMIT_ID_FULL = "commit.id.full";
+
+  // TODO this should be private instance field with getter and setter
   public static String COMMIT_ID = COMMIT_ID_FLAT;
 
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
@@ -88,6 +90,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String CLOSEST_TAG_NAME = "closest.tag.name";
   public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
 
+  // TODO upgrade to Maven plugin annotations and fix private
   /**
    * The maven project.
    *
@@ -363,50 +366,54 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Properties properties;
 
+  // TODO remove this
   boolean runningTests = false;
 
   @NotNull
-  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), true);
+  private final VerboseLog log = new VerboseLogger(this, true);
 
+  @Override
   public void execute() throws MojoExecutionException {
     // Set the verbose setting now it should be correctly loaded from maven.
-    loggerBridge.setVerbose(verbose);
+    log.setVerbose(verbose);
 
     if (skip) {
-      log("skip is enabled, skipping execution!");
+      log.info("skip is enabled, skipping execution!");
       return;
     }
 
     if (runOnlyOnce) {
       if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
-        log("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+        log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
         return;
       }
     }
 
     if (isPomProject(project) && skipPoms) {
-      log("isPomProject is true and skipPoms is true, return");
+      log.info("isPomProject is true and skipPoms is true, return");
       return;
     }
 
     dotGitDirectory = lookupGitDirectory();
-    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    if (failOnNoGitDirectory && !directoryExists(dotGitDirectory)) {
+      throw new MojoExecutionException(".git directory is not found! Please specify a valid [dotGitDirectory] in your pom.xml");
+    }
 
     if (gitDescribe == null) {
       gitDescribe = new GitDescribeConfig();
     }
 
     if (dotGitDirectory != null) {
-      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
+      log.info("dotGitDirectory " + dotGitDirectory.getAbsolutePath());
     } else {
-      log("dotGitDirectory is null, aborting execution!");
+      log.info("dotGitDirectory is null, aborting execution!");
       return;
     }
 
     try {
       switch(CommitIdGenerationModeEnum.getValue(commitIdGenerationMode)){
       default:
-        loggerBridge.warn("Detected wrong setting for 'commitIdGenerationMode' will fallback to default 'flat'-Mode!");
+        log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
       case FLAT:
         COMMIT_ID = COMMIT_ID_FLAT;
         break;
@@ -436,10 +443,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         appendPropertiesToReactorProjects(properties, prefixDot);
       }
     } catch (Exception e) {
-      e.printStackTrace();
       handlePluginFailure(e);
     }
-
   }
 
   private void filterNot(Properties properties, @Nullable List<String> exclusions) {
@@ -461,7 +466,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        loggerBridge.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
+        log.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
         properties.remove(key);
       }
     }
@@ -486,7 +491,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (!shouldInclude.apply(key)) {
-        loggerBridge.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
+        log.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
         properties.remove(key);
       }
     }
@@ -503,7 +508,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (failOnUnableToExtractRepoInfo) {
       throw new MojoExecutionException("Could not complete Mojo execution...", e);
     } else {
-      loggerBridge.error(e.getMessage(), com.google.common.base.Throwables.getStackTraceAsString(e));
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -511,19 +516,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
-      log(mavenProject.getName(), "] project", mavenProject.getName());
+      log.info(mavenProject.getName() + "] project " + mavenProject.getName());
 
       for (Object key : properties.keySet()) {
         if (key.toString().startsWith(trimmedPrefixWithDot)) {
             mavenProperties.put(key, properties.get(key));
         }
       }
-    }
-  }
-
-  private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
-    if (required && directoryDoesNotExits(dotGitDirectory)) {
-      throw new MojoExecutionException(message);
     }
   }
 
@@ -551,7 +550,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-        log("found property", keyString);
+        log.info("found property " + keyString);
       }
     }
   }
@@ -575,7 +574,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      log("Unable to get build host, skipping property " + BUILD_HOST + ". Error message was: " + e.getMessage());
+      log.info("Unable to get build host, skipping property " + BUILD_HOST + ". Error message: " + e.getMessage());
     }
     put(properties, BUILD_HOST, buildHost);
   }
@@ -613,8 +612,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     final File basedir = project.getBasedir().getCanonicalFile();
 
     GitDataProvider nativeGitProvider = NativeGitProvider
-      .on(basedir, loggerBridge)
-      .setVerbose(verbose)
+      .on(basedir, this)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
@@ -626,8 +624,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
     GitDataProvider jGitProvider = JGitProvider
-      .on(dotGitDirectory, loggerBridge)
-      .setVerbose(verbose)
+      .on(dotGitDirectory, this)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
@@ -648,12 +645,12 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       try {
         if (isJsonFormat) {
-          log("Reading exising json file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+          log.info("Reading existing json file [" + gitPropsFile.getAbsolutePath() + "] (for module "  + project.getName() + ")...");
 
           persistedProperties = readJsonProperties( gitPropsFile );
         }
         else {
-          log("Reading exising properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+          log.info("Reading existing properties file [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
 
           persistedProperties = readProperties( gitPropsFile );
         }
@@ -669,7 +666,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
       catch ( CannotReadFileException ex ) {
         // Read has failed, regenerate file
-        log("Cannot read properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+        log.info("Cannot read properties file [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
         shouldGenerate = true;
       }
     }
@@ -682,11 +679,11 @@ public class GitCommitIdMojo extends AbstractMojo {
       try {
         outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), Charsets.UTF_8);
         if (isJsonFormat) {
-          log("Writing json file to [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+          log.info("Writing json file to [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
           ObjectMapper mapper = new ObjectMapper();
           mapper.writeValue(outputWriter, localProperties);
         } else {
-          log("Writing properties file to [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+          log.info("Writing properties file to [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
           localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
         }
         threw = false;
@@ -697,7 +694,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
     }
     else {
-      log("Properties file [", gitPropsFile.getAbsolutePath(), "] is up-to-date (for module ", project.getName(), ")...");
+      log.info("Properties file [" + gitPropsFile.getAbsolutePath() + "] is up-to-date (for module " + project.getName() + ")...");
     }
   }
 
@@ -719,20 +716,12 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log(keyWithPrefix, value);
+    log.info(keyWithPrefix + " " + value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
-  }
-
-  void log(String... parts) {
-    loggerBridge.log((Object[]) parts);
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
-  }
-
-  private boolean directoryDoesNotExits(File fileLocation) {
-    return !directoryExists(fileLocation);
   }
 
   @SuppressWarnings( "resource" )
@@ -862,9 +851,5 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setCommitIdGenerationMode(String commitIdGenerationMode){
     this.commitIdGenerationMode = commitIdGenerationMode;
-  }
-
-  public LoggerBridge getLoggerBridge() {
-    return loggerBridge;
   }
 }

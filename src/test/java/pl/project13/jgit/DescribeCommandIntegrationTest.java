@@ -61,7 +61,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
-        .setVerbose(true)
+        .withMojo(mojo)
         .call();
 
     // then
@@ -83,10 +83,9 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
+    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
     doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    command.setVerbose(true);
     DescribeResult res = command.call();
 
     // then
@@ -108,10 +107,9 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
+    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
     doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    command.setVerbose(true);
     DescribeResult res = command.call();
 
     // then
@@ -134,11 +132,10 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
+    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
     doReturn(false).when(command).findDirtyState(any(Repository.class));
 
     command
-        .setVerbose(true)
         .abbrev(abbrevLength);
     DescribeResult res = command.call();
 
@@ -161,9 +158,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Repository repo = git().getRepository();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
+    DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
     command.dirty(DIRTY_SUFFIX);
-    command.setVerbose(true);
     DescribeResult res = command.call();
 
     // then
@@ -188,8 +184,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeCommand command = DescribeCommand
         .on(repo)
-        .dirty(customDirtySuffix)
-        .setVerbose(true);
+            .withMojo(mojo)
+        .dirty(customDirtySuffix);
     DescribeResult res = command.call();
 
     // then
@@ -211,8 +207,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
 
     // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
+    DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
     DescribeResult res = command.call();
 
     // then
@@ -236,8 +231,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -261,8 +256,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -288,9 +283,9 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
         .dirty(customDirtySuffix)
-        .setVerbose(true)
         .call();
 
     // then
@@ -313,8 +308,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -335,9 +330,9 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .dirty(DIRTY_SUFFIX)
         .abbrev(0)
-        .setVerbose(true)
         .call();
 
     // then
@@ -362,8 +357,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -420,8 +415,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .abbrev(zeroAbbrev)
-        .setVerbose(true)
         .call();
 
     // then

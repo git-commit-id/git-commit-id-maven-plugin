@@ -17,31 +17,24 @@
 
 package pl.project13.maven.git.log;
 
-import org.junit.Test;
-import org.slf4j.Logger;
+import org.apache.maven.plugin.logging.Log;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+/**
+ * Allows user to specify verbosity level of logging.
+ */
+public interface VerboseLog extends Log {
 
+    /**
+     * Returns true if plugin does verbose logging.
+     *
+     * @return true if plugin does verbose logging
+     */
+    boolean isVerbose();
 
-public class MavenLoggerBridgeTest {
-  Logger logger = mock(Logger.class);
-  MavenLoggerBridge bridge = new MavenLoggerBridge(null, true);
-
-  @Test
-  public void shouldNotFailWhenMessageContainsPercentSigns() throws Exception {
-    // given
-    String start = "the output was: [";
-    String content = "100% coverage!!!";
-    String end = "]";
-    String expectedExplicit = "the output was: [ 100% coverage!!! ]";
-
-    // when
-    bridge.setLogger(logger);
-    bridge.log(start, content, end);
-
-    // then
-    verify(logger).info(expectedExplicit);
-  }
-
+    /**
+     * Sets plugin to verbose mode.
+     *
+     * @param verbose plugin verbosity flag
+     */
+    void setVerbose(boolean verbose);
 }

@@ -17,9 +17,9 @@
 
 package pl.project13.maven.git;
 
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
-import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public abstract class GitDataProvider {
 
   @NotNull
-  protected LoggerBridge loggerBridge;
+  protected Mojo mojo;
 
   protected boolean verbose;
 
@@ -47,8 +47,8 @@ public abstract class GitDataProvider {
 
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
-  public GitDataProvider(@NotNull LoggerBridge loggerBridge) {
-    this.loggerBridge = loggerBridge;
+  public GitDataProvider(@NotNull Mojo mojo) {
+    this.mojo = mojo;
   }
 
   public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
@@ -185,17 +185,17 @@ public abstract class GitDataProvider {
   }
 
   /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
+   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that environment variable is set.
    * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
-    String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
-      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
+    String environmentBasedBranch = env.get("GIT_BRANCH");
+    if(isNullOrEmpty(environmentBasedBranch)) {
+      mojo.getLog().info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
       return getBranchName();
     }else {
-      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
-      return enviromentBasedBranch;
+      mojo.getLog().info("Using environment variable based branch name. " + "GIT_BRANCH = " + environmentBasedBranch);
+      return environmentBasedBranch;
     }
   }
 
@@ -207,13 +207,9 @@ public abstract class GitDataProvider {
     return smf;
   }
 
-  void log(String... parts) {
-    loggerBridge.log((Object[]) parts);
-  }
-
   protected void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log(keyWithPrefix, value);
+    mojo.getLog().info(keyWithPrefix + " " + value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 }

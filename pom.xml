@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>6</version>
+    <version>9</version>
   </parent>
 
   <groupId>pl.project13.maven</groupId>
@@ -72,7 +72,6 @@
     <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
 
     <jgit.version>4.0.0.201506090130-r</jgit.version>
-    <slf4j.version>1.7.12</slf4j.version>
     <junit.version>4.12</junit.version>
     <mockito.version>2.0.5-beta</mockito.version>
 
@@ -129,18 +128,6 @@
       <version>${jgit.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
-    </dependency>
-
     <!-- Test stuff -->
     <dependency>
       <groupId>junit</groupId>
@@ -184,6 +171,14 @@
       <version>1.0.4</version>
       <scope>test</scope>
     </dependency>
+
+    <!--to avoid complaints during tests-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.13</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -211,33 +206,6 @@
           <source>${java.target}</source>
           <target>${java.target}</target>
         </configuration>
-      </plugin>
-      <!-- we need to create a uber-jar for https://github.com/ktoso/maven-git-commit-id-plugin/issues/196 -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.3</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <createDependencyReducedPom>false</createDependencyReducedPom>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>pl.project13.maven.git.GitCommitIdMojo</mainClass>
-                </transformer>
-              </transformers>
-              <artifactSet>
-                <includes>
-                  <include>org.slf4j:*</include>
-                </includes>
-              </artifactSet>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
 
       <!--<plugin>-->
@@ -340,4 +308,3 @@
     </profile>
   </profiles>
 </project>
-

@@ -64,7 +64,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
-        .setVerbose(true)
+        .withMojo(mojo)
         .call();
 
     // then
@@ -87,8 +87,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -111,8 +111,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .match("annotated*")
         .call();
 
@@ -146,8 +146,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -179,8 +179,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then
@@ -209,8 +209,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .tags()
-        .setVerbose(true)
         .call();
 
     // then

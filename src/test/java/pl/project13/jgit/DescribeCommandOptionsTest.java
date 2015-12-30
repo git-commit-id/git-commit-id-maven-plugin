@@ -20,6 +20,7 @@ package pl.project13.jgit;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.mockito.Matchers;
+import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.test.utils.AssertException;
 
@@ -74,7 +75,7 @@ public class DescribeCommandOptionsTest {
     GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);
 
     Repository repo = mock(Repository.class);
-    DescribeCommand command = DescribeCommand.on(repo);
+    DescribeCommand command = DescribeCommand.on(repo).withMojo(new GitCommitIdMojo());
     DescribeCommand spiedCommand = spy(command);
 
     // when

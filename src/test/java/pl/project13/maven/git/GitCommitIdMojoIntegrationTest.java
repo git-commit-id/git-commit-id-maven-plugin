@@ -26,7 +26,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;

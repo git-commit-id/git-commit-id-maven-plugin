@@ -148,7 +148,10 @@ public class FileSystemMavenSandbox {
 
   public void cleanup() {
     try {
-      FileUtils.deleteDirectory(new File(rootSandboxPath));
+      final File sandbox = new File(rootSandboxPath);
+      if (sandbox.exists()) {
+        FileUtils.deleteDirectory(sandbox);
+      }
     } catch (IOException e) {
       System.out.println("Unable to delete the directory: " + rootSandboxPath);
     }

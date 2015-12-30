@@ -69,7 +69,7 @@ public class GitCommitIdMojoTest {
     when(mojo.project.getPackaging()).thenReturn("jar");
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo);
   }
 
   @Test
@@ -280,8 +280,8 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = "target" + File.separator + "classes" + File.separator + "git.properties";
     
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
@@ -291,8 +291,8 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = targetDir + "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
 
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);

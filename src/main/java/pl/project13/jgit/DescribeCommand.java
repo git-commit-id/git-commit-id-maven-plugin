@@ -21,6 +21,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.apache.maven.plugin.Mojo;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.Status;
@@ -35,8 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 import pl.project13.maven.git.util.Pair;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.*;
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
-  private LoggerBridge loggerBridge;
+  private Mojo mojo;
   private JGitCommon jGitCommon;
 
 //  TODO not yet implemented options:
@@ -98,29 +97,13 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
   private DescribeCommand(Repository repo) {
-    this(repo, true);
-  }
-
-  private DescribeCommand(Repository repo, boolean verbose) {
     super(repo);
-    initDefaultLoggerBridge(verbose);
-    setVerbose(verbose);
     this.jGitCommon = new JGitCommon();
   }
 
-  private void initDefaultLoggerBridge(boolean verbose) {
-    loggerBridge = new StdOutLoggerBridge(verbose);
-  }
-
   @NotNull
-  public DescribeCommand setVerbose(boolean verbose) {
-    loggerBridge.setVerbose(verbose);
-    return this;
-  }
-
-  @NotNull
-  public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
-    this.loggerBridge = bridge;
+  public DescribeCommand withMojo(Mojo mojo) {
+    this.mojo = mojo;
     return this;
   }
 
@@ -134,7 +117,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
-    log("--always =", always);
+    mojo.getLog().info("--always = " + always);
     return this;
   }
 
@@ -153,7 +136,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
     if (forceLongFormat != null && forceLongFormat) {
       this.forceLongFormat = true;
-      log("--long =", true);
+      mojo.getLog().info("--long = " + true);
     }
     return this;
   }
@@ -171,7 +154,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     if (n != null) {
       Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
       Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
-      log("--abbrev =", n);
+      mojo.getLog().info("--abbrev = " + n);
       abbrev = n;
     }
     return this;
@@ -209,7 +192,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
     if (includeLightweightTagsInSearch != null && includeLightweightTagsInSearch) {
       tagsFlag = includeLightweightTagsInSearch;
-      log("--tags =", includeLightweightTagsInSearch);
+      mojo.getLog().info("--tags = " + includeLightweightTagsInSearch);
     }
     return this;
   }
@@ -251,7 +234,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     Optional<String> option = Optional.fromNullable(dirtyMarker);
-    log("--dirty =", option.or(""));
+    mojo.getLog().info("--dirty = " + option.or(""));
     this.dirtyOption = option;
     return this;
   }
@@ -267,7 +250,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand match(@Nullable String pattern) {
     if (!"*".equals(pattern)) {
       matchOption = Optional.fromNullable(pattern);
-      log("--match =", matchOption.or(""));
+      mojo.getLog().info("--match =" + matchOption.or(""));
     }
     return this;
   }
@@ -289,7 +272,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     if (hasTags(headCommit, tagObjectIdToName) && !forceLongFormat) {
       String tagName = tagObjectIdToName.get(headCommit).iterator().next();
-      log("The commit we're on is a Tag ([",tagName,"]) and forceLongFormat == false, returning.");
+      mojo.getLog().info("The commit we're on is a Tag ([" + tagName + "]) and forceLongFormat == false, returning.");
 
       return new DescribeResult(tagName, dirty, dirtyOption);
     }
@@ -362,7 +345,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         && status.getModified().isEmpty()
         && status.getConflicting().isEmpty());
 
-    log("Repo is in dirty state [", isDirty, "]");
+    mojo.getLog().info("Repo is in dirty state [" + isDirty + "]");
     return isDirty;
   }
 
@@ -379,7 +362,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       RevCommit headCommit = walk.lookupCommit(headId);
       walk.dispose();
 
-      log("HEAD is [",headCommit.getName(),"] ");
+      mojo.getLog().info("HEAD is [" + headCommit.getName() + "] ");
       return headCommit;
     } catch (IOException ex) {
       throw new RuntimeException("Unable to obtain HEAD commit!", ex);
@@ -389,9 +372,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
 	  String matchPattern = createMatchPattern();
-	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(loggerBridge, repo, tagsFlag, matchPattern);
+	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(repo, tagsFlag, matchPattern, mojo);
       Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
-      log("Created map: [",commitIdsToTagNames,"] ");
+    mojo.getLog().info("Created map: [" + commitIdsToTagNames + "] ");
 
       return commitIdsToTagNames;
   }
@@ -406,10 +389,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     buf.append(matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q"));
     buf.append("\\E$");
     return buf.toString();
-  }
-
-  private void log(Object... parts) {
-    loggerBridge.log(parts);
   }
 }
 

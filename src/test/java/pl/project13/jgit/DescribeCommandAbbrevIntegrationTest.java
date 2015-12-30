@@ -70,8 +70,8 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .abbrev(2) // 2 is enough to be unique in this small repo
-        .setVerbose(true)
         .call();
 
     // then
@@ -95,8 +95,8 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     // when
     DescribeResult res = DescribeCommand
         .on(repo)
+        .withMojo(mojo)
         .abbrev(2) // way too small to be unique in git-commit-id's repo!
-        .setVerbose(true)
         .call();
 
     // then
