@@ -13,13 +13,14 @@
   <version>2.2.1-SNAPSHOT</version>
   <name>Git Commit Id Plugin Maven Mojo</name>
   <description>
-    git-commit-id-plugin is a plugin quite similar to
-    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at
-    the time when I started this plugin only supported CVS and SVN, something had to be done.
     This plugin makes basic repository information available through maven resources. This can be used to display
     "what version is this?" or "who has deployed this and when, from which branch?" information at runtime - making
     it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
     developers life easier.
+
+    git-commit-id-plugin is quite similar to
+    https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at
+    the time when I started this plugin only supported CVS and SVN, something had to be done.
 
     The data currently exported is like this (that's the end effect from the GitRepositoryState Bean):
     {
@@ -36,7 +37,7 @@
     "buildUserEmail" : "konrad.malawski@java.pl"
     }
 
-    Note that the data is exported via maven resource filtering and is really easy to use with spring -
+    Note that the data is exported via maven resource filtering and is really easy to use with Spring -
     which I've explained in detail in this readme https://github.com/ktoso/maven-git-commit-id-plugin
   </description>
   <url>http://www.blog.project13.pl</url>
