@@ -21,16 +21,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.Mojo;
@@ -52,9 +43,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-
-import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Sets.newHashSet;
 
 public class JGitCommon {
   public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException{
@@ -119,7 +107,7 @@ public class JGitCommon {
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, includeLightweightTags, matchPattern, mojo);
     LinkedHashMap<ObjectId, List<DatedRevTag>> sortedCommitIdsToTags = sortByDatedRevTag(commitIdsToTags);
 
-    for(Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()){
+    for (Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()){
       mapWithClosestTagOnly.put(entry.getKey(), entry.getValue());
       break;
     }
@@ -128,7 +116,7 @@ public class JGitCommon {
   }
 
   private LinkedHashMap<ObjectId, List<DatedRevTag>> sortByDatedRevTag(Map<ObjectId, List<DatedRevTag>> map) {
-    List<Map.Entry<ObjectId, List<DatedRevTag>>> list = new LinkedList<>(map.entrySet());
+    List<Map.Entry<ObjectId, List<DatedRevTag>>> list = new ArrayList<>(map.entrySet());
 
     Collections.sort(list, new Comparator<Map.Entry<ObjectId, List<DatedRevTag>>>() {
       public int compare(Map.Entry<ObjectId, List<DatedRevTag>> m1, Map.Entry<ObjectId, List<DatedRevTag>> m2) {
@@ -288,9 +276,9 @@ public class JGitCommon {
     try (RevWalk revWalk = new RevWalk(repo)) {
       revWalk.markStart(child);
 
-      Set<ObjectId> seena = newHashSet();
-      Set<ObjectId> seenb = newHashSet();
-      Queue<RevCommit> q = newLinkedList();
+      Set<ObjectId> seena = new HashSet<>();
+      Set<ObjectId> seenb = new HashSet<>();
+      Queue<RevCommit> q = new ArrayDeque<>();
 
       q.add(revWalk.parseCommit(child));
       int distance = 0;
@@ -332,7 +320,7 @@ public class JGitCommon {
   }
 
   private void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
-    Queue<RevCommit> q = newLinkedList();
+    Queue<RevCommit> q = new ArrayDeque<>();
     q.add(child);
 
     while (q.size() > 0) {
