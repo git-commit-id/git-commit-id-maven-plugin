@@ -262,7 +262,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
    * if unable to obtain git meta data - yet the build will continue to run (without failing).
    *
-   * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
+   * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behind this flag.
    *
    * @parameter default-value="true"
    */
@@ -303,7 +303,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   private boolean runOnlyOnce = false;
 
   /**
-   * Can be used to exclude certain properties from being emited into the resulting file.
+   * Can be used to exclude certain properties from being emitted into the resulting file.
    * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
    * or the email of the committer etc.
    *
@@ -336,7 +336,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
    * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-   * We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
+   * We rather provide a convenient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
    * In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
    *
    * Currently the switch allows two different options:
@@ -792,9 +792,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  static class CannotReadFileException
-    extends Exception
-  {
+  static class CannotReadFileException extends Exception {
     private static final long serialVersionUID = -6290782570018307756L;
 
     CannotReadFileException( Throwable cause )

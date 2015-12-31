@@ -33,7 +33,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public abstract class GitDataProvider {
 
   @NotNull
-  protected Mojo mojo;
+  protected final Mojo mojo;
 
   protected boolean verbose;
 
@@ -79,7 +79,7 @@ public abstract class GitDataProvider {
   protected abstract void init() throws MojoExecutionException;
   protected abstract String getBuildAuthorName();
   protected abstract String getBuildAuthorEmail();
-  protected abstract void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException;
+  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws MojoExecutionException;
   protected abstract String getBranchName() throws IOException;
   protected abstract String getGitDescribe() throws MojoExecutionException;
   protected abstract String getCommitId();
@@ -104,7 +104,7 @@ public abstract class GitDataProvider {
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
 
     try {
-      prepareGitToExtractMoreDetailedReproInformation();
+      prepareGitToExtractMoreDetailedRepoInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
@@ -151,14 +151,14 @@ public abstract class GitDataProvider {
 
   void validateAbbrevLength(int abbrevLength) throws MojoExecutionException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
+      throw new MojoExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
     }
   }
 
   /**
-   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
-   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
+   * If running within Jenkins/Hudson, honor the branch name passed via GIT_BRANCH env var.
+   * This is necessary because Jenkins/Hudson always invoke build in a detached head state.
    *
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
@@ -190,10 +190,10 @@ public abstract class GitDataProvider {
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
     String environmentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(environmentBasedBranch)) {
+    if (isNullOrEmpty(environmentBasedBranch)) {
       mojo.getLog().info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
       return getBranchName();
-    }else {
+    } else {
       mojo.getLog().info("Using environment variable based branch name. " + "GIT_BRANCH = " + environmentBasedBranch);
       return environmentBasedBranch;
     }
@@ -201,7 +201,7 @@ public abstract class GitDataProvider {
 
   protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if(dateFormatTimeZone != null){
+    if (dateFormatTimeZone != null){
       smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
     return smf;

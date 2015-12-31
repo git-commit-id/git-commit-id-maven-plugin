@@ -160,7 +160,7 @@ public class DescribeResult {
   }
 
   /**
-   * <p>The (possibly) "g" prefixed <strong>abbriverated</strong> object id of a commit.</p>
+   * <p>The (possibly) "g" prefixed <strong>abbreviated</strong> object id of a commit.</p>
    * <p>
    * The "g" prefix is prepended to be compatible with git's describe output, please refer to
    * <b>man git-describe</b> to check why it's included.
@@ -170,8 +170,8 @@ public class DescribeResult {
    * This is following git's behaviour - so any git tooling should be happy with this output.
    * </p>
    * <p>
-   * Notes about the abbriverated object id:
-   * Git will try to use your given abbrev lenght, but when it's to short to guarantee uniqueness -
+   * Notes about the abbreviated object id:
+   * Git will try to use your given abbrev length, but when it's too short to guarantee uniqueness -
    * a longer one will be used (which WILL guarantee uniqueness).
    * If you need the full commit id, it's always available via {@link pl.project13.jgit.DescribeResult#commitObjectId()}.
    * </p>
@@ -208,14 +208,14 @@ public class DescribeResult {
    *
    * @return the abbreviated commit id, possibly longer than the requested len (if it wouldn't be unique)
    */
-  private static Optional<AbbreviatedObjectId> createAbbreviatedCommitId(@NotNull ObjectReader objectReader, ObjectId commitId, int requestedLenght) {
-    if(requestedLenght < 2) {
+  private static Optional<AbbreviatedObjectId> createAbbreviatedCommitId(@NotNull ObjectReader objectReader, ObjectId commitId, int requestedLength) {
+    if (requestedLength < 2) {
       // 0 means we don't want to print commit id's at all
       return Optional.absent();
     }
 
     try {
-      AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(commitId, requestedLenght);
+      AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(commitId, requestedLength);
       return Optional.of(abbreviatedObjectId);
     } catch (IOException e) {
       return Optional.absent();

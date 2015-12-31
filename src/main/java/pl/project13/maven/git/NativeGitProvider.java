@@ -55,7 +55,6 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 
-
   @Override
   protected void init() throws MojoExecutionException {
     // noop ...
@@ -86,7 +85,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException {
+  protected void prepareGitToExtractMoreDetailedRepoInformation() throws MojoExecutionException {
   }
 
   @Override
@@ -95,14 +94,14 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   private String getBranch(File canonical) {
-    String branch = null;
+    String branch;
     try{
       branch = runGitCommand(canonical, "symbolic-ref HEAD");
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
     } catch(NativeCommandException e) {
-      // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
+      // it seems that git repo is in 'DETACHED HEAD'-State, using Commit-Id as Branch
       String err = e.getStderr();
       if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
         branch = getCommitId();
@@ -116,8 +115,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   protected String getGitDescribe() {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
-    final String gitDescribe = runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
-    return gitDescribe;
+    return runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
   }
 
   private String getArgumentsForGitDescribe(GitDescribeConfig describeConfig) {
@@ -131,15 +129,15 @@ public class NativeGitProvider extends GitDataProvider {
 
     final String dirtyMark = describeConfig.getDirty();
     if (dirtyMark != null && !dirtyMark.isEmpty()) {
-      argumentsForGitDescribe.append(" --dirty=" + dirtyMark);
+      argumentsForGitDescribe.append(" --dirty=").append(dirtyMark);
     }
 
     final String matchOption = describeConfig.getMatch();
     if (matchOption != null && !matchOption.isEmpty()) {
-      argumentsForGitDescribe.append(" --match=" + matchOption);
+      argumentsForGitDescribe.append(" --match=").append(matchOption);
     }
 
-    argumentsForGitDescribe.append(" --abbrev=" + describeConfig.getAbbrev());
+    argumentsForGitDescribe.append(" --abbrev=").append(describeConfig.getAbbrev());
 
     if (describeConfig.getTags()) {
       argumentsForGitDescribe.append(" --tags");
@@ -245,11 +243,11 @@ public class NativeGitProvider extends GitDataProvider {
       String trimmed = line.trim();
 
       if (trimmed.startsWith("origin")) {
-        String[] splited = trimmed.split("\\s+");
-        if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
+        String[] split = trimmed.split("\\s+");
+        if (split.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
           throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
         }
-        remoteUrl = splited[1];
+        remoteUrl = split[1];
       }
     }
     return remoteUrl;
@@ -400,34 +398,6 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return errMsg;
     }
-
-//    @Override
-//    public String run(File directory, String command) throws IOException {
-//      String output;
-//      try {
-//        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-//        final Process proc = builder.directory(directory).start();
-//        proc.waitFor();
-//        InputStream is = proc.getInputStream();
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-//        final StringBuilder commandResult = new StringBuilder();
-//
-//        String line;
-//        while ((line = reader.readLine()) != null) {
-//          commandResult.append(line);
-//        }
-//
-//        output = commandResult.toString();
-//
-//        if (proc.exitValue() != 0) {
-//          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(), output);
-//          throw new IOException(message);
-//        }
-//      } catch (InterruptedException e) {
-//        throw new RuntimeException("Unable to attach to git process!", e);
-//      }
-//      return output;
-//    }
 
     @Override
     public boolean runEmpty(File directory, String command) throws IOException {

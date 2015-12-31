@@ -85,7 +85,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException {
+  protected void prepareGitToExtractMoreDetailedRepoInformation() throws MojoExecutionException {
     try {
       // more details parsed out bellow
       Ref head = git.getRef(Constants.HEAD);
@@ -108,26 +108,22 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getBranchName() throws IOException {
-    String branch = git.getBranch();
-    return branch;
+    return git.getBranch();
   }
 
   @Override
   protected String getGitDescribe() throws MojoExecutionException {
-    String gitDescribe = getGitDescribe(git);
-    return gitDescribe;
+    return getGitDescribe(git);
   }
 
   @Override
   protected String getCommitId() {
-    String commitId = headCommit.getName();
-    return commitId;
+    return headCommit.getName();
   }
 
   @Override
   protected String getAbbrevCommitId() throws MojoExecutionException {
-    String abbrevCommitId = getAbbrevCommitId(objectReader, headCommit, abbrevLength);
-    return abbrevCommitId;
+    return getAbbrevCommitId(objectReader, headCommit, abbrevLength);
   }
 
   @Override
@@ -142,26 +138,22 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getCommitAuthorName() {
-    String commitAuthor = headCommit.getAuthorIdent().getName();
-    return commitAuthor;
+    return headCommit.getAuthorIdent().getName();
   }
 
   @Override
   protected String getCommitAuthorEmail() {
-    String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-    return commitEmail;
+    return headCommit.getAuthorIdent().getEmailAddress();
   }
 
   @Override
   protected String getCommitMessageFull() {
-    String fullMessage = headCommit.getFullMessage();
-    return fullMessage.trim();
+    return headCommit.getFullMessage().trim();
   }
 
   @Override
   protected String getCommitMessageShort() {
-    String shortMessage = headCommit.getShortMessage();
-    return shortMessage.trim();
+    return headCommit.getShortMessage().trim();
   }
 
   @Override
@@ -174,8 +166,7 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getRemoteOriginUrl() throws MojoExecutionException {
-    String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
-    return remoteOriginUrl;
+    return git.getConfig().getString("remote", "origin", "url");
   }
 
   @Override

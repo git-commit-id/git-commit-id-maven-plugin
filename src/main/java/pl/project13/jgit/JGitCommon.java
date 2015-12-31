@@ -85,8 +85,6 @@ public class JGitCommon {
       });
 
       return tags;
-    } catch (GitAPIException e) {
-      throw e;
     } finally {
       if (walk != null) {
         walk.dispose();
@@ -130,7 +128,7 @@ public class JGitCommon {
   }
 
   private LinkedHashMap<ObjectId, List<DatedRevTag>> sortByDatedRevTag(Map<ObjectId, List<DatedRevTag>> map) {
-    List<Map.Entry<ObjectId, List<DatedRevTag>>> list = new LinkedList<Map.Entry<ObjectId, List<DatedRevTag>>>(map.entrySet());
+    List<Map.Entry<ObjectId, List<DatedRevTag>>> list = new LinkedList<>(map.entrySet());
 
     Collections.sort(list, new Comparator<Map.Entry<ObjectId, List<DatedRevTag>>>() {
       public int compare(Map.Entry<ObjectId, List<DatedRevTag>> m1, Map.Entry<ObjectId, List<DatedRevTag>> m2) {
@@ -144,7 +142,7 @@ public class JGitCommon {
       }
     });
 
-    LinkedHashMap<ObjectId, List<DatedRevTag>> result = new LinkedHashMap<ObjectId, List<DatedRevTag>>();
+    LinkedHashMap<ObjectId, List<DatedRevTag>> result = new LinkedHashMap<>();
     for (Map.Entry<ObjectId, List<DatedRevTag>> entry : list) {
       result.put(entry.getKey(), entry.getValue());
     }
@@ -154,8 +152,7 @@ public class JGitCommon {
   protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern, @NotNull Mojo mojo){
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = newHashMap();
 
-    RevWalk walk = new RevWalk(repo);
-    try {
+    try (RevWalk walk = new RevWalk(repo)) {
       walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
 
       List<Ref> tagRefs = Git.wrap(repo).tagList().call();
@@ -210,11 +207,9 @@ public class JGitCommon {
       for (Map.Entry<ObjectId, List<DatedRevTag>> entry : commitIdsToTags.entrySet()) {
         mojo.getLog().info("key [" + entry.getKey() + "], tags => [" + entry.getValue() + "] ");
       }
-        return commitIdsToTags;
+      return commitIdsToTags;
     } catch (Exception e) {
       mojo.getLog().info("Unable to locate tags", e);
-    } finally {
-      walk.close();
     }
     return Collections.emptyMap();
   }
@@ -264,8 +259,7 @@ public class JGitCommon {
   }
 
   public List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
-    RevWalk revWalk = new RevWalk(repo);
-    try {
+    try (RevWalk revWalk = new RevWalk(repo)) {
       revWalk.markStart(head);
 
       for (RevCommit commit : revWalk) {
@@ -291,9 +285,7 @@ public class JGitCommon {
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
    */
   protected int distanceBetween(@NotNull Repository repo, @NotNull RevCommit child, @NotNull RevCommit parent) {
-    RevWalk revWalk = new RevWalk(repo);
-
-    try {
+    try (RevWalk revWalk = new RevWalk(repo)) {
       revWalk.markStart(child);
 
       Set<ObjectId> seena = newHashSet();
@@ -336,8 +328,6 @@ public class JGitCommon {
       return distance;
     } catch (Exception e) {
       throw new RuntimeException(String.format("Unable to calculate distance between [%s] and [%s]", child, parent), e);
-    } finally {
-      revWalk.dispose();
     }
   }
 

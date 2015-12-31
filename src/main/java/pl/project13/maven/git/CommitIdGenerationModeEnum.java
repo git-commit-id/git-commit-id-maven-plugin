@@ -24,7 +24,7 @@ public enum CommitIdGenerationModeEnum{
   public static CommitIdGenerationModeEnum getValue(String o){
     if(o != null){
       for(CommitIdGenerationModeEnum v : values()){
-        if(v.name().toString().equalsIgnoreCase(o)){
+        if(v.name().equalsIgnoreCase(o)){
           return v;
         }
       }

@@ -118,7 +118,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
                         use this setting, otherwise we'll perform a search trying to
-                        figure out the right directory. It's better to add it explicite IMHO.
+                        figure out the right directory. It's better to add it explicitly IMHO.
                     -->
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
@@ -207,7 +207,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                     <!-- @since 2.1.9 -->
                     <!--
-                        Can be used to exclude certain properties from being emited into the resulting file.
+                        Can be used to exclude certain properties from being emitted into the resulting file.
                         May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
                         or the email of the committer etc.
 
@@ -236,8 +236,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                     <!-- @since 2.1.10 -->
                     <!-- 
-                      false is default here, if set to true it uses native `git` excutable for extracting all data.
-                      This usually has better performance than the default (jgit) implemenation, but requires you to 
+                      false is default here, if set to true it uses native `git` executable for extracting all data.
+                      This usually has better performance than the default (jgit) implementation, but requires you to 
                       have git available as executable for the build as well as *might break unexpectedly* when you 
                       upgrade your system-wide git installation.
                        
@@ -260,7 +260,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                          The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
                          Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-                         We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
+                         We rather provide a convenient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
                          In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
 
                          Currently the switch allows two different options:
@@ -386,7 +386,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="buildTime" value="${git.build.time}"/>
         <property name="buildHost" value="${git.build.host}"/>
-        <porperty name="buildVersion" value="${git.build.version}"/>
+        <property name="buildVersion" value="${git.build.version}"/>
     </bean>
 </beans>
 ```
@@ -671,7 +671,7 @@ Optional parameters:
 * **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
-* **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
+* **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 * **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
@@ -684,8 +684,8 @@ Optional parameters:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
 
 * **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git behaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
-* **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
-* **dirty** - `(default: "-dirty")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be inclided in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
+* **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you end up with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
+* **dirty** - `(default: "-dirty")` when you run describe on a repository that's in "dirty state" (has uncommitted changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be included in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
 * **tags** - `(default: false)` if true this option enables matching a lightweight (non-annotated) tag.
 * **match** - `(default: *)` only consider tags matching the given pattern (can be used to avoid leaking private tags made from the repository)
 * **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.

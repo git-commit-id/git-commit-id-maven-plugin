@@ -384,11 +384,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return ".*";
     }
 
-    StringBuffer buf = new StringBuffer();
-    buf.append("^refs/tags/\\Q");
-    buf.append(matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q"));
-    buf.append("\\E$");
-    return buf.toString();
+    return "^refs/tags/\\Q" +
+            matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
+            "\\E$";
   }
 }
 
