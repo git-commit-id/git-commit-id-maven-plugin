@@ -23,7 +23,6 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);

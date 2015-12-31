@@ -24,7 +24,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -42,7 +41,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
   }
 
   @Override
@@ -163,7 +162,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String snapshotTag = "0.0.1-SNAPSHOT";
     String latestTag = "OName-0.0.1";
@@ -194,7 +193,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String beforeTag = "OName-0.0.1";
     String latestTag = "0.0.1-SNAPSHOT";

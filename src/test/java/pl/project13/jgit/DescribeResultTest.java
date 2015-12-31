@@ -24,7 +24,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -49,7 +48,7 @@ public class DescribeResultTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
   }
 
   @Override

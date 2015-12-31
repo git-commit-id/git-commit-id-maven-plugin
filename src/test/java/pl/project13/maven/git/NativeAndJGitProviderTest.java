@@ -29,8 +29,6 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
-
 public class NativeAndJGitProviderTest extends GitIntegrationTest
 {
   public static final String[] GIT_KEYS = new String[] {
@@ -58,7 +56,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
       verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
@@ -71,7 +69,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
         continue; // Don't create a subrepo based off the plugin repo itself.
       }
-      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
       verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
@@ -84,7 +82,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       if (testRepo == AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN) {
         continue; // Don't create a subrepo based off the plugin repo itself.
       }
-      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getChildProject();
       verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
     }
@@ -95,7 +93,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create(CleanUp.CLEANUP_FIRST);
+      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
       verifyNativeAndJGit(targetProject, ISO8601_FORMAT_STRING);
     }

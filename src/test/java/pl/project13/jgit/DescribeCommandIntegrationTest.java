@@ -27,7 +27,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static java.util.Collections.singletonList;
@@ -54,7 +53,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -78,7 +77,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -102,7 +101,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -126,7 +125,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     int abbrevLength = 10;
     Repository repo = git().getRepository();
@@ -153,7 +152,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -175,7 +174,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String customDirtySuffix = "-DEV";
 
@@ -201,7 +200,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
     Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
@@ -223,7 +222,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
     git().reset().setMode(ResetCommand.ResetType.HARD).call();
@@ -248,7 +247,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
     git().checkout().setName("v1.0.0").call();
@@ -275,7 +274,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
     git().checkout().setName("v1.0.0").call();
@@ -301,7 +300,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -323,7 +322,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -348,7 +347,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -407,7 +406,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
     Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();

@@ -22,7 +22,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -63,7 +62,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
@@ -88,7 +87,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     Repository repo = git().getRepository();
 
