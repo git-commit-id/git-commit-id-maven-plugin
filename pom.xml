@@ -76,6 +76,7 @@
     <java.target>1.7</java.target>
 
     <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
+    <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
 
     <jgit.version>4.1.1.201511131810-r</jgit.version>
     <junit.version>4.12</junit.version>
@@ -96,6 +97,14 @@
       <artifactId>maven-core</artifactId>
       <version>${maven-plugin-api.version}</version>
     </dependency>
+    <!-- dependencies to annotations -->
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>${maven-plugin-plugin.version}</version>
+      <scope>provided</scope><!-- annotations are needed only to build the plugin -->
+    </dependency>
+
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -241,7 +250,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.4</version>
+          <version>${maven-plugin-plugin.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -274,22 +283,28 @@
         </configuration>
       </plugin>
 
-      <!--<plugin>-->
-        <!--<artifactId>maven-plugin-plugin</artifactId>-->
-        <!--<version>${maven-plugin-api.version}</version>-->
-        <!--<executions>-->
-          <!--<execution>-->
-            <!--<id>generated-helpmojo</id>-->
-            <!--<goals>-->
-              <!--<goal>helpmojo</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-              <!--<goalPrefix>git-commit-id</goalPrefix>-->
-              <!--<helpPackageName>pl.project13.maven</helpPackageName>-->
-            <!--</configuration>-->
-          <!--</execution>-->
-        <!--</executions>-->
-      <!--</plugin>-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-descriptor</id>
+            <phase>process-classes</phase>
+          </execution>
+<!--
+          <execution>
+            <id>generated-helpmojo</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+            <configuration>
+              <goalPrefix>git-commit-id</goalPrefix>
+              <helpPackageName>pl.project13.maven</helpPackageName>
+            </configuration>
+          </execution>
+-->
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

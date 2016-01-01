@@ -31,6 +31,9 @@ import com.google.common.io.Files;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,13 +57,9 @@ import java.util.TimeZone;
 /**
  * Goal which puts git build-time information into property files or maven's properties.
  *
- * @goal revision
- * @phase initialize
- * @requiresProject
- * @threadSafe true
  * @since 1.0
  */
-@SuppressWarnings({"JavaDoc"})
+@Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
 
   // these properties will be exposed to maven
@@ -90,279 +89,271 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String CLOSEST_TAG_NAME = "closest.tag.name";
   public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
 
-  // TODO upgrade to Maven plugin annotations and fix private
+  // TODO fix access modifier
   /**
-   * The maven project.
-   *
-   * @parameter property="project" default-value="${project}"
-   * @readonly
+   * The Maven Project.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
   MavenProject project;
 
   /**
-   * Contains the full list of projects in the reactor.
-   *
-   * @parameter property="reactorProjects" default-value="${reactorProjects}"
-   * @readonly
+   * The list of projects in the reactor.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${reactorProjects}", readonly = true)
   private List<MavenProject> reactorProjects;
 
   /**
-   * Tell git-commit-id to inject the git properties into all
-   * reactor projects not just the current one.
-   *
-   * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
-   * Basically, injecting into all projects may slow down the build and you don't always need this feature.
-   *
-   * @parameter default-value="false"
+   * The Maven Session Object.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(property = "session", required = true, readonly = true)
+  private MavenSession session;
+
+  /**
+   * <p>Set this to {@code true} to inject git properties into all reactor projects, not just the current one.</p>
+   *
+   * <p>Injecting into all projects may slow down the build and you don't always need this feature.
+   * For details about why you might want to skip this: <a href="https://github.com/ktoso/maven-git-commit-id-plugin/pull/65">https://github.com/ktoso/maven-git-commit-id-plugin/pull/65</a>.
+   * </p>
+   *
+   * <p>Defaults to {@code false}.</p>
+   */
+  @Parameter(defaultValue = "false")
   private boolean injectAllReactorProjects;
 
   /**
-   * Specifies whether the goal runs in verbose mode.
-   * To be more specific, this means more info being printed out while scanning for paths and also
-   * it will make git-commit-id "eat it's own dog food" :-)
+   * <p>Set this to {@code true} to print more info while scanning for paths.
+   * It will make git-commit-id "eat it's own dog food" :-)</p>
    *
-   * @parameter default-value="false"
+   * <p>Defaults to {@code false}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean verbose;
 
   /**
-   * Specifies whether the execution in pom projects should be skipped.
-   * Override this value to false if you want to force the plugin to run on 'pom' packaged projects.
+   * <p>Set this to {@code false} to execute plugin in 'pom' packaged projects.</p>
    *
-   * @parameter parameter="git.skipPoms" default-value="true"
+   * <p>Defaults to {@code true}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true", name = "git.skipPoms")
   private boolean skipPoms;
 
   /**
-   * Specifies whether plugin should generate properties file.
-   * By default it will not generate any additional file,
-   * and only add properties to maven project's properties for further filtering
+   * <p>Set this to {@code true} to generate {@code git.properties} file.
+   * By default plugin only adds properties to maven project properties.</p>
    *
-   * If set to "true" properties will be fully generated with no placeholders inside.
-   *
-   * @parameter default-value="false"
+   * <p>Defaults to {@code false}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean generateGitPropertiesFile;
 
   /**
-   * Decide where to generate the git.properties file. By default, the ${project.build.outputDirectory}/git.properties
-   * file will be updated - of course you must first set generateGitPropertiesFile = true to force git-commit-id
-   * into generateFile mode.
+   * <p>The location of {@code git.properties} file. Set {@code generateGitPropertiesFile} to {@code true}
+   * to generate this file.</p>
    *
-   * The path here is relative to your projects src directory.
+   * <p>The path here is relative to your projects src directory.</p>
    *
-   * @parameter default-value="${project.build.outputDirectory}/git.properties"
+   * <p>Defaults to {@code ${project.build.outputDirectory}/git.properties}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
   private String generateGitPropertiesFilename;
 
   /**
-   * The root directory of the repository we want to check
+   * <p>The root directory of the repository we want to check.</p>
    *
-   * @parameter default-value="${project.basedir}/.git"
+   * <p>Defaults to {@code ${project.basedir}/.git}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project.basedir}/.git")
   private File dotGitDirectory;
 
   /**
-   * Configuration for the <pre>git-describe</pre> command.
+   * Configuration for the {@code git-describe} command.
    * You can modify the dirty marker, abbrev length and other options here.
-   *
-   * If not specified, default values will be used.
-   *
-   * @parameter
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter
   private GitDescribeConfig gitDescribe;
 
   /**
-   * <p>
-   * Configure the "git.commit.id.abbrev" property to be at least of length N.
-   * N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
-   * </p>
+   * <p>Minimum length of {@code git.commit.id.abbrev} property.
+   * Value must be from 2 to 40 (inclusive), other values will result in an exception.</p>
    *
-   * <p>
-   * An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
-   * To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
-   * </p>
+   * <p>An abbreviated commit is a shorter version of commit id. However, it is guaranteed to be unique.
+   * To keep this contract, the plugin may decide to print an abbreviated version that is longer than the value specified here.</p>
+   *
+   * <p>Defaults to {@code 7}.</p>
    *
    * <b>Example:</b>
-   * <p>
-   * You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
-   * long abbrev version of the commit id. If your repository, on the other hand, has just 4 commits, you'll probably get a 2 char long abbrev.
-   * </p>
+   * <p>You have a very big repository, yet you set this value to 2. It's very probable that you'll end up
+   * getting a 4 or 7 char long abbrev version of the commit id. If your repository, on the other hand,
+   * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
    *
-   * @parameter default-value=7
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "7")
   private int abbrevLength;
 
   /**
-   * The format to save properties in. Valid options are "properties" (default) and "json".
+   * <p>The format to save properties in: {@code properties} or {@code json}.</p>
    *
-   * @parameter default-value="properties"
+   * <p>Defaults to {@code properties}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "properties")
   private String format;
 
   /**
-   * The prefix to expose the properties on, for example 'git' would allow you to access '${git.branch}'
+   * <p>The prefix to expose the properties on.
+   * For example {@code git} would allow you to access {@code ${git.branch}}.</p>
    *
-   * @parameter default-value="git"
+   * <p>Defaults to {@code git}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "git")
   private String prefix;
+  // prefix with dot appended if needed
   private String prefixDot = "";
 
   /**
-   * The date format to be used for any dates exported by this plugin.
-   * It should be a valid SimpleDateFormat string.
+   * <p>The date format to be used for any dates exported by this plugin.
+   * It should be a valid SimpleDateFormat string.</p>
    *
-   * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
+   * <p>Defaults to {@code dd.MM.yyyy '@' HH:mm:ss z}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "dd.MM.yyyy '@' HH:mm:ss z")
   private String dateFormat;
 
   /**
-   * The timezone used in the date format that's used for any dates exported by this plugin.
-   * It should be a valid Timezone string (e.g. 'America/Los_Angeles', 'GMT+10', 'PST').
-   * As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones.
-   * Please review https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html for more information on this issue.
-   * will use the timezone that's shipped with java as a default (java.util.TimeZone.getDefault().getID())
-   * 
-   * @parameter
+   * <p>The timezone used in the date format of dates exported by this plugin.
+   * It should be a valid Timezone string (e.g. 'America/Los_Angeles', 'GMT+10', 'PST').</p>
+   *
+   * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
+   * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
+   *
+   * <p>Defaults to {@code java.util.TimeZone.getDefault().getID()}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter
   private String dateFormatTimeZone;
 
-
-
   /**
-   * Specifies whether the plugin should fail if it can't find the .git directory. The default
-   * value is true.
+   * Set this to {@code false} to avoid failing the build on missing {@code .git} directory.
    *
-   * @parameter default-value="true"
+   * <p>Defaults to {@code true}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true")
   private boolean failOnNoGitDirectory;
 
   /**
-   * By default the plugin will fail the build if unable to obtain enough data for a complete run,
-   * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
-   * things to the repository, you may want to set this value to false.
+   * <p>Set this to {@code false} to continue the build even if unable to get enough data for a complete run.
+   * This may be useful during CI builds if the CI server does weird things to the repository.</p>
    *
-   * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
-   * if unable to obtain git meta data - yet the build will continue to run (without failing).
+   * <p>Setting this value to {@code false} causes the plugin to gracefully tell you "I did my best"
+   * and abort it's execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
    *
-   * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behind this flag.
+   * <p>See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/63">https://github.com/ktoso/maven-git-commit-id-plugin/issues/63</a>
+   * for a rationale behind this flag.</p>
    *
-   * @parameter default-value="true"
+   * <p>Defaults to {@code true}.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true")
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
-   * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
-   * use a native GIT executable to fetch information about the repository, witch is in most cases faster but requires
-   * a git executable to be installed in system.
+   * Set this to {@code true} to use native GIT executable to fetch information about the repository.
+   * It is in most cases faster but requires a git executable to be installed in system.
+   * By default the plugin will use jGit implementation as a source of information about the repository.
    *
-   * @parameter default-value="false"
+   * <p>Defaults to {@code false}.</p>
    * @since 2.1.9
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean useNativeGit;
 
   /**
-   * Skip the plugin execution.
+   * <p>Set this to {@code true} to skip plugin execution.</p>
    *
-   * @parameter default-value="false"
+   * <p>Defaults to {@code false}.</p>
    * @since 2.1.8
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private boolean skip = false;
+  @Parameter(defaultValue = "false")
+  private boolean skip;
 
   /**
-   * In a multi-module build, only run once.  This probably won't "do the right thing" if your project has more than
-   * one git repository.  If you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
-   * the file in the directory where you started your build.
+   * <p>Set this to {@code true} to only run once in a multi-module build.  This probably won't "do the right thing"
+   * if your project has more than one git repository.  If you use this with {@code generateGitPropertiesFile},
+   * it will only generate (or update) the file in the directory where you started your build.</p>
    *
-   * The git.* maven properties are available in all modules.
+   * <p>The git.* maven properties are available in all modules.</p>
    *
-   * @parameter default-value="false"
+   * <p>Defaults to {@code false}.</p>
    * @since 2.1.12
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private boolean runOnlyOnce = false;
+  @Parameter(defaultValue = "false")
+  private boolean runOnlyOnce;
 
   /**
-   * Can be used to exclude certain properties from being emitted into the resulting file.
+   * <p>List of properties to exclude from the resulting file.
    * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
-   * or the email of the committer etc.
+   * or the email of the committer etc.</p>
    *
-   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to exclude both, the {@code name},
-   * as well as {@code email} properties from being emitted into the resulting files.
+   * <p>Supports wildcards: you can write {@code git.commit.user.*} to exclude both the {@code name},
+   * as well as {@code email} properties from being emitted into the resulting files.</p>
    *
-   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+   * <p>Please note that the strings here are Java regular expressions ({@code .*} is a wildcard, not plain {@code *}).</p>
    *
-   * @parameter
+   * <p>Defaults to empty list.</p>
    * @since 2.1.9
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private List<String> excludeProperties = Collections.emptyList();
+  @Parameter
+  private List<String> excludeProperties;
 
   /**
-   * Can be used to include only certain properties into the resulting file.
-   * Will be overruled by the exclude properties.
+   * <p>List of properties to include into the resulting file. Only properties specified here will be included.
+   * This list will be overruled by the {@code excludeProperties}.</p>
    *
-   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to include both, the {@code name},
-   * as well as {@code email} properties into the resulting files.
+   * <p>Supports wildcards: you can write {@code git.commit.user.*} to exclude both the {@code name},
+   * as well as {@code email} properties from being emitted into the resulting files.</p>
    *
-   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+   * <p>Please note that the strings here are Java regular expressions ({@code .*} is a wildcard, not plain {@code *}).</p>
    *
-   * @parameter
+   * <p>Defaults to empty list.</p>
    * @since 2.1.14
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private List<String> includeOnlyProperties = Collections.emptyList();
+  @Parameter
+  private List<String> includeOnlyProperties;
 
   /**
-   * The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
-   * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-   * We rather provide a convenient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
-   * In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
+   * <p>The mode of {@code git.commit.id} property generation.</p>
    *
-   * Currently the switch allows two different options:
-   * 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
-   * 2. If you set this switch to 'full' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full' and therefore will generate a fully valid json object in the exporting mechanism.
+   * <p>Due to naming issues in json export
+   * (see <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/122">https://github.com/ktoso/maven-git-commit-id-plugin/issues/122</a>)
+   * we need to make it possible to export all properties as a valid json-object.
+   * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change
+   * the exporting mechanism and somehow throw the backwards compatibility away.
+   * We rather provide a convenient switch where you can choose if you would like the properties as they always had been,
+   * or if you rather need to support full json-object compatibility.
+   * In the case you need to fully support json-object we unfortunately need to change the {@code git.commit.id} property
+   * from {@code git.commit.id} to {@code git.commit.id.full} in the exporting mechanism to allow the generation
+   * of a fully valid json object.</p>
    *
-   * *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
-   * *Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
+   * <p>Currently the switch allows two different options:<ol>
+   * <li>By default this property is set to {@code flat} and will generate the formerly known property {@code git.commit.id}
+   * as it was in the previous versions of the plugin. Keeping it to {@code flat} by default preserves backwards compatibility
+   * and does not require further adjustments by the end user.</li>
+   * <li>If you set this switch to {@code full} the plugin will export the formerly known property {@code git.commit.id}
+   * as {@code git.commit.id.full} and therefore will generate a fully valid json object in the exporting mechanism.</li>
+   * </ol>
+   * </p>
    *
-   * @parameter default-value="flat"
+   * <b>Note</b>: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties
+   * by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration
+   * what the switch means when the 'prefix' is set to it's default value.
+   * <b>Note</b>: If you set the value to something that's not equal to {@code flat} or {@code full} (ignoring the case)
+   * the plugin will output a warning and will fallback to the default {@code flat} mode.
+   *
+   * <p>Defaults to {@code flat}.</p>
    * @since 2.2.0
    */
+  @Parameter(defaultValue = "flat")
   private String commitIdGenerationMode;
 
   /**
-   * The Maven Session Object
-   *
-   * @parameter property="session"
-   * @required
-   * @readonly
-   */
-  @SuppressWarnings("UnusedDeclaration")
-  protected MavenSession session;
-
-  /**
-   * The properties we store our data in and then expose them
+   * The properties we store our data in and then expose them.
    */
   private Properties properties;
 
@@ -371,7 +362,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException {
-    // Set the verbose setting now it should be correctly loaded from maven.
+    // Set the verbose setting: now it should be correctly loaded from maven.
     log.setVerbose(verbose);
 
     if (skip) {
