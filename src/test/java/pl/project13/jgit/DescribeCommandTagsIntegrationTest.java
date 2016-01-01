@@ -57,19 +57,20 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("annotated-tag");
+      assertThat(res.toString()).contains("annotated-tag");
+    }
   }
 
   @Test
@@ -80,20 +81,21 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("lightweight-tag");
+      assertThat(res.toString()).contains("lightweight-tag");
+    }
   }
 
   @Test
@@ -104,21 +106,22 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .match("annotated*")
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .match("annotated*")
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("annotated-tag");
+      assertThat(res.toString()).contains("annotated-tag");
+    }
   }
 
   /**
@@ -139,20 +142,21 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("lightweight-tag-1-gb6a73ed");
+      assertThat(res.toString()).isEqualTo("lightweight-tag-1-gb6a73ed");
+    }
   }
 
   @Test
@@ -167,23 +171,25 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     String snapshotTag = "0.0.1-SNAPSHOT";
     String latestTag = "OName-0.0.1";
 
-    Repository repo = git().getRepository();
-    Git jgit = Git.wrap(repo);
-    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    jgit.tag().setName(snapshotTag).call();
-    Thread.sleep(2000);
-    jgit.tag().setName(latestTag).call();
+        // when
+        wrap.tag().setName(snapshotTag).call();
+        Thread.sleep(2000);
+        wrap.tag().setName(latestTag).call();
 
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+        DescribeResult res = DescribeCommand
+                .on(repo)
+                .withMojo(mojo)
+                .tags()
+                .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo(latestTag);
+        // then
+        assertThat(res.toString()).isEqualTo(latestTag);
+      }
+    }
   }
 
   @Test
@@ -198,21 +204,23 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     String beforeTag = "OName-0.0.1";
     String latestTag = "0.0.1-SNAPSHOT";
 
-    Repository repo = git().getRepository();
-    Git jgit = Git.wrap(repo);
-    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    jgit.tag().setName(beforeTag).call();
-    jgit.tag().setName(latestTag).call();
+        // when
+        wrap.tag().setName(beforeTag).call();
+        wrap.tag().setName(latestTag).call();
+      }
 
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo(latestTag);
+      // then
+      assertThat(res.toString()).isEqualTo(latestTag);
+    }
   }
 }

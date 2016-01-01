@@ -55,19 +55,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -79,19 +79,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      DescribeResult res = command.call();
 
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
   
   @Test
@@ -103,19 +103,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      DescribeResult res = command.call();
 
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -128,21 +128,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create();
 
     int abbrevLength = 10;
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      command
+              .abbrev(abbrevLength);
+      DescribeResult res = command.call();
 
-    command
-        .abbrev(abbrevLength);
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
+    }
   }
 
   @Test
@@ -154,17 +154,17 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
+      command.dirty(DIRTY_SUFFIX);
+      DescribeResult res = command.call();
 
-    // when
-    DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
-    command.dirty(DIRTY_SUFFIX);
-    DescribeResult res = command.call();
-
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+    }
   }
 
   @Test
@@ -178,19 +178,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     String customDirtySuffix = "-DEV";
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .dirty(customDirtySuffix);
+      DescribeResult res = command.call();
 
-    // when
-    DescribeCommand command = DescribeCommand
-        .on(repo)
-            .withMojo(mojo)
-        .dirty(customDirtySuffix);
-    DescribeResult res = command.call();
-
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
+    }
   }
 
   @Test
@@ -202,17 +202,20 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
 
-    Repository repo = git().getRepository();
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    // when
-    DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
-    DescribeResult res = command.call();
+      // when
+      DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
+      DescribeResult res = command.call();
 
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -224,20 +227,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -249,20 +253,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    Repository repo = git().getRepository();
-    git().checkout().setName("v1.0.0").call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.checkout().setName("v1.0.0").call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -276,21 +281,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    Repository repo = git().getRepository();
-    git().checkout().setName("v1.0.0").call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.checkout().setName("v1.0.0").call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .dirty(customDirtySuffix)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .dirty(customDirtySuffix)
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0" + customDirtySuffix);
+      assertThat(res.toString()).isEqualTo("v1.0.0" + customDirtySuffix);
+    }
   }
 
   @Test
@@ -302,17 +308,17 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
-
-    // then
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      // then
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -324,20 +330,20 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .dirty(DIRTY_SUFFIX)
+              .abbrev(0)
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .dirty(DIRTY_SUFFIX)
-        .abbrev(0)
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    assertThat(res.toString()).isEqualTo("annotated-tag" + DIRTY_SUFFIX);
+      assertThat(res.toString()).isEqualTo("annotated-tag" + DIRTY_SUFFIX);
+    }
   }
 
   @Test
@@ -349,21 +355,23 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
         .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .tags()
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .tags()
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -408,22 +416,25 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
 
-    Repository repo = git().getRepository();
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .withMojo(mojo)
-        .abbrev(zeroAbbrev)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo)
+              .withMojo(mojo)
+              .abbrev(zeroAbbrev)
+              .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo("annotated-tag");
+      // then
+      assertThat(res.toString()).isEqualTo("annotated-tag");
 
-    ObjectId objectId = res.commitObjectId();
-    assert objectId != null;
-    assertThat(objectId.getName()).isNotEmpty();
+      ObjectId objectId = res.commitObjectId();
+      assert objectId != null;
+      assertThat(objectId.getName()).isNotEmpty();
+    }
   }
 
   String abbrev(@NotNull String id) {

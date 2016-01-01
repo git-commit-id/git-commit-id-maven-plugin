@@ -25,6 +25,7 @@ import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -236,7 +237,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertThat(expectedFile).exists();
       String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
       ObjectMapper om = new ObjectMapper();
-      Map<String, String> map = new HashMap<String, String>();
+      Map map = new HashMap<>();
       map = om.readValue(json, map.getClass());
       assertThat(map.size() > 10);
     } finally {
@@ -594,7 +595,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
       .create();
 
-    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    }
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -629,7 +633,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     String headCommitId = "b0c6d28b3b83bf7b905321bae67d9ca4c75a203f";
-    Map<String,String> gitTagMap = new HashMap<String,String>();
+    Map<String,String> gitTagMap = new HashMap<>();
     gitTagMap.put("v1.0", "f830b5f85cad3d33ba50d04c3d1454e1ae469057");
     gitTagMap.put("v2.0", "0e3495783c56589213ee5f2ae8900e2dc1b776c4");
 
@@ -726,7 +730,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
       .create();
 
-    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    }
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);

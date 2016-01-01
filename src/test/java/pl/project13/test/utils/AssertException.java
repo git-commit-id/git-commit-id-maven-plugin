@@ -34,7 +34,7 @@ import static pl.project13.test.utils.AssertException.ExceptionMatch.EXCEPTION_C
  */
 public class AssertException {
 
-  public static interface CodeBlock {
+  public interface CodeBlock {
     void run() throws Exception;
   }
 
@@ -80,7 +80,7 @@ public class AssertException {
       }
     };
 
-    static interface Strategy {
+    interface Strategy {
       boolean matchesExpected(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
 
       void failWithExpectedButGot(Class<? extends Throwable> expectedClass, Throwable got, String expectedMessage);
