@@ -35,8 +35,6 @@ public abstract class GitDataProvider {
   @NotNull
   protected final Mojo mojo;
 
-  protected boolean verbose;
-
   protected String prefixDot;
 
   protected int abbrevLength;
