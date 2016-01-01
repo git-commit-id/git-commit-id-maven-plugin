@@ -46,7 +46,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -65,12 +64,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
   public static final String DIRTY = "dirty";
+  // only one of the following two will be exposed, depending on the commitIdGenerationMode
   public static final String COMMIT_ID_FLAT = "commit.id";
   public static final String COMMIT_ID_FULL = "commit.id.full";
-
-  // TODO this should be private instance field with getter and setter
-  public static String COMMIT_ID = COMMIT_ID_FLAT;
-
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
   public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
@@ -134,7 +130,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Defaults to {@code true}.</p>
    */
-  @Parameter(defaultValue = "true", name = "git.skipPoms")
+  @Parameter(defaultValue = "true")
   private boolean skipPoms;
 
   /**
@@ -351,6 +347,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "flat")
   private String commitIdGenerationMode;
+  private CommitIdGenerationMode commitIdGenerationModeEnum;
 
   /**
    * The properties we store our data in and then expose them.
@@ -399,15 +396,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     try {
-      switch(CommitIdGenerationModeEnum.getValue(commitIdGenerationMode)){
-      default:
+      try {
+        commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
+      } catch (IllegalArgumentException e) {
         log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
-      case FLAT:
-        COMMIT_ID = COMMIT_ID_FLAT;
-        break;
-      case FULL:
-        COMMIT_ID = COMMIT_ID_FULL;
-        break;
+        commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
       }
 
       properties = initProperties();
@@ -603,7 +596,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
       .setDateFormatTimeZone(dateFormatTimeZone)
-      .setGitDescribe(gitDescribe);
+      .setGitDescribe(gitDescribe)
+      .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
     nativeGitProvider.loadGitData(properties);
   }
@@ -615,7 +609,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
       .setDateFormatTimeZone(dateFormatTimeZone)
-      .setGitDescribe(gitDescribe);
+      .setGitDescribe(gitDescribe)
+      .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
     jGitProvider.loadGitData(properties);
   }

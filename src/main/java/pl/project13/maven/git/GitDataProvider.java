@@ -45,6 +45,8 @@ public abstract class GitDataProvider {
 
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
+  protected CommitIdGenerationMode commitIdGenerationMode;
+
   public GitDataProvider(@NotNull Mojo mojo) {
     this.mojo = mojo;
   }
@@ -66,6 +68,11 @@ public abstract class GitDataProvider {
 
   public GitDataProvider setDateFormat(String dateFormat) {
     this.dateFormat = dateFormat;
+    return this;
+  }
+
+  public GitDataProvider setCommitIdGenerationMode(CommitIdGenerationMode commitIdGenerationMode) {
+    this.commitIdGenerationMode = commitIdGenerationMode;
     return this;
   }
 
@@ -110,8 +117,11 @@ public abstract class GitDataProvider {
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
-      put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
-      // git.commit.id.abbrev      
+      switch (commitIdGenerationMode) {
+        case FULL: put(properties, GitCommitIdMojo.COMMIT_ID_FULL, getCommitId());
+        default: put(properties, GitCommitIdMojo.COMMIT_ID_FLAT, getCommitId());
+      }
+      // git.commit.id.abbrev
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
       // git.dirty
       put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));

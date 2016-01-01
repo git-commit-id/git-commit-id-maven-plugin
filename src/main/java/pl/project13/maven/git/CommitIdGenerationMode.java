@@ -16,19 +16,7 @@
  */
 package pl.project13.maven.git;
 
-public enum CommitIdGenerationModeEnum{
+public enum CommitIdGenerationMode {
   FULL,
-  FLAT,
-  UNKNOWN;
-	
-  public static CommitIdGenerationModeEnum getValue(String o){
-    if(o != null){
-      for(CommitIdGenerationModeEnum v : values()){
-        if(v.name().equalsIgnoreCase(o)){
-          return v;
-        }
-      }
-    }
-    return CommitIdGenerationModeEnum.UNKNOWN;
-  }	
+  FLAT;
 }

@@ -47,6 +47,7 @@ public class GitCommitIdMojoDirtyFilesTest {
     mojo.setVerbose(true);
     mojo.useNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setCommitIdGenerationMode("flat");
 
 
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
@@ -79,6 +80,7 @@ public class GitCommitIdMojoDirtyFilesTest {
     mojo.setVerbose(true);
     mojo.useNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setCommitIdGenerationMode("flat");
 
 
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
