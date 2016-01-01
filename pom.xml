@@ -183,6 +183,15 @@
         </includes>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <excludes>
+          <exclude>_git_*/**</exclude>
+          <exclude>README.md</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
 
     <pluginManagement>
       <plugins>
