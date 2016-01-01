@@ -366,9 +366,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Properties properties;
 
-  // TODO remove this
-  boolean runningTests = false;
-
   @NotNull
   private final VerboseLog log = new VerboseLogger(this, true);
 
@@ -539,10 +536,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   private Properties initProperties() throws MojoExecutionException {
     if (generateGitPropertiesFile) {
       return properties = new Properties();
-    } else if (!runningTests) {
-      return properties = project.getProperties();
     } else {
-      return properties = new Properties(); // that's ok for unit tests
+      return properties = project.getProperties();
     }
   }
 

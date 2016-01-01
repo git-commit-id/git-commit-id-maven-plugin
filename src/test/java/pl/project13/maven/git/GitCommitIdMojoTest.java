@@ -36,7 +36,7 @@ import static org.mockito.Mockito.*;
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
  */
-// todo remove this test in favor of complete intgration tests
+// todo remove this test in favor of complete integration tests
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
@@ -63,8 +63,9 @@ public class GitCommitIdMojoTest {
     mojo.setCommitIdGenerationMode("full");
 
 
-    mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    Properties props = new Properties();
+    when(mojo.project.getProperties()).thenReturn(props);
     when(mojo.project.getPackaging()).thenReturn("jar");
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
