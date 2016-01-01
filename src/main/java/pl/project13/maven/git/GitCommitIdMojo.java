@@ -54,7 +54,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 /**
- * Goal which puts git build-time information into property files or maven's properties.
+ * Puts git build-time information into property files or maven's properties.
  *
  * @since 1.0
  */
@@ -105,80 +105,66 @@ public class GitCommitIdMojo extends AbstractMojo {
   private MavenSession session;
 
   /**
-   * <p>Set this to {@code true} to inject git properties into all reactor projects, not just the current one.</p>
+   * <p>Set this to {@code 'true'} to inject git properties into all reactor projects, not just the current one.</p>
    *
    * <p>Injecting into all projects may slow down the build and you don't always need this feature.
-   * For details about why you might want to skip this: <a href="https://github.com/ktoso/maven-git-commit-id-plugin/pull/65">https://github.com/ktoso/maven-git-commit-id-plugin/pull/65</a>.
+   * See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
    * </p>
-   *
-   * <p>Defaults to {@code false}.</p>
    */
   @Parameter(defaultValue = "false")
   private boolean injectAllReactorProjects;
 
   /**
-   * <p>Set this to {@code true} to print more info while scanning for paths.
-   * It will make git-commit-id "eat it's own dog food" :-)</p>
-   *
-   * <p>Defaults to {@code false}.</p>
+   * Set this to {@code 'true'} to print more info while scanning for paths.
+   * It will make git-commit-id "eat its own dog food" :-)
    */
   @Parameter(defaultValue = "false")
   private boolean verbose;
 
   /**
-   * <p>Set this to {@code false} to execute plugin in 'pom' packaged projects.</p>
-   *
-   * <p>Defaults to {@code true}.</p>
+   * Set this to {@code 'false'} to execute plugin in 'pom' packaged projects.
    */
   @Parameter(defaultValue = "true")
   private boolean skipPoms;
 
   /**
-   * <p>Set this to {@code true} to generate {@code git.properties} file.
-   * By default plugin only adds properties to maven project properties.</p>
-   *
-   * <p>Defaults to {@code false}.</p>
+   * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
+   * By default plugin only adds properties to maven project properties.
    */
   @Parameter(defaultValue = "false")
   private boolean generateGitPropertiesFile;
 
   /**
-   * <p>The location of {@code git.properties} file. Set {@code generateGitPropertiesFile} to {@code true}
+   * <p>The location of {@code 'git.properties'} file. Set {@code 'generateGitPropertiesFile'} to {@code 'true'}
    * to generate this file.</p>
    *
-   * <p>The path here is relative to your projects src directory.</p>
-   *
-   * <p>Defaults to {@code ${project.build.outputDirectory}/git.properties}.</p>
+   * <p>The path here is relative to your project src directory.</p>
    */
   @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
   private String generateGitPropertiesFilename;
 
   /**
-   * <p>The root directory of the repository we want to check.</p>
-   *
-   * <p>Defaults to {@code ${project.basedir}/.git}.</p>
+   * The root directory of the repository we want to check.
    */
   @Parameter(defaultValue = "${project.basedir}/.git")
   private File dotGitDirectory;
 
   /**
-   * Configuration for the {@code git-describe} command.
+   * Configuration for the {@code 'git-describe'} command.
    * You can modify the dirty marker, abbrev length and other options here.
    */
   @Parameter
   private GitDescribeConfig gitDescribe;
 
   /**
-   * <p>Minimum length of {@code git.commit.id.abbrev} property.
+   * <p>Minimum length of {@code 'git.commit.id.abbrev'} property.
    * Value must be from 2 to 40 (inclusive), other values will result in an exception.</p>
    *
    * <p>An abbreviated commit is a shorter version of commit id. However, it is guaranteed to be unique.
-   * To keep this contract, the plugin may decide to print an abbreviated version that is longer than the value specified here.</p>
+   * To keep this contract, the plugin may decide to print an abbreviated version
+   * that is longer than the value specified here.</p>
    *
-   * <p>Defaults to {@code 7}.</p>
-   *
-   * <b>Example:</b>
-   * <p>You have a very big repository, yet you set this value to 2. It's very probable that you'll end up
+   * <p><b>Example:</b> You have a very big repository, yet you set this value to 2. It's very probable that you'll end up
    * getting a 4 or 7 char long abbrev version of the commit id. If your repository, on the other hand,
    * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
    *
@@ -187,18 +173,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   private int abbrevLength;
 
   /**
-   * <p>The format to save properties in: {@code properties} or {@code json}.</p>
-   *
-   * <p>Defaults to {@code properties}.</p>
+   * The format to save properties in: {@code 'properties'} or {@code 'json'}.
    */
   @Parameter(defaultValue = "properties")
   private String format;
 
   /**
-   * <p>The prefix to expose the properties on.
-   * For example {@code git} would allow you to access {@code ${git.branch}}.</p>
-   *
-   * <p>Defaults to {@code git}.</p>
+   * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
    */
   @Parameter(defaultValue = "git")
   private String prefix;
@@ -206,77 +187,62 @@ public class GitCommitIdMojo extends AbstractMojo {
   private String prefixDot = "";
 
   /**
-   * <p>The date format to be used for any dates exported by this plugin.
-   * It should be a valid SimpleDateFormat string.</p>
-   *
-   * <p>Defaults to {@code dd.MM.yyyy '@' HH:mm:ss z}.</p>
+   * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
    */
   @Parameter(defaultValue = "dd.MM.yyyy '@' HH:mm:ss z")
   private String dateFormat;
 
   /**
    * <p>The timezone used in the date format of dates exported by this plugin.
-   * It should be a valid Timezone string (e.g. 'America/Los_Angeles', 'GMT+10', 'PST').</p>
+   * It should be a valid Timezone string such as {@code 'America/Los_Angeles'}, {@code 'GMT+10'} or {@code 'PST'}.</p>
    *
    * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
    * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
-   *
-   * <p>Defaults to {@code java.util.TimeZone.getDefault().getID()}.</p>
    */
   @Parameter
   private String dateFormatTimeZone;
 
   /**
-   * Set this to {@code false} to avoid failing the build on missing {@code .git} directory.
-   *
-   * <p>Defaults to {@code true}.</p>
+   * Set this to {@code 'false'} to continue the build on missing {@code '.git'} directory.
    */
   @Parameter(defaultValue = "true")
   private boolean failOnNoGitDirectory;
 
   /**
-   * <p>Set this to {@code false} to continue the build even if unable to get enough data for a complete run.
+   * <p>Set this to {@code 'false'} to continue the build even if unable to get enough data for a complete run.
    * This may be useful during CI builds if the CI server does weird things to the repository.</p>
    *
-   * <p>Setting this value to {@code false} causes the plugin to gracefully tell you "I did my best"
-   * and abort it's execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
+   * <p>Setting this value to {@code 'false'} causes the plugin to gracefully tell you "I did my best"
+   * and abort its execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
    *
-   * <p>See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/63">https://github.com/ktoso/maven-git-commit-id-plugin/issues/63</a>
+   * <p>See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/63">issue #63</a>
    * for a rationale behind this flag.</p>
-   *
-   * <p>Defaults to {@code true}.</p>
    */
   @Parameter(defaultValue = "true")
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
-   * Set this to {@code true} to use native GIT executable to fetch information about the repository.
+   * Set this to {@code 'true'} to use native Git executable to fetch information about the repository.
    * It is in most cases faster but requires a git executable to be installed in system.
    * By default the plugin will use jGit implementation as a source of information about the repository.
-   *
-   * <p>Defaults to {@code false}.</p>
    * @since 2.1.9
    */
   @Parameter(defaultValue = "false")
   private boolean useNativeGit;
 
   /**
-   * <p>Set this to {@code true} to skip plugin execution.</p>
-   *
-   * <p>Defaults to {@code false}.</p>
+   * Set this to {@code 'true'} to skip plugin execution.
    * @since 2.1.8
    */
   @Parameter(defaultValue = "false")
   private boolean skip;
 
   /**
-   * <p>Set this to {@code true} to only run once in a multi-module build.  This probably won't "do the right thing"
-   * if your project has more than one git repository.  If you use this with {@code generateGitPropertiesFile},
+   * <p>Set this to {@code 'true'} to only run once in a multi-module build.  This probably won't "do the right thing"
+   * if your project has more than one git repository.  If you use this with {@code 'generateGitPropertiesFile'},
    * it will only generate (or update) the file in the directory where you started your build.</p>
    *
    * <p>The git.* maven properties are available in all modules.</p>
-   *
-   * <p>Defaults to {@code false}.</p>
    * @since 2.1.12
    */
   @Parameter(defaultValue = "false")
@@ -284,15 +250,13 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * <p>List of properties to exclude from the resulting file.
-   * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
-   * or the email of the committer etc.</p>
+   * May be useful when you want to hide {@code 'git.remote.origin.url'} (maybe because it contains your repo password?)
+   * or the email of the committer.</p>
    *
-   * <p>Supports wildcards: you can write {@code git.commit.user.*} to exclude both the {@code name},
-   * as well as {@code email} properties from being emitted into the resulting files.</p>
+   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to exclude both the {@code 'name'}
+   * as well as {@code 'email'} properties from being emitted into the resulting files.</p>
    *
-   * <p>Please note that the strings here are Java regular expressions ({@code .*} is a wildcard, not plain {@code *}).</p>
-   *
-   * <p>Defaults to empty list.</p>
+   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
    * @since 2.1.9
    */
   @Parameter
@@ -300,49 +264,35 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * <p>List of properties to include into the resulting file. Only properties specified here will be included.
-   * This list will be overruled by the {@code excludeProperties}.</p>
+   * This list will be overruled by the {@code 'excludeProperties'}.</p>
    *
-   * <p>Supports wildcards: you can write {@code git.commit.user.*} to exclude both the {@code name},
-   * as well as {@code email} properties from being emitted into the resulting files.</p>
+   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to include both the {@code 'name'}
+   * as well as {@code 'email'} properties into the resulting files.</p>
    *
-   * <p>Please note that the strings here are Java regular expressions ({@code .*} is a wildcard, not plain {@code *}).</p>
-   *
-   * <p>Defaults to empty list.</p>
+   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
    * @since 2.1.14
    */
   @Parameter
   private List<String> includeOnlyProperties;
 
   /**
-   * <p>The mode of {@code git.commit.id} property generation.</p>
+   * <p>The mode of {@code 'git.commit.id'} property generation.</p>
    *
-   * <p>Due to naming issues in json export
-   * (see <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/122">https://github.com/ktoso/maven-git-commit-id-plugin/issues/122</a>)
-   * we need to make it possible to export all properties as a valid json-object.
-   * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change
-   * the exporting mechanism and somehow throw the backwards compatibility away.
-   * We rather provide a convenient switch where you can choose if you would like the properties as they always had been,
-   * or if you rather need to support full json-object compatibility.
-   * In the case you need to fully support json-object we unfortunately need to change the {@code git.commit.id} property
-   * from {@code git.commit.id} to {@code git.commit.id.full} in the exporting mechanism to allow the generation
-   * of a fully valid json object.</p>
+   * <p>{@code 'git.commit.id'} property name is incompatible with json export
+   * (see <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/122">issue #122</a>).
+   * This property allows one either to preserve backward compatibility or to enable fully valid json export:
    *
-   * <p>Currently the switch allows two different options:<ol>
-   * <li>By default this property is set to {@code flat} and will generate the formerly known property {@code git.commit.id}
-   * as it was in the previous versions of the plugin. Keeping it to {@code flat} by default preserves backwards compatibility
-   * and does not require further adjustments by the end user.</li>
-   * <li>If you set this switch to {@code full} the plugin will export the formerly known property {@code git.commit.id}
-   * as {@code git.commit.id.full} and therefore will generate a fully valid json object in the exporting mechanism.</li>
+   * <ol>
+   * <li>{@code 'flat'} (default) generates the property {@code 'git.commit.id'}, preserving backwards compatibility.</li>
+   * <li>{@code 'full'} generates the property {@code 'git.commit.id.full'}, enabling fully valid json object export.</li>
    * </ol>
    * </p>
    *
-   * <b>Note</b>: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties
+   * <p><b>Note:</b> Depending on your plugin configuration you obviously can choose the `prefix` of your properties
    * by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration
-   * what the switch means when the 'prefix' is set to it's default value.
-   * <b>Note</b>: If you set the value to something that's not equal to {@code flat} or {@code full} (ignoring the case)
-   * the plugin will output a warning and will fallback to the default {@code flat} mode.
-   *
-   * <p>Defaults to {@code flat}.</p>
+   * what the switch means when the 'prefix' is set to it's default value.</p>
+   * <p><b>Note:</b> If you set the value to something that's not equal to {@code 'flat'} or {@code 'full'} (ignoring the case)
+   * the plugin will output a warning and will fallback to the default {@code 'flat'} mode.</p>
    * @since 2.2.0
    */
   @Parameter(defaultValue = "flat")
