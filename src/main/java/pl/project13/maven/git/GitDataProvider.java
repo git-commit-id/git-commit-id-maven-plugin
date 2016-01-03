@@ -118,8 +118,17 @@ public abstract class GitDataProvider {
       maybePutGitDescribe(properties);
       // git.commit.id
       switch (commitIdGenerationMode) {
-        case FULL: put(properties, GitCommitIdMojo.COMMIT_ID_FULL, getCommitId());
-        default: put(properties, GitCommitIdMojo.COMMIT_ID_FLAT, getCommitId());
+        case FULL: {
+          put(properties, GitCommitIdMojo.COMMIT_ID_FULL, getCommitId());
+          break;
+        }
+        case FLAT: {
+          put(properties, GitCommitIdMojo.COMMIT_ID_FLAT, getCommitId());
+          break;
+        }
+        default: {
+          throw new MojoExecutionException("Unsupported commitIdGenerationMode: " + commitIdGenerationMode);
+        }
       }
       // git.commit.id.abbrev
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
