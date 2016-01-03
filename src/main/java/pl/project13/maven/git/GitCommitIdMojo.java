@@ -44,6 +44,7 @@ import pl.project13.maven.git.util.PropertyManager;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -101,7 +102,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The Maven Session Object.
    */
-  @Parameter(required = true, readonly = true)
+  @Parameter(property = "session", required = true, readonly = true)
   private MavenSession session;
 
   /**
@@ -304,6 +305,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Properties properties;
 
+  /**
+   * Charset to read-write project sources.
+   */
+  private Charset sourceCharset = StandardCharsets.UTF_8;
+
   @NotNull
   private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
@@ -312,6 +318,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       // Set the verbose setting: now it should be correctly loaded from maven.
       log.setVerbose(verbose);
+
+      // read source encoding from project properties for those who still doesn't use UTF-8
+      String sourceEncoding = project.getProperties().getProperty("project.build.sourceEncoding");
+      if (null != sourceEncoding) {
+        sourceCharset = Charset.forName(sourceEncoding);
+      } else {
+        sourceCharset = Charset.defaultCharset();
+      }
 
       if (skip) {
         log.info("skip is enabled, skipping execution!");
@@ -616,7 +630,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         boolean threw = true;
 
         try {
-          outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), StandardCharsets.UTF_8);
+          outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), sourceCharset);
           if (isJsonFormat) {
             log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
             ObjectMapper mapper = new ObjectMapper();
@@ -666,7 +680,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @SuppressWarnings( "resource" )
-  static Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
+  private Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
     final HashMap<String, Object> propertiesMap;
 
     {
@@ -678,7 +692,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           final FileInputStream fis = new FileInputStream(jsonFile);
           closeable = fis;
 
-          final InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+          final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
           closeable = reader;
 
           final ObjectMapper mapper = new ObjectMapper();
@@ -706,7 +720,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @SuppressWarnings( "resource" )
-  static Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
+  private Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
     Closeable closeable = null;
 
     try {
@@ -715,7 +729,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         final FileInputStream fis = new FileInputStream(propertiesFile);
         closeable = fis;
 
-        final InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
+        final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
         closeable = reader;
 
         final Properties retVal = new Properties();
