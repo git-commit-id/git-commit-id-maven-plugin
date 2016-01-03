@@ -22,9 +22,9 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
+import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -41,12 +41,12 @@ public class NativeGitProvider extends GitDataProvider {
   private static final int REMOTE_COLS = 3;
 
   @NotNull
-  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
-    return new NativeGitProvider(dotGitDirectory, mojo);
+  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    return new NativeGitProvider(dotGitDirectory, log);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
-    super(mojo);
+  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    super(log);
     this.dotGitDirectory = dotGitDirectory;
     try {
       this.canonical = dotGitDirectory.getCanonicalFile();

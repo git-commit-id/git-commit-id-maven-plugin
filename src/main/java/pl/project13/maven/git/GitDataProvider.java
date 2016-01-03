@@ -17,9 +17,9 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
+import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public abstract class GitDataProvider {
 
   @NotNull
-  protected final Mojo mojo;
+  protected final LoggerBridge log;
 
   protected String prefixDot;
 
@@ -47,8 +47,8 @@ public abstract class GitDataProvider {
 
   protected CommitIdGenerationMode commitIdGenerationMode;
 
-  public GitDataProvider(@NotNull Mojo mojo) {
-    this.mojo = mojo;
+  public GitDataProvider(@NotNull LoggerBridge log) {
+    this.log = log;
   }
 
   public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
@@ -208,10 +208,10 @@ public abstract class GitDataProvider {
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
     String environmentBasedBranch = env.get("GIT_BRANCH");
     if (isNullOrEmpty(environmentBasedBranch)) {
-      mojo.getLog().info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
+      log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
       return getBranchName();
     } else {
-      mojo.getLog().info("Using environment variable based branch name. " + "GIT_BRANCH = " + environmentBasedBranch);
+      log.info("Using environment variable based branch name. GIT_BRANCH = {}", environmentBasedBranch);
       return environmentBasedBranch;
     }
   }
@@ -226,7 +226,7 @@ public abstract class GitDataProvider {
 
   protected void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    mojo.getLog().info(keyWithPrefix + " " + value);
+    log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 }

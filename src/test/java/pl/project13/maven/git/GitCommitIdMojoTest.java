@@ -23,6 +23,7 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class GitCommitIdMojoTest {
     when(mojo.project.getPackaging()).thenReturn("jar");
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo);
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), new StdOutLoggerBridge(true));
   }
 
   @Test

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -62,8 +63,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .call();
 
       // then
@@ -86,8 +86,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -111,8 +110,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .match("annotated*")
               .call();
@@ -147,8 +145,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -181,8 +178,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         wrap.tag().setName(latestTag).call();
 
         DescribeResult res = DescribeCommand
-                .on(repo)
-                .withMojo(mojo)
+                .on(repo, new StdOutLoggerBridge(true))
                 .tags()
                 .call();
 
@@ -214,8 +210,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
       }
 
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 

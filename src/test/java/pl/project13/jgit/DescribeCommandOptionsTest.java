@@ -20,8 +20,8 @@ package pl.project13.jgit;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.mockito.Matchers;
-import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitDescribeConfig;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.mockito.Mockito.*;
 
@@ -34,7 +34,7 @@ public class DescribeCommandOptionsTest {
     final Repository repo = mock(Repository.class);
     final int length = 41;
 
-    DescribeCommand.on(repo).abbrev(length);
+    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class DescribeCommandOptionsTest {
     final Repository repo = mock(Repository.class);
     final int length = -12;
 
-    DescribeCommand.on(repo).abbrev(length);
+    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class DescribeCommandOptionsTest {
     GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);
 
     Repository repo = mock(Repository.class);
-    DescribeCommand command = DescribeCommand.on(repo).withMojo(new GitCommitIdMojo());
+    DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
     DescribeCommand spiedCommand = spy(command);
 
     // when

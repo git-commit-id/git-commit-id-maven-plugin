@@ -21,7 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 
-import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -39,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.jgit.JGitCommon;
+import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,14 +56,14 @@ public class JGitProvider extends GitDataProvider {
   private JGitCommon jGitCommon;
 
   @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
-    return new JGitProvider(dotGitDirectory, mojo);
+  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    return new JGitProvider(dotGitDirectory, log);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull Mojo mojo) {
-    super(mojo);
+  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    super(log);
     this.dotGitDirectory = dotGitDirectory;
-    this.jGitCommon = new JGitCommon();
+    this.jGitCommon = new JGitCommon(log);
   }
 
   @Override
@@ -177,7 +177,7 @@ public class JGitProvider extends GitDataProvider {
       Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
-      mojo.getLog().error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
+      log.error("Unable to extract tags from commit: {} ({})", headCommit.getName(), e.getClass().getName());
       return "";
     }
   }
@@ -186,7 +186,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagName() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(repo, mojo);
+      return jGitCommon.getClosestTagName(repo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -197,7 +197,7 @@ public class JGitProvider extends GitDataProvider {
   protected String getClosestTagCommitCount() throws MojoExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(repo, headCommit, mojo);
+      return jGitCommon.getClosestTagCommitCount(repo, headCommit);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -215,8 +215,7 @@ public class JGitProvider extends GitDataProvider {
   @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws MojoExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
-        .on(repository)
-        .withMojo(mojo)
+        .on(repository, log)
         .apply(super.gitDescribe)
         .call();
 

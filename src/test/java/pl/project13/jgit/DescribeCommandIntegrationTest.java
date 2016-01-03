@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -58,8 +59,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .call();
 
       // then
@@ -81,7 +81,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -105,7 +105,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -130,7 +130,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     int abbrevLength = 10;
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(repo).withMojo(mojo));
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       command
@@ -156,7 +156,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
+      DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
       command.dirty(DIRTY_SUFFIX);
       DescribeResult res = command.call();
 
@@ -181,8 +181,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeCommand command = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .dirty(customDirtySuffix);
       DescribeResult res = command.call();
 
@@ -208,7 +207,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       }
 
       // when
-      DescribeCommand command = DescribeCommand.on(repo).withMojo(mojo);
+      DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
       DescribeResult res = command.call();
 
       // then
@@ -232,8 +231,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -258,8 +256,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -286,8 +283,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .dirty(customDirtySuffix)
               .call();
@@ -311,8 +307,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -333,8 +328,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .dirty(DIRTY_SUFFIX)
               .abbrev(0)
               .call();
@@ -362,8 +356,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -423,8 +416,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .abbrev(zeroAbbrev)
               .call();
 

@@ -20,7 +20,6 @@ package pl.project13.maven.git;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -38,13 +37,14 @@ import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import pl.project13.maven.git.log.VerboseLog;
-import pl.project13.maven.git.log.VerboseLogger;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -305,7 +305,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   private Properties properties;
 
   @NotNull
-  private final VerboseLog log = new VerboseLogger(this, true);
+  private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
   @Override
   public void execute() throws MojoExecutionException {
@@ -339,7 +339,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     if (dotGitDirectory != null) {
-      log.info("dotGitDirectory " + dotGitDirectory.getAbsolutePath());
+      log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
     } else {
       log.info("dotGitDirectory is null, aborting execution!");
       return;
@@ -397,7 +397,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        log.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
+        log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
         properties.remove(key);
       }
     }
@@ -422,7 +422,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (!shouldInclude.apply(key)) {
-        log.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
+        log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
         properties.remove(key);
       }
     }
@@ -447,7 +447,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
-      log.info(mavenProject.getName() + "] project " + mavenProject.getName());
+      // TODO check message
+      log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
       for (Object key : properties.keySet()) {
         if (key.toString().startsWith(trimmedPrefixWithDot)) {
@@ -479,7 +480,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-        log.info("found property " + keyString);
+        log.info("found property {}", keyString);
       }
     }
   }
@@ -503,7 +504,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      log.info("Unable to get build host, skipping property " + BUILD_HOST + ". Error message: " + e.getMessage());
+      log.info("Unable to get build host, skipping property {}. Error message: {}", BUILD_HOST, e.getMessage());
     }
     put(properties, BUILD_HOST, buildHost);
   }
@@ -541,7 +542,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     final File basedir = project.getBasedir().getCanonicalFile();
 
     GitDataProvider nativeGitProvider = NativeGitProvider
-      .on(basedir, this)
+      .on(basedir, log)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
@@ -554,7 +555,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
     GitDataProvider jGitProvider = JGitProvider
-      .on(dotGitDirectory, this)
+      .on(dotGitDirectory, log)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
@@ -576,12 +577,12 @@ public class GitCommitIdMojo extends AbstractMojo {
 
       try {
         if (isJsonFormat) {
-          log.info("Reading existing json file [" + gitPropsFile.getAbsolutePath() + "] (for module "  + project.getName() + ")...");
+          log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
 
           persistedProperties = readJsonProperties( gitPropsFile );
         }
         else {
-          log.info("Reading existing properties file [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
+          log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
 
           persistedProperties = readProperties( gitPropsFile );
         }
@@ -597,7 +598,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
       catch ( CannotReadFileException ex ) {
         // Read has failed, regenerate file
-        log.info("Cannot read properties file [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
+        log.info("Cannot read properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
         shouldGenerate = true;
       }
     }
@@ -608,13 +609,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       boolean threw = true;
 
       try {
-        outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), Charsets.UTF_8);
+        outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), StandardCharsets.UTF_8);
         if (isJsonFormat) {
-          log.info("Writing json file to [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
+          log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
           ObjectMapper mapper = new ObjectMapper();
           mapper.writeValue(outputWriter, localProperties);
         } else {
-          log.info("Writing properties file to [" + gitPropsFile.getAbsolutePath() + "] (for module " + project.getName() + ")...");
+          log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
           localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
         }
         threw = false;
@@ -625,7 +626,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
     }
     else {
-      log.info("Properties file [" + gitPropsFile.getAbsolutePath() + "] is up-to-date (for module " + project.getName() + ")...");
+      log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
     }
   }
 
@@ -668,7 +669,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           final FileInputStream fis = new FileInputStream(jsonFile);
           closeable = fis;
 
-          final InputStreamReader reader = new InputStreamReader(fis, Charsets.UTF_8);
+          final InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
           closeable = reader;
 
           final ObjectMapper mapper = new ObjectMapper();
@@ -705,7 +706,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         final FileInputStream fis = new FileInputStream(propertiesFile);
         closeable = fis;
 
-        final InputStreamReader reader = new InputStreamReader(fis, Charsets.UTF_8);
+        final InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
         closeable = reader;
 
         final Properties retVal = new Properties();

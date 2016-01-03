@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -68,8 +69,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .abbrev(2) // 2 is enough to be unique in this small repo
               .call();
 
@@ -93,8 +93,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo)
-              .withMojo(mojo)
+              .on(repo, new StdOutLoggerBridge(true))
               .abbrev(2) // way too small to be unique in git-commit-id's repo!
               .call();
 
