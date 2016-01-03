@@ -29,16 +29,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public abstract class GitIntegrationTest {
-
-  /**
-   * Random number generator for generating random sandbox folder names.
-   */
-  private final static Random r = new Random();
 
   private final static String SANDBOX_DIR = "target" + File.separator + "sandbox" + File.separator;
 
@@ -55,7 +50,7 @@ public abstract class GitIntegrationTest {
     // generate unique sandbox for this test
     File sandbox;
     do {
-      currSandbox = SANDBOX_DIR + "sandbox" + Integer.toString(r.nextInt(Integer.MAX_VALUE));
+      currSandbox = SANDBOX_DIR + "sandbox" + Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
       sandbox = new File(currSandbox);
     } while (sandbox.exists());
 
