@@ -22,47 +22,28 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.test.utils.AssertException;
 
 import static org.mockito.Mockito.*;
 
 public class DescribeCommandOptionsTest {
 
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void abbrev_shouldVerifyLengthContract_failOn41() throws Exception {
     // given
     final Repository repo = mock(Repository.class);
     final int length = 41;
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() throws Exception {
-        DescribeCommand.on(repo).abbrev(length);
-      }
-    };
-
-    // then
-    AssertException.thrown(IllegalArgumentException.class, block);
+    DescribeCommand.on(repo).abbrev(length);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void abbrev_shouldVerifyLengthContract_failOnMinus12() throws Exception {
     // given
     final Repository repo = mock(Repository.class);
     final int length = -12;
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() {
-        DescribeCommand.on(repo).abbrev(length);
-      }
-    };
-
-    // then
-    AssertException.thrown(IllegalArgumentException.class, block);
+    DescribeCommand.on(repo).abbrev(length);
   }
 
   @Test

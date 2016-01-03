@@ -29,7 +29,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import pl.project13.test.utils.AssertException;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -154,7 +153,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
+  @Test(expected = MojoExecutionException.class)
   @Parameters(method = "useNativeGit")
   public void shouldFailWithExceptionWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
     // given
@@ -168,16 +167,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     alterMojoSettings("skipPoms", false);
     alterMojoSettings("useNativeGit", useNativeGit);
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() throws Exception {
-        mojo.execute();
-      }
-    };
-
-    // then
-    AssertException.thrown(MojoExecutionException.class, block);
+    mojo.execute();
   }
 
   @Test
