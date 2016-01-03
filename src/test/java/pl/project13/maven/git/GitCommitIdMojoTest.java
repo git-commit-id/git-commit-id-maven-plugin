@@ -218,7 +218,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
+  public void shouldUseJenkinsBranchInfoWhenAvailable() throws GitCommitIdExecutionException, IOException {
     // given
     Repository git = mock(Repository.class);
     Map<String, String> env = Maps.newHashMap();

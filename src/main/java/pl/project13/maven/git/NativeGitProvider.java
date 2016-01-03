@@ -22,7 +22,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
@@ -51,17 +50,17 @@ public class NativeGitProvider extends GitDataProvider {
     try {
       this.canonical = dotGitDirectory.getCanonicalFile();
     } catch (Exception ex) {
-      throw new RuntimeException(new MojoExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex));
+      throw new RuntimeException(new GitCommitIdExecutionException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex));
     }
   }
 
   @Override
-  protected void init() throws MojoExecutionException {
+  protected void init() throws GitCommitIdExecutionException {
     // noop ...
   }
 
   @Override
-  protected String getBuildAuthorName() {
+  protected String getBuildAuthorName() throws GitCommitIdExecutionException {
     try {
       return runGitCommand(canonical, "config --get user.name");
     } catch (NativeCommandException e) {
@@ -73,7 +72,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getBuildAuthorEmail() {
+  protected String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     try {
       return runGitCommand(canonical, "config --get user.email");
     } catch (NativeCommandException e) {
@@ -85,22 +84,22 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedRepoInformation() throws MojoExecutionException {
+  protected void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
   }
 
   @Override
-  protected String getBranchName() throws IOException {
+  protected String getBranchName() throws GitCommitIdExecutionException {
     return getBranch(canonical);
   }
 
-  private String getBranch(File canonical) {
+  private String getBranch(File canonical) throws GitCommitIdExecutionException {
     String branch;
     try{
       branch = runGitCommand(canonical, "symbolic-ref HEAD");
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
-    } catch(NativeCommandException e) {
+    } catch (NativeCommandException e) {
       // it seems that git repo is in 'DETACHED HEAD'-State, using Commit-Id as Branch
       String err = e.getStderr();
       if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
@@ -113,7 +112,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getGitDescribe() {
+  protected String getGitDescribe() throws GitCommitIdExecutionException {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
     return runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
   }
@@ -150,12 +149,12 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getCommitId() {
+  protected String getCommitId() throws GitCommitIdExecutionException {
     return runQuietGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
-  protected String getAbbrevCommitId() {
+  protected String getAbbrevCommitId() throws GitCommitIdExecutionException {
     // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD");
     // but minimum length for --short is 4, our abbrevLength could be 2
     String commitId = getCommitId();
@@ -169,50 +168,50 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected boolean isDirty() throws MojoExecutionException {
+  protected boolean isDirty() throws GitCommitIdExecutionException {
     return !tryCheckEmptyRunGitCommand(canonical, "status -s");
   }
 
   @Override
-  protected String getCommitAuthorName() {
+  protected String getCommitAuthorName() throws GitCommitIdExecutionException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%an");
   }
 
   @Override
-  protected String getCommitAuthorEmail() {
+  protected String getCommitAuthorEmail() throws GitCommitIdExecutionException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae");
   }
 
   @Override
-  protected String getCommitMessageFull() {
+  protected String getCommitMessageFull() throws GitCommitIdExecutionException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%B");
   }
 
   @Override
-  protected String getCommitMessageShort() {
+  protected String getCommitMessageShort() throws GitCommitIdExecutionException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%s");
   }
 
   @Override
-  protected String getCommitTime() {
+  protected String getCommitTime() throws GitCommitIdExecutionException {
     String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value)*1000L);
   }
 
   @Override
-  protected String getTags() {
+  protected String getTags() throws GitCommitIdExecutionException {
     final String result = runQuietGitCommand(canonical, "tag --contains");
     return result.replace('\n', ',');
   }
 
   @Override
-  protected String getRemoteOriginUrl() throws MojoExecutionException {
+  protected String getRemoteOriginUrl() throws GitCommitIdExecutionException {
     return getOriginRemote(canonical);
   }
   
   @Override
-  protected String getClosestTagName(){
+  protected String getClosestTagName() throws GitCommitIdExecutionException {
     try {
       return runGitCommand(canonical, "describe --abbrev=0 --tags");
     } catch (NativeCommandException ignore) {
@@ -222,7 +221,7 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getClosestTagCommitCount(){
+  protected String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     String closestTagName = getClosestTagName();
     if(closestTagName != null && !closestTagName.trim().isEmpty()){
       return runQuietGitCommand(canonical, "rev-list "+closestTagName+"..HEAD --count");
@@ -231,10 +230,10 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void finalCleanUp() {
+  protected void finalCleanUp() throws GitCommitIdExecutionException {
   }
 
-  private String getOriginRemote(File directory) throws MojoExecutionException {
+  private String getOriginRemote(File directory) throws GitCommitIdExecutionException {
     String remoteUrl = null;
     String remotes = runQuietGitCommand(directory, "remote -v");
 
@@ -245,7 +244,7 @@ public class NativeGitProvider extends GitDataProvider {
       if (trimmed.startsWith("origin")) {
         String[] split = trimmed.split("\\s+");
         if (split.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
-          throw new MojoExecutionException("Unsupported GIT output (verbose remote address): " + line);
+          throw new GitCommitIdExecutionException("Unsupported GIT output (verbose remote address): " + line);
         }
         remoteUrl = split[1];
       }

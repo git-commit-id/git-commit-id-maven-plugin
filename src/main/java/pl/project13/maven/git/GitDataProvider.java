@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -81,27 +80,27 @@ public abstract class GitDataProvider {
     return this;
   }
 
-  protected abstract void init() throws MojoExecutionException;
-  protected abstract String getBuildAuthorName();
-  protected abstract String getBuildAuthorEmail();
-  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws MojoExecutionException;
-  protected abstract String getBranchName() throws IOException;
-  protected abstract String getGitDescribe() throws MojoExecutionException;
-  protected abstract String getCommitId();
-  protected abstract String getAbbrevCommitId() throws MojoExecutionException;
-  protected abstract boolean isDirty() throws MojoExecutionException;
-  protected abstract String getCommitAuthorName();
-  protected abstract String getCommitAuthorEmail();
-  protected abstract String getCommitMessageFull();
-  protected abstract String getCommitMessageShort();
-  protected abstract String getCommitTime();
-  protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
-  protected abstract String getTags() throws MojoExecutionException;
-  protected abstract String getClosestTagName() throws MojoExecutionException;
-  protected abstract String getClosestTagCommitCount() throws MojoExecutionException;
-  protected abstract void finalCleanUp();
+  protected abstract void init() throws GitCommitIdExecutionException;
+  protected abstract String getBuildAuthorName() throws GitCommitIdExecutionException;
+  protected abstract String getBuildAuthorEmail() throws GitCommitIdExecutionException;
+  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException;
+  protected abstract String getBranchName() throws GitCommitIdExecutionException;
+  protected abstract String getGitDescribe() throws GitCommitIdExecutionException;
+  protected abstract String getCommitId() throws GitCommitIdExecutionException;
+  protected abstract String getAbbrevCommitId() throws GitCommitIdExecutionException;
+  protected abstract boolean isDirty() throws GitCommitIdExecutionException;
+  protected abstract String getCommitAuthorName() throws GitCommitIdExecutionException;
+  protected abstract String getCommitAuthorEmail() throws GitCommitIdExecutionException;
+  protected abstract String getCommitMessageFull() throws GitCommitIdExecutionException;
+  protected abstract String getCommitMessageShort() throws GitCommitIdExecutionException;
+  protected abstract String getCommitTime() throws GitCommitIdExecutionException;
+  protected abstract String getRemoteOriginUrl() throws GitCommitIdExecutionException;
+  protected abstract String getTags() throws GitCommitIdExecutionException;
+  protected abstract String getClosestTagName() throws GitCommitIdExecutionException;
+  protected abstract String getClosestTagCommitCount() throws GitCommitIdExecutionException;
+  protected abstract void finalCleanUp() throws GitCommitIdExecutionException;
 
-  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
+  public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     init();
     // git.user.name
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, getBuildAuthorName());
@@ -127,7 +126,7 @@ public abstract class GitDataProvider {
           break;
         }
         default: {
-          throw new MojoExecutionException("Unsupported commitIdGenerationMode: " + commitIdGenerationMode);
+          throw new GitCommitIdExecutionException("Unsupported commitIdGenerationMode: " + commitIdGenerationMode);
         }
       }
       // git.commit.id.abbrev
@@ -157,7 +156,7 @@ public abstract class GitDataProvider {
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws MojoExecutionException{
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitCommitIdExecutionException{
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
@@ -166,9 +165,9 @@ public abstract class GitDataProvider {
     }
   }
 
-  void validateAbbrevLength(int abbrevLength) throws MojoExecutionException {
+  void validateAbbrevLength(int abbrevLength) throws GitCommitIdExecutionException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
+      throw new GitCommitIdExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
     }
   }
@@ -180,7 +179,7 @@ public abstract class GitDataProvider {
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
-  protected String determineBranchName(Map<String, String> env) throws IOException {
+  protected String determineBranchName(Map<String, String> env) throws GitCommitIdExecutionException {
     if (runningOnBuildServer(env)) {
       return determineBranchNameOnBuildServer(env);
     } else {
@@ -205,7 +204,7 @@ public abstract class GitDataProvider {
    * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that environment variable is set.
    * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
-  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
+  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitCommitIdExecutionException {
     String environmentBasedBranch = env.get("GIT_BRANCH");
     if (isNullOrEmpty(environmentBasedBranch)) {
       log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");

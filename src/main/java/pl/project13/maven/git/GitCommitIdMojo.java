@@ -309,72 +309,76 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException {
-    // Set the verbose setting: now it should be correctly loaded from maven.
-    log.setVerbose(verbose);
+    try {
+      // Set the verbose setting: now it should be correctly loaded from maven.
+      log.setVerbose(verbose);
 
-    if (skip) {
-      log.info("skip is enabled, skipping execution!");
-      return;
-    }
-
-    if (runOnlyOnce) {
-      if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
-        log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+      if (skip) {
+        log.info("skip is enabled, skipping execution!");
         return;
       }
-    }
 
-    if (isPomProject(project) && skipPoms) {
-      log.info("isPomProject is true and skipPoms is true, return");
-      return;
-    }
+      if (runOnlyOnce) {
+        if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
+          log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+          return;
+        }
+      }
 
-    dotGitDirectory = lookupGitDirectory();
-    if (failOnNoGitDirectory && !directoryExists(dotGitDirectory)) {
-      throw new MojoExecutionException(".git directory is not found! Please specify a valid [dotGitDirectory] in your pom.xml");
-    }
+      if (isPomProject(project) && skipPoms) {
+        log.info("isPomProject is true and skipPoms is true, return");
+        return;
+      }
 
-    if (gitDescribe == null) {
-      gitDescribe = new GitDescribeConfig();
-    }
+      dotGitDirectory = lookupGitDirectory();
+      if (failOnNoGitDirectory && !directoryExists(dotGitDirectory)) {
+        throw new GitCommitIdExecutionException(".git directory is not found! Please specify a valid [dotGitDirectory] in your pom.xml");
+      }
 
-    if (dotGitDirectory != null) {
-      log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
-    } else {
-      log.info("dotGitDirectory is null, aborting execution!");
-      return;
-    }
+      if (gitDescribe == null) {
+        gitDescribe = new GitDescribeConfig();
+      }
 
-    try {
+      if (dotGitDirectory != null) {
+        log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
+      } else {
+        log.info("dotGitDirectory is null, aborting execution!");
+        return;
+      }
+
       try {
-        commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
-      } catch (IllegalArgumentException e) {
-        log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
-        commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
+        try {
+          commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
+        } catch (IllegalArgumentException e) {
+          log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
+          commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
+        }
+
+        properties = initProperties();
+
+        String trimmedPrefix = prefix.trim();
+        prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
+
+        loadGitData(properties);
+        loadBuildVersionAndTimeData(properties);
+        loadBuildHostData(properties);
+        loadShortDescribe(properties);
+        filter(properties, includeOnlyProperties);
+        filterNot(properties, excludeProperties);
+        logProperties(properties);
+
+        if (generateGitPropertiesFile) {
+          maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
+        }
+
+        if (injectAllReactorProjects) {
+          appendPropertiesToReactorProjects(properties, prefixDot);
+        }
+      } catch (Exception e) {
+        handlePluginFailure(e);
       }
-
-      properties = initProperties();
-
-      String trimmedPrefix = prefix.trim();
-      prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
-
-      loadGitData(properties);
-      loadBuildVersionAndTimeData(properties);
-      loadBuildHostData(properties);
-      loadShortDescribe(properties);
-      filter(properties, includeOnlyProperties);
-      filterNot(properties, excludeProperties);
-      logProperties(properties);
-
-      if (generateGitPropertiesFile) {
-        maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
-      }
-
-      if (injectAllReactorProjects) {
-        appendPropertiesToReactorProjects(properties, prefixDot);
-      }
-    } catch (Exception e) {
-      handlePluginFailure(e);
+    } catch (GitCommitIdExecutionException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
     }
   }
 
@@ -430,14 +434,14 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * Reacts to an exception based on the {@code failOnUnableToExtractRepoInfo} setting.
-   * If it's true, an MojoExecutionException will be throw, otherwise we just log an error message.
+   * If it's true, an GitCommitIdExecutionException will be thrown, otherwise we just log an error message.
    *
-   * @throws MojoExecutionException which will be should be throw within an MojoException in case the
+   * @throws GitCommitIdExecutionException which will be thrown in case the
    *                                {@code failOnUnableToExtractRepoInfo} setting was set to true.
    */
-  private void handlePluginFailure(Exception e) throws MojoExecutionException {
+  private void handlePluginFailure(Exception e) throws GitCommitIdExecutionException {
     if (failOnUnableToExtractRepoInfo) {
-      throw new MojoExecutionException("Could not complete Mojo execution...", e);
+      throw new GitCommitIdExecutionException("Could not complete Mojo execution...", e);
     } else {
       log.error(e.getMessage(), e);
     }
@@ -464,11 +468,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @return the File representation of the .git directory
    */
-  @VisibleForTesting File lookupGitDirectory() throws MojoExecutionException {
+  @VisibleForTesting File lookupGitDirectory() throws GitCommitIdExecutionException {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
-  private Properties initProperties() throws MojoExecutionException {
+  private Properties initProperties() throws GitCommitIdExecutionException {
     if (generateGitPropertiesFile) {
       return properties = new Properties();
     } else {
@@ -530,7 +534,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     if (useNativeGit) {
       loadGitDataWithNativeGit(properties);
     } else {
@@ -538,22 +542,26 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    final File basedir = project.getBasedir().getCanonicalFile();
+  void loadGitDataWithNativeGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
+    try {
+      final File basedir = project.getBasedir().getCanonicalFile();
 
-    GitDataProvider nativeGitProvider = NativeGitProvider
-      .on(basedir, log)
-      .setPrefixDot(prefixDot)
-      .setAbbrevLength(abbrevLength)
-      .setDateFormat(dateFormat)
-      .setDateFormatTimeZone(dateFormatTimeZone)
-      .setGitDescribe(gitDescribe)
-      .setCommitIdGenerationMode(commitIdGenerationModeEnum);
+      GitDataProvider nativeGitProvider = NativeGitProvider
+              .on(basedir, log)
+              .setPrefixDot(prefixDot)
+              .setAbbrevLength(abbrevLength)
+              .setDateFormat(dateFormat)
+              .setDateFormatTimeZone(dateFormatTimeZone)
+              .setGitDescribe(gitDescribe)
+              .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
-    nativeGitProvider.loadGitData(properties);
+      nativeGitProvider.loadGitData(properties);
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
+    }
   }
 
-  void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitDataWithJGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
     GitDataProvider jGitProvider = JGitProvider
       .on(dotGitDirectory, log)
       .setPrefixDot(prefixDot)
@@ -566,67 +574,68 @@ public class GitCommitIdMojo extends AbstractMojo {
     jGitProvider.loadGitData(properties);
   }
 
-  void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws IOException {
-    final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
-    final boolean isJsonFormat = "json".equalsIgnoreCase( format );
+  void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
+    try {
+      final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
+      final boolean isJsonFormat = "json".equalsIgnoreCase(format);
 
-    boolean shouldGenerate = true;
+      boolean shouldGenerate = true;
 
-    if (gitPropsFile.exists( )) {
-      final Properties persistedProperties;
+      if (gitPropsFile.exists()) {
+        final Properties persistedProperties;
 
-      try {
-        if (isJsonFormat) {
-          log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+        try {
+          if (isJsonFormat) {
+            log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
 
-          persistedProperties = readJsonProperties( gitPropsFile );
+            persistedProperties = readJsonProperties(gitPropsFile);
+          } else {
+            log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+
+            persistedProperties = readProperties(gitPropsFile);
+          }
+
+          final Properties propertiesCopy = (Properties) localProperties.clone();
+
+          final String buildTimeProperty = prefixDot + BUILD_TIME;
+
+          propertiesCopy.remove(buildTimeProperty);
+          persistedProperties.remove(buildTimeProperty);
+
+          shouldGenerate = !propertiesCopy.equals(persistedProperties);
+        } catch (CannotReadFileException ex) {
+          // Read has failed, regenerate file
+          log.info("Cannot read properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+          shouldGenerate = true;
         }
-        else {
-          log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+      }
 
-          persistedProperties = readProperties( gitPropsFile );
+      if (shouldGenerate) {
+        Files.createParentDirs(gitPropsFile);
+        Writer outputWriter = null;
+        boolean threw = true;
+
+        try {
+          outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), StandardCharsets.UTF_8);
+          if (isJsonFormat) {
+            log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(outputWriter, localProperties);
+          } else {
+            log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+            localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
+          }
+          threw = false;
+        } catch (final IOException ex) {
+          throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
+        } finally {
+          Closeables.close(outputWriter, threw);
         }
-
-        final Properties propertiesCopy = (Properties) localProperties.clone( );
-
-        final String buildTimeProperty = prefixDot + BUILD_TIME;
-
-        propertiesCopy.remove( buildTimeProperty );
-        persistedProperties.remove( buildTimeProperty );
-
-        shouldGenerate = ! propertiesCopy.equals( persistedProperties );
+      } else {
+        log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
       }
-      catch ( CannotReadFileException ex ) {
-        // Read has failed, regenerate file
-        log.info("Cannot read properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-        shouldGenerate = true;
-      }
-    }
-
-    if (shouldGenerate) {
-      Files.createParentDirs(gitPropsFile);
-      Writer outputWriter = null;
-      boolean threw = true;
-
-      try {
-        outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), StandardCharsets.UTF_8);
-        if (isJsonFormat) {
-          log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-          ObjectMapper mapper = new ObjectMapper();
-          mapper.writeValue(outputWriter, localProperties);
-        } else {
-          log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-          localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
-        }
-        threw = false;
-      } catch (final IOException ex) {
-        throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
-      } finally {
-        Closeables.close(outputWriter, threw);
-      }
-    }
-    else {
-      log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
     }
   }
 
