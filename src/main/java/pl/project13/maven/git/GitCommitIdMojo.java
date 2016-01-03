@@ -101,7 +101,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The Maven Session Object.
    */
-  @Parameter(property = "session", required = true, readonly = true)
+  @Parameter(required = true, readonly = true)
   private MavenSession session;
 
   /**
