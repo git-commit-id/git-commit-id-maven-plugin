@@ -17,9 +17,6 @@
 
 package pl.project13.jgit;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -108,7 +105,7 @@ public class JGitCommon {
   }
 
   private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo){
-    Map<ObjectId, List<DatedRevTag>> mapWithClosestTagOnly = newHashMap();
+    Map<ObjectId, List<DatedRevTag>> mapWithClosestTagOnly = new HashMap<>();
     String matchPattern = ".*";
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, true, matchPattern);
     LinkedHashMap<ObjectId, List<DatedRevTag>> sortedCommitIdsToTags = sortByDatedRevTag(commitIdsToTags);
@@ -144,7 +141,7 @@ public class JGitCommon {
   }
 
   protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern){
-    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = newHashMap();
+    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = new HashMap<>();
 
     try (RevWalk walk = new RevWalk(repo)) {
       walk.markStart(walk.parseCommit(repo.resolve("HEAD")));
@@ -176,7 +173,7 @@ public class JGitCommon {
           if (commitIdsToTags.containsKey(taggedCommitId)) {
             commitIdsToTags.get(taggedCommitId).add(new DatedRevTag(revTag));
           } else {
-            commitIdsToTags.put(taggedCommitId, newArrayList(new DatedRevTag(revTag)));
+            commitIdsToTags.put(taggedCommitId, new ArrayList<>(Collections.singletonList(new DatedRevTag(revTag))));
           }
 
         } catch (IncorrectObjectTypeException ex) {
@@ -190,7 +187,7 @@ public class JGitCommon {
             if (commitIdsToTags.containsKey(resolvedCommitId)) {
               commitIdsToTags.get(resolvedCommitId).add(datedRevTag);
             } else {
-              commitIdsToTags.put(resolvedCommitId, newArrayList(datedRevTag));
+              commitIdsToTags.put(resolvedCommitId, new ArrayList<>(Collections.singletonList(datedRevTag)));
             }
           }
         } catch (Exception ignored) {
@@ -214,7 +211,7 @@ public class JGitCommon {
   }
 
   protected HashMap<ObjectId, List<String>> transformRevTagsMapToDateSortedTagNames(Map<ObjectId, List<DatedRevTag>> commitIdsToTags) {
-    HashMap<ObjectId, List<String>> commitIdsToTagNames = newHashMap();
+    HashMap<ObjectId, List<String>> commitIdsToTagNames = new HashMap<>();
     for (Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry : commitIdsToTags.entrySet()) {
       List<String> tagNames = transformRevTagsMapEntryToDateSortedTagNames(objectIdListEntry);
 
@@ -226,7 +223,7 @@ public class JGitCommon {
   private List<String> transformRevTagsMapEntryToDateSortedTagNames(Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry) {
     List<DatedRevTag> tags = objectIdListEntry.getValue();
 
-    List<DatedRevTag> newTags = newArrayList(tags);
+    List<DatedRevTag> newTags = new ArrayList<>(tags);
     Collections.sort(newTags, datedRevTagComparator());
 
     List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {

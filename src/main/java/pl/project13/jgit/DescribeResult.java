@@ -27,9 +27,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Represents the result of a <code>git describe</code> command.
@@ -134,9 +135,9 @@ public class DescribeResult {
     List<String> parts;
 
     if (abbrevZeroHidesCommitsPartOfDescribe()) {
-      parts = newArrayList(tag());
+      parts = new ArrayList<>(Collections.singletonList(tag()));
     } else {
-      parts = newArrayList(tag(), commitsAwayFromTag(), prefixedCommitId());
+      parts = new ArrayList<>(Arrays.asList(tag(), commitsAwayFromTag(), prefixedCommitId()));
     }
 
     return Joiner.on("-").skipNulls().join(parts) + dirtyMarker(); // like in the describe spec the entire "-dirty" is configurable (incl. "-")
