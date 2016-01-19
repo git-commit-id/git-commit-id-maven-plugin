@@ -504,7 +504,7 @@ There's another way to use the plugin, it's a little bit easier I guess. First, 
     <!-- this is false by default, forces the plugin to generate the git.properties file -->
     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
-    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
+    <!-- The path for the properties file to be generated. See Super Pom for default variable reference https://maven.apache.org/guides/introduction/introduction-to-the-pom.html -->
     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 </configuration>
 ```
