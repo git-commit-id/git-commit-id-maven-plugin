@@ -504,15 +504,9 @@ There's another way to use the plugin, it's a little bit easier I guess. First, 
     <!-- this is false by default, forces the plugin to generate the git.properties file -->
     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
-    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+    <!-- The path for the properties file to be generated. See Super Pom for default variable reference https://maven.apache.org/guides/introduction/introduction-to-the-pom.html -->
+    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 </configuration>
-```
-
-Remember to add this file to your .gitignore as it's quite some garbage changes to your repository if you don't ignore it. Open .gitignore and add:
-
-```
-src/main/resources/git.properties
 ```
 
 Then run the project as you would normally, the file will be created for you. And you may access it as you'd access any other properties file, for example like this:
@@ -536,28 +530,28 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 ```java
 public GitRepositoryState(Properties properties)
 {
-  this.tags = properties.get("git.tags").toString();
-  this.branch = properties.get("git.branch").toString();
-  this.dirty = properties.get("git.dirty").toString();
-  this.remoteOriginUrl = properties.get("git.remote.origin.url").toString();
+  this.tags = String.valueOf(properties.get("git.tags"));
+  this.branch = String.valueOf(properties.get("git.branch"));
+  this.dirty = String.valueOf(properties.get("git.dirty"));
+  this.remoteOriginUrl = String.valueOf(properties.get("git.remote.origin.url"));
 
-  this.commitId = properties.get("git.commit.id.full").toString(); // OR properties.get("git.commit.id") depending on your configuration
-  this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
-  this.describe = properties.get("git.commit.id.describe").toString();
-  this.describeShort = properties.get("git.commit.id.describe-short").toString();
-  this.commitUserName = properties.get("git.commit.user.name").toString();
-  this.commitUserEmail = properties.get("git.commit.user.email").toString();
-  this.commitMessageFull = properties.get("git.commit.message.full").toString();
-  this.commitMessageShort = properties.get("git.commit.message.short").toString();
-  this.commitTime = properties.get("git.commit.time").toString();
-  this.closestTagName = properties.get("git.closest.tag.name").toString();
-  this.closestTagCommitCount = properties.get("git.closest.tag.commit.count").toString();
+  this.commitId = String.valueOf(properties.get("git.commit.id.full")); // OR properties.get("git.commit.id") depending on your configuration
+  this.commitIdAbbrev = String.valueOf(properties.get("git.commit.id.abbrev"));
+  this.describe = String.valueOf(properties.get("git.commit.id.describe"));
+  this.describeShort = String.valueOf(properties.get("git.commit.id.describe-short"));
+  this.commitUserName = String.valueOf(properties.get("git.commit.user.name"));
+  this.commitUserEmail = String.valueOf(properties.get("git.commit.user.email"));
+  this.commitMessageFull = String.valueOf(properties.get("git.commit.message.full"));
+  this.commitMessageShort = String.valueOf(properties.get("git.commit.message.short"));
+  this.commitTime = String.valueOf(properties.get("git.commit.time"));
+  this.closestTagName = String.valueOf(properties.get("git.closest.tag.name"));
+  this.closestTagCommitCount = String.valueOf(properties.get("git.closest.tag.commit.count"));
 
-  this.buildUserName = properties.get("git.build.user.name").toString();
-  this.buildUserEmail = properties.get("git.build.user.email").toString();
-  this.buildTime = properties.get("git.build.time").toString();
-  this.buildHost = properties.get("git.build.host").toString();
-  this.buildVersion = properties.get("git.build.version").toString();
+  this.buildUserName = String.valueOf(properties.get("git.build.user.name"));
+  this.buildUserEmail = String.valueOf(properties.get("git.build.user.email"));
+  this.buildTime = String.valueOf(properties.get("git.build.time"));
+  this.buildHost = String.valueOf(properties.get("git.build.host"));
+  this.buildVersion = String.valueOf(properties.get("git.build.version"));
 }
 ```
 
