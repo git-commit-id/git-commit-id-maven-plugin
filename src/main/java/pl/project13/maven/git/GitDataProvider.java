@@ -113,10 +113,12 @@ public abstract class GitDataProvider {
       maybePutGitDescribe(properties);
       // git.commit.id
       put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
-      // git.commit.id.abbrev      
+      // git.commit.id.abbrev
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
       // git.dirty
       put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));
+      // git.dirty.mark
+      put(properties, GitCommitIdMojo.DIRTY_MARK, getDirtyMark());
       // git.commit.author.name
       put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());
       // git.commit.author.email
@@ -132,7 +134,7 @@ public abstract class GitDataProvider {
 
       //
       put(properties, GitCommitIdMojo.TAGS, getTags());
-      
+
       put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, getClosestTagName());
       put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
     } finally {
@@ -147,6 +149,17 @@ public abstract class GitDataProvider {
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
       put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, getGitDescribe());
     }
+  }
+
+  private String getDirtyMark() throws MojoExecutionException
+  {
+      String dirtyMark = gitDescribe.getDirty();
+
+      if (dirtyMark != null && !dirtyMark.isEmpty() && isDirty()) {
+          return dirtyMark;
+      } else {
+          return "";
+      }
   }
 
   void validateAbbrevLength(int abbrevLength) throws MojoExecutionException {
