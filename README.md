@@ -386,7 +386,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="buildTime" value="${git.build.time}"/>
         <property name="buildHost" value="${git.build.host}"/>
-        <porperty name="buildVersion" value="${git.build.version}"/>
+        <property name="buildVersion" value="${git.build.version}"/>
     </bean>
 </beans>
 ```
