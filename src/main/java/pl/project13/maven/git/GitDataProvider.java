@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -33,9 +32,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 public abstract class GitDataProvider {
 
   @NotNull
-  protected LoggerBridge loggerBridge;
-
-  protected boolean verbose;
+  protected final LoggerBridge log;
 
   protected String prefixDot;
 
@@ -47,8 +44,10 @@ public abstract class GitDataProvider {
 
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
-  public GitDataProvider(@NotNull LoggerBridge loggerBridge) {
-    this.loggerBridge = loggerBridge;
+  protected CommitIdGenerationMode commitIdGenerationMode;
+
+  public GitDataProvider(@NotNull LoggerBridge log) {
+    this.log = log;
   }
 
   public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
@@ -71,32 +70,37 @@ public abstract class GitDataProvider {
     return this;
   }
 
+  public GitDataProvider setCommitIdGenerationMode(CommitIdGenerationMode commitIdGenerationMode) {
+    this.commitIdGenerationMode = commitIdGenerationMode;
+    return this;
+  }
+
   public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone){
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
 
-  protected abstract void init() throws MojoExecutionException;
-  protected abstract String getBuildAuthorName();
-  protected abstract String getBuildAuthorEmail();
-  protected abstract void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException;
-  protected abstract String getBranchName() throws IOException;
-  protected abstract String getGitDescribe() throws MojoExecutionException;
-  protected abstract String getCommitId();
-  protected abstract String getAbbrevCommitId() throws MojoExecutionException;
-  protected abstract boolean isDirty() throws MojoExecutionException;
-  protected abstract String getCommitAuthorName();
-  protected abstract String getCommitAuthorEmail();
-  protected abstract String getCommitMessageFull();
-  protected abstract String getCommitMessageShort();
-  protected abstract String getCommitTime();
-  protected abstract String getRemoteOriginUrl() throws MojoExecutionException;
-  protected abstract String getTags() throws MojoExecutionException;
-  protected abstract String getClosestTagName() throws MojoExecutionException;
-  protected abstract String getClosestTagCommitCount() throws MojoExecutionException;
-  protected abstract void finalCleanUp();
+  protected abstract void init() throws GitCommitIdExecutionException;
+  protected abstract String getBuildAuthorName() throws GitCommitIdExecutionException;
+  protected abstract String getBuildAuthorEmail() throws GitCommitIdExecutionException;
+  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException;
+  protected abstract String getBranchName() throws GitCommitIdExecutionException;
+  protected abstract String getGitDescribe() throws GitCommitIdExecutionException;
+  protected abstract String getCommitId() throws GitCommitIdExecutionException;
+  protected abstract String getAbbrevCommitId() throws GitCommitIdExecutionException;
+  protected abstract boolean isDirty() throws GitCommitIdExecutionException;
+  protected abstract String getCommitAuthorName() throws GitCommitIdExecutionException;
+  protected abstract String getCommitAuthorEmail() throws GitCommitIdExecutionException;
+  protected abstract String getCommitMessageFull() throws GitCommitIdExecutionException;
+  protected abstract String getCommitMessageShort() throws GitCommitIdExecutionException;
+  protected abstract String getCommitTime() throws GitCommitIdExecutionException;
+  protected abstract String getRemoteOriginUrl() throws GitCommitIdExecutionException;
+  protected abstract String getTags() throws GitCommitIdExecutionException;
+  protected abstract String getClosestTagName() throws GitCommitIdExecutionException;
+  protected abstract String getClosestTagCommitCount() throws GitCommitIdExecutionException;
+  protected abstract void finalCleanUp() throws GitCommitIdExecutionException;
 
-  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException{
+  public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     init();
     // git.user.name
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, getBuildAuthorName());
@@ -104,7 +108,7 @@ public abstract class GitDataProvider {
     put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
 
     try {
-      prepareGitToExtractMoreDetailedReproInformation();
+      prepareGitToExtractMoreDetailedRepoInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
@@ -112,8 +116,20 @@ public abstract class GitDataProvider {
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
-      put(properties, GitCommitIdMojo.COMMIT_ID, getCommitId());
-      // git.commit.id.abbrev      
+      switch (commitIdGenerationMode) {
+        case FULL: {
+          put(properties, GitCommitIdMojo.COMMIT_ID_FULL, getCommitId());
+          break;
+        }
+        case FLAT: {
+          put(properties, GitCommitIdMojo.COMMIT_ID_FLAT, getCommitId());
+          break;
+        }
+        default: {
+          throw new GitCommitIdExecutionException("Unsupported commitIdGenerationMode: " + commitIdGenerationMode);
+        }
+      }
+      // git.commit.id.abbrev
       put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
       // git.dirty
       put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));
@@ -140,7 +156,7 @@ public abstract class GitDataProvider {
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws MojoExecutionException{
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitCommitIdExecutionException{
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
@@ -149,21 +165,21 @@ public abstract class GitDataProvider {
     }
   }
 
-  void validateAbbrevLength(int abbrevLength) throws MojoExecutionException {
+  void validateAbbrevLength(int abbrevLength) throws GitCommitIdExecutionException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
+      throw new GitCommitIdExecutionException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
     }
   }
 
   /**
-   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
-   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
+   * If running within Jenkins/Hudson, honor the branch name passed via GIT_BRANCH env var.
+   * This is necessary because Jenkins/Hudson always invoke build in a detached head state.
    *
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
-  protected String determineBranchName(Map<String, String> env) throws IOException {
+  protected String determineBranchName(Map<String, String> env) throws GitCommitIdExecutionException {
     if (runningOnBuildServer(env)) {
       return determineBranchNameOnBuildServer(env);
     } else {
@@ -185,35 +201,31 @@ public abstract class GitDataProvider {
   }
 
   /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
+   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that environment variable is set.
    * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
-  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws IOException {
-    String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
-      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
+  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitCommitIdExecutionException {
+    String environmentBasedBranch = env.get("GIT_BRANCH");
+    if (isNullOrEmpty(environmentBasedBranch)) {
+      log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
       return getBranchName();
-    }else {
-      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
-      return enviromentBasedBranch;
+    } else {
+      log.info("Using environment variable based branch name. GIT_BRANCH = {}", environmentBasedBranch);
+      return environmentBasedBranch;
     }
   }
 
   protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if(dateFormatTimeZone != null){
+    if (dateFormatTimeZone != null){
       smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
     return smf;
   }
 
-  void log(String... parts) {
-    loggerBridge.log((Object[]) parts);
-  }
-
   protected void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log(keyWithPrefix, value);
+    log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 }

@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 import pl.project13.maven.git.util.Pair;
 
 import java.io.IOException;
@@ -47,7 +46,7 @@ import java.util.*;
  */
 public class DescribeCommand extends GitCommand<DescribeResult> {
 
-  private LoggerBridge loggerBridge;
+  private LoggerBridge log;
   private JGitCommon jGitCommon;
 
 //  TODO not yet implemented options:
@@ -85,11 +84,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * Creates a new describe command which interacts with a single repository
    *
-   * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
+   * @param repo the {@link Repository} this command should interact with
+   * @param log logger bridge to direct logs to
    */
   @NotNull
-  public static DescribeCommand on(Repository repo) {
-    return new DescribeCommand(repo);
+  public static DescribeCommand on(Repository repo, LoggerBridge log) {
+    return new DescribeCommand(repo, log);
   }
 
   /**
@@ -97,31 +97,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  private DescribeCommand(Repository repo) {
-    this(repo, true);
-  }
-
-  private DescribeCommand(Repository repo, boolean verbose) {
+  private DescribeCommand(Repository repo, @NotNull LoggerBridge log) {
     super(repo);
-    initDefaultLoggerBridge(verbose);
-    setVerbose(verbose);
-    this.jGitCommon = new JGitCommon();
-  }
-
-  private void initDefaultLoggerBridge(boolean verbose) {
-    loggerBridge = new StdOutLoggerBridge(verbose);
-  }
-
-  @NotNull
-  public DescribeCommand setVerbose(boolean verbose) {
-    loggerBridge.setVerbose(verbose);
-    return this;
-  }
-
-  @NotNull
-  public DescribeCommand withLoggerBridge(LoggerBridge bridge) {
-    this.loggerBridge = bridge;
-    return this;
+    this.jGitCommon = new JGitCommon(log);
+    this.log = log;
   }
 
   /**
@@ -134,7 +113,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
-    log("--always =", always);
+    log.info("--always = {}", always);
     return this;
   }
 
@@ -153,7 +132,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
     if (forceLongFormat != null && forceLongFormat) {
       this.forceLongFormat = true;
-      log("--long =", true);
+      log.info("--long = {}", true);
     }
     return this;
   }
@@ -169,9 +148,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand abbrev(@Nullable Integer n) {
     if (n != null) {
-      Preconditions.checkArgument(n < 41, String.format("N (commit abbres length) must be < 41. (Was:[%s])", n));
+      Preconditions.checkArgument(n < 41, String.format("N (commit abbrev length) must be < 41. (Was:[%s])", n));
       Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
-      log("--abbrev =", n);
+      log.info("--abbrev = {}", n);
       abbrev = n;
     }
     return this;
@@ -209,7 +188,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
     if (includeLightweightTagsInSearch != null && includeLightweightTagsInSearch) {
       tagsFlag = includeLightweightTagsInSearch;
-      log("--tags =", includeLightweightTagsInSearch);
+      log.info("--tags = {}", includeLightweightTagsInSearch);
     }
     return this;
   }
@@ -251,7 +230,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     Optional<String> option = Optional.fromNullable(dirtyMarker);
-    log("--dirty =", option.or(""));
+    log.info("--dirty = {}", option.or(""));
     this.dirtyOption = option;
     return this;
   }
@@ -267,7 +246,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   public DescribeCommand match(@Nullable String pattern) {
     if (!"*".equals(pattern)) {
       matchOption = Optional.fromNullable(pattern);
-      log("--match =", matchOption.or(""));
+      log.info("--match = {}", matchOption.or(""));
     }
     return this;
   }
@@ -289,7 +268,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     if (hasTags(headCommit, tagObjectIdToName) && !forceLongFormat) {
       String tagName = tagObjectIdToName.get(headCommit).iterator().next();
-      log("The commit we're on is a Tag ([",tagName,"]) and forceLongFormat == false, returning.");
+      log.info("The commit we're on is a Tag ([{}]) and forceLongFormat == false, returning.", tagName);
 
       return new DescribeResult(tagName, dirty, dirtyOption);
     }
@@ -362,7 +341,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
         && status.getModified().isEmpty()
         && status.getConflicting().isEmpty());
 
-    log("Repo is in dirty state [", isDirty, "]");
+    log.info("Repo is in dirty state [{}]", isDirty);
     return isDirty;
   }
 
@@ -379,7 +358,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       RevCommit headCommit = walk.lookupCommit(headId);
       walk.dispose();
 
-      log("HEAD is [",headCommit.getName(),"] ");
+      log.info("HEAD is [{}]", headCommit.getName());
       return headCommit;
     } catch (IOException ex) {
       throw new RuntimeException("Unable to obtain HEAD commit!", ex);
@@ -389,9 +368,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
 	  String matchPattern = createMatchPattern();
-	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(loggerBridge, repo, tagsFlag, matchPattern);
+	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(repo, tagsFlag, matchPattern);
       Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
-      log("Created map: [",commitIdsToTagNames,"] ");
+    log.info("Created map: [{}]", commitIdsToTagNames);
 
       return commitIdsToTagNames;
   }
@@ -401,15 +380,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return ".*";
     }
 
-    StringBuffer buf = new StringBuffer();
-    buf.append("^refs/tags/\\Q");
-    buf.append(matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q"));
-    buf.append("\\E$");
-    return buf.toString();
-  }
-
-  private void log(Object... parts) {
-    loggerBridge.log(parts);
+    return "^refs/tags/\\Q" +
+            matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
+            "\\E$";
   }
 }
-

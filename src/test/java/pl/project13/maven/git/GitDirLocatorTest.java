@@ -52,7 +52,9 @@ public class GitDirLocatorTest {
       assert foundDirectory != null;
       assertThat(foundDirectory.getAbsolutePath()).isEqualTo(dotGitDir.getAbsolutePath());
     } finally {
-      dotGitDir.delete();
+      if (!dotGitDir.delete()) {
+        dotGitDir.deleteOnExit();
+      }
     }
   }
 

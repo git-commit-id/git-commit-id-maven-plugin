@@ -14,21 +14,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package pl.project13.maven.git;
 
-public enum CommitIdGenerationModeEnum{
-  FULL,
-  FLAT,
-  UNKNOWN;
-	
-  public static CommitIdGenerationModeEnum getValue(String o){
-    if(o != null){
-      for(CommitIdGenerationModeEnum v : values()){
-        if(v.name().toString().equalsIgnoreCase(o)){
-          return v;
-        }
-      }
+/**
+ * Exception used by plugin. Plugin code should operate using this exception, which can then be wrapped into
+ * build-tool specific exception at the top level.
+ */
+public class GitCommitIdExecutionException extends Exception {
+
+    public GitCommitIdExecutionException() {
+        super();
     }
-    return CommitIdGenerationModeEnum.UNKNOWN;
-  }	
+
+    public GitCommitIdExecutionException(String message) {
+        super(message);
+    }
+
+    public GitCommitIdExecutionException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public GitCommitIdExecutionException(Throwable cause) {
+        super(cause);
+    }
+
+    public GitCommitIdExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

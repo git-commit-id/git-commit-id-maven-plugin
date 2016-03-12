@@ -21,7 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 
-import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
@@ -45,7 +44,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public class JGitProvider extends GitDataProvider {
 
@@ -57,123 +55,110 @@ public class JGitProvider extends GitDataProvider {
   private JGitCommon jGitCommon;
 
   @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    return new JGitProvider(dotGitDirectory, loggerBridge);
+  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    return new JGitProvider(dotGitDirectory, log);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    super(loggerBridge);
+  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    super(log);
     this.dotGitDirectory = dotGitDirectory;
-    this.jGitCommon = new JGitCommon();
-  }
-
-  @NotNull
-  public JGitProvider setVerbose(boolean verbose) {
-    super.verbose = verbose;
-    super.loggerBridge.setVerbose(verbose);
-    return this;
+    this.jGitCommon = new JGitCommon(log);
   }
 
   @Override
-  protected void init() throws MojoExecutionException {
+  protected void init() throws GitCommitIdExecutionException {
     git = getGitRepository();
     objectReader = git.newObjectReader();
   }
 
   @Override
-  protected String getBuildAuthorName() {
+  protected String getBuildAuthorName() throws GitCommitIdExecutionException {
     String userName = git.getConfig().getString("user", null, "name");
     return MoreObjects.firstNonNull(userName, "");
   }
 
   @Override
-  protected String getBuildAuthorEmail() {
+  protected String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     String userEmail = git.getConfig().getString("user", null, "email");
     return MoreObjects.firstNonNull(userEmail, "");
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedReproInformation() throws MojoExecutionException {
+  protected void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
     try {
       // more details parsed out bellow
       Ref head = git.getRef(Constants.HEAD);
       if (head == null) {
-        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
+        throw new GitCommitIdExecutionException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
       revWalk = new RevWalk(git);
       ObjectId headObjectId = head.getObjectId();
       if(headObjectId == null){
-        throw new MojoExecutionException("Could not get HEAD Ref, are you sure you have some commits in the dotGitDirectory?");
+        throw new GitCommitIdExecutionException("Could not get HEAD Ref, are you sure you have some commits in the dotGitDirectory?");
       }
       headCommit = revWalk.parseCommit(headObjectId);
       revWalk.markStart(headCommit);
-    } catch (MojoExecutionException e) {
-      throw e;
     } catch (Exception e) {
-      throw new MojoExecutionException("Error", e);
+      throw new GitCommitIdExecutionException("Error", e);
     }
   }
 
   @Override
-  protected String getBranchName() throws IOException {
-    String branch = git.getBranch();
-    return branch;
+  protected String getBranchName() throws GitCommitIdExecutionException {
+    try {
+      return git.getBranch();
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
+    }
   }
 
   @Override
-  protected String getGitDescribe() throws MojoExecutionException {
-    String gitDescribe = getGitDescribe(git);
-    return gitDescribe;
+  protected String getGitDescribe() throws GitCommitIdExecutionException {
+    return getGitDescribe(git);
   }
 
   @Override
-  protected String getCommitId() {
-    String commitId = headCommit.getName();
-    return commitId;
+  protected String getCommitId() throws GitCommitIdExecutionException {
+    return headCommit.getName();
   }
 
   @Override
-  protected String getAbbrevCommitId() throws MojoExecutionException {
-    String abbrevCommitId = getAbbrevCommitId(objectReader, headCommit, abbrevLength);
-    return abbrevCommitId;
+  protected String getAbbrevCommitId() throws GitCommitIdExecutionException {
+    return getAbbrevCommitId(objectReader, headCommit, abbrevLength);
   }
 
   @Override
-  protected boolean isDirty() throws MojoExecutionException {
+  protected boolean isDirty() throws GitCommitIdExecutionException {
     Git gitObject = Git.wrap(git);
     try {
       return !gitObject.status().call().isClean();
     } catch (GitAPIException e) {
-      throw new MojoExecutionException("Failed to get git status: " + e.getMessage(), e);
+      throw new GitCommitIdExecutionException("Failed to get git status: " + e.getMessage(), e);
     }
   }
 
   @Override
-  protected String getCommitAuthorName() {
-    String commitAuthor = headCommit.getAuthorIdent().getName();
-    return commitAuthor;
+  protected String getCommitAuthorName() throws GitCommitIdExecutionException {
+    return headCommit.getAuthorIdent().getName();
   }
 
   @Override
-  protected String getCommitAuthorEmail() {
-    String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-    return commitEmail;
+  protected String getCommitAuthorEmail() throws GitCommitIdExecutionException {
+    return headCommit.getAuthorIdent().getEmailAddress();
   }
 
   @Override
-  protected String getCommitMessageFull() {
-    String fullMessage = headCommit.getFullMessage();
-    return fullMessage.trim();
+  protected String getCommitMessageFull() throws GitCommitIdExecutionException {
+    return headCommit.getFullMessage().trim();
   }
 
   @Override
-  protected String getCommitMessageShort() {
-    String shortMessage = headCommit.getShortMessage();
-    return shortMessage.trim();
+  protected String getCommitMessageShort() throws GitCommitIdExecutionException {
+    return headCommit.getShortMessage().trim();
   }
 
   @Override
-  protected String getCommitTime() {
+  protected String getCommitTime() throws GitCommitIdExecutionException {
     long timeSinceEpoch = headCommit.getCommitTime();
     Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
@@ -181,29 +166,28 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getRemoteOriginUrl() throws MojoExecutionException {
-    String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
-    return remoteOriginUrl;
+  protected String getRemoteOriginUrl() throws GitCommitIdExecutionException {
+    return git.getConfig().getString("remote", "origin", "url");
   }
 
   @Override
-  protected String getTags() throws MojoExecutionException {
+  protected String getTags() throws GitCommitIdExecutionException {
     try {
       Repository repo = getGitRepository();
       ObjectId headId = headCommit.toObjectId();
       Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
-      loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
+      log.error("Unable to extract tags from commit: {} ({})", headCommit.getName(), e.getClass().getName());
       return "";
     }
   }
 
   @Override
-  protected String getClosestTagName() throws MojoExecutionException {
+  protected String getClosestTagName() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(loggerBridge,repo);
+      return jGitCommon.getClosestTagName(repo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -211,10 +195,10 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getClosestTagCommitCount() throws MojoExecutionException {
+  protected String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(loggerBridge,repo,headCommit);
+      return jGitCommon.getClosestTagCommitCount(repo, headCommit);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -228,36 +212,32 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-
-  @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws MojoExecutionException {
+  @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitCommitIdExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
-        .on(repository)
-        .withLoggerBridge(super.loggerBridge)
-        .setVerbose(super.verbose)
+        .on(repository, log)
         .apply(super.gitDescribe)
         .call();
 
       return describeResult.toString();
     } catch (GitAPIException ex) {
       ex.printStackTrace();
-      throw new MojoExecutionException("Unable to obtain git.commit.id.describe information", ex);
+      throw new GitCommitIdExecutionException("Unable to obtain git.commit.id.describe information", ex);
     }
   }
 
-  private String getAbbrevCommitId(ObjectReader objectReader, RevCommit headCommit, int abbrevLength) throws MojoExecutionException {
+  private String getAbbrevCommitId(ObjectReader objectReader, RevCommit headCommit, int abbrevLength) throws GitCommitIdExecutionException {
     try {
       AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(headCommit, abbrevLength);
       return abbreviatedObjectId.name();
     } catch (IOException e) {
-      throw new MojoExecutionException("Unable to abbreviate commit id! " +
+      throw new GitCommitIdExecutionException("Unable to abbreviate commit id! " +
                                          "You may want to investigate the <abbrevLength/> element in your configuration.", e);
     }
   }
 
-
   @NotNull
-  private Repository getGitRepository() throws MojoExecutionException {
+  private Repository getGitRepository() throws GitCommitIdExecutionException {
     Repository repository;
 
     FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
@@ -268,11 +248,11 @@ public class JGitProvider extends GitDataProvider {
         .findGitDir() // scan up the file system tree
         .build();
     } catch (IOException e) {
-      throw new MojoExecutionException("Could not initialize repository...", e);
+      throw new GitCommitIdExecutionException("Could not initialize repository...", e);
     }
 
     if (repository == null) {
-      throw new MojoExecutionException("Could not create git repository. Are you sure '" + dotGitDirectory + "' is the valid Git root for your project?");
+      throw new GitCommitIdExecutionException("Could not create git repository. Are you sure '" + dotGitDirectory + "' is the valid Git root for your project?");
     }
 
     return repository;

@@ -18,13 +18,13 @@
 package pl.project13.jgit;
 
 import com.google.common.base.Optional;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -49,7 +49,7 @@ public class DescribeResultTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
   }
 
   @Override
@@ -60,78 +60,84 @@ public class DescribeResultTest extends GitIntegrationTest {
   @Test
   public void shouldToStringForTag() throws Exception {
     // given
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    DescribeResult res = new DescribeResult(VERSION);
+      DescribeResult res = new DescribeResult(VERSION);
 
-    // when
-    String s = res.toString();
+      // when
+      String s = res.toString();
 
-    // then
-    assertThat(s).isEqualTo(VERSION);
+      // then
+      assertThat(s).isEqualTo(VERSION);
+    }
   }
 
   @Test
   public void shouldToStringForDirtyTag() throws Exception {
     // given
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER);
+      DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER);
 
-    // when
-    String s = res.toString();
+      // when
+      String s = res.toString();
 
-    // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID + DIRTY_MARKER);
+      // then
+      assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID + DIRTY_MARKER);
+    }
   }
 
   @Test
   public void shouldToStringForDirtyTagAnd10Abbrev() throws Exception {
     // given
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER)
-        .withCommitIdAbbrev(10);
+      DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER)
+              .withCommitIdAbbrev(10);
 
-    String expectedHash = "gb6a73ed747";
+      String expectedHash = "gb6a73ed747";
 
-    // when
-    String s = res.toString();
+      // when
+      String s = res.toString();
 
-    // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + expectedHash + DIRTY_MARKER);
+      // then
+      assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + expectedHash + DIRTY_MARKER);
+    }
   }
 
   @Test
   public void shouldToStringFor2CommitsAwayFromTag() throws Exception {
     // given
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID);
+      DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID);
 
-    // when
-    String s = res.toString();
+      // when
+      String s = res.toString();
 
-    // then
-    assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID);
+      // then
+      assertThat(s).isEqualTo(VERSION + "-" + 2 + "-" + G_DEFAULT_ABBREV_COMMIT_ID);
+    }
   }
 
   @Test
   public void shouldToStringForNoTagJustACommit() throws Exception {
     // given
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    DescribeResult res = new DescribeResult(repo.newObjectReader(), HEAD_OBJECT_ID);
+      DescribeResult res = new DescribeResult(repo.newObjectReader(), HEAD_OBJECT_ID);
 
 
-    // when
-    String s = res.toString();
+      // when
+      String s = res.toString();
 
-    // then
-    assertThat(s).isEqualTo(DEFAULT_ABBREV_COMMIT_ID);
+      // then
+      assertThat(s).isEqualTo(DEFAULT_ABBREV_COMMIT_ID);
+    }
   }
 }

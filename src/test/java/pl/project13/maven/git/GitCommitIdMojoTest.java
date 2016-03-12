@@ -18,12 +18,12 @@
 package pl.project13.maven.git;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.*;
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
  */
-// todo remove this test in favor of complete intgration tests
+// todo remove this test in favor of complete integration tests
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
@@ -64,12 +64,13 @@ public class GitCommitIdMojoTest {
     mojo.setCommitIdGenerationMode("full");
 
 
-    mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    Properties props = new Properties();
+    when(mojo.project.getProperties()).thenReturn(props);
     when(mojo.project.getPackaging()).thenReturn("jar");
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), new StdOutLoggerBridge(true));
   }
 
   @Test
@@ -217,7 +218,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws IOException {
+  public void shouldUseJenkinsBranchInfoWhenAvailable() throws GitCommitIdExecutionException, IOException {
     // given
     Repository git = mock(Repository.class);
     Map<String, String> env = Maps.newHashMap();
@@ -280,8 +281,8 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = "target" + File.separator + "classes" + File.separator + "git.properties";
     
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
@@ -291,8 +292,8 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = targetDir + "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
 
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);

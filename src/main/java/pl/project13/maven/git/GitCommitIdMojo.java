@@ -20,7 +20,6 @@ package pl.project13.maven.git;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -31,6 +30,9 @@ import com.google.common.io.Files;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,8 +44,9 @@ import pl.project13.maven.git.util.PropertyManager;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,24 +55,19 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 /**
- * Goal which puts git build-time information into property files or maven's properties.
+ * Puts git build-time information into property files or maven's properties.
  *
- * @goal revision
- * @phase initialize
- * @requiresProject
- * @threadSafe true
  * @since 1.0
  */
-@SuppressWarnings({"JavaDoc"})
+@Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
 
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
   public static final String DIRTY = "dirty";
+  // only one of the following two will be exposed, depending on the commitIdGenerationMode
   public static final String COMMIT_ID_FLAT = "commit.id";
   public static final String COMMIT_ID_FULL = "commit.id.full";
-  public static String COMMIT_ID = COMMIT_ID_FLAT;
-
   public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
   public static final String COMMIT_DESCRIBE = "commit.id.describe";
   public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
@@ -88,358 +86,314 @@ public class GitCommitIdMojo extends AbstractMojo {
   public static final String CLOSEST_TAG_NAME = "closest.tag.name";
   public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
 
+  // TODO fix access modifier
   /**
-   * The maven project.
-   *
-   * @parameter property="project" default-value="${project}"
-   * @readonly
+   * The Maven Project.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project}", readonly = true, required = true)
   MavenProject project;
 
   /**
-   * Contains the full list of projects in the reactor.
-   *
-   * @parameter property="reactorProjects" default-value="${reactorProjects}"
-   * @readonly
+   * The list of projects in the reactor.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${reactorProjects}", readonly = true)
   private List<MavenProject> reactorProjects;
 
   /**
-   * Tell git-commit-id to inject the git properties into all
-   * reactor projects not just the current one.
-   *
-   * For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
-   * Basically, injecting into all projects may slow down the build and you don't always need this feature.
-   *
-   * @parameter default-value="false"
+   * The Maven Session Object.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(property = "session", required = true, readonly = true)
+  private MavenSession session;
+
+  /**
+   * <p>Set this to {@code 'true'} to inject git properties into all reactor projects, not just the current one.</p>
+   *
+   * <p>Injecting into all projects may slow down the build and you don't always need this feature.
+   * See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
+   * </p>
+   */
+  @Parameter(defaultValue = "false")
   private boolean injectAllReactorProjects;
 
   /**
-   * Specifies whether the goal runs in verbose mode.
-   * To be more specific, this means more info being printed out while scanning for paths and also
-   * it will make git-commit-id "eat it's own dog food" :-)
-   *
-   * @parameter default-value="false"
+   * Set this to {@code 'true'} to print more info while scanning for paths.
+   * It will make git-commit-id "eat its own dog food" :-)
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean verbose;
 
   /**
-   * Specifies whether the execution in pom projects should be skipped.
-   * Override this value to false if you want to force the plugin to run on 'pom' packaged projects.
-   *
-   * @parameter parameter="git.skipPoms" default-value="true"
+   * Set this to {@code 'false'} to execute plugin in 'pom' packaged projects.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true")
   private boolean skipPoms;
 
   /**
-   * Specifies whether plugin should generate properties file.
-   * By default it will not generate any additional file,
-   * and only add properties to maven project's properties for further filtering
-   *
-   * If set to "true" properties will be fully generated with no placeholders inside.
-   *
-   * @parameter default-value="false"
+   * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
+   * By default plugin only adds properties to maven project properties.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean generateGitPropertiesFile;
 
   /**
-   * Decide where to generate the git.properties file. By default, the ${project.build.outputDirectory}/git.properties
-   * file will be updated - of course you must first set generateGitPropertiesFile = true to force git-commit-id
-   * into generateFile mode.
+   * <p>The location of {@code 'git.properties'} file. Set {@code 'generateGitPropertiesFile'} to {@code 'true'}
+   * to generate this file.</p>
    *
-   * The path here is relative to your projects src directory.
-   *
-   * @parameter default-value="${project.build.outputDirectory}/git.properties"
+   * <p>The path here is relative to your project src directory.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
   private String generateGitPropertiesFilename;
 
   /**
-   * The root directory of the repository we want to check
-   *
-   * @parameter default-value="${project.basedir}/.git"
+   * The root directory of the repository we want to check.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "${project.basedir}/.git")
   private File dotGitDirectory;
 
   /**
-   * Configuration for the <pre>git-describe</pre> command.
+   * Configuration for the {@code 'git-describe'} command.
    * You can modify the dirty marker, abbrev length and other options here.
-   *
-   * If not specified, default values will be used.
-   *
-   * @parameter
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter
   private GitDescribeConfig gitDescribe;
 
   /**
-   * <p>
-   * Configure the "git.commit.id.abbrev" property to be at least of length N.
-   * N must be in the range of 2 to 40 (inclusive), other values will result in an Exception.
-   * </p>
+   * <p>Minimum length of {@code 'git.commit.id.abbrev'} property.
+   * Value must be from 2 to 40 (inclusive), other values will result in an exception.</p>
    *
-   * <p>
-   * An Abbreviated commit is a shorter version of the commit id, it is guaranteed to be unique though.
-   * To keep this contract, the plugin may decide to print an abbrev version that is longer than the value specified here.
-   * </p>
+   * <p>An abbreviated commit is a shorter version of commit id. However, it is guaranteed to be unique.
+   * To keep this contract, the plugin may decide to print an abbreviated version
+   * that is longer than the value specified here.</p>
    *
-   * <b>Example:</b>
-   * <p>
-   * You have a very big repository, yet you set this value to 2. It's very probable that you'll end up getting a 4 or 7 char
-   * long abbrev version of the commit id. If your repository, on the other hand, has just 4 commits, you'll probably get a 2 char long abbrev.
-   * </p>
+   * <p><b>Example:</b> You have a very big repository, yet you set this value to 2. It's very probable that you'll end up
+   * getting a 4 or 7 char long abbrev version of the commit id. If your repository, on the other hand,
+   * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
    *
-   * @parameter default-value=7
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "7")
   private int abbrevLength;
 
   /**
-   * The format to save properties in. Valid options are "properties" (default) and "json".
-   *
-   * @parameter default-value="properties"
+   * The format to save properties in: {@code 'properties'} or {@code 'json'}.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "properties")
   private String format;
 
   /**
-   * The prefix to expose the properties on, for example 'git' would allow you to access '${git.branch}'
-   *
-   * @parameter default-value="git"
+   * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "git")
   private String prefix;
+  // prefix with dot appended if needed
   private String prefixDot = "";
 
   /**
-   * The date format to be used for any dates exported by this plugin.
-   * It should be a valid SimpleDateFormat string.
-   *
-   * @parameter default-value="dd.MM.yyyy '@' HH:mm:ss z"
+   * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "dd.MM.yyyy '@' HH:mm:ss z")
   private String dateFormat;
 
   /**
-   * The timezone used in the date format that's used for any dates exported by this plugin.
-   * It should be a valid Timezone string (e.g. 'America/Los_Angeles', 'GMT+10', 'PST').
-   * As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones.
-   * Please review https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html for more information on this issue.
-   * will use the timezone that's shipped with java as a default (java.util.TimeZone.getDefault().getID())
-   * 
-   * @parameter
+   * <p>The timezone used in the date format of dates exported by this plugin.
+   * It should be a valid Timezone string such as {@code 'America/Los_Angeles'}, {@code 'GMT+10'} or {@code 'PST'}.</p>
+   *
+   * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
+   * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter
   private String dateFormatTimeZone;
 
-
-
   /**
-   * Specifies whether the plugin should fail if it can't find the .git directory. The default
-   * value is true.
-   *
-   * @parameter default-value="true"
+   * Set this to {@code 'false'} to continue the build on missing {@code '.git'} directory.
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true")
   private boolean failOnNoGitDirectory;
 
   /**
-   * By default the plugin will fail the build if unable to obtain enough data for a complete run,
-   * if you don't care about this - for example it's not needed during your CI builds and the CI server does weird
-   * things to the repository, you may want to set this value to false.
+   * <p>Set this to {@code 'false'} to continue the build even if unable to get enough data for a complete run.
+   * This may be useful during CI builds if the CI server does weird things to the repository.</p>
    *
-   * Setting this value to `false`, causes the plugin to gracefully tell you "I did my best" and abort it's execution
-   * if unable to obtain git meta data - yet the build will continue to run (without failing).
+   * <p>Setting this value to {@code 'false'} causes the plugin to gracefully tell you "I did my best"
+   * and abort its execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
    *
-   * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/63 for a rationale behing this flag.
-   *
-   * @parameter default-value="true"
+   * <p>See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/63">issue #63</a>
+   * for a rationale behind this flag.</p>
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "true")
   private boolean failOnUnableToExtractRepoInfo;
 
   /**
-   * By default the plugin will use a jgit implementation as a source of a information about the repository. You can
-   * use a native GIT executable to fetch information about the repository, witch is in most cases faster but requires
-   * a git executable to be installed in system.
-   *
-   * @parameter default-value="false"
+   * Set this to {@code 'true'} to use native Git executable to fetch information about the repository.
+   * It is in most cases faster but requires a git executable to be installed in system.
+   * By default the plugin will use jGit implementation as a source of information about the repository.
    * @since 2.1.9
    */
-  @SuppressWarnings("UnusedDeclaration")
+  @Parameter(defaultValue = "false")
   private boolean useNativeGit;
 
   /**
-   * Skip the plugin execution.
-   *
-   * @parameter default-value="false"
+   * Set this to {@code 'true'} to skip plugin execution.
    * @since 2.1.8
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private boolean skip = false;
+  @Parameter(defaultValue = "false")
+  private boolean skip;
 
   /**
-   * In a multi-module build, only run once.  This probably won't "do the right thing" if your project has more than
-   * one git repository.  If you use this with the option 'generateGitPropertiesFile', it will only generate (or update)
-   * the file in the directory where you started your build.
+   * <p>Set this to {@code 'true'} to only run once in a multi-module build.  This probably won't "do the right thing"
+   * if your project has more than one git repository.  If you use this with {@code 'generateGitPropertiesFile'},
+   * it will only generate (or update) the file in the directory where you started your build.</p>
    *
-   * The git.* maven properties are available in all modules.
-   *
-   * @parameter default-value="false"
+   * <p>The git.* maven properties are available in all modules.</p>
    * @since 2.1.12
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private boolean runOnlyOnce = false;
+  @Parameter(defaultValue = "false")
+  private boolean runOnlyOnce;
 
   /**
-   * Can be used to exclude certain properties from being emited into the resulting file.
-   * May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
-   * or the email of the committer etc.
+   * <p>List of properties to exclude from the resulting file.
+   * May be useful when you want to hide {@code 'git.remote.origin.url'} (maybe because it contains your repo password?)
+   * or the email of the committer.</p>
    *
-   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to exclude both, the {@code name},
-   * as well as {@code email} properties from being emitted into the resulting files.
+   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to exclude both the {@code 'name'}
+   * as well as {@code 'email'} properties from being emitted into the resulting files.</p>
    *
-   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
-   *
-   * @parameter
+   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
    * @since 2.1.9
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private List<String> excludeProperties = Collections.emptyList();
+  @Parameter
+  private List<String> excludeProperties;
 
   /**
-   * Can be used to include only certain properties into the resulting file.
-   * Will be overruled by the exclude properties.
+   * <p>List of properties to include into the resulting file. Only properties specified here will be included.
+   * This list will be overruled by the {@code 'excludeProperties'}.</p>
    *
-   * Each value may be globbing, that is, you can write {@code git.commit.user.*} to include both, the {@code name},
-   * as well as {@code email} properties into the resulting files.
+   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to include both the {@code 'name'}
+   * as well as {@code 'email'} properties into the resulting files.</p>
    *
-   * Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
-   *
-   * @parameter
+   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
    * @since 2.1.14
    */
-  @SuppressWarnings("UnusedDeclaration")
-  private List<String> includeOnlyProperties = Collections.emptyList();
+  @Parameter
+  private List<String> includeOnlyProperties;
 
   /**
-   * The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
-   * Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-   * We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
-   * In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
+   * <p>The mode of {@code 'git.commit.id'} property generation.</p>
    *
-   * Currently the switch allows two different options:
-   * 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
-   * 2. If you set this switch to 'full' the plugin will export the formerly known property 'git.commit.id' as 'git.commit.id.full' and therefore will generate a fully valid json object in the exporting mechanism.
+   * <p>{@code 'git.commit.id'} property name is incompatible with json export
+   * (see <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/122">issue #122</a>).
+   * This property allows one either to preserve backward compatibility or to enable fully valid json export:
    *
-   * *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
-   * *Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
+   * <ol>
+   * <li>{@code 'flat'} (default) generates the property {@code 'git.commit.id'}, preserving backwards compatibility.</li>
+   * <li>{@code 'full'} generates the property {@code 'git.commit.id.full'}, enabling fully valid json object export.</li>
+   * </ol>
+   * </p>
    *
-   * @parameter default-value="flat"
+   * <p><b>Note:</b> Depending on your plugin configuration you obviously can choose the `prefix` of your properties
+   * by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration
+   * what the switch means when the 'prefix' is set to it's default value.</p>
+   * <p><b>Note:</b> If you set the value to something that's not equal to {@code 'flat'} or {@code 'full'} (ignoring the case)
+   * the plugin will output a warning and will fallback to the default {@code 'flat'} mode.</p>
    * @since 2.2.0
    */
+  @Parameter(defaultValue = "flat")
   private String commitIdGenerationMode;
+  private CommitIdGenerationMode commitIdGenerationModeEnum;
 
   /**
-   * The Maven Session Object
-   *
-   * @parameter property="session"
-   * @required
-   * @readonly
-   */
-  @SuppressWarnings("UnusedDeclaration")
-  protected MavenSession session;
-
-  /**
-   * The properties we store our data in and then expose them
+   * The properties we store our data in and then expose them.
    */
   private Properties properties;
 
-  boolean runningTests = false;
+  /**
+   * Charset to read-write project sources.
+   */
+  private Charset sourceCharset = StandardCharsets.UTF_8;
 
   @NotNull
-  LoggerBridge loggerBridge = new MavenLoggerBridge(getLog(), true);
+  private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
+  @Override
   public void execute() throws MojoExecutionException {
-    // Set the verbose setting now it should be correctly loaded from maven.
-    loggerBridge.setVerbose(verbose);
+    try {
+      // Set the verbose setting: now it should be correctly loaded from maven.
+      log.setVerbose(verbose);
 
-    if (skip) {
-      log("skip is enabled, skipping execution!");
-      return;
-    }
+      // read source encoding from project properties for those who still doesn't use UTF-8
+      String sourceEncoding = project.getProperties().getProperty("project.build.sourceEncoding");
+      if (null != sourceEncoding) {
+        sourceCharset = Charset.forName(sourceEncoding);
+      } else {
+        sourceCharset = Charset.defaultCharset();
+      }
 
-    if (runOnlyOnce) {
-      if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
-        log("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+      if (skip) {
+        log.info("skip is enabled, skipping execution!");
         return;
       }
-    }
 
-    if (isPomProject(project) && skipPoms) {
-      log("isPomProject is true and skipPoms is true, return");
-      return;
-    }
-
-    dotGitDirectory = lookupGitDirectory();
-    throwWhenRequiredDirectoryNotFound(dotGitDirectory, failOnNoGitDirectory, ".git directory could not be found! Please specify a valid [dotGitDirectory] in your pom.xml");
-
-    if (gitDescribe == null) {
-      gitDescribe = new GitDescribeConfig();
-    }
-
-    if (dotGitDirectory != null) {
-      log("dotGitDirectory", dotGitDirectory.getAbsolutePath());
-    } else {
-      log("dotGitDirectory is null, aborting execution!");
-      return;
-    }
-
-    try {
-      switch(CommitIdGenerationModeEnum.getValue(commitIdGenerationMode)){
-      default:
-        loggerBridge.warn("Detected wrong setting for 'commitIdGenerationMode' will fallback to default 'flat'-Mode!");
-      case FLAT:
-        COMMIT_ID = COMMIT_ID_FLAT;
-        break;
-      case FULL:
-        COMMIT_ID = COMMIT_ID_FULL;
-        break;
+      if (runOnlyOnce) {
+        if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
+          log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+          return;
+        }
       }
 
-      properties = initProperties();
-
-      String trimmedPrefix = prefix.trim();
-      prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
-
-      loadGitData(properties);
-      loadBuildVersionAndTimeData(properties);
-      loadBuildHostData(properties);
-      loadShortDescribe(properties);
-      filter(properties, includeOnlyProperties);
-      filterNot(properties, excludeProperties);
-      logProperties(properties);
-
-      if (generateGitPropertiesFile) {
-        maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
+      if (isPomProject(project) && skipPoms) {
+        log.info("isPomProject is true and skipPoms is true, return");
+        return;
       }
 
-      if (injectAllReactorProjects) {
-        appendPropertiesToReactorProjects(properties, prefixDot);
+      dotGitDirectory = lookupGitDirectory();
+      if (failOnNoGitDirectory && !directoryExists(dotGitDirectory)) {
+        throw new GitCommitIdExecutionException(".git directory is not found! Please specify a valid [dotGitDirectory] in your pom.xml");
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-      handlePluginFailure(e);
+
+      if (gitDescribe == null) {
+        gitDescribe = new GitDescribeConfig();
+      }
+
+      if (dotGitDirectory != null) {
+        log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
+      } else {
+        log.info("dotGitDirectory is null, aborting execution!");
+        return;
+      }
+
+      try {
+        try {
+          commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
+        } catch (IllegalArgumentException e) {
+          log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
+          commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
+        }
+
+        properties = initProperties();
+
+        String trimmedPrefix = prefix.trim();
+        prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
+
+        loadGitData(properties);
+        loadBuildVersionAndTimeData(properties);
+        loadBuildHostData(properties);
+        loadShortDescribe(properties);
+        filter(properties, includeOnlyProperties);
+        filterNot(properties, excludeProperties);
+        logProperties(properties);
+
+        if (generateGitPropertiesFile) {
+          maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
+        }
+
+        if (injectAllReactorProjects) {
+          appendPropertiesToReactorProjects(properties, prefixDot);
+        }
+      } catch (Exception e) {
+        handlePluginFailure(e);
+      }
+    } catch (GitCommitIdExecutionException e) {
+      throw new MojoExecutionException(e.getMessage(), e);
     }
-
   }
 
   private void filterNot(Properties properties, @Nullable List<String> exclusions) {
@@ -461,7 +415,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (shouldExclude.apply(key)) {
-        loggerBridge.debug("shouldExclude.apply(" + key + ") = " + shouldExclude.apply(key));
+        log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
         properties.remove(key);
       }
     }
@@ -486,7 +440,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
     for (String key : properties.stringPropertyNames()) {
       if (!shouldInclude.apply(key)) {
-        loggerBridge.debug("!shouldInclude.apply(" + key + ") = " + shouldInclude.apply(key));
+        log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
         properties.remove(key);
       }
     }
@@ -494,16 +448,16 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   /**
    * Reacts to an exception based on the {@code failOnUnableToExtractRepoInfo} setting.
-   * If it's true, an MojoExecutionException will be throw, otherwise we just log an error message.
+   * If it's true, an GitCommitIdExecutionException will be thrown, otherwise we just log an error message.
    *
-   * @throws MojoExecutionException which will be should be throw within an MojoException in case the
+   * @throws GitCommitIdExecutionException which will be thrown in case the
    *                                {@code failOnUnableToExtractRepoInfo} setting was set to true.
    */
-  private void handlePluginFailure(Exception e) throws MojoExecutionException {
+  private void handlePluginFailure(Exception e) throws GitCommitIdExecutionException {
     if (failOnUnableToExtractRepoInfo) {
-      throw new MojoExecutionException("Could not complete Mojo execution...", e);
+      throw new GitCommitIdExecutionException("Could not complete Mojo execution...", e);
     } else {
-      loggerBridge.error(e.getMessage(), com.google.common.base.Throwables.getStackTraceAsString(e));
+      log.error(e.getMessage(), e);
     }
   }
 
@@ -511,7 +465,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
-      log(mavenProject.getName(), "] project", mavenProject.getName());
+      // TODO check message
+      log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
       for (Object key : properties.keySet()) {
         if (key.toString().startsWith(trimmedPrefixWithDot)) {
@@ -521,29 +476,21 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void throwWhenRequiredDirectoryNotFound(File dotGitDirectory, Boolean required, String message) throws MojoExecutionException {
-    if (required && directoryDoesNotExits(dotGitDirectory)) {
-      throw new MojoExecutionException(message);
-    }
-  }
-
   /**
    * Find the git directory of the currently used project.
    * If it's not already specified, this method will try to find it.
    *
    * @return the File representation of the .git directory
    */
-  @VisibleForTesting File lookupGitDirectory() throws MojoExecutionException {
+  @VisibleForTesting File lookupGitDirectory() throws GitCommitIdExecutionException {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
-  private Properties initProperties() throws MojoExecutionException {
+  private Properties initProperties() throws GitCommitIdExecutionException {
     if (generateGitPropertiesFile) {
       return properties = new Properties();
-    } else if (!runningTests) {
-      return properties = project.getProperties();
     } else {
-      return properties = new Properties(); // that's ok for unit tests
+      return properties = project.getProperties();
     }
   }
 
@@ -551,7 +498,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       if (isOurProperty(keyString)) {
-        log("found property", keyString);
+        log.info("found property {}", keyString);
       }
     }
   }
@@ -575,7 +522,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      log("Unable to get build host, skipping property " + BUILD_HOST + ". Error message was: " + e.getMessage());
+      log.info("Unable to get build host, skipping property {}. Error message: {}", BUILD_HOST, e.getMessage());
     }
     put(properties, BUILD_HOST, buildHost);
   }
@@ -601,7 +548,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     if (useNativeGit) {
       loadGitDataWithNativeGit(properties);
     } else {
@@ -609,95 +556,100 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitDataWithNativeGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
-    final File basedir = project.getBasedir().getCanonicalFile();
+  void loadGitDataWithNativeGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
+    try {
+      final File basedir = project.getBasedir().getCanonicalFile();
 
-    GitDataProvider nativeGitProvider = NativeGitProvider
-      .on(basedir, loggerBridge)
-      .setVerbose(verbose)
-      .setPrefixDot(prefixDot)
-      .setAbbrevLength(abbrevLength)
-      .setDateFormat(dateFormat)
-      .setDateFormatTimeZone(dateFormatTimeZone)
-      .setGitDescribe(gitDescribe);
+      GitDataProvider nativeGitProvider = NativeGitProvider
+              .on(basedir, log)
+              .setPrefixDot(prefixDot)
+              .setAbbrevLength(abbrevLength)
+              .setDateFormat(dateFormat)
+              .setDateFormatTimeZone(dateFormatTimeZone)
+              .setGitDescribe(gitDescribe)
+              .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
-    nativeGitProvider.loadGitData(properties);
+      nativeGitProvider.loadGitData(properties);
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
+    }
   }
 
-  void loadGitDataWithJGit(@NotNull Properties properties) throws IOException, MojoExecutionException {
+  void loadGitDataWithJGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
     GitDataProvider jGitProvider = JGitProvider
-      .on(dotGitDirectory, loggerBridge)
-      .setVerbose(verbose)
+      .on(dotGitDirectory, log)
       .setPrefixDot(prefixDot)
       .setAbbrevLength(abbrevLength)
       .setDateFormat(dateFormat)
       .setDateFormatTimeZone(dateFormatTimeZone)
-      .setGitDescribe(gitDescribe);
+      .setGitDescribe(gitDescribe)
+      .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
     jGitProvider.loadGitData(properties);
   }
 
-  void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws IOException {
-    final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
-    final boolean isJsonFormat = "json".equalsIgnoreCase( format );
+  void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
+    try {
+      final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
+      final boolean isJsonFormat = "json".equalsIgnoreCase(format);
 
-    boolean shouldGenerate = true;
+      boolean shouldGenerate = true;
 
-    if (gitPropsFile.exists( )) {
-      final Properties persistedProperties;
+      if (gitPropsFile.exists()) {
+        final Properties persistedProperties;
 
-      try {
-        if (isJsonFormat) {
-          log("Reading exising json file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+        try {
+          if (isJsonFormat) {
+            log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
 
-          persistedProperties = readJsonProperties( gitPropsFile );
+            persistedProperties = readJsonProperties(gitPropsFile);
+          } else {
+            log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+
+            persistedProperties = readProperties(gitPropsFile);
+          }
+
+          final Properties propertiesCopy = (Properties) localProperties.clone();
+
+          final String buildTimeProperty = prefixDot + BUILD_TIME;
+
+          propertiesCopy.remove(buildTimeProperty);
+          persistedProperties.remove(buildTimeProperty);
+
+          shouldGenerate = !propertiesCopy.equals(persistedProperties);
+        } catch (CannotReadFileException ex) {
+          // Read has failed, regenerate file
+          log.info("Cannot read properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+          shouldGenerate = true;
         }
-        else {
-          log("Reading exising properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
+      }
 
-          persistedProperties = readProperties( gitPropsFile );
+      if (shouldGenerate) {
+        Files.createParentDirs(gitPropsFile);
+        Writer outputWriter = null;
+        boolean threw = true;
+
+        try {
+          outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), sourceCharset);
+          if (isJsonFormat) {
+            log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(outputWriter, localProperties);
+          } else {
+            log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
+            localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
+          }
+          threw = false;
+        } catch (final IOException ex) {
+          throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
+        } finally {
+          Closeables.close(outputWriter, threw);
         }
-
-        final Properties propertiesCopy = (Properties) localProperties.clone( );
-
-        final String buildTimeProperty = prefixDot + BUILD_TIME;
-
-        propertiesCopy.remove( buildTimeProperty );
-        persistedProperties.remove( buildTimeProperty );
-
-        shouldGenerate = ! propertiesCopy.equals( persistedProperties );
+      } else {
+        log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
       }
-      catch ( CannotReadFileException ex ) {
-        // Read has failed, regenerate file
-        log("Cannot read properties file [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
-        shouldGenerate = true;
-      }
-    }
-
-    if (shouldGenerate) {
-      Files.createParentDirs(gitPropsFile);
-      Writer outputWriter = null;
-      boolean threw = true;
-
-      try {
-        outputWriter = new OutputStreamWriter(new FileOutputStream(gitPropsFile), Charsets.UTF_8);
-        if (isJsonFormat) {
-          log("Writing json file to [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
-          ObjectMapper mapper = new ObjectMapper();
-          mapper.writeValue(outputWriter, localProperties);
-        } else {
-          log("Writing properties file to [", gitPropsFile.getAbsolutePath(), "] (for module ", project.getName(), ")...");
-          localProperties.store(outputWriter, "Generated by Git-Commit-Id-Plugin");
-        }
-        threw = false;
-      } catch (final IOException ex) {
-        throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
-      } finally {
-        Closeables.close(outputWriter, threw);
-      }
-    }
-    else {
-      log("Properties file [", gitPropsFile.getAbsolutePath(), "] is up-to-date (for module ", project.getName(), ")...");
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
     }
   }
 
@@ -719,24 +671,16 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log(keyWithPrefix, value);
+    log.info(keyWithPrefix + " " + value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
-  }
-
-  void log(String... parts) {
-    loggerBridge.log((Object[]) parts);
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 
-  private boolean directoryDoesNotExits(File fileLocation) {
-    return !directoryExists(fileLocation);
-  }
-
   @SuppressWarnings( "resource" )
-  static Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
+  private Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
     final HashMap<String, Object> propertiesMap;
 
     {
@@ -748,7 +692,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           final FileInputStream fis = new FileInputStream(jsonFile);
           closeable = fis;
 
-          final InputStreamReader reader = new InputStreamReader(fis, Charsets.UTF_8);
+          final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
           closeable = reader;
 
           final ObjectMapper mapper = new ObjectMapper();
@@ -776,7 +720,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   @SuppressWarnings( "resource" )
-  static Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
+  private Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
     Closeable closeable = null;
 
     try {
@@ -785,7 +729,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         final FileInputStream fis = new FileInputStream(propertiesFile);
         closeable = fis;
 
-        final InputStreamReader reader = new InputStreamReader(fis, Charsets.UTF_8);
+        final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
         closeable = reader;
 
         final Properties retVal = new Properties();
@@ -803,9 +747,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  static class CannotReadFileException
-    extends Exception
-  {
+  static class CannotReadFileException extends Exception {
     private static final long serialVersionUID = -6290782570018307756L;
 
     CannotReadFileException( Throwable cause )
@@ -862,9 +804,5 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   public void setCommitIdGenerationMode(String commitIdGenerationMode){
     this.commitIdGenerationMode = commitIdGenerationMode;
-  }
-
-  public LoggerBridge getLoggerBridge() {
-    return loggerBridge;
   }
 }

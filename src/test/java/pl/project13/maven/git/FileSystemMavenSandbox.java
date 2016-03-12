@@ -28,15 +28,12 @@ import java.io.IOException;
 import com.google.common.io.Files;
 
 /**
- * Quick and dirty maven projects tree structure to create on disk during integration tests
- * Can have both parent and child projects set up
- * Copies sample git repository from prototype location to newly created project
- * Has ability to set target project for storing git repository
- *
+ * Quick and dirty maven projects tree structure to create on disk during integration tests.
+ * Can have both parent and child projects set up.
+ * Copies sample git repository from prototype location to newly created project.
+ * Has ability to set target project for storing git repository.
  */
 public class FileSystemMavenSandbox {
-
-  private static final String FILE_SEPARATOR = System.getProperty("file.separator");
 
   private MavenProject childProject;
   private String rootSandboxPath;
@@ -57,7 +54,7 @@ public class FileSystemMavenSandbox {
 
   @NotNull
   public FileSystemMavenSandbox withParentProject(String parentProjectDirName, String packaging) {
-    parentProject = createProject(new File(rootSandboxPath + FILE_SEPARATOR + parentProjectDirName), packaging);
+    parentProject = createProject(new File(rootSandboxPath + File.separator + parentProjectDirName), packaging);
     return this;
   }
 
@@ -104,9 +101,8 @@ public class FileSystemMavenSandbox {
   }
 
   @NotNull
-  public FileSystemMavenSandbox create(CleanUp cleanupMode) throws RuntimeException {
+  public FileSystemMavenSandbox create() throws RuntimeException {
     try {
-      cleanupIfRequired(cleanupMode);
       createParentDir();
       createChildDirIfRequired();
       createGitRepoIfRequired();
@@ -140,20 +136,6 @@ public class FileSystemMavenSandbox {
     }
   }
 
-  private void cleanupIfRequired(CleanUp cleanupMode) throws IOException {
-    if (CleanUp.CLEANUP_FIRST == cleanupMode) {
-      cleanup();
-    }
-  }
-
-  public void cleanup() {
-    try {
-      FileUtils.deleteDirectory(new File(rootSandboxPath));
-    } catch (IOException e) {
-      System.out.println("Unable to delete the directory: " + rootSandboxPath);
-    }
-  }
-
   public MavenProject getParentProject() {
     return parentProject;
   }
@@ -162,19 +144,12 @@ public class FileSystemMavenSandbox {
     return childProject;
   }
 
-  public File getSandboxDir() { return gitRepoTargetDir.getAbsoluteFile(); }
-
   @NotNull
   private MavenProject createProject(File basedir, String packaging) {
     MavenProject project = new MavenProject();
-    project.setFile(new File(basedir + FILE_SEPARATOR + "pom.xml"));
+    project.setFile(new File(basedir + File.separator + "pom.xml"));
     project.setPackaging(packaging);
     return project;
-  }
-
-  public static enum CleanUp {
-    CLEANUP_FIRST,
-    NO_CLEANUP
   }
 
   @Override

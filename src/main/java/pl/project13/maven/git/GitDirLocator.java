@@ -66,8 +66,7 @@ public class GitDirLocator {
   }
 
   /**
-   * Search up all the maven parent project heirarchy until a .git
-   * directory is found.
+   * Search up all the maven parent project hierarchy until a .git directory is found.
    *
    * @return File which represents the location of the .git directory or NULL if none found.
    */
@@ -80,7 +79,7 @@ public class GitDirLocator {
     File basedir = mavenProject.getBasedir();
     while (basedir != null) {
       File gitdir = new File(basedir, Constants.DOT_GIT);
-      if (gitdir != null && gitdir.exists()) {
+      if (gitdir.exists()) {
         if (gitdir.isDirectory()) {
           return gitdir;
         } else if (gitdir.isFile()) {

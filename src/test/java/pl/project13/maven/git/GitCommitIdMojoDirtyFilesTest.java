@@ -39,6 +39,8 @@ public class GitCommitIdMojoDirtyFilesTest {
     int abbrevLength = 7;
     String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
     boolean verbose = true;
+    boolean useNativeGit = false;
+    String commitIdGenerationMode = "flat";
 
     GitCommitIdMojo mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(dotGitDirectory);
@@ -46,12 +48,14 @@ public class GitCommitIdMojoDirtyFilesTest {
     mojo.setAbbrevLength(abbrevLength);
     mojo.setDateFormat(dateFormat);
     mojo.setVerbose(verbose);
-    mojo.useNativeGit(false);
+    mojo.useNativeGit(useNativeGit);
     mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setCommitIdGenerationMode(commitIdGenerationMode);
 
 
-    mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    Properties props = new Properties();
+    when(mojo.project.getProperties()).thenReturn(props);
     when(mojo.project.getPackaging()).thenReturn("jar");
 
     mojo.execute();
@@ -71,6 +75,8 @@ public class GitCommitIdMojoDirtyFilesTest {
     int abbrevLength = 7;
     String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
     boolean verbose = true;
+    boolean useNativeGit = false;
+    String commitIdGenerationMode = "flat";
 
     GitCommitIdMojo mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(dotGitDirectory);
@@ -78,12 +84,14 @@ public class GitCommitIdMojoDirtyFilesTest {
     mojo.setAbbrevLength(abbrevLength);
     mojo.setDateFormat(dateFormat);
     mojo.setVerbose(verbose);
-    mojo.useNativeGit(false);
+    mojo.useNativeGit(useNativeGit);
     mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setCommitIdGenerationMode(commitIdGenerationMode);
 
 
-    mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    Properties props = new Properties();
+    when(mojo.project.getProperties()).thenReturn(props);
     when(mojo.project.getPackaging()).thenReturn("jar");
 
     mojo.execute();

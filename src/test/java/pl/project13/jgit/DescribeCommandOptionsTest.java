@@ -21,47 +21,29 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.mockito.Matchers;
 import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.test.utils.AssertException;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.mockito.Mockito.*;
 
 public class DescribeCommandOptionsTest {
 
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void abbrev_shouldVerifyLengthContract_failOn41() throws Exception {
     // given
     final Repository repo = mock(Repository.class);
     final int length = 41;
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() throws Exception {
-        DescribeCommand.on(repo).abbrev(length);
-      }
-    };
-
-    // then
-    AssertException.thrown(IllegalArgumentException.class, block);
+    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void abbrev_shouldVerifyLengthContract_failOnMinus12() throws Exception {
     // given
     final Repository repo = mock(Repository.class);
     final int length = -12;
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() {
-        DescribeCommand.on(repo).abbrev(length);
-      }
-    };
-
-    // then
-    AssertException.thrown(IllegalArgumentException.class, block);
+    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
   @Test
@@ -74,7 +56,7 @@ public class DescribeCommandOptionsTest {
     GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);
 
     Repository repo = mock(Repository.class);
-    DescribeCommand command = DescribeCommand.on(repo);
+    DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
     DescribeCommand spiedCommand = spy(command);
 
     // when

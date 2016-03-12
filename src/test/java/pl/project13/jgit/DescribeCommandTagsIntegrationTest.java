@@ -24,8 +24,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -42,7 +42,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
   }
 
   @Override
@@ -58,19 +58,19 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("annotated-tag");
+      assertThat(res.toString()).contains("annotated-tag");
+    }
   }
 
   @Test
@@ -81,20 +81,20 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("lightweight-tag");
+      assertThat(res.toString()).contains("lightweight-tag");
+    }
   }
 
   @Test
@@ -105,21 +105,21 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .match("annotated*")
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .match("annotated*")
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).contains("annotated-tag");
+      assertThat(res.toString()).contains("annotated-tag");
+    }
   }
 
   /**
@@ -140,20 +140,20 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("lightweight-tag-1-gb6a73ed");
+      assertThat(res.toString()).isEqualTo("lightweight-tag-1-gb6a73ed");
+    }
   }
 
   @Test
@@ -163,28 +163,29 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String snapshotTag = "0.0.1-SNAPSHOT";
     String latestTag = "OName-0.0.1";
 
-    Repository repo = git().getRepository();
-    Git jgit = Git.wrap(repo);
-    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    jgit.tag().setName(snapshotTag).call();
-    Thread.sleep(2000);
-    jgit.tag().setName(latestTag).call();
+        // when
+        wrap.tag().setName(snapshotTag).call();
+        Thread.sleep(2000);
+        wrap.tag().setName(latestTag).call();
 
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+        DescribeResult res = DescribeCommand
+                .on(repo, new StdOutLoggerBridge(true))
+                .tags()
+                .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo(latestTag);
+        // then
+        assertThat(res.toString()).isEqualTo(latestTag);
+      }
+    }
   }
 
   @Test
@@ -194,26 +195,27 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String beforeTag = "OName-0.0.1";
     String latestTag = "0.0.1-SNAPSHOT";
 
-    Repository repo = git().getRepository();
-    Git jgit = Git.wrap(repo);
-    jgit.reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    jgit.tag().setName(beforeTag).call();
-    jgit.tag().setName(latestTag).call();
+        // when
+        wrap.tag().setName(beforeTag).call();
+        wrap.tag().setName(latestTag).call();
+      }
 
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo(latestTag);
+      // then
+      assertThat(res.toString()).isEqualTo(latestTag);
+    }
   }
 }

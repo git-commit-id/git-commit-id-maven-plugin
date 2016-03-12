@@ -28,7 +28,7 @@ public class GitDescribeConfig {
    * If you don't use describe, you can always disable it and make the build a bit faster.
    *
    * Although it's highly recommended to use <pre>git-describe</pre> to identify your build state,
-   * so think twice before disabeling it.
+   * so think twice before disabling it.
    *
    * @parameter default-value=false
    */
@@ -80,7 +80,7 @@ public class GitDescribeConfig {
    *       0 - will suppress long format, only showing the closest tag. (Won't show anything about the commit's id).
    *     </li>
    *     <li>
-   *       <strong>1 - is invalid</strong>. Git's minimal abbrev lenght is 2 chars.
+   *       <strong>1 - is invalid</strong>. Git's minimal abbrev length is 2 chars.
    *       This will be silently ignored and you'll get a full commit id.
    *     </li>
    *   </ul>
