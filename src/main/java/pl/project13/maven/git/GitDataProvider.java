@@ -17,15 +17,18 @@
 
 package pl.project13.maven.git;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
-import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -227,5 +230,49 @@ public abstract class GitDataProvider {
     String keyWithPrefix = prefixDot + key;
     log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
+  }
+
+  /**
+   * Regex to check for SCP-style SSH+GIT connection strings such as 'git@github.com'
+   */
+  static final Pattern GIT_SCP_FORMAT = Pattern.compile("^([a-zA-Z0-9_.+-])+@(.*)");
+  /**
+   * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
+   *
+   * @param gitRemoteString The value of the git remote
+   * @return
+   * @throws GitCommitIdExecutionException
+     */
+  protected static String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
+
+    // The URL might be null if the repo hasn't set a remote
+    if (gitRemoteString == null) {
+      return gitRemoteString;
+    }
+
+    // Remotes using ssh connection strings in the 'git@github' format aren't
+    // proper URIs and won't parse . Plus since you should be using SSH keys,
+    // credentials like are not in the URL.
+    if (GIT_SCP_FORMAT.matcher(gitRemoteString).matches()) {
+      return gitRemoteString;
+    }
+    // At this point, we should have a properly formatted URL
+    try {
+      URI original = new URI(gitRemoteString);
+      String userInfoString = original.getUserInfo();
+      if (null == userInfoString) {
+        return gitRemoteString;
+      }
+      URIBuilder b = new URIBuilder(gitRemoteString);
+      String[] userInfo = userInfoString.split(":");
+      // Build a new URL from the original URL, but nulling out the password
+      // component of the userinfo. We keep the username so that ssh uris such
+      // ssh://git@github.com will retain 'git@'.
+      b.setUserInfo(userInfo[0]);
+      return b.build().toString();
+
+    } catch (URISyntaxException e) {
+      throw new GitCommitIdExecutionException(e);
+    }
   }
 }

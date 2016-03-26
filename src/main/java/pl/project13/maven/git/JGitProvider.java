@@ -167,7 +167,8 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected String getRemoteOriginUrl() throws GitCommitIdExecutionException {
-    return git.getConfig().getString("remote", "origin", "url");
+    String url = git.getConfig().getString("remote", "origin", "url");
+    return stripCredentialsFromOriginUrl(url);
   }
 
   @Override

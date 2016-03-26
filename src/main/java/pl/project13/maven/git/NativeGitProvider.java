@@ -249,7 +249,7 @@ public class NativeGitProvider extends GitDataProvider {
         remoteUrl = split[1];
       }
     }
-    return remoteUrl;
+    return stripCredentialsFromOriginUrl(remoteUrl);
   }
 
   /**
