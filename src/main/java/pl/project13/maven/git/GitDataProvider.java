@@ -204,18 +204,24 @@ public abstract class GitDataProvider {
   }
 
   /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that environment variable is set.
-   * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
+   * Is "Jenkins aware", and prefers {@code GIT_LOCAL_BRANCH} over {@code GIT_BRANCH} to getting the branch via git if that environment variables are set.
+   * The {@code GIT_LOCAL_BRANCH} and {@code GIT_BRANCH} variables are set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitCommitIdExecutionException {
+    String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
+    if(!isNullOrEmpty(environmentBasedLocalBranch)){
+      log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}", environmentBasedLocalBranch);
+      return environmentBasedLocalBranch;
+    }
+
     String environmentBasedBranch = env.get("GIT_BRANCH");
-    if (isNullOrEmpty(environmentBasedBranch)) {
-      log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
-      return getBranchName();
-    } else {
+    if (!isNullOrEmpty(environmentBasedBranch)) {
       log.info("Using environment variable based branch name. GIT_BRANCH = {}", environmentBasedBranch);
       return environmentBasedBranch;
     }
+
+    log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
+    return getBranchName();
   }
 
   protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){

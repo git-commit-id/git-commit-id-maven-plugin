@@ -248,9 +248,24 @@ public class GitCommitIdMojoTest {
     env.put("HUDSON_URL", ciUrl);
     assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
 
+    // now set GIT_LOCAL_BRANCH too and see that the branch name from env var is returned
+    env.clear();
+    env.put("JENKINS_URL", ciUrl);
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
+    assertThat("mylocalbranch").isEqualTo(jGitProvider.determineBranchName(env));
+
+    // same, but for hudson
+    env.clear();
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
+    env.put("HUDSON_URL", ciUrl);
+    assertThat("mylocalbranch").isEqualTo(jGitProvider.determineBranchName(env));
+
     // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_BRANCH", "mylocalbranch");
     assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
   }
   
