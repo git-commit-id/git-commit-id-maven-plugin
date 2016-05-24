@@ -18,7 +18,6 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
@@ -36,8 +35,6 @@ public class NativeGitProvider extends GitDataProvider {
   final File dotGitDirectory;
 
   final File canonical;
-
-  private static final int REMOTE_COLS = 3;
 
   @NotNull
   public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
@@ -234,22 +231,14 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   private String getOriginRemote(File directory) throws GitCommitIdExecutionException {
-    String remoteUrl = null;
-    String remotes = runQuietGitCommand(directory, "remote -v");
+    try {
+      String remoteUrl = runGitCommand(directory, "ls-remote --get-url");
 
-    // welcome to text output parsing hell! - no `\n` is not enough
-    for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
-      String trimmed = line.trim();
-
-      if (trimmed.startsWith("origin")) {
-        String[] split = trimmed.split("\\s+");
-        if (split.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
-          throw new GitCommitIdExecutionException("Unsupported GIT output (verbose remote address): " + line);
-        }
-        remoteUrl = split[1];
-      }
+      return stripCredentialsFromOriginUrl(remoteUrl);
+    } catch (NativeCommandException ignore) {
+      // No remote configured to list refs from
     }
-    return stripCredentialsFromOriginUrl(remoteUrl);
+    return null;
   }
 
   /**
