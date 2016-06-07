@@ -129,9 +129,8 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   protected boolean isDirty() throws GitCommitIdExecutionException {
-    Git gitObject = Git.wrap(git);
     try {
-      return !gitObject.status().call().isClean();
+      return JGitCommon.isRepositoryInDirtyState(git);
     } catch (GitAPIException e) {
       throw new GitCommitIdExecutionException("Failed to get git status: " + e.getMessage(), e);
     }

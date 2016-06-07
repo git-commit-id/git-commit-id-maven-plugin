@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -338,4 +339,21 @@ public class JGitCommon {
     }
   }
 
+  public static boolean isRepositoryInDirtyState(Repository repo) throws GitAPIException {
+    Git git = Git.wrap(repo);
+    Status status = git.status().call();
+
+    // Git describe doesn't mind about untracked files when checking if
+    // repo is dirty. JGit does this, so we cannot use the isClean method
+    // to get the same behaviour. Instead check dirty state without
+    // status.getUntracked().isEmpty()
+    boolean isDirty = !(status.getAdded().isEmpty()
+        && status.getChanged().isEmpty()
+        && status.getRemoved().isEmpty()
+        && status.getMissing().isEmpty()
+        && status.getModified().isEmpty()
+        && status.getConflicting().isEmpty());
+
+    return isDirty;
+  }
 }

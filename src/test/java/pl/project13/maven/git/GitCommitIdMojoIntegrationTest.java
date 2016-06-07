@@ -822,6 +822,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
 
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
     alterMojoSettings("useNativeGit", useNativeGit);
     alterMojoSettings("commitIdGenerationMode", "flat");
 
@@ -831,6 +836,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("false");
+    assertThat(properties).includes(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
   }
 
   @Test
@@ -845,6 +851,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
 
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
     alterMojoSettings("useNativeGit", useNativeGit);
     alterMojoSettings("commitIdGenerationMode", "flat");
 
@@ -854,6 +865,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("true");
+    assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
