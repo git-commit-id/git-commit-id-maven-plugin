@@ -25,8 +25,7 @@ public enum AvailableGitTestRepo {
   WITH_ONE_COMMIT("src/test/resources/_git_one_commit"),
   WITH_ONE_COMMIT_DIRTY("src/test/resources/_git_one_commit_dirty"),
   GIT_COMMIT_ID("src/test/resources/_git_of_git_commit_id"),
-  GIT_WITH_NO_CHANGES("src/test/resources/_git_with_no_changes/_git_dir"),
-  GIT_WITH_CHANGES("src/test/resources/_git_with_changes/_git_dir"),
+  GIT_WITH_NO_CHANGES("src/test/resources/_git_with_no_changes"),
   ON_A_TAG("src/test/resources/_git_on_a_tag"),
   /**
    * <pre>
@@ -68,7 +67,9 @@ public enum AvailableGitTestRepo {
     * </pre>
     */
   WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG("src/test/resources/_git_three_commits_and_two_tags_currently_on_commit_without_tag"),
-  MAVEN_GIT_COMMIT_ID_PLUGIN(".git");
+  // TODO: Why do the tests get stuck when we use .git??
+  MAVEN_GIT_COMMIT_ID_PLUGIN("src/test/resources/_git_one_commit_with_umlaut")
+  ;
 
   private String dir;
 

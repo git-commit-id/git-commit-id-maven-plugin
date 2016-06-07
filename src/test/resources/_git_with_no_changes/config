@@ -3,3 +3,6 @@
 	filemode = true
 	bare = false
 	logallrefupdates = true
+[user]
+	name = TheSnoozer
+	email = s.lange@alumni.tu-berlin.de
