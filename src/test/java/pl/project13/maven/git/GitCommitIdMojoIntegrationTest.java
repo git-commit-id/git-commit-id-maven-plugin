@@ -830,7 +830,6 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     Properties properties = targetProject.getProperties();
-    System.out.println("***" + useNativeGit + " *** " + properties);
     assertThat(properties.get("git.dirty")).isEqualTo("false");
   }
 
