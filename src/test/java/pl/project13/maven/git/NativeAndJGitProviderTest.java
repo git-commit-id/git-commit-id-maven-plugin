@@ -58,7 +58,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
+      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -71,7 +71,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       }
       mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
+      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -84,7 +84,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       }
       mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getChildProject();
-      verifyNativeAndJGit(targetProject, DEFAULT_FORMAT_STRING);
+      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -95,11 +95,11 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
       MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(targetProject, ISO8601_FORMAT_STRING);
+      verifyNativeAndJGit(testRepo, targetProject, ISO8601_FORMAT_STRING);
     }
   }
 
-  private void verifyNativeAndJGit(MavenProject targetProject, String formatString) throws Exception
+  private void verifyNativeAndJGit(AvailableGitTestRepo repo, MavenProject targetProject, String formatString) throws Exception
   {
     setProjectToExecuteMojoIn(targetProject);
 
@@ -121,7 +121,9 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
 
     for (String key : GIT_KEYS) {
       if (!key.equals("git.build.time")) { // git.build.time is excused because the two runs happened at different times.
-        assertEquals("Key difference for key: '" + key + "'", jgitProps.getProperty(key), nativeProps.getProperty(key));
+        String jGitKey = jgitProps.getProperty(key);
+        String nativeKey = nativeProps.getProperty(key);
+        assertEquals("Key difference for key: '" + key + "'; jgit="+jGitKey +"; nativeKey="+nativeKey + "; for " + repo.getDir(), jGitKey, nativeKey);
       }
       else {
         // Ensure that the date formats are parseable and within reason. If running all the git commands on the

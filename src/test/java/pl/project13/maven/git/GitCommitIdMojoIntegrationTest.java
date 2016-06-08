@@ -810,6 +810,64 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties.stringPropertyNames()).excludes("git.commit.id.full");
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void testDetectCleanWorkingDirectory(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.GIT_WITH_NO_CHANGES)
+                .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("commitIdGenerationMode", "flat");
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.get("git.dirty")).isEqualTo("false");
+    assertThat(properties).includes(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void testDetectDirtyWorkingDirectory(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT) // GIT_WITH_CHANGES
+                .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("commitIdGenerationMode", "flat");
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.get("git.dirty")).isEqualTo("true");
+    assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);

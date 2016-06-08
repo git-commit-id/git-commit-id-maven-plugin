@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
+import java.util.Arrays;
 import java.text.SimpleDateFormat;
 
 
@@ -392,14 +393,20 @@ public class NativeGitProvider extends GitDataProvider {
       boolean empty = true;
 
       try {
-        ProcessBuilder builder = new ProcessBuilder(Lists.asList("/bin/sh", "-c", command.split("\\s")));
+        ProcessBuilder builder = new ProcessBuilder(Arrays.asList("/bin/sh", "-c", command));
         final Process proc = builder.directory(directory).start();
         proc.waitFor();
         final InputStream is = proc.getInputStream();
+        final InputStream err = proc.getErrorStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
         if (reader.readLine() != null) {
           empty = false;
+        }
+
+        if (proc.exitValue() != 0) {
+          final StringBuilder errMsg = readStderr(err);
+          throw new NativeCommandException(proc.exitValue(), command, directory, "", errMsg.toString());
         }
 
       } catch (InterruptedException ex) {
@@ -409,3 +416,4 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 }
+
