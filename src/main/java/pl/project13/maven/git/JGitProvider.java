@@ -21,7 +21,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -87,7 +86,7 @@ public class JGitProvider extends GitDataProvider {
   protected void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
     try {
       // more details parsed out bellow
-      Ref head = git.getRef(Constants.HEAD);
+      Ref head = git.findRef(Constants.HEAD);
       if (head == null) {
         throw new GitCommitIdExecutionException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
