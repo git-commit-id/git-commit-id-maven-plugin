@@ -54,7 +54,7 @@ public class ValidationMojo extends AbstractMojo {
         String name = validationProperty.getName();
         String value = validationProperty.getValue();
         String shouldMatchTo = validationProperty.getShouldMatchTo();
-        if((value != null) && (shouldMatchTo != null)) {  
+        if((value != null) && (shouldMatchTo != null)) {
           validateIfValueAndShouldMatchToMatches(name, value, shouldMatchTo);
         } else {
           printLogMessageWhenValueOrShouldMatchToIsEmpty(name, value, shouldMatchTo);

@@ -23,6 +23,12 @@ public class ValidationProperty {
   private String value;
   private String shouldMatchTo;
 
+  ValidationProperty(String name, String value, String shouldMatchTo) {
+    this.name = name;
+    this.value = value;
+    this.shouldMatchTo = shouldMatchTo;
+  }
+
   public void setName(String name){
     this.name = name;
   }
