@@ -26,6 +26,50 @@ And not imagine that you need to deploy a drastic API change - so the new versio
 Using this plugin, you can easily expose the information needed - based on git tags for example. 
 One might say that this is usually accomplished by using `${project.version}` and I generally would agree, but maybe tags would fit your use case better than a plain version. :-)
 
+Validate if properties are set as expected
+---------------------------------------------
+Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
+The validation can be used for *any* property that is visible inside the pom.xml and therefore can be used for a various amount of different use cases.
+In order to understand the ideology and intention here are some pretty usefull ideas you could achive by using the validation:
+* validate if the version of your project does not end with SNAPSHOT
+* validate if you are currently on a tag
+* ensure that your repository is not dirty
+* may other's :-)
+
+With the current version of the validation the user can decide if the build should fail if *at least one* of the defined criterias do not match with the desired values.
+
+For flexibility and due to the fact that this validation has a different scope than the maven-git-commit-id-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
+Once configured, the validation is executed during the verification-phase. However since the validation is done in a seperate execution the phase can easily be changed by adding the desired phase to the execution configuration.
+
+Usage Example:
+
+```xml
+<validationProperties>
+  <!-- verify that the project version does not end with `-SNAPSHOT` -->
+  <validationProperty>
+    <name>validating project version</name>
+    <value>${project.version}</value>
+    <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+    <!-- for future reference on this particular regex, please refer to lookahead and lookbehind expressions -->
+    <!-- we could also use: <shouldMatchTo>^[0-9\.]*$</shouldMatchTo> -->
+  </validationProperty>
+  <!-- verify that the current repository is not dirty -->
+  <validationProperty>
+    <name>validating git dirty</name>
+    <value>${git.dirty}</value>
+    <shouldMatchTo>false</shouldMatchTo>
+   </validationProperty>
+  <!-- verify that the current commit has a tag -->
+  <validationProperty>
+    <name>validating current commit has a tag</name>
+    <value>${git.closest.tag.commit.count}</value>
+    <shouldMatchTo>0</shouldMatchTo>
+   </validationProperty>
+</validationProperties>
+```
+
+*Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configutation `<injectAllReactorProjects>true</injectAllReactorProjects>`.
+
 Other
 -----
 If you have a nice use case to share, please do fork this file and file a pull request with your story :-)
@@ -108,9 +152,18 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                 <version>2.2.1</version>
                 <executions>
                     <execution>
+                        <id>get-the-git-infos</id>
                         <goals>
                             <goal>revision</goal>
-                         </goals>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>package</phase>
                     </execution>
                 </executions>
 
@@ -317,6 +370,36 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
+                    <!-- @since 2.2.2 -->
+                    <!-- 
+                        Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
+                        *Note*: This configuration will only be taken into account when the additional goal `validateRevision` is configured inside an execution.
+                    -->
+                    <validationProperties>
+                        <validationProperty>
+                            <!--
+                                 A descriptive name that will be used to be able to identify the validation that does not match up (will be displayed in the error message).
+                            -->
+                            <name>validating project version</name>
+                            <!-- 
+                                 the value that needs the validation
+                                 *Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configutation `<injectAllReactorProjects>true</injectAllReactorProjects>`. 
+                            -->
+                            <value>${project.version}</value>
+                            <!--
+                                the expected value
+                            -->
+                            <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+                        </validationProperty>
+                        <!-- the next validationProperty you would like to validate -->
+                    </validationProperties>
+                    <!-- @since 2.2.2 -->
+                    <!--
+                        true by default, controls whether the validation will fail if *at least one* of the validationProperties does not match with it's expected values. 
+                        If you don't care about this, you may want to set this value to false (this makes the configuration of validationProperties useless).
+                        *Note*: This configuration will only be taken into account when the additional goal `validateRevision` is configured inside an execution and at least one validationProperty is defined.
+                    -->
+                    <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
                 </configuration>
 
             </plugin>
