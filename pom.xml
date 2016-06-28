@@ -337,12 +337,21 @@
             <groupId>pl.project13.maven</groupId>
             <artifactId>git-commit-id-plugin</artifactId>
             <version>${project.version}</version>
+            <!-- optional to change the phases of the individual mojo's -->
             <executions>
               <execution>
+                <id>get-the-git-infos</id>
                 <goals>
                   <goal>revision</goal>
                 </goals>
               </execution>
+              <execution>
+                <id>validate-the-git-infos</id>
+                <goals>
+                  <goal>validateRevision</goal>
+                </goals>
+                <phase>package</phase>
+             </execution>
             </executions>
             <configuration>
               <verbose>true</verbose>
@@ -356,6 +365,7 @@
               <useNativeGit>false</useNativeGit>
               <abbrevLength>7</abbrevLength>
               <format>properties</format>
+              <injectAllReactorProjects>true</injectAllReactorProjects>
               <gitDescribe>
                 <skip>false</skip>
                 <always>false</always>
@@ -370,6 +380,21 @@
               </excludeProperties>
               <failOnNoGitDirectory>false</failOnNoGitDirectory>
               <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+              <!-- used in validateRevision -->
+              <validationProperties>
+                <validationProperty>
+                  <name>validating project version</name>
+                  <value>${project.version}</value>
+                  <!-- <shouldMatchTo>^[0-9\.]*$</shouldMatchTo> -->
+                  <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+                </validationProperty>
+                <validationProperty>
+                  <name>validating git dirty</name>
+                  <value>${git.dirty}</value>
+                  <shouldMatchTo>false</shouldMatchTo>
+                </validationProperty>
+              </validationProperties>
+              <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
             </configuration>
           </plugin>
         </plugins>
