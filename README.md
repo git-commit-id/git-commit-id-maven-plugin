@@ -68,7 +68,7 @@ Usage Example:
 </validationProperties>
 ```
 
-*Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configutation `<injectAllReactorProjects>true</injectAllReactorProjects>`.
+*Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configuration `<injectAllReactorProjects>true</injectAllReactorProjects>`.
 
 Other
 -----
