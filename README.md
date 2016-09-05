@@ -652,7 +652,7 @@ public GitRepositoryState(Properties properties)
 
 Note on the generated git.build.time
 ------------------------------------
-Note that when writing the git.porperties file the value *git.build.time* will only be updated when things in the commit information have changed.
+Note that when writing the git.properties file the value *git.build.time* will only be updated when things in the commit information have changed.
 If you only change a bit of your code and rebuild/rerun you will see an older timestamp that you may have expected.
 
 Essentially the functional meaning becomes **The latest build time when the git information was written to the git.properties file** .
