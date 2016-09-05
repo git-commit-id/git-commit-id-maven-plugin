@@ -200,7 +200,10 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         which you can then normally read using new Properties().load(/**/)
                     -->
 
-                    <!-- this is false by default, forces the plugin to generate the git.properties file -->
+                    <!-- 
+                        This is false by default, forces the plugin to generate the git.properties file.
+                        Note that the functional meaning of git.build.time becomes different in a very subtle way (see later in this README)
+                    -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
                     <!-- 
@@ -645,6 +648,20 @@ public GitRepositoryState(Properties properties)
   this.buildHost = String.valueOf(properties.get("git.build.host"));
   this.buildVersion = String.valueOf(properties.get("git.build.version"));
 }
+```
+
+Note on the generated git.build.time
+------------------------------------
+Note that when writing the git.porperties file the value *git.build.time* will only be updated when things in the commit information have changed.
+If you only change a bit of your code and rebuild/rerun you will see an older timestamp that you may have expected.
+
+Essentially the functional meaning becomes **The latest build time when the git information was written to the git.properties file** .
+
+The reason why this was done can be found in [issue 151](https://github.com/ktoso/maven-git-commit-id-plugin/issues/151).
+
+If you need the actual *build time* then simply use the a filtered properties file that contains something like this
+```
+git.build.time=${git.build.time}
 ```
 
 Yet another way to use the plugin
