@@ -371,7 +371,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                             when you run git-describe it only looks only for *annotated tags* by default
                             if you wish to consider *lightweight tags* in your describe as well you would need to switch this to *true*
 
-                            The difference between *annotated tags* and *lightweight tags* is outlined in more depth in section [git describe and a small gotcha with tags](https://github.com/ktoso/maven-git-commit-id-plugin/#git-describe-and-a-small-gotcha-with-tags)
+                            The difference between *annotated tags* and *lightweight tags* is outlined in more depth here:
+                            https://github.com/ktoso/maven-git-commit-id-plugin/#git-describe-and-a-small-gotcha-with-tags
                         -->
                         <tags>false</tags>
 
