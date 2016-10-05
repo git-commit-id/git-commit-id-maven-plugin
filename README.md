@@ -366,7 +366,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         <!-- Only consider tags matching the given pattern. This can be used to avoid leaking private tags from the repository. -->
                         <match>*</match>
-                
+
+                        <!--
+                            when you run git-describe it only looks only for *annotated tags* by default
+                            if you wish to consider *lightweight tags* in your describe as well you would need to switch this to *true*
+
+                            The difference between *annotated tags* and *lightweight tags* is outlined in more depth here:
+                            https://github.com/ktoso/maven-git-commit-id-plugin/#git-describe-and-a-small-gotcha-with-tags
+                        -->
+                        <tags>false</tags>
+
                         <!-- 
                              always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
                              The distance will always be 0 if you're "on" the tag. 
