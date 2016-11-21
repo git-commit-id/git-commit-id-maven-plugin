@@ -24,7 +24,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
+import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.GitMojo;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -32,6 +34,11 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
   final String PROJECT_NAME = "my-jar-project";
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
+  }
 
   @Override
   @Before

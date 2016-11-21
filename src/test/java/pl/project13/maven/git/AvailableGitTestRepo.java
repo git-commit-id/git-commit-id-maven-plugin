@@ -68,7 +68,10 @@ public enum AvailableGitTestRepo {
     */
   WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG("src/test/resources/_git_three_commits_and_two_tags_currently_on_commit_without_tag"),
   // TODO: Why do the tests get stuck when we use .git??
-  MAVEN_GIT_COMMIT_ID_PLUGIN("src/test/resources/_git_one_commit_with_umlaut")
+  MAVEN_GIT_COMMIT_ID_PLUGIN("src/test/resources/_git_one_commit_with_umlaut"),
+
+  //Release Notes test repos
+  RELEASE_NOTES_BASIC("src/test/resources/release-notes/scenario1/dotGit")
   ;
 
   private String dir;

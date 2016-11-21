@@ -37,12 +37,14 @@ import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.jgit.JGitCommon;
 import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.release.ReleaseNotes;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 public class JGitProvider extends GitDataProvider {
 
@@ -255,6 +257,10 @@ public class JGitProvider extends GitDataProvider {
     }
 
     return repository;
+  }
+
+  public ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag, String commitMessageRegex) throws Exception {
+    return jGitCommon.generateReleaseNotesBetweenTags(getGitRepository(), startTag, endTag, commitMessageRegex);
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------

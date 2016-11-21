@@ -18,7 +18,9 @@
 package pl.project13.jgit;
 
 import org.junit.Test;
+import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.GitMojo;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,5 +37,10 @@ public class JGitCommonIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(simpleName).isEqualTo("v1.0.0");
+  }
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
   }
 }

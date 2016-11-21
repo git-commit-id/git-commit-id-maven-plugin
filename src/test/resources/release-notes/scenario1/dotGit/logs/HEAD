@@ -1,0 +1,26 @@
+0000000000000000000000000000000000000000 05a6b04000d7f25e4c9fc2887fc5681361699dd1 pankajtandon <pankajtandon@gmail.com> 1479524857 -0500	commit (initial): initial commit
+05a6b04000d7f25e4c9fc2887fc5681361699dd1 05a6b04000d7f25e4c9fc2887fc5681361699dd1 pankajtandon <pankajtandon@gmail.com> 1479524961 -0500	checkout: moving from master to feature-1
+05a6b04000d7f25e4c9fc2887fc5681361699dd1 b3e7aeccc1b71fcc82e2c58e4be081f025ef5e4a pankajtandon <pankajtandon@gmail.com> 1479524977 -0500	commit: Added a line
+b3e7aeccc1b71fcc82e2c58e4be081f025ef5e4a fd053f8e0f6d2a1bf76b56679e04fa018697a30e pankajtandon <pankajtandon@gmail.com> 1479525013 -0500	commit: Added another line
+fd053f8e0f6d2a1bf76b56679e04fa018697a30e 0fedd1b67dd5f5b193f88030fefe6640784cad06 pankajtandon <pankajtandon@gmail.com> 1479525049 -0500	commit: Added a third line
+0fedd1b67dd5f5b193f88030fefe6640784cad06 05a6b04000d7f25e4c9fc2887fc5681361699dd1 pankajtandon <pankajtandon@gmail.com> 1479525092 -0500	checkout: moving from feature-1 to 05a6b04000d7f25e4c9fc2887fc5681361699dd1
+05a6b04000d7f25e4c9fc2887fc5681361699dd1 05a6b04000d7f25e4c9fc2887fc5681361699dd1 pankajtandon <pankajtandon@gmail.com> 1479525122 -0500	checkout: moving from 05a6b04000d7f25e4c9fc2887fc5681361699dd1 to feature-2
+05a6b04000d7f25e4c9fc2887fc5681361699dd1 b373264e1eb53e41539442c5cb13d121e25395d2 pankajtandon <pankajtandon@gmail.com> 1479525180 -0500	commit: love fruits
+b373264e1eb53e41539442c5cb13d121e25395d2 4dfaad9b426cb5284a17777f10d3aed467972eff pankajtandon <pankajtandon@gmail.com> 1479525213 -0500	commit: Love veggies
+4dfaad9b426cb5284a17777f10d3aed467972eff b7bccf8c22a2ae9e157df7dc1db26b6c0a545be5 pankajtandon <pankajtandon@gmail.com> 1479525486 -0500	commit (merge): merged feature-1 into feature-2
+b7bccf8c22a2ae9e157df7dc1db26b6c0a545be5 05a6b04000d7f25e4c9fc2887fc5681361699dd1 pankajtandon <pankajtandon@gmail.com> 1479525498 -0500	checkout: moving from feature-2 to master
+05a6b04000d7f25e4c9fc2887fc5681361699dd1 8a7969d07015d5027a815b0f1e052302f757756d pankajtandon <pankajtandon@gmail.com> 1479525530 -0500	merge feature-2: Merge made by the 'recursive' strategy.
+8a7969d07015d5027a815b0f1e052302f757756d 8a7969d07015d5027a815b0f1e052302f757756d pankajtandon <pankajtandon@gmail.com> 1479574423 -0500	checkout: moving from master to develop
+8a7969d07015d5027a815b0f1e052302f757756d 8a7969d07015d5027a815b0f1e052302f757756d pankajtandon <pankajtandon@gmail.com> 1479574511 -0500	checkout: moving from develop to feature-3
+8a7969d07015d5027a815b0f1e052302f757756d 2fd6b384b6169bcb466915196ecb8fab9545cebd pankajtandon <pankajtandon@gmail.com> 1479574524 -0500	commit: Added elephant
+2fd6b384b6169bcb466915196ecb8fab9545cebd 0bed99359978f81fd648739fc9899bd14b036e55 pankajtandon <pankajtandon@gmail.com> 1479574557 -0500	commit: Added giraffe
+0bed99359978f81fd648739fc9899bd14b036e55 42fd276db29dac6c80e28b71437ee95d88f13fe3 pankajtandon <pankajtandon@gmail.com> 1479574589 -0500	commit: Added monkey
+42fd276db29dac6c80e28b71437ee95d88f13fe3 8a7969d07015d5027a815b0f1e052302f757756d pankajtandon <pankajtandon@gmail.com> 1479574598 -0500	checkout: moving from feature-3 to develop
+8a7969d07015d5027a815b0f1e052302f757756d e5836a0985e3a567537dae52c77df0c2f8820363 pankajtandon <pankajtandon@gmail.com> 1479574615 -0500	merge feature-3: Merge made by the 'recursive' strategy.
+e5836a0985e3a567537dae52c77df0c2f8820363 e5836a0985e3a567537dae52c77df0c2f8820363 pankajtandon <pankajtandon@gmail.com> 1479574653 -0500	checkout: moving from develop to feature-4
+e5836a0985e3a567537dae52c77df0c2f8820363 70b52bf24deb9882800715c90ce016352db6f095 pankajtandon <pankajtandon@gmail.com> 1479574701 -0500	commit: Added dosa
+70b52bf24deb9882800715c90ce016352db6f095 81dfd4d7d8eecc3ae8f8e219aeba8e17342103d9 pankajtandon <pankajtandon@gmail.com> 1479574726 -0500	commit: Added samosa
+81dfd4d7d8eecc3ae8f8e219aeba8e17342103d9 e5836a0985e3a567537dae52c77df0c2f8820363 pankajtandon <pankajtandon@gmail.com> 1479574736 -0500	checkout: moving from feature-4 to develop
+e5836a0985e3a567537dae52c77df0c2f8820363 7837fb55a81afd42d926ee99faff94ca7c7584c3 pankajtandon <pankajtandon@gmail.com> 1479574747 -0500	merge feature-4: Merge made by the 'recursive' strategy.
+7837fb55a81afd42d926ee99faff94ca7c7584c3 8a7969d07015d5027a815b0f1e052302f757756d pankajtandon <pankajtandon@gmail.com> 1479574762 -0500	checkout: moving from develop to master
+8a7969d07015d5027a815b0f1e052302f757756d 249c5ca2d0e3c97cab193d407e3a02616e6ba893 pankajtandon <pankajtandon@gmail.com> 1479574785 -0500	merge develop: Merge made by the 'recursive' strategy.

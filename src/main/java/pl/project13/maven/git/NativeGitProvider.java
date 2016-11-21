@@ -21,12 +21,16 @@ import static java.lang.String.format;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.release.ReleaseNotes;
 
 import java.io.*;
 import java.util.Arrays;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 
 public class NativeGitProvider extends GitDataProvider {
@@ -414,6 +418,11 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return empty; // was non-empty
     }
+  }
+
+  public ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag, String commitMessageRegex) {
+    //TODO: This is not implemented yet
+    return null;
   }
 }
 
