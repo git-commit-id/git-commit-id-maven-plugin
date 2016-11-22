@@ -37,7 +37,10 @@ public class GitReleaseNotesMojo extends GitMojo {
     @Parameter(defaultValue = "${project.build.outputDirectory}/release-notes.json")
     protected String releaseNotesFileName;
 
-    @Parameter(defaultValue = "REL:")
+    @Parameter(defaultValue = ".*")
+    protected String tagNameRegex;
+
+    @Parameter(defaultValue = ".*")
     protected String commitMessageRegex;
 
     @Parameter(required = true)
@@ -45,14 +48,14 @@ public class GitReleaseNotesMojo extends GitMojo {
     @Parameter(required = false)
     protected String endTag;
 
-
-
     @NotNull
-    private final LoggerBridge log = new MavenLoggerBridge(this, false);
+    private final LoggerBridge log = new MavenLoggerBridge(this, true);
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         Writer outputWriter = null;
+        File fileToCreate = null;
+        log.info("Starting releaseNotes generation...");
         try {
             GitDataProvider jGitProvider = JGitProvider
                     .on(dotGitDirectory, log)
@@ -63,20 +66,24 @@ public class GitReleaseNotesMojo extends GitMojo {
                     .setGitDescribe(gitDescribe)
                     .setCommitIdGenerationMode(commitIdGenerationModeEnum);
             jGitProvider.init();
-            ReleaseNotes notes = jGitProvider.generateReleaseNotesBetweenTags(startTag, endTag, commitMessageRegex);
-
-            //Create release notes file
-            File fileToCreate = getReleaseNotesFile(project.getBasedir(), releaseNotesFileName);
-            Files.createParentDirs(fileToCreate);
-            outputWriter = new OutputStreamWriter(new FileOutputStream(fileToCreate), sourceCharset);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(outputWriter, notes);
+            ReleaseNotes notes = jGitProvider.generateReleaseNotesBetweenTags(startTag, endTag, commitMessageRegex, tagNameRegex);
+            if (notes == null) {
+                log.warn("Skipping release notes generation because start tag: {} was not found!", startTag);
+            } else {
+                //Create release notes file
+                fileToCreate = getReleaseNotesFile(project.getBasedir(), releaseNotesFileName);
+                Files.createParentDirs(fileToCreate);
+                outputWriter = new OutputStreamWriter(new FileOutputStream(fileToCreate), sourceCharset);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.writeValue(outputWriter, notes);
+            }
         } catch (Exception e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
             try {
                 if (outputWriter != null) {
                     outputWriter.close();
+                    log.info("Wrote release notes to JSON file: {}", fileToCreate.getAbsolutePath());
                 }
             }catch (Exception e) {
                 //Ignore

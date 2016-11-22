@@ -18,8 +18,6 @@
 package pl.project13.maven.git;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.release.ReleaseNotes;
@@ -27,10 +25,10 @@ import pl.project13.maven.git.util.PropertyManager;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -106,7 +104,8 @@ public abstract class GitDataProvider {
   protected abstract String getClosestTagName() throws GitCommitIdExecutionException;
   protected abstract String getClosestTagCommitCount() throws GitCommitIdExecutionException;
   protected abstract void finalCleanUp() throws GitCommitIdExecutionException;
-  protected abstract ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag, String commitMessageRegex)
+  protected abstract ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag,
+                                                                  String commitMessageRegex, String tagNameRegex)
           throws Exception;
 
   public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {

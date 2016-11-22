@@ -1,6 +1,5 @@
 package pl.project13.maven.git.release;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -8,17 +7,19 @@ import java.util.List;
  */
 public class ReleaseNotes {
 
-    public ReleaseNotes() {
-        this.generationTime = new Date();
-    }
-    private Date generationTime;
+    private String generationTime;
+    private String startTag;
+    private String endTag;
+    private String commitMessageRegex;
+    private String tagNameRegex;
+
     private List<Tag> tagList;
 
-    public Date getGenerationTime() {
+    public String getGenerationTime() {
         return generationTime;
     }
 
-    public void setGenerationTime(Date generationTime) {
+    public void setGenerationTime(String generationTime) {
         this.generationTime = generationTime;
     }
 
@@ -28,5 +29,37 @@ public class ReleaseNotes {
 
     public void setTagList(List<Tag> tagList) {
         this.tagList = tagList;
+    }
+
+    public String getStartTag() {
+        return startTag;
+    }
+
+    public void setStartTag(String startTag) {
+        this.startTag = startTag;
+    }
+
+    public String getEndTag() {
+        return endTag;
+    }
+
+    public void setEndTag(String endTag) {
+        this.endTag = endTag;
+    }
+
+    public String getCommitMessageRegex() {
+        return commitMessageRegex;
+    }
+
+    public void setCommitMessageRegex(String commitMessageRegex) {
+        this.commitMessageRegex = commitMessageRegex;
+    }
+
+    public String getTagNameRegex() {
+        return tagNameRegex;
+    }
+
+    public void setTagNameRegex(String tagNameRegex) {
+        this.tagNameRegex = tagNameRegex;
     }
 }

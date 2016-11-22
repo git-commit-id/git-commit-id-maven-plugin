@@ -1,7 +1,5 @@
 package pl.project13.maven.git.release;
 
-import java.util.Date;
-
 /**
  * Created by pankaj on 11/19/16.
  */
@@ -10,7 +8,7 @@ public class Feature {
     private String commitHashShort;
     private String commitHashLong;
     private String author;
-    private Date commitTime;
+    private String commitTime;
 
     public String getDescription() {
         return description;
@@ -44,11 +42,11 @@ public class Feature {
         this.author = author;
     }
 
-    public Date getCommitTime() {
+    public String getCommitTime() {
         return commitTime;
     }
 
-    public void setCommitTime(Date commitTime) {
+    public void setCommitTime(String commitTime) {
         this.commitTime = commitTime;
     }
 }

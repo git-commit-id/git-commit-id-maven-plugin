@@ -251,8 +251,9 @@ public class JGitProvider extends GitDataProvider {
     return repository;
   }
 
-  public ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag, String commitMessageRegex) throws Exception {
-    return jGitCommon.generateReleaseNotesBetweenTags(getGitRepository(), startTag, endTag, commitMessageRegex);
+  public ReleaseNotes generateReleaseNotesBetweenTags(String startTag, String endTag, String commitMessageRegex,
+                                                      String tagNameRegex) throws Exception {
+    return jGitCommon.generateReleaseNotesBetweenTags(getGitRepository(), startTag, endTag, commitMessageRegex, tagNameRegex);
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------

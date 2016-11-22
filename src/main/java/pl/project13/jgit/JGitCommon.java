@@ -42,7 +42,9 @@ import pl.project13.maven.git.release.ReleaseNotes;
 import pl.project13.maven.git.release.Tag;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class JGitCommon {
@@ -360,17 +362,32 @@ public class JGitCommon {
     return isDirty;
   }
 
-    public ReleaseNotes generateReleaseNotesBetweenTags(Repository repo, String startTag, String endTag, String commitMessageRegex) throws Exception {
+    /**
+     * Generates release notes using the release tags specified in the plugin configuration
+     *
+     * @param repo
+     * @param startTag
+     * @param endTag
+     * @param commitMessageRegex
+     * @param tagNameRegex
+     * @return
+     * @throws Exception
+     */
+    public ReleaseNotes generateReleaseNotesBetweenTags(Repository repo, String startTag, String endTag,
+                                                        String commitMessageRegex, String tagNameRegex) throws Exception {
 
-        ReleaseNotes notes = new ReleaseNotes();
+        ReleaseNotes notes = null;
         RevWalk walk = new RevWalk(repo);
         try {
-            List<Ref> tagList = this.getAllTags(repo);
+            List<Ref> tagList = this.getAllTags(repo, tagNameRegex);
 
             RevCommit startingCommit = this.getCommitOfTag(walk, tagList, startTag);
             if (startingCommit == null) {
-                throw new RuntimeException("Could not find commit for startTag " + startTag);
+                log.debug("Returning because starting tag was not found.");
+                return null;
             }
+            notes = new ReleaseNotes();
+
             RevCommit endingCommit = this.getCommitOfTag(walk, tagList, endTag);
             Map<RevCommit, List<Ref>> commitToTagListMap = getAllCommitsAndTags(walk, tagList, startingCommit);
             if (endingCommit == null) {
@@ -400,7 +417,8 @@ public class JGitCommon {
             }
             Map<Ref, List<RevCommit>> tagToCommitListMap = reverseMap(relevantCommitToTagListMap);
             List<Ref> orderedTagList = this.getOrderedTagList(commitToTagListMap);
-            notes = this.generateReleaseNotes(tagToCommitListMap, orderedTagList);
+            notes = this.generateReleaseNotes(tagToCommitListMap, orderedTagList, startTag, endTag,
+                    commitMessageRegex, tagNameRegex);
         } catch (Exception e) {
             throw new RuntimeException("Error generating release notes", e);
         } finally {
@@ -412,7 +430,11 @@ public class JGitCommon {
         return notes;
     }
 
-    private Comparator<RevCommit> getRevCommitComparator() {
+    /**
+     * Comparator that sorts commits by date, latest to earliest
+     * @return
+     */
+    private Comparator<RevCommit> getRevCommitChronologicalComparator() {
         return new Comparator<RevCommit>() {
             @Override
             public int compare(RevCommit c1, RevCommit c2) {
@@ -421,27 +443,31 @@ public class JGitCommon {
         };
     }
 
+    /**
+     * Returns the commit that is one before the last commit on this walk.
+     * @param commitToTagListMap
+     * @return
+     */
     private RevCommit getDefaultEndingCommit(Map<RevCommit, List<Ref>> commitToTagListMap) {
         RevCommit earliestCommit = null;
         if (commitToTagListMap != null) {
             Set set = commitToTagListMap.keySet();
             List<RevCommit> commitList = new ArrayList(set);
-            Collections.sort(commitList, getRevCommitComparator());
+            Collections.sort(commitList, getRevCommitChronologicalComparator());
             earliestCommit = commitList.get(commitList.size() - 1);
         }
         return earliestCommit;
     }
 
     /**
-     * Returns ordered tags, most recent to the first
-     *
+     * Returns ordered tags, most recent to the earliest
      * @param commitToTagListMap
      * @return
      */
     private List<Ref> getOrderedTagList(Map<RevCommit, List<Ref>> commitToTagListMap) {
         List<Ref> orderedTagList = new ArrayList();
         List<RevCommit> allCommitList = new ArrayList(commitToTagListMap.keySet());
-        Collections.sort(allCommitList, getRevCommitComparator());
+        Collections.sort(allCommitList, getRevCommitChronologicalComparator());
 
         for (RevCommit c : allCommitList) {
             if (commitToTagListMap.get(c) != null && commitToTagListMap.get(c).size() > 0) {
@@ -451,12 +477,31 @@ public class JGitCommon {
         return orderedTagList;
     }
 
+    /**
+     * Fill out the commits that do not have tags with the latest tag.
+     * So in the following lists of commits
+     * c1 - T1
+     * c2
+     * c3
+     * c4 - T2
+     * c5
+     * c6
+     * Will result in:
+     * c1 - T1
+     * c2 - T1
+     * c3 - T1
+     * c4 - T2
+     * c5 - T2
+     * c6 - T2
+     * @param allCommitsWithTags
+     * @return
+     */
     private Map<RevCommit, List<Ref>> fillOutCommitsWithNoTags(Map<RevCommit, List<Ref>> allCommitsWithTags) {
         Map<RevCommit, List<Ref>> filledOutCommitsWithTags = new HashMap();
         if (allCommitsWithTags.keySet() != null) {
 
             List<RevCommit> allCommitList = new ArrayList(allCommitsWithTags.keySet());
-            Collections.sort(allCommitList, getRevCommitComparator());
+            Collections.sort(allCommitList, getRevCommitChronologicalComparator());
             List<Ref> previousTagList = null;
             for (RevCommit c : allCommitList) {
                 if (allCommitsWithTags.get(c) != null && allCommitsWithTags.get(c).size() > 0) {
@@ -469,6 +514,11 @@ public class JGitCommon {
         return filledOutCommitsWithTags;
     }
 
+    /**
+     * Given a commit to tagList map, this method returns tag to commitList map
+     * @param map
+     * @return
+     */
     private Map<Ref, List<RevCommit>> reverseMap(Map<RevCommit, List<Ref>> map) {
         Map<Ref, List<RevCommit>> m = new HashMap();
         if (map != null) {
@@ -490,9 +540,32 @@ public class JGitCommon {
         return m;
     }
 
-    private ReleaseNotes generateReleaseNotes(Map<Ref, List<RevCommit>> tagToCommitListMap, List<Ref> orderedTagList) {
+    /**
+     * Based on the map passed in, generates a ReleaseNotes object such that the Tags are ordered by the tagList
+     * passed in
+     * @param tagToCommitListMap
+     * @param orderedTagList
+     * @param startTag
+     * @param endTag
+     * @param commitMessageRegex
+     * @param tagNameRegex
+     * @return
+     */
+    private ReleaseNotes generateReleaseNotes(Map<Ref, List<RevCommit>> tagToCommitListMap, List<Ref> orderedTagList,
+                                              String startTag, String endTag, String commitMessageRegex, String tagNameRegex) {
         ReleaseNotes notes = new ReleaseNotes();
-        notes.setGenerationTime(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+        Date now = new Date();
+        notes.setGenerationTime(sdf.format(now));
+        notes.setStartTag(startTag);
+        notes.setEndTag(endTag);
+        notes.setCommitMessageRegex(commitMessageRegex);
+        notes.setTagNameRegex(tagNameRegex);
+        Pattern p = null;
+        if (!StringUtils.isEmptyOrNull(commitMessageRegex)) {
+            p = Pattern.compile(commitMessageRegex);
+        }
+
         List<Tag> aTagList = new ArrayList();
         if (tagToCommitListMap != null) {
             if (tagToCommitListMap.keySet() != null) {
@@ -502,12 +575,18 @@ public class JGitCommon {
                     List<Feature> fList = new ArrayList();
                     if (tagToCommitListMap.get(tag) != null && tagToCommitListMap.get(tag).size() > 0) {
                         List<RevCommit> commitList = tagToCommitListMap.get(tag);
-                        Collections.sort(commitList, getRevCommitComparator());
+                        Collections.sort(commitList, getRevCommitChronologicalComparator());
                         for (RevCommit c : commitList) {
+                            if(!meetsCommitMessageRegex(c.getFullMessage(), p)) {
+                                continue;
+                            }
                             Feature f = new Feature();
                             f.setAuthor(c.getAuthorIdent() != null ? c.getAuthorIdent().getName() : null);
-                            f.setCommitTime(new Date(c.getCommitTime()));
+                            Date d = new Date(c.getCommitTime()*1000L);
+                            String dateString = sdf.format(d);
+                            f.setCommitTime(dateString);
                             f.setCommitHashLong(c.getName());
+                            f.setCommitHashShort(c.getName() != null?c.getName().substring(0,7):null);
                             f.setDescription(c.getFullMessage());
                             fList.add(f);
                         }
@@ -522,6 +601,20 @@ public class JGitCommon {
     }
 
     /**
+     * Returns if the commit message passed in meets the regex pattern passed in
+     * @param message
+     * @param p
+     * @return
+     */
+    private boolean meetsCommitMessageRegex(String message, Pattern p) {
+        if (p == null) {
+            return true;
+        }
+        Matcher m = p.matcher(message);
+        return m.find();
+    }
+
+    /**
      * Returns the commit immediately previously (date-wise) to the commit that is specified and that which is non-merged.
      *
      * @param endingCommit
@@ -532,7 +625,7 @@ public class JGitCommon {
         Set<RevCommit> allCommitSet = commitToTagListMap == null ? null : commitToTagListMap.keySet();
         if (allCommitSet != null) {
             List<RevCommit> allCommitList = new ArrayList(allCommitSet);
-            Collections.sort(allCommitList, getRevCommitComparator());
+            Collections.sort(allCommitList, getRevCommitChronologicalComparator());
             if (allCommitList != null && allCommitList.size() > 0) {
                 int i = 0;
                 for (RevCommit c : allCommitList) {
@@ -624,15 +717,35 @@ public class JGitCommon {
         return commit;
     }
 
-    public List<Ref> getAllTags(Repository repo) {
+    /**
+     * Returns all tags that match the regular expression passed in (optional).
+     * If the regular expression passed in is null, then the tags are returned unfiltered.
+     * @param repo
+     * @param tagNameRegex
+     * @return
+     */
+    public List<Ref> getAllTags(Repository repo, String tagNameRegex) {
         List<Ref> rList = null;
+        List<Ref> finalList = new ArrayList();
         try {
             Git git = Git.wrap(repo);
             //Get all tags
             rList = git.tagList().call();
+            if (rList != null && !StringUtils.isEmptyOrNull(tagNameRegex)) {
+                Pattern p = Pattern.compile(tagNameRegex);
+                for (Ref r: rList) {
+                    String justTheName = r.getName().substring(10); //Remove refs/tags/ from the fully qualified tagRef
+                    Matcher m = p.matcher(justTheName);
+                    if (m.find()) {
+                        finalList.add(r);
+                    }
+                }
+            } else {
+                finalList = rList;
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error getting all tags", e);
         }
-        return rList;
+        return finalList;
     }
 }
