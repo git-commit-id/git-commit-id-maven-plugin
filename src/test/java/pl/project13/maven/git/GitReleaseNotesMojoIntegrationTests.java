@@ -3,7 +3,6 @@ package pl.project13.maven.git;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.Test;
@@ -12,11 +11,7 @@ import pl.project13.maven.git.release.ReleaseNotes;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**

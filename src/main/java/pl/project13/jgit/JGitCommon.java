@@ -17,42 +17,33 @@
 
 package pl.project13.jgit;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.Status;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.StopWalkException;
-import org.eclipse.jgit.lib.*;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTag;
-import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.revwalk.RevWalkUtils;
-import org.eclipse.jgit.revwalk.filter.NotRevFilter;
-import org.eclipse.jgit.revwalk.filter.RevFilter;
-import org.eclipse.jgit.revwalk.filter.SubStringRevFilter;
-import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
-import org.eclipse.jgit.util.RawCharSequence;
-import org.eclipse.jgit.util.StringUtils;
-import org.jetbrains.annotations.NotNull;
-
-import org.joda.time.DateTime;
-import pl.project13.jgit.dummy.DatedRevTag;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.release.Feature;
 import pl.project13.maven.git.release.ReleaseNotes;
 import pl.project13.maven.git.release.Tag;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class JGitCommon {
 
@@ -108,11 +99,11 @@ public class JGitCommon {
   public String getClosestTagCommitCount(@NotNull Repository repo, RevCommit headCommit){
     HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo));
     ObjectId obj = (ObjectId) map.keySet().toArray()[0];
-    
+
     RevWalk walk = new RevWalk(repo);
     RevCommit commit = walk.lookupCommit(obj);
     walk.dispose();
-    
+
     int distance = distanceBetween(repo, headCommit, commit);
     return String.valueOf(distance);
   }
@@ -372,12 +363,14 @@ public class JGitCommon {
     public ReleaseNotes generateReleaseNotesBetweenTags(Repository repo, String startTag, String endTag, String commitMessageRegex) throws Exception {
 
         ReleaseNotes notes = new ReleaseNotes();
+        RevWalk walk = new RevWalk(repo);
         try {
-            RevWalk walk = new RevWalk(repo);
-
             List<Ref> tagList = this.getAllTags(repo);
 
             RevCommit startingCommit = this.getCommitOfTag(walk, tagList, startTag);
+            if (startingCommit == null) {
+                throw new RuntimeException("Could not find commit for startTag " + startTag);
+            }
             RevCommit endingCommit = this.getCommitOfTag(walk, tagList, endTag);
             Map<RevCommit, List<Ref>> commitToTagListMap = getAllCommitsAndTags(walk, tagList, startingCommit);
             if (endingCommit == null) {
@@ -409,10 +402,23 @@ public class JGitCommon {
             List<Ref> orderedTagList = this.getOrderedTagList(commitToTagListMap);
             notes = this.generateReleaseNotes(tagToCommitListMap, orderedTagList);
         } catch (Exception e) {
-            throw new RuntimeException("Error getting commits", e);
+            throw new RuntimeException("Error generating release notes", e);
+        } finally {
+            if (walk != null) {
+                walk.dispose();
+            }
         }
 
         return notes;
+    }
+
+    private Comparator<RevCommit> getRevCommitComparator() {
+        return new Comparator<RevCommit>() {
+            @Override
+            public int compare(RevCommit c1, RevCommit c2) {
+                return c2.getCommitTime() - c1.getCommitTime();
+            }
+        };
     }
 
     private RevCommit getDefaultEndingCommit(Map<RevCommit, List<Ref>> commitToTagListMap) {
@@ -420,12 +426,7 @@ public class JGitCommon {
         if (commitToTagListMap != null) {
             Set set = commitToTagListMap.keySet();
             List<RevCommit> commitList = new ArrayList(set);
-            Collections.sort(commitList, new Comparator<RevCommit>() {
-                @Override
-                public int compare(RevCommit o1, RevCommit o2) {
-                    return (o2.getCommitTime() - o1.getCommitTime());
-                }
-            });
+            Collections.sort(commitList, getRevCommitComparator());
             earliestCommit = commitList.get(commitList.size() - 1);
         }
         return earliestCommit;
@@ -440,12 +441,7 @@ public class JGitCommon {
     private List<Ref> getOrderedTagList(Map<RevCommit, List<Ref>> commitToTagListMap) {
         List<Ref> orderedTagList = new ArrayList();
         List<RevCommit> allCommitList = new ArrayList(commitToTagListMap.keySet());
-        Collections.sort(allCommitList, new Comparator<RevCommit>() {
-            @Override
-            public int compare(RevCommit o1, RevCommit o2) {
-                return (o2.getCommitTime() - o1.getCommitTime());
-            }
-        });
+        Collections.sort(allCommitList, getRevCommitComparator());
 
         for (RevCommit c : allCommitList) {
             if (commitToTagListMap.get(c) != null && commitToTagListMap.get(c).size() > 0) {
@@ -460,12 +456,7 @@ public class JGitCommon {
         if (allCommitsWithTags.keySet() != null) {
 
             List<RevCommit> allCommitList = new ArrayList(allCommitsWithTags.keySet());
-            Collections.sort(allCommitList, new Comparator<RevCommit>() {
-                @Override
-                public int compare(RevCommit o1, RevCommit o2) {
-                    return (o2.getCommitTime() - o1.getCommitTime());
-                }
-            });
+            Collections.sort(allCommitList, getRevCommitComparator());
             List<Ref> previousTagList = null;
             for (RevCommit c : allCommitList) {
                 if (allCommitsWithTags.get(c) != null && allCommitsWithTags.get(c).size() > 0) {
@@ -511,12 +502,7 @@ public class JGitCommon {
                     List<Feature> fList = new ArrayList();
                     if (tagToCommitListMap.get(tag) != null && tagToCommitListMap.get(tag).size() > 0) {
                         List<RevCommit> commitList = tagToCommitListMap.get(tag);
-                        Collections.sort(commitList, new Comparator<RevCommit>() {
-                            @Override
-                            public int compare(RevCommit o1, RevCommit o2) {
-                                return (o2.getCommitTime() - o1.getCommitTime());
-                            }
-                        });
+                        Collections.sort(commitList, getRevCommitComparator());
                         for (RevCommit c : commitList) {
                             Feature f = new Feature();
                             f.setAuthor(c.getAuthorIdent() != null ? c.getAuthorIdent().getName() : null);
@@ -546,12 +532,7 @@ public class JGitCommon {
         Set<RevCommit> allCommitSet = commitToTagListMap == null ? null : commitToTagListMap.keySet();
         if (allCommitSet != null) {
             List<RevCommit> allCommitList = new ArrayList(allCommitSet);
-            Collections.sort(allCommitList, new Comparator<RevCommit>() {
-                @Override
-                public int compare(RevCommit o1, RevCommit o2) {
-                    return (o2.getCommitTime() - o1.getCommitTime());
-                }
-            });
+            Collections.sort(allCommitList, getRevCommitComparator());
             if (allCommitList != null && allCommitList.size() > 0) {
                 int i = 0;
                 for (RevCommit c : allCommitList) {

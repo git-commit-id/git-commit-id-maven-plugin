@@ -1,16 +1,12 @@
 package pl.project13.maven.git;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
@@ -20,13 +16,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.Map;
 
 /**
- * This goal can be used to produce release notes between two tags on a branch.
+ * This goal can be used to produce release notes between two tags.
  *
  * The release notes are comprised of all commit descriptions from the commit at which the first
- * tag (release tag, possibily) exists and walks the commit graph along the named branch,
+ * tag (release tag, possibily) exists and walks the commit graph,
  * till the second (release) tag is reached.
  *
  * Created by pankaj on 10/21/16.
