@@ -71,7 +71,8 @@ public enum AvailableGitTestRepo {
   MAVEN_GIT_COMMIT_ID_PLUGIN("src/test/resources/_git_one_commit_with_umlaut"),
 
   //Release Notes test repos
-  RELEASE_NOTES_BASIC("src/test/resources/release-notes/scenario1/dotGit")
+  RELEASE_NOTES_BASIC("src/test/resources/release-notes/scenario1/dotGit"),
+  RELEASE_NOTES_INTERMEDIATE("src/test/resources/release-notes/scenario2/dotGit"),
   ;
 
   private String dir;
