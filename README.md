@@ -856,6 +856,9 @@ A startTag is needed and then the plugin walks the commit graph to either:
 * Capture commit messages (that meet an optional regular expression) till the earliest commit
 * Capture commit messages (that meet an optional regular expression) till the endTag (specified in the configuration)
 
+#### Related Blog post
+
+A more detailed explaination can be found [here](http://technochord.com/2016/11/release-management-with-git)
 
 ###Usage
 
