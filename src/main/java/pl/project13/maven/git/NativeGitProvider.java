@@ -360,7 +360,7 @@ public class NativeGitProvider extends GitDataProvider {
             final InputStream is = proc.getInputStream();
             final InputStream err = proc.getErrorStream();
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             final StringBuilder commandResult = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
