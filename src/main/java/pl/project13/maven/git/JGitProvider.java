@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
 
 public class JGitProvider extends GitDataProvider {
 
@@ -208,6 +209,16 @@ public class JGitProvider extends GitDataProvider {
   protected void finalCleanUp() {
     if (revWalk != null) {
       revWalk.dispose();
+    }
+    // http://www.programcreek.com/java-api-examples/index.php?api=org.eclipse.jgit.storage.file.WindowCacheConfig
+    // Example 3
+    if( git != null ) {
+      git.close();
+      // git.close() is not enough with jGit on Windows
+      // remove the references from packFile by initializing cache used in the repository
+      // fixing lock issues on Windows when repository has pack files
+      WindowCacheConfig config = new WindowCacheConfig();
+      config.install();
     }
   }
 
