@@ -35,10 +35,9 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.MapAssert.entry;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
@@ -877,10 +876,6 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     return gitDescribeConfig;
   }
 
-  private void alterMojoSettings(String parameterName, Object parameterValue) {
-    setInternalState(mojo, parameterName, parameterValue);
-  }
-
   private void assertGitPropertiesPresentInProject(Properties properties) {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
@@ -899,5 +894,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.commit.count"));
 
+  }
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
   }
 }

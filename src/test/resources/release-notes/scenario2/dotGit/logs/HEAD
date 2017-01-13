@@ -1,0 +1,66 @@
+0000000000000000000000000000000000000000 17b1818a939a596112b5405c9c18df07c043ce81 Pankaj Tandon <pankajtandon@gmail.com> 1480028754 -0500	commit (initial): Initial commit
+17b1818a939a596112b5405c9c18df07c043ce81 17b1818a939a596112b5405c9c18df07c043ce81 Pankaj Tandon <pankajtandon@gmail.com> 1480028755 -0500	checkout: moving from develop to master
+17b1818a939a596112b5405c9c18df07c043ce81 17b1818a939a596112b5405c9c18df07c043ce81 Pankaj Tandon <pankajtandon@gmail.com> 1480028756 -0500	checkout: moving from master to feature/STW-115-dream-more
+17b1818a939a596112b5405c9c18df07c043ce81 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028756 -0500	commit: Dreamt about blue waters
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d 9222d2a59164c14f4f676578b2547f72ccaf4b2e Pankaj Tandon <pankajtandon@gmail.com> 1480028757 -0500	commit: Dreamt about daisies
+9222d2a59164c14f4f676578b2547f72ccaf4b2e 01a96672a2ad06cccd3f689d79f833f8fe97644d Pankaj Tandon <pankajtandon@gmail.com> 1480028758 -0500	commit: Dreamt about world peace
+01a96672a2ad06cccd3f689d79f833f8fe97644d 5d1a577b212e0eae75b01aca70a606874b439a0a Pankaj Tandon <pankajtandon@gmail.com> 1480028759 -0500	commit: STW-115 Done dreaming!
+5d1a577b212e0eae75b01aca70a606874b439a0a 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028760 -0500	checkout: moving from feature/STW-115-dream-more to 252ed2f
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028761 -0500	checkout: moving from 252ed2f6b58c0a2acd1386820e5af6f5ca79903d to feature/STW-116-eat-less
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d a02cb19e6a38f7609bbabc0d2ea1251618b38567 Pankaj Tandon <pankajtandon@gmail.com> 1480028763 -0500	commit: Ate 2000 calories
+a02cb19e6a38f7609bbabc0d2ea1251618b38567 053312ea626100172b20f6399822fff9a5acbc0e Pankaj Tandon <pankajtandon@gmail.com> 1480028765 -0500	commit: Ate 1000 calories
+053312ea626100172b20f6399822fff9a5acbc0e 2783d076d5ba365ea3f4a7788547ddfe20938677 Pankaj Tandon <pankajtandon@gmail.com> 1480028766 -0500	commit: Ate 100 calories
+2783d076d5ba365ea3f4a7788547ddfe20938677 35569ad24af287c56ec3371e19cbb93e501414d6 Pankaj Tandon <pankajtandon@gmail.com> 1480028767 -0500	commit: Ate nothing!
+35569ad24af287c56ec3371e19cbb93e501414d6 f0bf857858919c49d4cfa73b4e58e96c640a121e Pankaj Tandon <pankajtandon@gmail.com> 1480028768 -0500	commit: STW-116 Done eating!
+f0bf857858919c49d4cfa73b4e58e96c640a121e 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028769 -0500	checkout: moving from feature/STW-116-eat-less to 252ed2f
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028770 -0500	checkout: moving from 252ed2f6b58c0a2acd1386820e5af6f5ca79903d to feature/STW-117-worry-less
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d 4924ceac57ce26c99407fa27deaf1a6f82e99355 Pankaj Tandon <pankajtandon@gmail.com> 1480028773 -0500	commit: Worried about my hair
+4924ceac57ce26c99407fa27deaf1a6f82e99355 e8e7ecaebb80ddd1ca9185e25f9de6ae3643fcec Pankaj Tandon <pankajtandon@gmail.com> 1480028774 -0500	commit: Worried about my body
+e8e7ecaebb80ddd1ca9185e25f9de6ae3643fcec a540de62e1d491eb4bfc27609310e2d521e3052a Pankaj Tandon <pankajtandon@gmail.com> 1480028775 -0500	commit: STW-117 Done worrying
+a540de62e1d491eb4bfc27609310e2d521e3052a 17b1818a939a596112b5405c9c18df07c043ce81 Pankaj Tandon <pankajtandon@gmail.com> 1480028776 -0500	checkout: moving from feature/STW-117-worry-less to develop
+17b1818a939a596112b5405c9c18df07c043ce81 b6238db09a755fca77cb6db587893275a4d09e24 Pankaj Tandon <pankajtandon@gmail.com> 1480028777 -0500	merge feature/STW-115-dream-more: Merge made by the 'recursive' strategy.
+b6238db09a755fca77cb6db587893275a4d09e24 b6238db09a755fca77cb6db587893275a4d09e24 Pankaj Tandon <pankajtandon@gmail.com> 1480028778 -0500	checkout: moving from develop to feature/STW-118-plan-less
+b6238db09a755fca77cb6db587893275a4d09e24 bbf7a11d0cfaacd93f79f4dac9bc2a490bad1cc9 Pankaj Tandon <pankajtandon@gmail.com> 1480028778 -0500	commit: Planned for next year
+bbf7a11d0cfaacd93f79f4dac9bc2a490bad1cc9 1cbb97ebf984eb6a2a26e184cef2ac5692f5ff97 Pankaj Tandon <pankajtandon@gmail.com> 1480028779 -0500	commit: Planned for Jan
+1cbb97ebf984eb6a2a26e184cef2ac5692f5ff97 c4847043dbbc6666271c5da53f2ea355213d3ddd Pankaj Tandon <pankajtandon@gmail.com> 1480028780 -0500	commit: Planned for tomorrow
+c4847043dbbc6666271c5da53f2ea355213d3ddd 374e860ed6fae44e7f16ace28e529cc243db8e02 Pankaj Tandon <pankajtandon@gmail.com> 1480028781 -0500	commit: STW-118 Done planning
+374e860ed6fae44e7f16ace28e529cc243db8e02 b6238db09a755fca77cb6db587893275a4d09e24 Pankaj Tandon <pankajtandon@gmail.com> 1480028782 -0500	checkout: moving from feature/STW-118-plan-less to b6238
+b6238db09a755fca77cb6db587893275a4d09e24 b6238db09a755fca77cb6db587893275a4d09e24 Pankaj Tandon <pankajtandon@gmail.com> 1480028783 -0500	checkout: moving from b6238db09a755fca77cb6db587893275a4d09e24 to develop
+b6238db09a755fca77cb6db587893275a4d09e24 5ae68784d370739cd6572d196bb8c3d1a50ad04b Pankaj Tandon <pankajtandon@gmail.com> 1480028784 -0500	merge feature/STW-118-plan-less: Merge made by the 'recursive' strategy.
+5ae68784d370739cd6572d196bb8c3d1a50ad04b f0bf857858919c49d4cfa73b4e58e96c640a121e Pankaj Tandon <pankajtandon@gmail.com> 1480028785 -0500	checkout: moving from develop to feature/STW-116-eat-less
+f0bf857858919c49d4cfa73b4e58e96c640a121e 5ae68784d370739cd6572d196bb8c3d1a50ad04b Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: checkout develop
+5ae68784d370739cd6572d196bb8c3d1a50ad04b 3cc0196ffe7260a5dd47a2536a05a6bbbfd3e7fb Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: Ate 2000 calories
+3cc0196ffe7260a5dd47a2536a05a6bbbfd3e7fb 025e5a78c996e1d0336909884d5fb516483bccd4 Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: Ate 1000 calories
+025e5a78c996e1d0336909884d5fb516483bccd4 e2e3af17b09badb5fe063c891580ab4ed9aa3bbe Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: Ate 100 calories
+e2e3af17b09badb5fe063c891580ab4ed9aa3bbe 88d4e496139a03177c991af73ac6963e1b4ffd14 Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: Ate nothing!
+88d4e496139a03177c991af73ac6963e1b4ffd14 8b88104c22415acdcd57c802c09c1894848f4618 Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase: STW-116 Done eating!
+8b88104c22415acdcd57c802c09c1894848f4618 8b88104c22415acdcd57c802c09c1894848f4618 Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase finished: returning to refs/heads/feature/STW-116-eat-less
+8b88104c22415acdcd57c802c09c1894848f4618 5ae68784d370739cd6572d196bb8c3d1a50ad04b Pankaj Tandon <pankajtandon@gmail.com> 1480028788 -0500	checkout: moving from feature/STW-116-eat-less to develop
+5ae68784d370739cd6572d196bb8c3d1a50ad04b fde770f22d253a1c7b0d1a57328b5edfca0a9a9d Pankaj Tandon <pankajtandon@gmail.com> 1480028789 -0500	merge feature/STW-116-eat-less: Merge made by the 'recursive' strategy.
+fde770f22d253a1c7b0d1a57328b5edfca0a9a9d a540de62e1d491eb4bfc27609310e2d521e3052a Pankaj Tandon <pankajtandon@gmail.com> 1480028790 -0500	checkout: moving from develop to feature/STW-117-worry-less
+a540de62e1d491eb4bfc27609310e2d521e3052a fde770f22d253a1c7b0d1a57328b5edfca0a9a9d Pankaj Tandon <pankajtandon@gmail.com> 1480028791 -0500	rebase: checkout develop
+fde770f22d253a1c7b0d1a57328b5edfca0a9a9d 4b7714407b18c4b46153b8ebf5c814c3ca8a4307 Pankaj Tandon <pankajtandon@gmail.com> 1480028791 -0500	rebase: Worried about my hair
+4b7714407b18c4b46153b8ebf5c814c3ca8a4307 48be58e41af1f19a238068b6834a28af01a72581 Pankaj Tandon <pankajtandon@gmail.com> 1480028791 -0500	rebase: Worried about my body
+48be58e41af1f19a238068b6834a28af01a72581 765a35a91aa9bc558b77e5de1c78f00a487b4ca4 Pankaj Tandon <pankajtandon@gmail.com> 1480028791 -0500	rebase: STW-117 Done worrying
+765a35a91aa9bc558b77e5de1c78f00a487b4ca4 765a35a91aa9bc558b77e5de1c78f00a487b4ca4 Pankaj Tandon <pankajtandon@gmail.com> 1480028791 -0500	rebase finished: returning to refs/heads/feature/STW-117-worry-less
+765a35a91aa9bc558b77e5de1c78f00a487b4ca4 fde770f22d253a1c7b0d1a57328b5edfca0a9a9d Pankaj Tandon <pankajtandon@gmail.com> 1480028792 -0500	checkout: moving from feature/STW-117-worry-less to develop
+fde770f22d253a1c7b0d1a57328b5edfca0a9a9d 77d2431bbb96c206c42ad8fd5145b5252b8daa98 Pankaj Tandon <pankajtandon@gmail.com> 1480028793 -0500	merge feature/STW-117-worry-less: Merge made by the 'recursive' strategy.
+77d2431bbb96c206c42ad8fd5145b5252b8daa98 17b1818a939a596112b5405c9c18df07c043ce81 Pankaj Tandon <pankajtandon@gmail.com> 1480028793 -0500	checkout: moving from develop to master
+17b1818a939a596112b5405c9c18df07c043ce81 d6d405ca492b412931a3d4889af5556b5e9513d9 Pankaj Tandon <pankajtandon@gmail.com> 1480028794 -0500	merge develop: Merge made by the 'recursive' strategy.
+d6d405ca492b412931a3d4889af5556b5e9513d9 d6d405ca492b412931a3d4889af5556b5e9513d9 Pankaj Tandon <pankajtandon@gmail.com> 1480028794 -0500	checkout: moving from master to feature/STW-101-plant-some-trees
+d6d405ca492b412931a3d4889af5556b5e9513d9 1606145f5e5916420aa72f40d5792851d4256445 Pankaj Tandon <pankajtandon@gmail.com> 1480028795 -0500	commit: Planted a mango tree
+1606145f5e5916420aa72f40d5792851d4256445 5d6c00de6c4351bb48d813113374456b0b05b456 Pankaj Tandon <pankajtandon@gmail.com> 1480028796 -0500	commit: Planted a fig tree
+5d6c00de6c4351bb48d813113374456b0b05b456 528751680aea6685eb56b083c232da72c3870291 Pankaj Tandon <pankajtandon@gmail.com> 1480028797 -0500	commit: STW-101 Done planting trees
+528751680aea6685eb56b083c232da72c3870291 77d2431bbb96c206c42ad8fd5145b5252b8daa98 Pankaj Tandon <pankajtandon@gmail.com> 1480028798 -0500	checkout: moving from feature/STW-101-plant-some-trees to develop
+77d2431bbb96c206c42ad8fd5145b5252b8daa98 77d2431bbb96c206c42ad8fd5145b5252b8daa98 Pankaj Tandon <pankajtandon@gmail.com> 1480028799 -0500	checkout: moving from develop to feature/STW-109-yoga
+77d2431bbb96c206c42ad8fd5145b5252b8daa98 d6b3df332707cbf9901cc54a29096f9a06d1f61a Pankaj Tandon <pankajtandon@gmail.com> 1480028801 -0500	commit: Added suryanamskar
+d6b3df332707cbf9901cc54a29096f9a06d1f61a e595ecbea5aba7fa728fb2781ac3bbdcb8942462 Pankaj Tandon <pankajtandon@gmail.com> 1480028802 -0500	commit: Standing on head
+e595ecbea5aba7fa728fb2781ac3bbdcb8942462 a49d034adbc0f8d517d7841853bd691cc616dc08 Pankaj Tandon <pankajtandon@gmail.com> 1480028803 -0500	commit: STW-109 Done with Yoga
+a49d034adbc0f8d517d7841853bd691cc616dc08 77d2431bbb96c206c42ad8fd5145b5252b8daa98 Pankaj Tandon <pankajtandon@gmail.com> 1480028804 -0500	checkout: moving from feature/STW-109-yoga to develop
+77d2431bbb96c206c42ad8fd5145b5252b8daa98 1f92d77ea360a91a40f6fc986124b0b895b63052 Pankaj Tandon <pankajtandon@gmail.com> 1480028805 -0500	merge feature/STW-101-plant-some-trees: Merge made by the 'recursive' strategy.
+1f92d77ea360a91a40f6fc986124b0b895b63052 1f92d77ea360a91a40f6fc986124b0b895b63052 Pankaj Tandon <pankajtandon@gmail.com> 1480028806 -0500	checkout: moving from develop to develop
+1f92d77ea360a91a40f6fc986124b0b895b63052 805356a5e51c724d178ced0edfeb2eeda42be297 Pankaj Tandon <pankajtandon@gmail.com> 1480028807 -0500	merge feature/STW-109-yoga: Merge made by the 'recursive' strategy.
+805356a5e51c724d178ced0edfeb2eeda42be297 d6d405ca492b412931a3d4889af5556b5e9513d9 Pankaj Tandon <pankajtandon@gmail.com> 1480028808 -0500	checkout: moving from develop to master
+d6d405ca492b412931a3d4889af5556b5e9513d9 dc5a164960c4fca2325985ae98f0d0f0207558ab Pankaj Tandon <pankajtandon@gmail.com> 1480028809 -0500	merge develop: Merge made by the 'recursive' strategy.
+dc5a164960c4fca2325985ae98f0d0f0207558ab d6d405ca492b412931a3d4889af5556b5e9513d9 Pankaj Tandon <pankajtandon@gmail.com> 1480028928 -0500	checkout: moving from master to d6d405ca492b412931a3d4889af5556b5e9513d9
+d6d405ca492b412931a3d4889af5556b5e9513d9 dc5a164960c4fca2325985ae98f0d0f0207558ab Pankaj Tandon <pankajtandon@gmail.com> 1480028958 -0500	checkout: moving from d6d405ca492b412931a3d4889af5556b5e9513d9 to master

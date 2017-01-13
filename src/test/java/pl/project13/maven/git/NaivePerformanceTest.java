@@ -20,8 +20,8 @@ package pl.project13.maven.git;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
-import org.junit.Test;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 @RunWith(JUnitParamsRunner.class)
 public class NaivePerformanceTest extends GitIntegrationTest {
@@ -86,10 +85,6 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     return gitDescribeConfig;
   }
 
-  private void alterMojoSettings(String parameterName, Object parameterValue) {
-    setInternalState(mojo, parameterName, parameterValue);
-  }
-
   private void assertGitPropertiesPresentInProject(Properties properties) {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
@@ -105,5 +100,10 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+  }
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
   }
 }

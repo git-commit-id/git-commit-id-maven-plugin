@@ -844,3 +844,81 @@ The best way to ask for features / improvements is [via the Issues section on gi
 and maybe someone else has some idea or would like to upvote your issue.
 
 That's all folks! **Happy hacking!**
+
+
+ReleaseNotes
+------------
+This plugin can also be used to capture selected commit messages that appear between lightweight tags.
+The release notes are captured in a JSON file and placed in a configurable location.
+
+A startTag is needed and then the plugin walks the commit graph to either:
+
+* Capture commit messages (that meet an optional regular expression) till the earliest commit
+* Capture commit messages (that meet an optional regular expression) till the endTag (specified in the configuration)
+
+#### Related Blog post
+
+A more detailed explaination can be found [here](http://technochord.com/2016/11/release-management-with-git)
+
+###Usage
+
+```xml
+...
+        <plugins>
+            <!-- other plugins -->
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.2-SNAPSHOT</version>
+                <executions>
+                    <!-- other executions -->
+                    <execution>
+                        <id>releaseNotes</id>
+                        <goals>
+                            <goal>releaseNotes</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <!--
+                        If you'd like to tell the plugin where your .git directory is,
+                        use this setting, otherwise we'll perform a search trying to
+                        figure out the right directory. It's better to add it explicitly IMHO.
+                    -->
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+
+                    <!-- false is default here, it prints some more information during the build -->
+                    <verbose>false</verbose>
+                    
+                    <!-- The tag from which release notes need to be generated -->
+                    <startTag>release_3.1.4</startTag>
+                     
+                    <!-- An optional regular expression that matches the tags between which release notes 
+                         need to be captured. This applies to all tags but the startTag
+                    -->
+                    <tagNameRegex>release-[0-9].[0-9].[0-9]</tagNameRegex>
+                   
+                    <!-- An optional regular expression that can be used to limit the commit messages that comprise
+                     the release notes. Often times developers will commit often but those commit messages may
+                     not have a relevance to the feature being developed.
+                     To prevent these "spurious" messages cluttering up the release notes, commits can either be squashed
+                        - OR -
+                     A tag like PRJ1-123 (for ticket 123 in project1 in the ticketing system) can be used in the commit 
+                     message. If such a convention is adopted, then the below regular expression will pick only those 
+                     messages to include in the release notes
+                     -->
+                    <commitMessageRegex>PRJ1-[0-9][0-9][0-9]</commitMessageRegex>
+                    
+                    <!-- The location and name of the file that holds the JSON that represents the ReleaseNotes object.
+                      This file can then be served up via a Restful end point
+                      -->
+                    <releaseNotesFileName>${project.basedir}/src/main/webapp/rel-notes.json</releaseNotesFileName>
+                    
+                </configuration>
+
+            </plugin>
+            <!-- other plugins -->
+        </plugins>
+...
+```

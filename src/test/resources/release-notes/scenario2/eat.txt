@@ -1,0 +1,5 @@
+Ate 2000 calories
+Ate 1000 calories
+Ate 100 calories
+Ate nothing!
+Done eating!

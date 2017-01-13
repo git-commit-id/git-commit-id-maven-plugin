@@ -27,7 +27,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
+import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.GitMojo;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static java.util.Collections.singletonList;
@@ -41,6 +43,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   public static final int DEFAULT_ABBREV_LEN = 7;
   public static final String DIRTY_SUFFIX = "-dirty";
   final String PROJECT_NAME = "my-jar-project";
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
+  }
 
   @Override
   protected Optional<String> projectDir() {

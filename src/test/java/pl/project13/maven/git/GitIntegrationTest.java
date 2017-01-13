@@ -42,8 +42,10 @@ public abstract class GitIntegrationTest {
    */
   private String currSandbox;
 
-  protected GitCommitIdMojo mojo;
+  protected GitMojo mojo;
   protected FileSystemMavenSandbox mavenSandbox;
+
+  public abstract GitMojo getGitMojo();
 
   @Before
   public void setUp() throws Exception {
@@ -55,7 +57,7 @@ public abstract class GitIntegrationTest {
     } while (sandbox.exists());
 
     mavenSandbox = new FileSystemMavenSandbox(currSandbox);
-    mojo = new GitCommitIdMojo();
+    mojo = getGitMojo();
     initializeMojoWithDefaults(mojo);
   }
 
@@ -96,7 +98,7 @@ public abstract class GitIntegrationTest {
     }
   }
 
-  public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
+  public static void initializeMojoWithDefaults(GitMojo mojo) {
     Map<String, Object> mojoDefaults = new HashMap<>();
     mojoDefaults.put("verbose", false);
     mojoDefaults.put("skipPoms", true);
@@ -116,6 +118,10 @@ public abstract class GitIntegrationTest {
   public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
     setInternalState(mojo, "project", project);
     setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
+  }
+
+  protected void alterMojoSettings(String parameterName, Object parameterValue) {
+    setInternalState(mojo, parameterName, parameterValue);
   }
 
 }

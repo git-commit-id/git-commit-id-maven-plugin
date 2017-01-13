@@ -25,7 +25,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
+import pl.project13.maven.git.GitCommitIdMojo;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.GitMojo;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -39,6 +41,11 @@ public class DescribeResultTest extends GitIntegrationTest {
   public static final ObjectId HEAD_OBJECT_ID = ObjectId.fromString(FULL_HEAD_COMMIT_ID);
   final static String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
   final static String DIRTY_MARKER = "-DEV";
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
+  }
 
   @Override
   @Before

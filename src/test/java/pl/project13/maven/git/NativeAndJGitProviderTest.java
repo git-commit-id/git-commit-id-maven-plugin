@@ -17,17 +17,16 @@
 
 package pl.project13.maven.git;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
+import org.apache.maven.project.MavenProject;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 
-import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class NativeAndJGitProviderTest extends GitIntegrationTest
 {
@@ -142,11 +141,6 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     assertEquals("commit times parse to different time stamps", jGitCommitTimeInMs, nativeCommitTimeInMs);
   }
 
-  private void alterMojoSettings(String parameterName, Object parameterValue)
-  {
-    setInternalState(mojo, parameterName, parameterValue);
-  }
-
   private Properties createCopy(Properties orig)
   {
     Properties p = new Properties();
@@ -162,5 +156,10 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     for (String key : GIT_KEYS) {
       assertThat(properties).satisfies(new ContainsKeyCondition(key));
     }
+  }
+
+  @Override
+  public GitMojo getGitMojo() {
+    return new GitCommitIdMojo();
   }
 }

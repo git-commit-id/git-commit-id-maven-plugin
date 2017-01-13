@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 252ed2f6b58c0a2acd1386820e5af6f5ca79903d Pankaj Tandon <pankajtandon@gmail.com> 1480028761 -0500	branch: Created from HEAD
+252ed2f6b58c0a2acd1386820e5af6f5ca79903d a02cb19e6a38f7609bbabc0d2ea1251618b38567 Pankaj Tandon <pankajtandon@gmail.com> 1480028763 -0500	commit: Ate 2000 calories
+a02cb19e6a38f7609bbabc0d2ea1251618b38567 053312ea626100172b20f6399822fff9a5acbc0e Pankaj Tandon <pankajtandon@gmail.com> 1480028765 -0500	commit: Ate 1000 calories
+053312ea626100172b20f6399822fff9a5acbc0e 2783d076d5ba365ea3f4a7788547ddfe20938677 Pankaj Tandon <pankajtandon@gmail.com> 1480028766 -0500	commit: Ate 100 calories
+2783d076d5ba365ea3f4a7788547ddfe20938677 35569ad24af287c56ec3371e19cbb93e501414d6 Pankaj Tandon <pankajtandon@gmail.com> 1480028767 -0500	commit: Ate nothing!
+35569ad24af287c56ec3371e19cbb93e501414d6 f0bf857858919c49d4cfa73b4e58e96c640a121e Pankaj Tandon <pankajtandon@gmail.com> 1480028768 -0500	commit: STW-116 Done eating!
+f0bf857858919c49d4cfa73b4e58e96c640a121e 8b88104c22415acdcd57c802c09c1894848f4618 Pankaj Tandon <pankajtandon@gmail.com> 1480028786 -0500	rebase finished: refs/heads/feature/STW-116-eat-less onto 5ae68784d370739cd6572d196bb8c3d1a50ad04b
