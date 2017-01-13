@@ -10,7 +10,7 @@
   <groupId>pl.project13.maven</groupId>
   <artifactId>git-commit-id-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>2.2.2</version>
+  <version>2.2.3-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
   <description>
     This plugin makes basic repository information available through maven resources. This can be used to display
@@ -45,7 +45,7 @@
     <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
     <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
     <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
-    <tag>v2.2.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
