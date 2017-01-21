@@ -51,23 +51,16 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public static final String DEFAULT_FORMAT_STRING  = "dd.MM.yyyy '@' HH:mm:ss z";
   public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
-// I feel there could be a mistake in the AvailableGitTestRepo's enum values
-// the MAVEN_GIT_COMMIT_ID_PLUGIN has the same directory as WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS
-// I think the GIT_COMMIT_ID has the value which should be planned to be the plugin repo itself
-// If we use the GIT_COMMIT_ID repo this test will hang when nativeGit case selected in Windows definitely
-// See the suggested modifications below
-
   @Test
   public void testCompareBasic() throws Exception
   {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      if (testRepo == AvailableGitTestRepo.GIT_COMMIT_ID) {
-        continue;
+      if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
+        mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
+        MavenProject targetProject = mavenSandbox.getParentProject();
+        verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
       }
-      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
-      MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -75,12 +68,12 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public void testCompareSubrepoInRoot() throws Exception
   {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      if (testRepo == AvailableGitTestRepo.GIT_COMMIT_ID) {
-        continue; // Don't create a subrepo based on the plugin repo itself.
+      if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
+        // Don't create a subrepo based on the plugin repo itself.
+        mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
+        MavenProject targetProject = mavenSandbox.getParentProject();
+        verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
       }
-      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
-      MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -88,12 +81,12 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public void testCompareSubrepoInChild() throws Exception
   {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      if (testRepo == AvailableGitTestRepo.GIT_COMMIT_ID) {
-        continue; // Don't create a subrepo based on the plugin repo itself.
+      if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
+        // Don't create a subrepo based on the plugin repo itself.
+        mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
+        MavenProject targetProject = mavenSandbox.getChildProject();
+        verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
       }
-      mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(testRepo).create();
-      MavenProject targetProject = mavenSandbox.getChildProject();
-      verifyNativeAndJGit(testRepo, targetProject, DEFAULT_FORMAT_STRING);
     }
   }
 
@@ -102,12 +95,11 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
-      if (testRepo == AvailableGitTestRepo.GIT_COMMIT_ID) {
-        continue;
+      if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
+        mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
+        MavenProject targetProject = mavenSandbox.getParentProject();
+        verifyNativeAndJGit(testRepo, targetProject, ISO8601_FORMAT_STRING);
       }
-      mavenSandbox.withParentProject("my-basic-project", "jar").withNoChildProject().withGitRepoInParent(testRepo).create();
-      MavenProject targetProject = mavenSandbox.getParentProject();
-      verifyNativeAndJGit(testRepo, targetProject, ISO8601_FORMAT_STRING);
     }
   }
 

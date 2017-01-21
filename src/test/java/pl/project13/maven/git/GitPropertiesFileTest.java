@@ -35,11 +35,11 @@ import pl.project13.maven.git.util.PropertyManager;
 @RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {
 
-  static final boolean UseJGit = false;
-  static final boolean UseNativeGit = true;
+  static final boolean USE_JGIT = false;
+  static final boolean USE_NATIVE_GIT = true;
 
   public static Collection useNativeGit() {
-    return asList(UseJGit, UseNativeGit);
+    return asList(USE_JGIT, USE_NATIVE_GIT);
   }
 
   @Test

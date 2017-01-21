@@ -176,11 +176,6 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
-                // I feel there could be a mistake in the AvailableGitTestRepo's enum values
-                // the MAVEN_GIT_COMMIT_ID_PLUGIN has the same directory as WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS
-                // I think the GIT_COMMIT_ID has the value which should be planned to be the plugin repo itself
-                // If we use the GIT_COMMIT_ID repo this test will hang when nativeGit case selected in Windows definitely
-                // .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
                 .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
                 .create();
 
