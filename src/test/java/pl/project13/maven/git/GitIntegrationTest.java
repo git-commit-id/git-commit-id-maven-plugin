@@ -61,12 +61,14 @@ public abstract class GitIntegrationTest {
 
   @After
   public void tearDown() throws Exception {
+    final boolean keep = mavenSandbox != null && mavenSandbox.isKeepSandboxWhenFinishedTest();
+
     mojo = null;
     mavenSandbox = null;
 
     final File sandbox = new File(currSandbox);
     try {
-      if (sandbox.exists()) {
+      if (sandbox.exists() && !keep) {
         FileUtils.deleteDirectory(sandbox);
       }
     } catch (IOException e) {

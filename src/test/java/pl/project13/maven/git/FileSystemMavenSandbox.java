@@ -38,6 +38,7 @@ public class FileSystemMavenSandbox {
   private MavenProject childProject;
   private String rootSandboxPath;
   private MavenProject parentProject;
+  private boolean keepSandboxWhenFinishedTest = false;
 
   /**
    * Sample git repository location to use as source in integration tests
@@ -159,5 +160,16 @@ public class FileSystemMavenSandbox {
         ", gitRepoSourceDir=" + gitRepoSourceDir +
         ", rootSandboxPath='" + rootSandboxPath + '\'' +
         '}';
+  }
+
+  @NotNull
+  public FileSystemMavenSandbox withKeepSandboxWhenFinishedTest(boolean keepSandboxWhenFinishedTest) {
+    // if we want to keep the generated sandbox for overwiew the content of it
+    this.keepSandboxWhenFinishedTest = keepSandboxWhenFinishedTest;
+    return this;
+  }
+
+  public boolean isKeepSandboxWhenFinishedTest() {
+    return keepSandboxWhenFinishedTest;
   }
 }
