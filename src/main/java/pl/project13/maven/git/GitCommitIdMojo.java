@@ -243,7 +243,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Set this to {@code 'true'} to skip plugin execution.
    * @since 2.1.8
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.skip", defaultValue = "false")
   private boolean skip;
 
   /**
