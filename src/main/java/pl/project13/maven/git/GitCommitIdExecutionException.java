@@ -22,6 +22,7 @@ package pl.project13.maven.git;
  * build-tool specific exception at the top level.
  */
 public class GitCommitIdExecutionException extends Exception {
+    private static final long serialVersionUID = 4608506012492555968L;
 
     public GitCommitIdExecutionException() {
         super();

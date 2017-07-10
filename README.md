@@ -82,7 +82,7 @@ A detailed description of using the plugin is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.2.1** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.1)).
+The current version is **2.2.2** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.2)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
