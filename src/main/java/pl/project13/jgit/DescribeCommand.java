@@ -273,7 +273,17 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
 
     // get commits, up until the nearest tag
-    List<RevCommit> commits = jGitCommon.findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+    List<RevCommit> commits;
+    try {
+      commits = jGitCommon.findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+    } catch(Exception e) {
+      if (alwaysFlag) {
+        // Show uniquely abbreviated commit object as fallback
+        commits = Collections.emptyList();
+      } else {
+        throw e;
+      }
+    }
 
     // if there is no tags or any tag is not on that branch then return generic describe
     if (foundZeroTags(tagObjectIdToName) || commits.isEmpty()) {
