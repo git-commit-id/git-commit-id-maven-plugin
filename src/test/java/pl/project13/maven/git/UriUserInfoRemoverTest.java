@@ -18,44 +18,41 @@
 package pl.project13.maven.git;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+@RunWith(JUnitParamsRunner.class)
 public class UriUserInfoRemoverTest {
 
-  @Test
-  public void testHttpsUriWithoutUserInfo() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("https://example.com");
-    assertEquals("https://example.com", result);
+  public static Collection<Object[]> parameters() {
+        Object[][] data = new Object[][] {
+                { "https://example.com", "https://example.com" },
+                { "https://example.com:8888", "https://example.com:8888" },
+                { "https://user@example.com", "https://user@example.com" },
+                { "https://user@example.com:8888", "https://user@example.com:8888" },
+                { "https://user:password@example.com", "https://user@example.com" },
+                { "https://user:password@example.com:8888", "https://user@example.com:8888" },
+                { "git@github.com", "git@github.com" },
+                { "git@github.com:8888", "git@github.com:8888" },
+                { "user@host.xz:~user/path/to/repo.git", "user@host.xz:~user/path/to/repo.git" },
+                { "[user@mygithost:10022]:my-group/my-sample-project.git", "[user@mygithost:10022]:my-group/my-sample-project.git" },
+                { "ssh://git@github.com/", "ssh://git@github.com/" }
+                };
+        return Arrays.asList(data);
   }
 
   @Test
-  public void testHttpsUriWithUserInfo() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("https://user@example.com");
-    assertEquals("https://user@example.com", result);
+  @Parameters(method = "parameters")
+  public void testStripCrecentialsFromOriginUrl(String input, String expected) throws GitCommitIdExecutionException {
+    String result = GitDataProvider.stripCredentialsFromOriginUrl(input);
+    assertEquals(expected, result);
   }
 
-  @Test
-  public void testHttpsUriWithUserInfoAndPassword() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("https://user:password@example.com");
-    assertEquals("https://user@example.com", result);
-  }
-
-  @Test
-  public void testWithSCPStyleSSHProtocolGitHub() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("git@github.com");
-    assertEquals("git@github.com", result);
-  }
-
-  @Test
-  public void testWithSCPStyleSSHProtocol() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("user@host.xz:~user/path/to/repo.git");
-    assertEquals("user@host.xz:~user/path/to/repo.git", result);
-  }
-
-  @Test
-  public void testWithSSHUri() throws Exception {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl("ssh://git@github.com/");
-    assertEquals("ssh://git@github.com/", result);
-  }
 }

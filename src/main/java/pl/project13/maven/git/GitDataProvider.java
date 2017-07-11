@@ -241,7 +241,7 @@ public abstract class GitDataProvider {
   /**
    * Regex to check for SCP-style SSH+GIT connection strings such as 'git@github.com'
    */
-  static final Pattern GIT_SCP_FORMAT = Pattern.compile("^([a-zA-Z0-9_.+-])+@(.*)");
+  static final Pattern GIT_SCP_FORMAT = Pattern.compile("^([a-zA-Z0-9_.+-])+@(.*)|^\\[([^\\]])+\\]:(.*)");
   /**
    * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
    *
