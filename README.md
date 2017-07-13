@@ -210,11 +210,11 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         The path for the to be generated properties file, it's relative to ${project.basedir} 
                         The default value is ${project.build.outputDirectory}/git.properties
 
-                        *Note*: If you plan to set the generateGitPropertiesFilename-Path to a location where usally the source-files
+                        *Note*: If you plan to set the generateGitPropertiesFilename-Path to a location where usually the source-files
                                 comes from (e.g. src/main/resources) and experience that your IDE (e.g. eclipse)
                                 invokes "Maven Project Builder" once every second, the chances that you are using
                                 an IDE where the src-folder is a watched folder for files that are *only* edited by humans is pretty high.
-                                For further information refer to the manual for your specifc IDE and check the worflow of "incremental project builders".
+                                For further information refer to the manual for your specific IDE and check the workflow of "incremental project builders".
                                 In order to fix this problem we recommend to set the generateGitPropertiesFilename-Path
                                 to a target folder (e.g. ${project.build.outputDirectory}) since this is
                                 the place where all derived/generated resources should go.
@@ -395,7 +395,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                             <name>validating project version</name>
                             <!-- 
                                  the value that needs the validation
-                                 *Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configutation `<injectAllReactorProjects>true</injectAllReactorProjects>`. 
+                                 *Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configuration `<injectAllReactorProjects>true</injectAllReactorProjects>`. 
                             -->
                             <value>${project.version}</value>
                             <!--
