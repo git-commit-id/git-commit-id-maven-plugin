@@ -95,7 +95,7 @@ Plugin compatibility with maven
 Even though this plugin tries to be compatible with every Maven version there are some known limitations with specific versions. Here is a list that tries to outline the current state of the art:
 
 | Maven Version               | Plugin Version  | Notes                              |
-| --------------------------- | ---------------:| ----------------------------------:|
+| --------------------------- | ---------------:|:----------------------------------:|
 | Maven 3.0.4                 | up to 2.1.13    |                                    |
 | Maven 3.0.5                 | up to 2.1.13    |                                    |
 | Maven 3.1.0                 | up to 2.1.13    |                                    |
