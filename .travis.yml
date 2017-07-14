@@ -4,7 +4,7 @@ dist: trusty
 
 matrix:
   include:
-    - jdk: oraclejdk7
+    - jdk: openjdk7 # https://github.com/travis-ci/travis-ci/issues/7884
     - jdk: oraclejdk8
     - jdk: oraclejdk9 # JDK 9-ea+174 provided by Travis will be replaced by 9+177 in "before_install"
       before_install:
