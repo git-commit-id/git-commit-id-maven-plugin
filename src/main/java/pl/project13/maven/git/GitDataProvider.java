@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public abstract class GitDataProvider {
+public abstract class GitDataProvider implements GitProvider {
 
   @NotNull
   protected final LoggerBridge log;
@@ -82,26 +82,6 @@ public abstract class GitDataProvider {
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
-
-  protected abstract void init() throws GitCommitIdExecutionException;
-  protected abstract String getBuildAuthorName() throws GitCommitIdExecutionException;
-  protected abstract String getBuildAuthorEmail() throws GitCommitIdExecutionException;
-  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException;
-  protected abstract String getBranchName() throws GitCommitIdExecutionException;
-  protected abstract String getGitDescribe() throws GitCommitIdExecutionException;
-  protected abstract String getCommitId() throws GitCommitIdExecutionException;
-  protected abstract String getAbbrevCommitId() throws GitCommitIdExecutionException;
-  protected abstract boolean isDirty() throws GitCommitIdExecutionException;
-  protected abstract String getCommitAuthorName() throws GitCommitIdExecutionException;
-  protected abstract String getCommitAuthorEmail() throws GitCommitIdExecutionException;
-  protected abstract String getCommitMessageFull() throws GitCommitIdExecutionException;
-  protected abstract String getCommitMessageShort() throws GitCommitIdExecutionException;
-  protected abstract String getCommitTime() throws GitCommitIdExecutionException;
-  protected abstract String getRemoteOriginUrl() throws GitCommitIdExecutionException;
-  protected abstract String getTags() throws GitCommitIdExecutionException;
-  protected abstract String getClosestTagName() throws GitCommitIdExecutionException;
-  protected abstract String getClosestTagCommitCount() throws GitCommitIdExecutionException;
-  protected abstract void finalCleanUp() throws GitCommitIdExecutionException;
 
   public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     init();
