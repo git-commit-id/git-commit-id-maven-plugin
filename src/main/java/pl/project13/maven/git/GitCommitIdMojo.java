@@ -70,31 +70,6 @@ import pl.project13.maven.git.util.SortedProperties;
  */
 @Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
-
-  // these properties will be exposed to maven
-  public static final String BRANCH = "branch";
-  public static final String DIRTY = "dirty";
-  // only one of the following two will be exposed, depending on the commitIdGenerationMode
-  public static final String COMMIT_ID_FLAT = "commit.id";
-  public static final String COMMIT_ID_FULL = "commit.id.full";
-  public static final String COMMIT_ID_ABBREV = "commit.id.abbrev";
-  public static final String COMMIT_DESCRIBE = "commit.id.describe";
-  public static final String COMMIT_SHORT_DESCRIBE = "commit.id.describe-short";
-  public static final String BUILD_AUTHOR_NAME = "build.user.name";
-  public static final String BUILD_AUTHOR_EMAIL = "build.user.email";
-  public static final String BUILD_TIME = "build.time";
-  public static final String BUILD_VERSION = "build.version";
-  public static final String BUILD_HOST = "build.host";
-  public static final String COMMIT_AUTHOR_NAME = "commit.user.name";
-  public static final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
-  public static final String COMMIT_MESSAGE_FULL = "commit.message.full";
-  public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
-  public static final String COMMIT_TIME = "commit.time";
-  public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
-  public static final String TAGS = "tags";
-  public static final String CLOSEST_TAG_NAME = "closest.tag.name";
-  public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
-
   // TODO fix access modifier
   /**
    * The Maven Project.
@@ -523,8 +498,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     if(dateFormatTimeZone != null){
       smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
-    put(properties, BUILD_TIME, smf.format(buildDate));
-    put(properties, BUILD_VERSION, project.getVersion());
+    put(properties, GitCommitPropertyConstant.BUILD_TIME, smf.format(buildDate));
+    put(properties, GitCommitPropertyConstant.BUILD_VERSION, project.getVersion());
   }
 
   void loadBuildHostData(@NotNull Properties properties) {
@@ -532,14 +507,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
     } catch (UnknownHostException e) {
-      log.info("Unable to get build host, skipping property {}. Error message: {}", BUILD_HOST, e.getMessage());
+      log.info("Unable to get build host, skipping property {}. Error message: {}", GitCommitPropertyConstant.BUILD_HOST, e.getMessage());
     }
-    put(properties, BUILD_HOST, buildHost);
+    put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
   }
 
   void loadShortDescribe(@NotNull Properties properties) {
     //removes git hash part from describe
-    String commitDescribe = properties.getProperty(prefixDot + COMMIT_DESCRIBE);
+    String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
 
     if (commitDescribe != null) {
       int startPos = commitDescribe.indexOf("-g");
@@ -551,9 +526,9 @@ public class GitCommitIdMojo extends AbstractMojo {
         } else {
           commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
         }
-        put(properties, COMMIT_SHORT_DESCRIBE, commitShortDescribe);
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitShortDescribe);
       } else {
-        put(properties, COMMIT_SHORT_DESCRIBE, commitDescribe);
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitDescribe);
       }
     }
   }
@@ -621,7 +596,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
           final Properties propertiesCopy = (Properties) localProperties.clone();
 
-          final String buildTimeProperty = prefixDot + BUILD_TIME;
+          final String buildTimeProperty = prefixDot + GitCommitPropertyConstant.BUILD_TIME;
 
           propertiesCopy.remove(buildTimeProperty);
           persistedProperties.remove(buildTimeProperty);

@@ -286,10 +286,10 @@ public class GitCommitIdMojoTest {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     Properties prop = new Properties();
     if (commitDescribe != null) {
-      prop.put(GitCommitIdMojo.COMMIT_DESCRIBE, commitDescribe);
+      prop.put(GitCommitPropertyConstant.COMMIT_DESCRIBE, commitDescribe);
     }
     commitIdMojo.loadShortDescribe(prop);
-    assertThat(prop.getProperty(GitCommitIdMojo.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
+    assertThat(prop.getProperty(GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
   }
 
   @Test

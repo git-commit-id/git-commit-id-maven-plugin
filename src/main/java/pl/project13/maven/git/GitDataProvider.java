@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public abstract class GitDataProvider {
+public abstract class GitDataProvider implements GitProvider {
 
   @NotNull
   protected final LoggerBridge log;
@@ -83,49 +83,29 @@ public abstract class GitDataProvider {
     return this;
   }
 
-  protected abstract void init() throws GitCommitIdExecutionException;
-  protected abstract String getBuildAuthorName() throws GitCommitIdExecutionException;
-  protected abstract String getBuildAuthorEmail() throws GitCommitIdExecutionException;
-  protected abstract void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException;
-  protected abstract String getBranchName() throws GitCommitIdExecutionException;
-  protected abstract String getGitDescribe() throws GitCommitIdExecutionException;
-  protected abstract String getCommitId() throws GitCommitIdExecutionException;
-  protected abstract String getAbbrevCommitId() throws GitCommitIdExecutionException;
-  protected abstract boolean isDirty() throws GitCommitIdExecutionException;
-  protected abstract String getCommitAuthorName() throws GitCommitIdExecutionException;
-  protected abstract String getCommitAuthorEmail() throws GitCommitIdExecutionException;
-  protected abstract String getCommitMessageFull() throws GitCommitIdExecutionException;
-  protected abstract String getCommitMessageShort() throws GitCommitIdExecutionException;
-  protected abstract String getCommitTime() throws GitCommitIdExecutionException;
-  protected abstract String getRemoteOriginUrl() throws GitCommitIdExecutionException;
-  protected abstract String getTags() throws GitCommitIdExecutionException;
-  protected abstract String getClosestTagName() throws GitCommitIdExecutionException;
-  protected abstract String getClosestTagCommitCount() throws GitCommitIdExecutionException;
-  protected abstract void finalCleanUp() throws GitCommitIdExecutionException;
-
   public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
     init();
     // git.user.name
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, getBuildAuthorName());
+    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, getBuildAuthorName());
     // git.user.email
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
+    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
 
     try {
       prepareGitToExtractMoreDetailedRepoInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
-      put(properties, GitCommitIdMojo.BRANCH, determineBranchName(System.getenv()));
+      put(properties, GitCommitPropertyConstant.BRANCH, determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
       switch (commitIdGenerationMode) {
         case FULL: {
-          put(properties, GitCommitIdMojo.COMMIT_ID_FULL, getCommitId());
+          put(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, getCommitId());
           break;
         }
         case FLAT: {
-          put(properties, GitCommitIdMojo.COMMIT_ID_FLAT, getCommitId());
+          put(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, getCommitId());
           break;
         }
         default: {
@@ -133,27 +113,27 @@ public abstract class GitDataProvider {
         }
       }
       // git.commit.id.abbrev
-      put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, getAbbrevCommitId());
+      put(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, getAbbrevCommitId());
       // git.dirty
-      put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(isDirty()));
+      put(properties, GitCommitPropertyConstant.DIRTY, Boolean.toString(isDirty()));
       // git.commit.author.name
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, getCommitAuthorName());
+      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, getCommitAuthorName());
       // git.commit.author.email
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, getCommitAuthorEmail());
+      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, getCommitAuthorEmail());
       // git.commit.message.full
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_FULL, getCommitMessageFull());
+      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, getCommitMessageFull());
       // git.commit.message.short
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_SHORT, getCommitMessageShort());
+      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, getCommitMessageShort());
       // git.commit.time
-      put(properties, GitCommitIdMojo.COMMIT_TIME, getCommitTime());
+      put(properties, GitCommitPropertyConstant.COMMIT_TIME, getCommitTime());
       // git remote.origin.url
-      put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, getRemoteOriginUrl());
+      put(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, getRemoteOriginUrl());
 
       //
-      put(properties, GitCommitIdMojo.TAGS, getTags());
+      put(properties, GitCommitPropertyConstant.TAGS, getTags());
       
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, getClosestTagName());
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
+      put(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, getClosestTagName());
+      put(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
     } finally {
       finalCleanUp();
     }
@@ -164,7 +144,7 @@ public abstract class GitDataProvider {
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, getGitDescribe());
+      put(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, getGitDescribe());
     }
   }
 

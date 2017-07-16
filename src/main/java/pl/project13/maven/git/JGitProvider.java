@@ -66,25 +66,25 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void init() throws GitCommitIdExecutionException {
+  public void init() throws GitCommitIdExecutionException {
     git = getGitRepository();
     objectReader = git.newObjectReader();
   }
 
   @Override
-  protected String getBuildAuthorName() throws GitCommitIdExecutionException {
+  public String getBuildAuthorName() throws GitCommitIdExecutionException {
     String userName = git.getConfig().getString("user", null, "name");
     return MoreObjects.firstNonNull(userName, "");
   }
 
   @Override
-  protected String getBuildAuthorEmail() throws GitCommitIdExecutionException {
+  public String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     String userEmail = git.getConfig().getString("user", null, "email");
     return MoreObjects.firstNonNull(userEmail, "");
   }
 
   @Override
-  protected void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
+  public void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
     try {
       // more details parsed out bellow
       Ref head = git.findRef(Constants.HEAD);
@@ -104,7 +104,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getBranchName() throws GitCommitIdExecutionException {
+  public String getBranchName() throws GitCommitIdExecutionException {
     try {
       return git.getBranch();
     } catch (IOException e) {
@@ -113,22 +113,22 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getGitDescribe() throws GitCommitIdExecutionException {
+  public String getGitDescribe() throws GitCommitIdExecutionException {
     return getGitDescribe(git);
   }
 
   @Override
-  protected String getCommitId() throws GitCommitIdExecutionException {
+  public String getCommitId() throws GitCommitIdExecutionException {
     return headCommit.getName();
   }
 
   @Override
-  protected String getAbbrevCommitId() throws GitCommitIdExecutionException {
+  public String getAbbrevCommitId() throws GitCommitIdExecutionException {
     return getAbbrevCommitId(objectReader, headCommit, abbrevLength);
   }
 
   @Override
-  protected boolean isDirty() throws GitCommitIdExecutionException {
+  public boolean isDirty() throws GitCommitIdExecutionException {
     try {
       return JGitCommon.isRepositoryInDirtyState(git);
     } catch (GitAPIException e) {
@@ -137,27 +137,27 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getCommitAuthorName() throws GitCommitIdExecutionException {
+  public String getCommitAuthorName() throws GitCommitIdExecutionException {
     return headCommit.getAuthorIdent().getName();
   }
 
   @Override
-  protected String getCommitAuthorEmail() throws GitCommitIdExecutionException {
+  public String getCommitAuthorEmail() throws GitCommitIdExecutionException {
     return headCommit.getAuthorIdent().getEmailAddress();
   }
 
   @Override
-  protected String getCommitMessageFull() throws GitCommitIdExecutionException {
+  public String getCommitMessageFull() throws GitCommitIdExecutionException {
     return headCommit.getFullMessage().trim();
   }
 
   @Override
-  protected String getCommitMessageShort() throws GitCommitIdExecutionException {
+  public String getCommitMessageShort() throws GitCommitIdExecutionException {
     return headCommit.getShortMessage().trim();
   }
 
   @Override
-  protected String getCommitTime() throws GitCommitIdExecutionException {
+  public String getCommitTime() throws GitCommitIdExecutionException {
     long timeSinceEpoch = headCommit.getCommitTime();
     Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
@@ -165,13 +165,13 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getRemoteOriginUrl() throws GitCommitIdExecutionException {
+  public String getRemoteOriginUrl() throws GitCommitIdExecutionException {
     String url = git.getConfig().getString("remote", "origin", "url");
     return stripCredentialsFromOriginUrl(url);
   }
 
   @Override
-  protected String getTags() throws GitCommitIdExecutionException {
+  public String getTags() throws GitCommitIdExecutionException {
     try {
       Repository repo = getGitRepository();
       ObjectId headId = headCommit.toObjectId();
@@ -184,7 +184,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getClosestTagName() throws GitCommitIdExecutionException {
+  public String getClosestTagName() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
       return jGitCommon.getClosestTagName(repo);
@@ -195,7 +195,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected String getClosestTagCommitCount() throws GitCommitIdExecutionException {
+  public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
       return jGitCommon.getClosestTagCommitCount(repo, headCommit);
@@ -206,7 +206,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
-  protected void finalCleanUp() {
+  public void finalCleanUp() {
     if (revWalk != null) {
       revWalk.dispose();
     }
