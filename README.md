@@ -267,6 +267,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
                         to use properties to enable / disable pom features. Default value is 'false'.
+                        With version 2.2.3 you can also skip the plugin by using the commandline option -Dmaven.gitcommitid.skip=true
                     -->
                     <skip>false</skip>
 
