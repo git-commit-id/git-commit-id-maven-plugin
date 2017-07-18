@@ -859,7 +859,7 @@ Example:
 ```
 
 If you are using the maven build with [Maven's Plugin Prefix Resolution](https://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html) (e.g. `mvn somePrefix:goal`) please note that this currently seems to be [not supported by maven](https://issues.apache.org/jira/browse/MNG-6260).
-Instead of using the Plugin Prefix Resolution add an exection tag that calls the desired goal of the plugin within a normal maven life cycle (e.g. `mvn clean package`).
+Instead of using the Plugin Prefix Resolution add an execution tag that calls the desired goal of the plugin within a normal maven life cycle (e.g. `mvn clean package`).
 
 
 Maintainers
