@@ -96,9 +96,7 @@ Even though this plugin tries to be compatible with every Maven version there ar
 
 | Maven Version               | Plugin Version  | Notes                              |
 | --------------------------- | ---------------:|:----------------------------------:|
-| Maven 3.0.4                 | up to 2.1.13    |                                    |
-| Maven 3.0.5                 | up to 2.1.13    |                                    |
-| Maven 3.1.0                 | up to 2.1.13    |                                    |
+| Maven 3.1.0 (and below)     | up to 2.1.13    |                                    |
 | Maven 3.1.1 (and onwards)   |          any    |                                    |
 | Maven 3.3.1                 |          any    | plugin version 2.1.14 doesn't work |
 | Maven 3.3.3                 |          any    | plugin version 2.1.14 doesn't work |
@@ -269,6 +267,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
                         to use properties to enable / disable pom features. Default value is 'false'.
+                        With version 2.2.3 you can also skip the plugin by using the commandline option -Dmaven.gitcommitid.skip=true
                     -->
                     <skip>false</skip>
 
@@ -823,6 +822,46 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 
 
 All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
+
+Frequently Asked Question (FAQ)
+=========
+
+Supported Maven & Java Versions
+-------------------------------
+Checkout the `Plugin compatibility with maven` section of this readme to find out what Maven version this plugin currently supports.
+If you still rely on Java `1.6` you can use the plugin version `2.1.15` - more Information can be found in `Migration Issues you may come across when using the latest 2.2.X`
+
+Generated properties are not usable inside the pom / properties don't get exposed by the plugin
+-------------------------------
+Since version `2.1.4` there is a switch to control if you want the plugin to expose the generated properties to your pom as well.
+This switch is set to `false` by default to ensure that properties of reactor builds can't be overwritten by accident.
+Thus if you need this feature set `<injectAllReactorProjects>true</injectAllReactorProjects>` inside the plugin's config.
+
+If the properties are empty for some reason verify with the maven-antrun-plugin if they are correctly exposed.
+Example:
+```
+<plugin>
+  <artifactId>maven-antrun-plugin</artifactId>
+  <version>1.8</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <configuration>
+        <target>
+          <echo>Git-Infos: ${git.commit.id}</echo>
+        </target>
+      </configuration>
+      <goals>
+        <goal>run</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+```
+
+If you are using the maven build with [Maven's Plugin Prefix Resolution](https://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html) (e.g. `mvn somePrefix:goal`) please note that this currently seems to be [not supported by maven](https://issues.apache.org/jira/browse/MNG-6260).
+Instead of using the Plugin Prefix Resolution add an execution tag that calls the desired goal of the plugin within a normal maven life cycle (e.g. `mvn clean package`).
+
 
 Maintainers
 ===========
