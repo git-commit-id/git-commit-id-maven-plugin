@@ -378,6 +378,13 @@
                 <excludeProperty>git.commit.*</excludeProperty>
                 <excludeProperty>git.remote.origin.url</excludeProperty>
               </excludeProperties>
+              <replacementProperties>
+                <replacementProperty>
+                  <property>git.branch</property>
+                  <token>^([^\/]*)\/([^\/]*)$</token>
+                  <value>$1-$2</value>
+                </replacementProperty>
+              </replacementProperties>
               <failOnNoGitDirectory>false</failOnNoGitDirectory>
               <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
               <!-- used in validateRevision -->
