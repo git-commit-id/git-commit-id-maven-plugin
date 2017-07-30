@@ -193,8 +193,12 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- that's the default value, you don't have to set it -->
                     <prefix>git</prefix>
 
-                    <!-- that's the default value -->
-                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+                    <!-- @since 2.2.0 -->
+                    <!--
+                         The current dateFormat is set to match maven's default ``yyyy-MM-dd'T'HH:mm:ssZ``
+                         Please note that in previous versions (2.2.0 - 2.2.2) the default dateFormat was set to: ``dd.MM.yyyy '@' HH:mm:ss z``. However the `RFC 822 time zone` seems to give a more reliable option in parsing the date and it's being used in maven as default.
+                     -->
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
 
                     <!-- @since 2.2.0 -->
                     <!-- 

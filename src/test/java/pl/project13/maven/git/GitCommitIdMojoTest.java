@@ -51,7 +51,7 @@ public class GitCommitIdMojoTest {
 
     String prefix = "git";
     int abbrevLength = 7;
-    String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
+    String dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(dotGitDirectory);
