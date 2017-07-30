@@ -48,7 +48,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     "git.remote.origin.url"
   };
 
-  public static final String DEFAULT_FORMAT_STRING  = "dd.MM.yyyy '@' HH:mm:ss z";
+  public static final String DEFAULT_FORMAT_STRING  = "yyyy-MM-dd'T'HH:mm:ssZ";
   public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
   @Test

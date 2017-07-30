@@ -175,7 +175,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
    */
-  @Parameter(defaultValue = "dd.MM.yyyy '@' HH:mm:ss z")
+  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
   private String dateFormat;
 
   /**

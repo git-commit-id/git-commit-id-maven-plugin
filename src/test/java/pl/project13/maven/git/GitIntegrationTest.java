@@ -106,7 +106,7 @@ public abstract class GitIntegrationTest {
     mojoDefaults.put("generateGitPropertiesFile", false);
     mojoDefaults.put("generateGitPropertiesFilename", "src/main/resources/git.properties");
     mojoDefaults.put("prefix", "git");
-    mojoDefaults.put("dateFormat", "dd.MM.yyyy '@' HH:mm:ss z");
+    mojoDefaults.put("dateFormat", "yyyy-MM-dd'T'HH:mm:ssZ");
     mojoDefaults.put("failOnNoGitDirectory", true);
     mojoDefaults.put("useNativeGit", false);
     mojoDefaults.put("commitIdGenerationMode", "full");
