@@ -46,6 +46,7 @@ public class UriUserInfoRemoverTest {
                 { "ssh://git@github.com/", "ssh://git@github.com/" },
                 { "/path/to/repo.git/", "/path/to/repo.git/" },
                 { "file:///path/to/repo.git/", "file:///path/to/repo.git/"},
+                { "file:///C:\\Users\\test\\example", "file:///C:\\Users\\test\\example"},
                 };
         return Arrays.asList(data);
   }
