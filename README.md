@@ -285,6 +285,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                        Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
                        only generate the file in the directory where you started your build (!).
 
+                       Important: Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`).
+                       If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
+
                        The `git.*` maven properties are available in all modules.
                        Default value is `false`.
                     -->
