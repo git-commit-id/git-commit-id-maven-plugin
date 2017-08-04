@@ -68,6 +68,30 @@ Usage Example:
 </validationProperties>
 ```
 
+Required Configuration:
+If you plan to use this feature you'll want to know that the validation will be executed inside an additional mojo.
+Inside you pom you thus may want to add an additional execution tag that triggers the execution of the validation plugin.
+You can also change the default phase of each execution by adding a `phase` definition.
+
+```xml
+<executions>
+  <execution>
+    <id>get-the-git-infos</id>
+    <goals>
+      <goal>revision</goal>
+    </goals>
+  </execution>
+  <execution>
+    <id>validate-the-git-infos</id>
+    <goals>
+      <goal>validateRevision</goal>
+    </goals>
+    <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+    <phase>package</phase>
+  </execution>
+</executions>
+```
+
 *Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configuration `<injectAllReactorProjects>true</injectAllReactorProjects>`.
 
 Other
@@ -284,6 +308,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                        Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
                        only generate the file in the directory where you started your build (!).
+
+                       Important: Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`).
+                       If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
 
                        The `git.*` maven properties are available in all modules.
                        Default value is `false`.
@@ -815,7 +842,7 @@ Optional parameters:
 
 * **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. `${project.basedir}/.git` is the default value and will most probably be ok for single module projects, in other cases please use `../` to get higher up in the dir tree. An example would be: `${project.basedir}/../.git` which I'm currently using in my projects :-)
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
-* **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* **dateFormat** - `(default: yyyy-MM-dd'T'HH:mm:ssZ)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **dateFormatTimeZone** - `(default: empty)` *(available since v2.2.0)* is a TimeZone String (e.g. 'America/Los_Angeles', 'GMT+10', 'PST') and can be used to set the timezone of the *dateFormat* to anything in particular. As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones. The default value we'll use the timezone use the timezone that's shipped with java (java.util.TimeZone.getDefault().getID()). *Note*: If you plan to set the java's timezone by using `MAVEN_OPTS=-Duser.timezone=UTC mvn clean package`, `mvn clean package -Duser.timezone=UTC` or any other configuration keep in mind that this option will override those settings and will not take other configurations into account!
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
@@ -825,10 +852,11 @@ Optional parameters:
 * **injectAllReactorProjects** - `(default: false)` - Tell maven-git-commit-id to inject the git properties into all reactor projects not just the current one. The property is set to ``false`` by default to prevent the overriding of properties that may be unrelated to the project. If you need to expose your git properties to another maven module (e.g. maven-antrun-plugin) you need to set it to ``true``. However, setting this option can have an impact on your build. For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory cannot be found. When set to false and no .git directory is found the plugin will skip execution.
 * **failOnUnableToExtractRepoInfo** - `(default: true)` *(available since v2.1.5)* - By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
-* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
-* **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
+* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely. With version *2.2.3* you can also skip the plugin by using the commandline option -Dmaven.gitcommitid.skip=true
+* **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules. Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`). If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
+* **replacementProperties** - `(default: empty)` *(available since v2.2.3)* Can be used to replace certain characters or strings using regular expressions within the generated git properties. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/138), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 * **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
@@ -850,6 +878,8 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **always** - `(default: true)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
 
+
+* **validationProperties** Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set. This feature ships with an additional mojo execution and for instance allows to check if the version is not a snapshot build. If you are interested in the config checkout the[validation utility documentation](https://github.com/ktoso/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
 
 All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
 
