@@ -309,6 +309,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   @NotNull
   private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
+  @NotNull
+  private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
+
   @Override
   public void execute() throws MojoExecutionException {
     try {
@@ -374,8 +377,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         loadBuildHostData(properties);
         loadShortDescribe(properties);
         performReplacement(properties, replacementProperties);
-        filter(properties, includeOnlyProperties);
-        filterNot(properties, excludeProperties);
+        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
+        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
         logProperties(properties);
 
         if (generateGitPropertiesFile) {
@@ -443,56 +446,6 @@ public class GitCommitIdMojo extends AbstractMojo {
       return content;
     }
     return content.replace(token, value);
-  }
-
-  private void filterNot(Properties properties, @Nullable List<String> exclusions) {
-    if (exclusions == null || exclusions.isEmpty()) {
-      return;
-    }
-
-    List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, new Function<String, Predicate<CharSequence>>() {
-      @Override
-      public Predicate<CharSequence> apply(String exclude) {
-        return Predicates.containsPattern(exclude);
-      }
-    });
-
-    Predicate<CharSequence> shouldExclude = Predicates.alwaysFalse();
-    for (Predicate<CharSequence> predicate : excludePredicates) {
-      shouldExclude = Predicates.or(shouldExclude, predicate);
-    }
-
-    for (String key : properties.stringPropertyNames()) {
-      if (isOurProperty(key) && shouldExclude.apply(key)) {
-        log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
-        properties.remove(key);
-      }
-    }
-  }
-
-  private void filter(Properties properties, @Nullable List<String> inclusions) {
-    if (inclusions == null || inclusions.isEmpty()) {
-      return;
-    }
-
-    List<Predicate<CharSequence>> includePredicates = Lists.transform(inclusions, new Function<String, Predicate<CharSequence>>() {
-      @Override
-      public Predicate<CharSequence> apply(String exclude) {
-        return Predicates.containsPattern(exclude);
-      }
-    });
-
-    Predicate<CharSequence> shouldInclude = Predicates.alwaysFalse();
-    for (Predicate<CharSequence> predicate : includePredicates) {
-      shouldInclude = Predicates.or(shouldInclude, predicate);
-    }
-
-    for (String key : properties.stringPropertyNames()) {
-      if (isOurProperty(key) && !shouldInclude.apply(key)) {
-        log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
-        properties.remove(key);
-      }
-    }
   }
 
   /**
