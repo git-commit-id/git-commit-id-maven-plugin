@@ -384,7 +384,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         }
 
         if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects(properties, prefixDot);
+          appendPropertiesToReactorProjects(properties);
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -463,7 +463,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     for (String key : properties.stringPropertyNames()) {
-      if (shouldExclude.apply(key)) {
+      if (isOurProperty(key) && shouldExclude.apply(key)) {
         log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
         properties.remove(key);
       }
@@ -488,7 +488,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
 
     for (String key : properties.stringPropertyNames()) {
-      if (!shouldInclude.apply(key)) {
+      if (isOurProperty(key) && !shouldInclude.apply(key)) {
         log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
         properties.remove(key);
       }
@@ -510,7 +510,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void appendPropertiesToReactorProjects(@NotNull Properties properties, @NotNull String trimmedPrefixWithDot) {
+  private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
     for (MavenProject mavenProject : reactorProjects) {
       Properties mavenProperties = mavenProject.getProperties();
 
@@ -518,7 +518,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
       for (Object key : properties.keySet()) {
-        if (key.toString().startsWith(trimmedPrefixWithDot)) {
+        if (isOurProperty(key.toString())) {
             mavenProperties.put(key, properties.get(key));
         }
       }
