@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
-import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -51,10 +50,6 @@ import org.jetbrains.annotations.Nullable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import java.io.OutputStream;
@@ -294,7 +289,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @since 2.2.3
    */
   @Parameter
-  private List<ReplacementProperty> replacementProperties;
+  @VisibleForTesting List<ReplacementProperty> replacementProperties;
 
   /**
    * The properties we store our data in and then expose them.
@@ -311,6 +306,8 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   @NotNull
   private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
+
+  @NotNull @VisibleForTesting PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log);
 
   @Override
   public void execute() throws MojoExecutionException {
@@ -376,7 +373,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         loadBuildVersionAndTimeData(properties);
         loadBuildHostData(properties);
         loadShortDescribe(properties);
-        performReplacement(properties, replacementProperties);
+        propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
         logProperties(properties);
@@ -395,57 +392,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
-  }
-
-  @VisibleForTesting void performReplacement(Properties properties, List<ReplacementProperty> replacementProperties) {
-    if((replacementProperties != null) && (properties != null)) {
-      for(ReplacementProperty replacementProperty: replacementProperties) {
-        String propertyKey = replacementProperty.getProperty();
-        if(propertyKey == null) {
-          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            String key = (String)entry.getKey();
-            String content = (String)entry.getValue();
-            String result = performReplacement(replacementProperty, content);
-            entry.setValue(result);
-            log.info("apply replace on property " + key + ": original value '" + content + "' with '" + result + "'");
-          }
-        } else {
-          String content = properties.getProperty(propertyKey);
-          String result = performReplacement(replacementProperty, content);
-          properties.setProperty(propertyKey, result);
-          log.info("apply replace on property " + propertyKey + ": original value '" + content + "' with '" + result + "'");
-        }
-      }
-    }
-  }
-
-  private String performReplacement(ReplacementProperty replacementProperty, String content) {
-    String result = content;
-    if(replacementProperty != null) {
-      if(replacementProperty.isRegex()) {
-        result = replaceRegex(content, replacementProperty.getToken(), replacementProperty.getValue());
-      } else {
-        result = replaceNonRegex(content, replacementProperty.getToken(), replacementProperty.getValue());
-      }
-    }
-    return result;
-  }
-
-  private String replaceRegex(String content, String token, String value) {
-    if((token == null) || (value == null)) {
-      log.error("found replacementProperty without required token or value.");
-      return content;
-    }
-    final Pattern compiledPattern = Pattern.compile(token);
-    return compiledPattern.matcher(content).replaceAll(value);
-  }
-
-  private String replaceNonRegex(String content, String token, String value) {
-    if((token == null) || (value == null)) {
-      log.error("found replacementProperty without required token or value.");
-      return content;
-    }
-    return content.replace(token, value);
   }
 
   /**
