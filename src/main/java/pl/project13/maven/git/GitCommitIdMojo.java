@@ -364,7 +364,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
         }
 
-        properties = initProperties();
+        properties = new Properties();
 
         String trimmedPrefix = prefix.trim();
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
@@ -376,15 +376,15 @@ public class GitCommitIdMojo extends AbstractMojo {
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
-        logProperties(properties);
+        logProperties();
 
         if (generateGitPropertiesFile) {
           maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
-          project.getProperties().putAll(properties); // add to maven project properties also when file is generated
         }
+        publishPropertiesInto(project);
 
         if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects(properties);
+          appendPropertiesToReactorProjects();
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -392,6 +392,10 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+  }
+
+  private void publishPropertiesInto(MavenProject target) {
+    target.getProperties().putAll(properties);
   }
 
   /**
@@ -409,18 +413,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void appendPropertiesToReactorProjects(@NotNull Properties properties) {
+  private void appendPropertiesToReactorProjects() {
     for (MavenProject mavenProject : reactorProjects) {
-      Properties mavenProperties = mavenProject.getProperties();
 
       // TODO check message
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
-      for (Object key : properties.keySet()) {
-        if (isOurProperty(key.toString())) {
-            mavenProperties.put(key, properties.get(key));
-        }
-      }
+      publishPropertiesInto(mavenProject);
     }
   }
 
@@ -434,25 +433,11 @@ public class GitCommitIdMojo extends AbstractMojo {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
-  private Properties initProperties() throws GitCommitIdExecutionException {
-    if (generateGitPropertiesFile) {
-      return properties = new Properties();
-    } else {
-      return properties = project.getProperties();
-    }
-  }
-
-  private void logProperties(@NotNull Properties properties) {
+  private void logProperties() {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
-      if (isOurProperty(keyString)) {
-        log.info("found property {}", keyString);
-      }
+      log.info("found property {}", keyString);
     }
-  }
-
-  private boolean isOurProperty(@NotNull String keyString) {
-    return keyString.startsWith(prefixDot);
   }
 
   void loadBuildVersionAndTimeData(@NotNull Properties properties) {
