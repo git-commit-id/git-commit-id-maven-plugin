@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
@@ -27,6 +28,7 @@ import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -312,6 +314,17 @@ public class GitCommitIdMojoTest {
 
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
+  }
+
+  @Test
+  public void shouldPerformReplacements() throws MojoExecutionException
+  {
+    mojo.propertiesReplacer = mock(PropertiesReplacer.class);
+    mojo.replacementProperties = mock(List.class);
+
+    mojo.execute();
+
+    verify(mojo.propertiesReplacer).performReplacement(any(Properties.class), eq(mojo.replacementProperties));
   }
 
 }
