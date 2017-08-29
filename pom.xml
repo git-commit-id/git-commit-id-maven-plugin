@@ -8,8 +8,8 @@
   </parent>
 
   <groupId>pl.project13.maven</groupId>
-  <artifactId>git-commit-id-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
+  <artifactId>git-commit-id-plugin-parent</artifactId>
+  <packaging>pom</packaging>
   <version>2.2.4-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
   <description>
@@ -29,10 +29,6 @@
       <url>http://blog.project13.pl</url>
     </developer>
   </developers>
-
-  <prerequisites>
-    <maven>[${maven-plugin-api.version},)</maven>
-  </prerequisites>
 
   <licenses>
     <license>
@@ -54,146 +50,107 @@
 
     <java.target>1.7</java.target>
 
-    <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
-
-    <jgit.version>4.5.2.201704071617-r</jgit.version>
     <junit.version>4.12</junit.version>
     <mockito.version>2.8.47</mockito.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
 
-  <dependencies>
-    <!-- MAVEN -->
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${maven-plugin-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>${maven-plugin-api.version}</version>
-    </dependency>
-    <!-- dependencies to annotations -->
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>${maven-plugin-plugin.version}</version>
-      <scope>provided</scope><!-- annotations are needed only to build the plugin -->
-    </dependency>
+  <modules>
+    <module>core</module>
+    <module>maven</module>
+  </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>git-commit-id-plugin-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.6.4</version>
-    </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.6.4</version>
+      </dependency>
 
-    <!-- Joda Time -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.9.1</version>
-    </dependency>
+      <!-- Joda Time -->
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>2.9.1</version>
+      </dependency>
 
-    <!-- Guava -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>19.0</version>
-    </dependency>
+      <!-- Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>19.0</version>
+      </dependency>
 
-    <!-- IntelliJ Annotations -->
-    <dependency>
-      <groupId>com.intellij</groupId>
-      <artifactId>annotations</artifactId>
-      <version>12.0</version>
-    </dependency>
+      <!-- IntelliJ Annotations -->
+      <dependency>
+        <groupId>com.intellij</groupId>
+        <artifactId>annotations</artifactId>
+        <version>12.0</version>
+      </dependency>
 
-    <!-- JGit -->
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
-    </dependency>
+      <!-- Test stuff -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
 
-    <!-- Test stuff -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.easytesting</groupId>
+        <artifactId>fest-assert</artifactId>
+        <version>${fest-assert.version}</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
-      <version>${fest-assert.version}</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>3.0.22</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <version>3.0.22</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.4</version>
+        <type>jar</type>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.4</version>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
+      <dependency>
+        <groupId>pl.pragmatists</groupId>
+        <artifactId>JUnitParams</artifactId>
+        <version>1.0.4</version>
+        <scope>test</scope>
+      </dependency>
 
-    <dependency>
-      <groupId>pl.pragmatists</groupId>
-      <artifactId>JUnitParams</artifactId>
-      <version>1.0.4</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!--to avoid complaints during tests-->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.7.13</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+      <!--to avoid complaints during tests-->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.13</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
-    <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <excludes>
-          <exclude>_git_*/**</exclude>
-          <exclude>README.md</exclude>
-        </excludes>
-      </testResource>
-    </testResources>
-
     <pluginManagement>
       <plugins>
         <plugin>
@@ -237,10 +194,6 @@
           <version>3.0.2</version>
         </plugin>
         <plugin>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>${maven-plugin-plugin.version}</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.19.1</version>
         </plugin>
@@ -269,29 +222,6 @@
           <source>${java.target}</source>
           <target>${java.target}</target>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-descriptor</id>
-            <phase>process-classes</phase>
-          </execution>
-<!--
-          <execution>
-            <id>generated-helpmojo</id>
-            <goals>
-              <goal>helpmojo</goal>
-            </goals>
-            <configuration>
-              <goalPrefix>git-commit-id</goalPrefix>
-              <helpPackageName>pl.project13.maven</helpPackageName>
-            </configuration>
-          </execution>
--->
-        </executions>
       </plugin>
 
       <plugin>
@@ -330,84 +260,6 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>demo</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>${project.version}</version>
-            <!-- optional to change the phases of the individual mojo's -->
-            <executions>
-              <execution>
-                <id>get-the-git-infos</id>
-                <goals>
-                  <goal>revision</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>validate-the-git-infos</id>
-                <goals>
-                  <goal>validateRevision</goal>
-                </goals>
-                <phase>package</phase>
-             </execution>
-            </executions>
-            <configuration>
-              <verbose>true</verbose>
-              <skip>false</skip>
-              <prefix>git</prefix>
-              <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-              <generateGitPropertiesFile>true</generateGitPropertiesFile>
-              <generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>
-              <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-              <dateFormatTimeZone>GMT-08:00</dateFormatTimeZone>
-              <useNativeGit>false</useNativeGit>
-              <abbrevLength>7</abbrevLength>
-              <format>properties</format>
-              <injectAllReactorProjects>true</injectAllReactorProjects>
-              <gitDescribe>
-                <skip>false</skip>
-                <always>false</always>
-                <abbrev>7</abbrev>
-                <match>*</match>
-                <dirty>-DEVEL</dirty>
-                <forceLongFormat>false</forceLongFormat>
-              </gitDescribe>
-              <excludeProperties>
-                <excludeProperty>git.commit.*</excludeProperty>
-                <excludeProperty>git.remote.origin.url</excludeProperty>
-              </excludeProperties>
-              <replacementProperties>
-                <replacementProperty>
-                  <property>git.branch</property>
-                  <token>^([^\/]*)\/([^\/]*)$</token>
-                  <value>$1-$2</value>
-                </replacementProperty>
-              </replacementProperties>
-              <failOnNoGitDirectory>false</failOnNoGitDirectory>
-              <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
-              <!-- used in validateRevision -->
-              <validationProperties>
-                <validationProperty>
-                  <name>validating project version</name>
-                  <value>${project.version}</value>
-                  <!-- <shouldMatchTo>^[0-9\.]*$</shouldMatchTo> -->
-                  <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
-                </validationProperty>
-                <validationProperty>
-                  <name>validating git dirty</name>
-                  <value>${git.dirty}</value>
-                  <shouldMatchTo>false</shouldMatchTo>
-                </validationProperty>
-              </validationProperties>
-              <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
-            </configuration>
           </plugin>
         </plugins>
       </build>
