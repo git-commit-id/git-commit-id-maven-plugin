@@ -215,8 +215,21 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Set this to {@code 'true'} to skip plugin execution.
    * @since 2.1.8
    */
-  @Parameter(property = "maven.gitcommitid.skip", defaultValue = "false")
+  @Parameter(defaultValue = "false")
   private boolean skip;
+
+
+  /**
+   * Set this to {@code 'true'} to skip plugin execution via commandline.
+   * NOTE / WARNING:
+   * Do *NOT* set this property inside the configuration of your plugin.
+   * Please read
+   * https://github.com/ktoso/maven-git-commit-id-plugin/issues/315
+   * to find out why.
+   * @since 2.2.4
+   */
+  @Parameter(property = "maven.gitcommitid.skip", defaultValue = "false")
+  private boolean skipViaCommandLine;
 
   /**
    * <p>Set this to {@code 'true'} to only run once in a multi-module build.  This probably won't "do the right thing"
@@ -323,7 +336,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         sourceCharset = Charset.defaultCharset();
       }
 
-      if (skip) {
+      if (skip || skipViaCommandLine) {
         log.info("skip is enabled, skipping execution!");
         return;
       }
