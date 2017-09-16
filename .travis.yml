@@ -32,3 +32,8 @@ install:
       export PATH=$M2_HOME/bin:$PATH;
       mvn -version;
     fi
+
+script:
+  - mvn clean test install -B
+  - mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
+  - /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || travis_terminate 1;'
