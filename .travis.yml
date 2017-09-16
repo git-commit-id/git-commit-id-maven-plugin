@@ -5,3 +5,37 @@ jdk:
   - oraclejdk9
   - oraclejdk8
   - openjdk7
+
+matrix:
+  include:
+  - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.0"
+  - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.0.5"
+  - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.1.1"
+  - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.2.5"
+  - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.3.9"
+  - jdk: oraclejdk9
+    env: CUSTOM_MVN_VERION="3.5.0"
+
+install:
+  - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
+      echo "Download Maven ${CUSTOM_MVN_VERION}....";
+      if [[ "${CUSTOM_MVN_VERION}" == "3.0" ]]; then
+        wget https://archive.apache.org/dist/maven/binaries/apache-maven-3.0-bin.zip || travis_terminate 1;
+      else
+        wget https://archive.apache.org/dist/maven/maven-3/${CUSTOM_MVN_VERION}/binaries/apache-maven-${CUSTOM_MVN_VERION}-bin.zip || travis_terminate 1;
+      fi;
+      unzip -qq apache-maven-${CUSTOM_MVN_VERION}-bin.zip || travis_terminate 1;
+      export M2_HOME=$PWD/apache-maven-${CUSTOM_MVN_VERION};
+      export PATH=$M2_HOME/bin:$PATH;
+      mvn -version;
+    fi
+
+script:
+  - mvn clean test install -B
+  - mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
+  - /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || travis_terminate 1;'

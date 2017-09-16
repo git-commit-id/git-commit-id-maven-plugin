@@ -54,8 +54,8 @@
 
     <java.target>1.7</java.target>
 
-    <maven-plugin-api.version>3.1.1</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.4</maven-plugin-plugin.version>
+    <maven-plugin-api.version>3.0</maven-plugin-api.version>
+    <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
     <jgit.version>4.5.2.201704071617-r</jgit.version>
     <junit.version>4.12</junit.version>
