@@ -11,6 +11,8 @@ matrix:
   - jdk: openjdk7
     env: CUSTOM_MVN_VERION="3.0"
   - jdk: openjdk7
+    env: CUSTOM_MVN_VERION="3.0.5"
+  - jdk: openjdk7
     env: CUSTOM_MVN_VERION="3.1.1"
   - jdk: openjdk7
     env: CUSTOM_MVN_VERION="3.2.5"
