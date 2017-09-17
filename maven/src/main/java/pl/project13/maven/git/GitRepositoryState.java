@@ -16,8 +16,6 @@
  */
 package pl.project13.maven.git;
 
-//import org.codehaus.jackson.annotate.JsonWriteNullProperties;
-
 import com.google.common.base.Joiner;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +28,6 @@ import java.util.Set;
  *
  * @since 1.0
  */
-//@JsonWriteNullProperties(true)
 public class GitRepositoryState {
   String branch;                  // =${git.branch}
   String commitId;                // =${git.commit.id}

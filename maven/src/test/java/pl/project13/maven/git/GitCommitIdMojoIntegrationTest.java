@@ -22,17 +22,15 @@ import com.google.common.base.Splitter;
 import com.google.common.io.Files;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import pl.project13.git.api.GitDescribeConfig;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import pl.project13.git.api.GitDescribeConfig;
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
-import pl.project13.test.utils.AssertException;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -61,7 +59,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-jar-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("useNativeGit", useNativeGit);
@@ -77,7 +75,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldNotRunWhenSkipIsSet(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-skip-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-skip-project", "jar").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skip", true);
@@ -94,7 +92,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("useNativeGit", useNativeGit);
@@ -110,7 +108,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldRunWhenPackagingPomAndSkipPomsFalse(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withNoChildProject().withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -127,7 +125,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldUseParentProjectRepoWhenInvokedFromChild(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -144,7 +142,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldUseChildProjectRepoIfInvokedFromChild(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT).create(CleanUp.CLEANUP_FIRST);
+    mavenSandbox.withParentProject("my-pom-project", "pom").withChildProject("my-jar-module", "jar").withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT).create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
@@ -157,30 +155,21 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
+  @Test(expected = MojoExecutionException.class)
   @Parameters(method = "useNativeGit")
   public void shouldFailWithExceptionWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withNoGitRepoAvailable()
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     alterMojoSettings("skipPoms", false);
     alterMojoSettings("useNativeGit", useNativeGit);
 
-    // when
-    AssertException.CodeBlock block = new AssertException.CodeBlock() {
-      @Override
-      public void run() throws Exception {
-        mojo.execute();
-      }
-    };
-
-    // then
-    AssertException.thrown(MojoExecutionException.class, block);
+    mojo.execute();
   }
 
   @Test
@@ -189,8 +178,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // given
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.GIT_COMMIT_ID)
-                .create(CleanUp.CLEANUP_FIRST);
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -220,7 +209,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -240,7 +229,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertThat(expectedFile).exists();
       String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
       ObjectMapper om = new ObjectMapper();
-      Map<String, String> map = new HashMap<String, String>();
+      Map map = new HashMap<>();
       map = om.readValue(json, map.getClass());
       assertThat(map.size() > 10);
     } finally {
@@ -255,7 +244,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-jar-project", "jar")
                 .withNoChildProject()
                 .withNoGitRepoAvailable()
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -276,7 +265,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-jar-project", "jar")
                 .withNoChildProject()
                 .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -297,7 +286,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -323,7 +312,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -352,7 +341,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -376,7 +365,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -405,7 +394,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -428,7 +417,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -450,7 +439,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -476,7 +465,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -500,7 +489,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -525,7 +514,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -550,7 +539,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -573,7 +562,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -596,9 +585,12 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       .withParentProject("my-jar-project", "jar")
       .withNoChildProject()
       .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-      .create(CleanUp.CLEANUP_FIRST);
+      .create();
 
-    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    }
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -627,13 +619,13 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-plugin-project", "jar")
                 .withNoChildProject()
                 .withGitRepoInParent(AvailableGitTestRepo.WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
     String headCommitId = "b0c6d28b3b83bf7b905321bae67d9ca4c75a203f";
-    Map<String,String> gitTagMap = new HashMap<String,String>();
+    Map<String,String> gitTagMap = new HashMap<>();
     gitTagMap.put("v1.0", "f830b5f85cad3d33ba50d04c3d1454e1ae469057");
     gitTagMap.put("v2.0", "0e3495783c56589213ee5f2ae8900e2dc1b776c4");
 
@@ -668,7 +660,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -697,7 +689,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -728,9 +720,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       .withParentProject("my-jar-project", "jar")
       .withNoChildProject()
       .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-      .create(CleanUp.CLEANUP_FIRST);
+      .create();
 
-    git("my-jar-project").reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
+    }
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -757,7 +751,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -801,7 +795,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mavenSandbox.withParentProject("my-pom-project", "pom")
                 .withChildProject("my-jar-module", "jar")
                 .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create(CleanUp.CLEANUP_FIRST);
+                .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -816,6 +810,64 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     Properties properties = targetProject.getProperties();
     assertThat(properties.stringPropertyNames()).contains("git.commit.id");
     assertThat(properties.stringPropertyNames()).excludes("git.commit.id.full");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void testDetectCleanWorkingDirectory(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.GIT_WITH_NO_CHANGES)
+                .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("commitIdGenerationMode", "flat");
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.get("git.dirty")).isEqualTo("false");
+    assertThat(properties).includes(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void testDetectDirtyWorkingDirectory(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+                .withChildProject("my-jar-module", "jar")
+                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT) // GIT_WITH_CHANGES
+                .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
+    String dirtySuffix = "-dirtyTest";
+    gitDescribeConfig.setDirty(dirtySuffix);
+    alterMojoSettings("gitDescribe", gitDescribeConfig);
+
+    alterMojoSettings("useNativeGit", useNativeGit);
+    alterMojoSettings("commitIdGenerationMode", "flat");
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertThat(properties.get("git.dirty")).isEqualTo("true");
+    assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {

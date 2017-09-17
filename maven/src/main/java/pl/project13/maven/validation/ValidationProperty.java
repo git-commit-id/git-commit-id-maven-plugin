@@ -14,21 +14,44 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
-package pl.project13.maven.git;
 
-public enum CommitIdGenerationModeEnum{
-  FULL,
-  FLAT,
-  UNKNOWN;
-	
-  public static CommitIdGenerationModeEnum getValue(String o){
-    if(o != null){
-      for(CommitIdGenerationModeEnum v : values()){
-        if(v.name().toString().equalsIgnoreCase(o)){
-          return v;
-        }
-      }
-    }
-    return CommitIdGenerationModeEnum.UNKNOWN;
-  }	
+package pl.project13.maven.validation;
+
+
+public class ValidationProperty {
+  private String name;
+  private String value;
+  private String shouldMatchTo;
+
+  public ValidationProperty(){};
+
+  ValidationProperty(String name, String value, String shouldMatchTo) {
+    this.name = name;
+    this.value = value;
+    this.shouldMatchTo = shouldMatchTo;
+  }
+
+  public void setName(String name){
+    this.name = name;
+  }
+
+  public void setValue(String value){
+    this.value = value;
+  }
+
+  public void setShouldMatchTo(String shouldMatchTo){
+    this.shouldMatchTo = shouldMatchTo;
+  }
+
+  public String getName(){
+    return name;
+  }
+
+  public String getValue(){
+    return value;
+  }
+
+  public String getShouldMatchTo(){
+    return shouldMatchTo;
+  }
 }

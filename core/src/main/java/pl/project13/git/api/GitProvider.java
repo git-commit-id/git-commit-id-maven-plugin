@@ -57,4 +57,12 @@ public interface GitProvider {
 
     void finalCleanUp() throws GitException;
 
+    // setter
+    void setAbbrevLength(int abbrevLength);
+
+    void setGitDescribe(GitDescribeConfig gitDescribe);
+
+    void setDateFormat(String dateFormat);
+
+    void setDateFormatTimeZone(String dateFormatTimeZone);
 }

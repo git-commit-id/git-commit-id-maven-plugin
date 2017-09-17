@@ -25,44 +25,42 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.git.api.GitException;
 import pl.project13.git.api.GitProvider;
+import pl.project13.maven.git.CommitIdGenerationMode;
 import pl.project13.maven.git.log.LoggerBridge;
 
 public abstract class AbstractBaseGitProvider<T extends AbstractBaseGitProvider<T>>
         implements GitProvider {
 
     @NotNull
-    protected final LoggerBridge loggerBridge;
-    protected int abbrevLength; // TODO: this can be final
-    protected String dateFormat; // TODO: this can be final
-    protected String dateFormatTimeZone; // TODO: this can be final
-    protected GitDescribeConfig gitDescribe = new GitDescribeConfig(); // TODO: this can be final
+    protected final LoggerBridge log;
 
-    protected AbstractBaseGitProvider(@NotNull LoggerBridge loggerBridge) {
-        this.loggerBridge = loggerBridge;
+    protected int abbrevLength;
+
+    protected String dateFormat;
+
+    protected String dateFormatTimeZone;
+
+    protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
+
+    protected AbstractBaseGitProvider(@NotNull LoggerBridge log) {
+        this.log = log;
     }
 
-    @SuppressWarnings("unchecked")
-    public T setAbbrevLength(int abbrevLength) {
+    @Override
+    public void setAbbrevLength(int abbrevLength) {
         this.abbrevLength = abbrevLength;
-        return (T) this;
     }
 
-    @SuppressWarnings("unchecked")
-    public T setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-        return (T) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T setDateFormatTimeZone(String dateFormatTimeZone) {
-        this.dateFormatTimeZone = dateFormatTimeZone;
-        return (T) this;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T setGitDescribe(GitDescribeConfig gitDescribe) {
+    public void setGitDescribe(GitDescribeConfig gitDescribe) {
         this.gitDescribe = gitDescribe;
-        return (T) this;
+    }
+
+    public void setDateFormat(String dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public void setDateFormatTimeZone(String dateFormatTimeZone) {
+        this.dateFormatTimeZone = dateFormatTimeZone;
     }
 
     @Override
@@ -83,10 +81,9 @@ public abstract class AbstractBaseGitProvider<T extends AbstractBaseGitProvider<
 
     protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
         final SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-        if(dateFormatTimeZone != null){
-          smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
+        if (dateFormatTimeZone != null){
+            smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
         }
         return smf;
     }
-
 }

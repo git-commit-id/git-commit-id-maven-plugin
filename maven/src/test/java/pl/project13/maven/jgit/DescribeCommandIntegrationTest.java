@@ -27,8 +27,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -54,21 +54,20 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .setVerbose(true)
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -78,22 +77,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      DescribeResult res = command.call();
 
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
   
   @Test
@@ -103,22 +101,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      DescribeResult res = command.call();
 
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -128,25 +125,24 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     int abbrevLength = 10;
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = spy(DescribeCommand.on(repo, new StdOutLoggerBridge(true)));
+      doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-    // when
-    DescribeCommand command = spy(DescribeCommand.on(repo));
-    doReturn(false).when(command).findDirtyState(any(Repository.class));
+      command
+              .abbrev(abbrevLength);
+      DescribeResult res = command.call();
 
-    command
-        .setVerbose(true)
-        .abbrev(abbrevLength);
-    DescribeResult res = command.call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
+    }
   }
 
   @Test
@@ -156,20 +152,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
+      command.dirty(DIRTY_SUFFIX);
+      DescribeResult res = command.call();
 
-    // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.dirty(DIRTY_SUFFIX);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
-
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+    }
   }
 
   @Test
@@ -179,23 +174,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
     String customDirtySuffix = "-DEV";
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeCommand command = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .dirty(customDirtySuffix);
+      DescribeResult res = command.call();
 
-    // when
-    DescribeCommand command = DescribeCommand
-        .on(repo)
-        .dirty(customDirtySuffix)
-        .setVerbose(true);
-    DescribeResult res = command.call();
-
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
+    }
   }
 
   @Test
@@ -205,20 +199,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    // when
-    DescribeCommand command = DescribeCommand.on(repo);
-    command.setVerbose(true);
-    DescribeResult res = command.call();
+      // when
+      DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
+      DescribeResult res = command.call();
 
-    // then
-    assertThat(res).isNotNull();
-    RevCommit HEAD = git().log().call().iterator().next();
-    assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
+      // then
+      assertThat(res).isNotNull();
+      RevCommit HEAD = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
+    }
   }
 
   @Test
@@ -228,22 +224,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
-    git().reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -253,22 +249,22 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
-    git().checkout().setName("v1.0.0").call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.checkout().setName("v1.0.0").call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -280,23 +276,23 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
-    git().checkout().setName("v1.0.0").call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      git.checkout().setName("v1.0.0").call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .dirty(customDirtySuffix)
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .dirty(customDirtySuffix)
+              .call();
 
-    // then
-    assertThat(res).isNotNull();
+      // then
+      assertThat(res).isNotNull();
 
-    assertThat(res.toString()).isEqualTo("v1.0.0" + customDirtySuffix);
+      assertThat(res.toString()).isEqualTo("v1.0.0" + customDirtySuffix);
+    }
   }
 
   @Test
@@ -306,19 +302,18 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
-
-    // then
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      // then
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -328,22 +323,21 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .dirty(DIRTY_SUFFIX)
+              .abbrev(0)
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .dirty(DIRTY_SUFFIX)
-        .abbrev(0)
-        .setVerbose(true)
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    assertThat(res.toString()).isEqualTo("annotated-tag" + DIRTY_SUFFIX);
+      assertThat(res.toString()).isEqualTo("annotated-tag" + DIRTY_SUFFIX);
+    }
   }
 
   @Test
@@ -353,23 +347,24 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .tags()
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .tags()
-        .setVerbose(true)
-        .call();
+      // then
+      assertThat(res).isNotNull();
 
-    // then
-    assertThat(res).isNotNull();
-
-    assertThat(res.toString()).isEqualTo("v1.0.0");
+      assertThat(res.toString()).isEqualTo("v1.0.0");
+    }
   }
 
   @Test
@@ -412,24 +407,26 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
-    Git.wrap(repo).reset().setMode(ResetCommand.ResetType.HARD).call();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      try (final Git wrap = Git.wrap(repo)) {
+        wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
+      }
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .abbrev(zeroAbbrev)
-        .setVerbose(true)
-        .call();
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .abbrev(zeroAbbrev)
+              .call();
 
-    // then
-    assertThat(res.toString()).isEqualTo("annotated-tag");
+      // then
+      assertThat(res.toString()).isEqualTo("annotated-tag");
 
-    ObjectId objectId = res.commitObjectId();
-    assert objectId != null;
-    assertThat(objectId.getName()).isNotEmpty();
+      ObjectId objectId = res.commitObjectId();
+      assert objectId != null;
+      assertThat(objectId.getName()).isNotEmpty();
+    }
   }
 
   String abbrev(@NotNull String id) {

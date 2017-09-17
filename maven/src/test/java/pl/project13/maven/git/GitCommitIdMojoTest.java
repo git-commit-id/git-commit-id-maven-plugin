@@ -18,18 +18,21 @@
 package pl.project13.maven.git;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-
-import pl.project13.git.api.GitDescribeConfig;
-
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.project13.git.api.GitDescribeConfig;
+import pl.project13.git.api.GitException;
+import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -40,7 +43,7 @@ import static org.mockito.Mockito.*;
  * I'm not a big fan of this test - let's move to integration test from now on.
  *
  */
-// todo remove this test in favor of complete intgration tests
+// todo remove this test in favor of complete integration tests
 public class GitCommitIdMojoTest {
 
   GitCommitIdMojo mojo;
@@ -55,7 +58,7 @@ public class GitCommitIdMojoTest {
 
     String prefix = "git";
     int abbrevLength = 7;
-    String dateFormat = "dd.MM.yyyy '@' HH:mm:ss z";
+    String dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     mojo = new GitCommitIdMojo();
     mojo.setDotGitDirectory(dotGitDirectory);
@@ -68,13 +71,15 @@ public class GitCommitIdMojoTest {
     mojo.setCommitIdGenerationMode("full");
 
 
-    mojo.runningTests = true;
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
+    Properties props = new Properties();
+    when(mojo.project.getProperties()).thenReturn(props);
     when(mojo.project.getPackaging()).thenReturn("jar");
     when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
 
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), mojo.getLoggerBridge());
-    dataProvider = new GitDataProvider(jGitProvider, mojo.getLoggerBridge());
+    LoggerBridge log = new StdOutLoggerBridge(true);
+    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), log);
+    dataProvider = new GitDataProvider(jGitProvider, log);
   }
 
   @Test
@@ -222,7 +227,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws Exception {
+  public void shouldUseJenkinsBranchInfoWhenAvailable() throws GitException, IOException {
     // given
     Repository git = mock(Repository.class);
     Map<String, String> env = Maps.newHashMap();
@@ -252,9 +257,24 @@ public class GitCommitIdMojoTest {
     env.put("HUDSON_URL", ciUrl);
     assertThat("mybranch").isEqualTo(dataProvider.determineBranchName(env));
 
+    // now set GIT_LOCAL_BRANCH too and see that the branch name from env var is returned
+    env.clear();
+    env.put("JENKINS_URL", ciUrl);
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
+    assertThat("mylocalbranch").isEqualTo(dataProvider.determineBranchName(env));
+
+    // same, but for hudson
+    env.clear();
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
+    env.put("HUDSON_URL", ciUrl);
+    assertThat("mylocalbranch").isEqualTo(dataProvider.determineBranchName(env));
+
     // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_BRANCH", "mylocalbranch");
     assertThat(detachedHeadSHA1).isEqualTo(dataProvider.determineBranchName(env));
   }
   
@@ -275,18 +295,18 @@ public class GitCommitIdMojoTest {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     Properties prop = new Properties();
     if (commitDescribe != null) {
-      prop.put(GitCommitIdMojo.COMMIT_DESCRIBE, commitDescribe);
+      prop.put(GitCommitPropertyConstant.COMMIT_DESCRIBE, commitDescribe);
     }
     commitIdMojo.loadShortDescribe(prop);
-    assertThat(prop.getProperty(GitCommitIdMojo.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
+    assertThat(prop.getProperty(GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
   }
 
   @Test
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = "target" + File.separator + "classes" + File.separator + "git.properties";
     
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
@@ -296,11 +316,22 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
-    String targetDir = baseDir.getCanonicalPath() + "/";
-    String generateGitPropertiesFilename = targetDir + "target/classes/git.properties";
+    String targetDir = baseDir.getCanonicalPath() + File.separator;
+    String generateGitPropertiesFilename = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
 
     File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
+  }
+
+  @Test
+  public void shouldPerformReplacements() throws MojoExecutionException
+  {
+    mojo.propertiesReplacer = mock(PropertiesReplacer.class);
+    mojo.replacementProperties = mock(List.class);
+
+    mojo.execute();
+
+    verify(mojo.propertiesReplacer).performReplacement(any(Properties.class), eq(mojo.replacementProperties));
   }
 
 }

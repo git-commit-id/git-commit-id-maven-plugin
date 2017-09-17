@@ -3,6 +3,8 @@ maven git commit id plugin
 
 [![Join the chat at https://gitter.im/ktoso/maven-git-commit-id-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ktoso/maven-git-commit-id-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://secure.travis-ci.org/ktoso/maven-git-commit-id-plugin.svg?branch=master)](http://travis-ci.org/ktoso/maven-git-commit-id-plugin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](http://search.maven.org/#search|ga|1|pl.project13.maven)
+
 
 git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at the time when I started this plugin only supported CVS and SVN, something had to be done.
 I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, let me explain what this plugin does:
@@ -21,10 +23,78 @@ Make your distributed deployment aware of versions
 ---------------------------------------------
 Let's say you have a large distributed deployment where the servers need to talk to each other using some protocol. You have them configured to keep talking with servers of the same major + minor version number. So a server running "3.3.233" may still talk with one that has "3.3.120" - the protocol is guaranteed to not have changed in these versions.
 
-And not imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking with each other until only the "new" nodes are left.
+And now imagine that you need to deploy a drastic API change - so the new version of the servers will be "3.4.0". You can't afford to bring the system down for the deployment. But as the servers are configured to only talk with compatible versions - you're in luck. You can start the deployment process and each node, one by one will be replaced with the new version - the old servers simply stop communicating with them, and the new versions start talking with each other until only the "new" nodes are left.
 
 Using this plugin, you can easily expose the information needed - based on git tags for example. 
 One might say that this is usually accomplished by using `${project.version}` and I generally would agree, but maybe tags would fit your use case better than a plain version. :-)
+
+Validate if properties are set as expected
+---------------------------------------------
+Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
+The validation can be used for *any* property that is visible inside the pom.xml and therefore can be used for a various amount of different use cases.
+In order to understand the ideology and intention here are some pretty usefull ideas you could achive by using the validation:
+* validate if the version of your project does not end with SNAPSHOT
+* validate if you are currently on a tag
+* ensure that your repository is not dirty
+* may other's :-)
+
+With the current version of the validation the user can decide if the build should fail if *at least one* of the defined criterias do not match with the desired values.
+
+For flexibility and due to the fact that this validation has a different scope than the maven-git-commit-id-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
+Once configured, the validation is executed during the verification-phase. However since the validation is done in a seperate execution the phase can easily be changed by adding the desired phase to the execution configuration.
+
+Usage Example:
+
+```xml
+<validationProperties>
+  <!-- verify that the project version does not end with `-SNAPSHOT` -->
+  <validationProperty>
+    <name>validating project version</name>
+    <value>${project.version}</value>
+    <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+    <!-- for future reference on this particular regex, please refer to lookahead and lookbehind expressions -->
+    <!-- we could also use: <shouldMatchTo>^[0-9\.]*$</shouldMatchTo> -->
+  </validationProperty>
+  <!-- verify that the current repository is not dirty -->
+  <validationProperty>
+    <name>validating git dirty</name>
+    <value>${git.dirty}</value>
+    <shouldMatchTo>false</shouldMatchTo>
+   </validationProperty>
+  <!-- verify that the current commit has a tag -->
+  <validationProperty>
+    <name>validating current commit has a tag</name>
+    <value>${git.closest.tag.commit.count}</value>
+    <shouldMatchTo>0</shouldMatchTo>
+   </validationProperty>
+</validationProperties>
+```
+
+Required Configuration:
+If you plan to use this feature you'll want to know that the validation will be executed inside an additional mojo.
+Inside you pom you thus may want to add an additional execution tag that triggers the execution of the validation plugin.
+You can also change the default phase of each execution by adding a `phase` definition.
+
+```xml
+<executions>
+  <execution>
+    <id>get-the-git-infos</id>
+    <goals>
+      <goal>revision</goal>
+    </goals>
+  </execution>
+  <execution>
+    <id>validate-the-git-infos</id>
+    <goals>
+      <goal>validateRevision</goal>
+    </goals>
+    <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+    <phase>package</phase>
+  </execution>
+</executions>
+```
+
+*Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configuration `<injectAllReactorProjects>true</injectAllReactorProjects>`.
 
 Other
 -----
@@ -38,13 +108,29 @@ A detailed description of using the plugin is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.2.0** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.0)).
+The current version is **2.2.3** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.3)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
 Migration Issues you may come across when using the latest 2.2.X
 -----------------------------
 If you are already using the git-commit-id-plugin and would like to move to the latest major release (`2.2.X`) there are some design choices that resulted in the fact that we needed to dropped the support of Java `1.6` (if you still rely on this version, the `2.1.15` version still has support for this and you may want to check the fixed issues since then before reporting a new one).
+
+Plugin compatibility with maven
+-----------------------------
+Even though this plugin tries to be compatible with every Maven version there are some known limitations with specific versions. Here is a list that tries to outline the current state of the art:
+
+| Maven Version               | Plugin Version  | Notes                                                                           |
+| --------------------------- | ---------------:|:-------------------------------------------------------------------------------:|
+| Maven 3.1.0 (and below)     | up to 2.1.13    |                                                                                 |
+| Maven 3.1.1 (and onwards)   |          any    |                                                                                 |
+| Maven 3.0   (and onwards)   |   from 2.2.4    | With Maven 3.0.X SLF4J fails to load class "org.slf4j.impl.StaticLoggerBinder". |
+| Maven 3.3.1                 |          any    | plugin version 2.1.14 doesn't work                                              |
+| Maven 3.3.3                 |          any    | plugin version 2.1.14 doesn't work                                              |
+
+
+Starting with Maven 3.1.1 any plugin version is currently compatible. Only known exception is for Maven 3.3.1 and Maven 3.3.3 where the plugin version 2.1.14 is not working properly.
+
 
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
@@ -105,12 +191,21 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.0</version>
+                <version>2.2.1</version>
                 <executions>
                     <execution>
+                        <id>get-the-git-infos</id>
                         <goals>
                             <goal>revision</goal>
-                         </goals>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>validate-the-git-infos</id>
+                        <goals>
+                            <goal>validateRevision</goal>
+                        </goals>
+                        <!-- *NOTE*: The default phase of validateRevision is verify, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>package</phase>
                     </execution>
                 </executions>
 
@@ -118,15 +213,19 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         If you'd like to tell the plugin where your .git directory is,
                         use this setting, otherwise we'll perform a search trying to
-                        figure out the right directory. It's better to add it explicite IMHO.
+                        figure out the right directory. It's better to add it explicitly IMHO.
                     -->
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
 
                     <!-- that's the default value, you don't have to set it -->
                     <prefix>git</prefix>
 
-                    <!-- that's the default value -->
-                    <dateFormat>dd.MM.yyyy '@' HH:mm:ss z</dateFormat>
+                    <!-- @since 2.2.0 -->
+                    <!--
+                         The current dateFormat is set to match maven's default ``yyyy-MM-dd'T'HH:mm:ssZ``
+                         Please note that in previous versions (2.2.0 - 2.2.2) the default dateFormat was set to: ``dd.MM.yyyy '@' HH:mm:ss z``. However the `RFC 822 time zone` seems to give a more reliable option in parsing the date and it's being used in maven as default.
+                     -->
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
 
                     <!-- @since 2.2.0 -->
                     <!-- 
@@ -147,12 +246,24 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         which you can then normally read using new Properties().load(/**/)
                     -->
 
-                    <!-- this is false by default, forces the plugin to generate the git.properties file -->
+                    <!-- 
+                        This is false by default, forces the plugin to generate the git.properties file.
+                        Note that the functional meaning of git.build.time becomes different in a very subtle way (see later in this README)
+                    -->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
                     <!-- 
                         The path for the to be generated properties file, it's relative to ${project.basedir} 
                         The default value is ${project.build.outputDirectory}/git.properties
+
+                        *Note*: If you plan to set the generateGitPropertiesFilename-Path to a location where usually the source-files
+                                comes from (e.g. src/main/resources) and experience that your IDE (e.g. eclipse)
+                                invokes "Maven Project Builder" once every second, the chances that you are using
+                                an IDE where the src-folder is a watched folder for files that are *only* edited by humans is pretty high.
+                                For further information refer to the manual for your specific IDE and check the workflow of "incremental project builders".
+                                In order to fix this problem we recommend to set the generateGitPropertiesFilename-Path
+                                to a target folder (e.g. ${project.build.outputDirectory}) since this is
+                                the place where all derived/generated resources should go.
                     -->
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 
@@ -187,6 +298,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         skip the plugin execution completely. This is useful for e.g. profile activated plugin invocations or
                         to use properties to enable / disable pom features. Default value is 'false'.
+                        With version 2.2.3 you can also skip the plugin by using the commandline option -Dmaven.gitcommitid.skip=true
                     -->
                     <skip>false</skip>
 
@@ -200,6 +312,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                        Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
                        only generate the file in the directory where you started your build (!).
 
+                       Important: Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`).
+                       If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
+
                        The `git.*` maven properties are available in all modules.
                        Default value is `false`.
                     -->
@@ -207,7 +322,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                     <!-- @since 2.1.9 -->
                     <!--
-                        Can be used to exclude certain properties from being emited into the resulting file.
+                        Can be used to exclude certain properties from being emitted into the resulting file.
                         May be useful when you want to hide {@code git.remote.origin.url} (maybe because it contains your repo password?),
                         or the email of the committer etc.
 
@@ -234,10 +349,36 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                       <!-- <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty> -->
                     </includeOnlyProperties>
 
+                    <!-- @since 2.2.3 -->
+                    <!--
+                        Can be used to replace certain characters or strings using regular expressions within the generated git properties.
+                        Sample usecase (see below): replace the '/' with '-' in the branch name when using branches like 'feature/feature_name'
+
+                        Replacements can be configured with a replacementProperty. A replacementProperty can have a `property` and a `regex`-Tag.
+                        If the replacementProperty configuration has a `property`-tag the replacement will only be performed on that specific property (e.g. `<property>git.branch</property>` will only be performed on `git.branch`).
+                        In case this specific element is not defined or left empty the replacement will be performed *on all generated properties*.
+                        The optional `regex`-Tag can either be true to perform a replacement with regular expressions or false to perform a replacement with java's string.replace-function. by default the replacement will be performed with regular expressions.
+                        Furthermore each replacementProperty need to be configured with a token and a value.
+                        The token can be seen as the needle and the value as the text to be written over any found tokens. If using regular expressions the value can reference grouped regex matches by using $1, $2, etc.
+
+                        Please note that the replacement will *only be applied to properties that are being generated by the plugin*.
+                        If you want to replace properties that are being generated by other plugins you may want to use the maven-replacer-plugin or any other alternative.
+                    -->
+                    <replacementProperties>
+                      <!-- example: apply replacement only to the specific property git.branch and replace '/' with '-'
+                      <replacementProperty>
+                        <property>git.branch</property>
+                        <token>^([^\/]*)\/([^\/]*)$</token>
+                        <value>$1-$2</value>
+                        <regex>true</regex>
+                      </replacementProperty>
+                      -->
+                    </replacementProperties>
+
                     <!-- @since 2.1.10 -->
                     <!-- 
-                      false is default here, if set to true it uses native `git` excutable for extracting all data.
-                      This usually has better performance than the default (jgit) implemenation, but requires you to 
+                      false is default here, if set to true it uses native `git` executable for extracting all data.
+                      This usually has better performance than the default (jgit) implementation, but requires you to 
                       have git available as executable for the build as well as *might break unexpectedly* when you 
                       upgrade your system-wide git installation.
                        
@@ -260,7 +401,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                          The option can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object.
                          Due to the fact that this is one of the major properties the plugin is exporting we just don't want to change the exporting mechanism and somehow throw the backwards compatibility away.
-                         We rather provide a convient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
+                         We rather provide a convenient switch where you can choose if you would like the properties as they always had been, or if you rather need to support full json-object compatibility.
                          In the case you need to fully support json-object we unfortunately need to change the 'git.commit.id' property from 'git.commit.id' to 'git.commit.id.full' in the exporting mechanism to allow the generation of a fully valid json object.
 
                          Currently the switch allows two different options:
@@ -301,13 +442,52 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         <!-- Only consider tags matching the given pattern. This can be used to avoid leaking private tags from the repository. -->
                         <match>*</match>
-                
+
+                        <!--
+                            when you run git-describe it only looks only for *annotated tags* by default
+                            if you wish to consider *lightweight tags* in your describe as well you would need to switch this to *true*
+
+                            The difference between *annotated tags* and *lightweight tags* is outlined in more depth here:
+                            https://github.com/ktoso/maven-git-commit-id-plugin/#git-describe-and-a-small-gotcha-with-tags
+                        -->
+                        <tags>false</tags>
+
                         <!-- 
                              always print using the "tag-commits_from_tag-g_commit_id-maybe_dirty" format, even if "on" a tag. 
                              The distance will always be 0 if you're "on" the tag. 
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
+                    <!-- @since 2.2.2 -->
+                    <!-- 
+                        Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
+                        *Note*: This configuration will only be taken into account when the additional goal `validateRevision` is configured inside an execution.
+                    -->
+                    <validationProperties>
+                        <validationProperty>
+                            <!--
+                                 A descriptive name that will be used to be able to identify the validation that does not match up (will be displayed in the error message).
+                            -->
+                            <name>validating project version</name>
+                            <!-- 
+                                 the value that needs the validation
+                                 *Note* : In order to be able to validate the generated git-properties inside the pom itself you may need to set the configuration `<injectAllReactorProjects>true</injectAllReactorProjects>`. 
+                            -->
+                            <value>${project.version}</value>
+                            <!--
+                                the expected value
+                            -->
+                            <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+                        </validationProperty>
+                        <!-- the next validationProperty you would like to validate -->
+                    </validationProperties>
+                    <!-- @since 2.2.2 -->
+                    <!--
+                        true by default, controls whether the validation will fail if *at least one* of the validationProperties does not match with it's expected values. 
+                        If you don't care about this, you may want to set this value to false (this makes the configuration of validationProperties useless).
+                        *Note*: This configuration will only be taken into account when the additional goal `validateRevision` is configured inside an execution and at least one validationProperty is defined.
+                    -->
+                    <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
                 </configuration>
 
             </plugin>
@@ -386,7 +566,7 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="buildUserEmail" value="${git.build.user.email}"/>
         <property name="buildTime" value="${git.build.time}"/>
         <property name="buildHost" value="${git.build.host}"/>
-        <porperty name="buildVersion" value="${git.build.version}"/>
+        <property name="buildVersion" value="${git.build.version}"/>
     </bean>
 </beans>
 ```
@@ -504,15 +684,9 @@ There's another way to use the plugin, it's a little bit easier I guess. First, 
     <!-- this is false by default, forces the plugin to generate the git.properties file -->
     <generateGitPropertiesFile>true</generateGitPropertiesFile>
 
-    <!-- The path for the to be generated properties file, it's relative to ${project.basedir} -->
-    <generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
+    <!-- The path for the properties file to be generated. See Super Pom for default variable reference https://maven.apache.org/guides/introduction/introduction-to-the-pom.html -->
+    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 </configuration>
-```
-
-Remember to add this file to your .gitignore as it's quite some garbage changes to your repository if you don't ignore it. Open .gitignore and add:
-
-```
-src/main/resources/git.properties
 ```
 
 Then run the project as you would normally, the file will be created for you. And you may access it as you'd access any other properties file, for example like this:
@@ -536,29 +710,43 @@ You'd have to add such an constructor to your GitRepositoryState bean:
 ```java
 public GitRepositoryState(Properties properties)
 {
-  this.tags = properties.get("git.tags").toString();
-  this.branch = properties.get("git.branch").toString();
-  this.dirty = properties.get("git.dirty").toString();
-  this.remoteOriginUrl = properties.get("git.remote.origin.url").toString();
+  this.tags = String.valueOf(properties.get("git.tags"));
+  this.branch = String.valueOf(properties.get("git.branch"));
+  this.dirty = String.valueOf(properties.get("git.dirty"));
+  this.remoteOriginUrl = String.valueOf(properties.get("git.remote.origin.url"));
 
-  this.commitId = properties.get("git.commit.id.full").toString(); // OR properties.get("git.commit.id") depending on your configuration
-  this.commitIdAbbrev = properties.get("git.commit.id.abbrev").toString();
-  this.describe = properties.get("git.commit.id.describe").toString();
-  this.describeShort = properties.get("git.commit.id.describe-short").toString();
-  this.commitUserName = properties.get("git.commit.user.name").toString();
-  this.commitUserEmail = properties.get("git.commit.user.email").toString();
-  this.commitMessageFull = properties.get("git.commit.message.full").toString();
-  this.commitMessageShort = properties.get("git.commit.message.short").toString();
-  this.commitTime = properties.get("git.commit.time").toString();
-  this.closestTagName = properties.get("git.closest.tag.name").toString();
-  this.closestTagCommitCount = properties.get("git.closest.tag.commit.count").toString();
+  this.commitId = String.valueOf(properties.get("git.commit.id.full")); // OR properties.get("git.commit.id") depending on your configuration
+  this.commitIdAbbrev = String.valueOf(properties.get("git.commit.id.abbrev"));
+  this.describe = String.valueOf(properties.get("git.commit.id.describe"));
+  this.describeShort = String.valueOf(properties.get("git.commit.id.describe-short"));
+  this.commitUserName = String.valueOf(properties.get("git.commit.user.name"));
+  this.commitUserEmail = String.valueOf(properties.get("git.commit.user.email"));
+  this.commitMessageFull = String.valueOf(properties.get("git.commit.message.full"));
+  this.commitMessageShort = String.valueOf(properties.get("git.commit.message.short"));
+  this.commitTime = String.valueOf(properties.get("git.commit.time"));
+  this.closestTagName = String.valueOf(properties.get("git.closest.tag.name"));
+  this.closestTagCommitCount = String.valueOf(properties.get("git.closest.tag.commit.count"));
 
-  this.buildUserName = properties.get("git.build.user.name").toString();
-  this.buildUserEmail = properties.get("git.build.user.email").toString();
-  this.buildTime = properties.get("git.build.time").toString();
-  this.buildHost = properties.get("git.build.host").toString();
-  this.buildVersion = properties.get("git.build.version").toString();
+  this.buildUserName = String.valueOf(properties.get("git.build.user.name"));
+  this.buildUserEmail = String.valueOf(properties.get("git.build.user.email"));
+  this.buildTime = String.valueOf(properties.get("git.build.time"));
+  this.buildHost = String.valueOf(properties.get("git.build.host"));
+  this.buildVersion = String.valueOf(properties.get("git.build.version"));
 }
+```
+
+Note on the generated git.build.time
+------------------------------------
+Note that when writing the git.properties file the value *git.build.time* will only be updated when things in the commit information have changed.
+If you only change a bit of your code and rebuild/rerun you will see an older timestamp that you may have expected.
+
+Essentially the functional meaning becomes **The latest build time when the git information was written to the git.properties file** .
+
+The reason why this was done can be found in [issue 151](https://github.com/ktoso/maven-git-commit-id-plugin/issues/151).
+
+If you need the actual *build time* then simply use the a filtered properties file that contains something like this
+```
+git.build.time=${git.build.time}
 ```
 
 Yet another way to use the plugin
@@ -657,7 +845,7 @@ Optional parameters:
 
 * **dotGitDirectory** - `(default: ${project.basedir}/.git)` the location of your .git folder. `${project.basedir}/.git` is the default value and will most probably be ok for single module projects, in other cases please use `../` to get higher up in the dir tree. An example would be: `${project.basedir}/../.git` which I'm currently using in my projects :-)
 * **prefix** - `(default: git)` is the "namespace" for all exposed properties
-* **dateFormat** - `(default: dd.MM.yyyy '@' HH:mm:ss z)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
+* **dateFormat** - `(default: yyyy-MM-dd'T'HH:mm:ssZ)` is a normal SimpleDateFormat String and will be used to represent git.build.time and git.commit.time
 * **dateFormatTimeZone** - `(default: empty)` *(available since v2.2.0)* is a TimeZone String (e.g. 'America/Los_Angeles', 'GMT+10', 'PST') and can be used to set the timezone of the *dateFormat* to anything in particular. As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones. The default value we'll use the timezone use the timezone that's shipped with java (java.util.TimeZone.getDefault().getID()). *Note*: If you plan to set the java's timezone by using `MAVEN_OPTS=-Duser.timezone=UTC mvn clean package`, `mvn clean package -Duser.timezone=UTC` or any other configuration keep in mind that this option will override those settings and will not take other configurations into account!
 * **verbose** - `(default: false)` if true the plugin will print a summary of all collected properties when it's done
 * **generateGitPropertiesFile** -`(default: false)` this is false by default, forces the plugin to generate the git.properties file
@@ -667,11 +855,12 @@ Optional parameters:
 * **injectAllReactorProjects** - `(default: false)` - Tell maven-git-commit-id to inject the git properties into all reactor projects not just the current one. The property is set to ``false`` by default to prevent the overriding of properties that may be unrelated to the project. If you need to expose your git properties to another maven module (e.g. maven-antrun-plugin) you need to set it to ``true``. However, setting this option can have an impact on your build. For details about why you might want to skip this, read this issue: https://github.com/ktoso/maven-git-commit-id-plugin/pull/65
 * **failOnNoGitDirectory** - `(default: true)` *(available since v2.0.4)* - Specify whether the plugin should fail when a .git directory cannot be found. When set to false and no .git directory is found the plugin will skip execution.
 * **failOnUnableToExtractRepoInfo** - `(default: true)` *(available since v2.1.5)* - By default the plugin will fail the build if unable to obtain enough data for a complete run, if you don't care about this, you may want to set this value to false.
-* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely.
-* **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules.
+* **skip** - `(default: false)` *(available since v2.1.8)* - Skip the plugin execution completely. With version *2.2.3* you can also skip the plugin by using the commandline option -Dmaven.gitcommitid.skip=true
+* **runOnlyOnce** - `(default: false)` *(available since v2.1.12)* - Use with caution! In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project. This probably won't "do the right thing" if your project has more than one git repository. Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin only generate the file in the directory where you started your build :warning:. The `git.*` maven properties are available in all modules. Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`). If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
 * **excludeProperties** - `(default: empty)` *(available since v2.1.9)* - Allows to filter out properties that you *don't* want to expose. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
-* **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usualy give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usualy when you have *hundreds* of maven modules).
+* **replacementProperties** - `(default: empty)` *(available since v2.2.3)* Can be used to replace certain characters or strings using regular expressions within the generated git properties. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/138), so if you're curious about the use-case, check that issue.
+* **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 * **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
@@ -684,8 +873,8 @@ Optional parameters:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.
 
 * **abbrev** - `(default: 7)` in the describe output, the object id of the hash is always abbreviated to N letters, by default 7. The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-` means the number of commits away from the mentioned tag and the `-gf5cd254` part means the first 7 chars of the current commit's id `f5cd254`. **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git behaviour, so we're doing the same*. You can set this to any value between 0 and 40 (inclusive). 
-* **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you endup with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
-* **dirty** - `(default: "-dirty")` when you run describe on a repository that's in "dirty state" (has uncommited changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be inclided in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
+* **abbrev = 0** is a special case. Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and "object id" parts of the output, so you end up with just the "nearest tag" (that is, instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
+* **dirty** - `(default: "-dirty")` when you run describe on a repository that's in "dirty state" (has uncommitted changes), the describe output will contain an additional suffix, such as "-devel" in this example: `v3.5-3-g2222222-devel`. You can configure that suffix to be anything you want, "-DEV" being a nice example. The "-" sign should be included in the configuration parameter, as it will not be added automatically. If in doubt run `git describe --dirty=-my_thing` to see how the end result will look like.
 * **tags** - `(default: false)` if true this option enables matching a lightweight (non-annotated) tag.
 * **match** - `(default: *)` only consider tags matching the given pattern (can be used to avoid leaking private tags made from the repository)
 * **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.
@@ -693,7 +882,49 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
 
 
+* **validationProperties** Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set. This feature ships with an additional mojo execution and for instance allows to check if the version is not a snapshot build. If you are interested in the config checkout the[validation utility documentation](https://github.com/ktoso/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
+
 All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
+
+Frequently Asked Question (FAQ)
+=========
+
+Supported Maven & Java Versions
+-------------------------------
+Checkout the `Plugin compatibility with maven` section of this readme to find out what Maven version this plugin currently supports.
+If you still rely on Java `1.6` you can use the plugin version `2.1.15` - more Information can be found in `Migration Issues you may come across when using the latest 2.2.X`
+
+Generated properties are not usable inside the pom / properties don't get exposed by the plugin
+-------------------------------
+Since version `2.1.4` there is a switch to control if you want the plugin to expose the generated properties to your pom as well.
+This switch is set to `false` by default to ensure that properties of reactor builds can't be overwritten by accident.
+Thus if you need this feature set `<injectAllReactorProjects>true</injectAllReactorProjects>` inside the plugin's config.
+
+If the properties are empty for some reason verify with the maven-antrun-plugin if they are correctly exposed.
+Example:
+```
+<plugin>
+  <artifactId>maven-antrun-plugin</artifactId>
+  <version>1.8</version>
+  <executions>
+    <execution>
+      <phase>package</phase>
+      <configuration>
+        <target>
+          <echo>Git-Infos: ${git.commit.id}</echo>
+        </target>
+      </configuration>
+      <goals>
+        <goal>run</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+```
+
+If you are using the maven build with [Maven's Plugin Prefix Resolution](https://maven.apache.org/guides/introduction/introduction-to-plugin-prefix-mapping.html) (e.g. `mvn somePrefix:goal`) please note that this currently seems to be [not supported by maven](https://issues.apache.org/jira/browse/MNG-6260).
+Instead of using the Plugin Prefix Resolution add an execution tag that calls the desired goal of the plugin within a normal maven life cycle (e.g. `mvn clean package`).
+
 
 Maintainers
 ===========

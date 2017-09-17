@@ -18,7 +18,7 @@
 package pl.project13.maven.git;
 
 import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.lib.Constants;
+import pl.project13.git.api.GitConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,8 +66,7 @@ public class GitDirLocator {
   }
 
   /**
-   * Search up all the maven parent project heirarchy until a .git
-   * directory is found.
+   * Search up all the maven parent project hierarchy until a .git directory is found.
    *
    * @return File which represents the location of the .git directory or NULL if none found.
    */
@@ -79,8 +78,8 @@ public class GitDirLocator {
 
     File basedir = mavenProject.getBasedir();
     while (basedir != null) {
-      File gitdir = new File(basedir, Constants.DOT_GIT);
-      if (gitdir != null && gitdir.exists()) {
+      File gitdir = new File(basedir, GitConstants.DOT_GIT);
+      if (gitdir.exists()) {
         if (gitdir.isDirectory()) {
           return gitdir;
         } else if (gitdir.isFile()) {

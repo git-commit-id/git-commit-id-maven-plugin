@@ -17,13 +17,16 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -34,18 +37,15 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.jetbrains.annotations.NotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
-
-import pl.project13.git.api.GitException;
-import pl.project13.git.impl.AbstractBaseGitProvider;
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
 import pl.project13.jgit.JGitCommon;
 import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.git.api.GitException;
+import pl.project13.git.impl.AbstractBaseGitProvider;
 
 public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
 
@@ -57,20 +57,14 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   private JGitCommon jGitCommon;
 
   @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    return new JGitProvider(dotGitDirectory, loggerBridge);
+  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    return new JGitProvider(dotGitDirectory, log);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    super(loggerBridge);
+  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    super(log);
     this.dotGitDirectory = dotGitDirectory;
-    this.jGitCommon = new JGitCommon();
-  }
-
-  @NotNull
-  public JGitProvider setVerbose(boolean verbose) {
-    super.loggerBridge.setVerbose(verbose);
-    return this;
+    this.jGitCommon = new JGitCommon(log);
   }
 
   @Override
@@ -80,13 +74,13 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   }
 
   @Override
-  public String getBuildAuthorName() {
+  public String getBuildAuthorName() throws GitException {
     String userName = git.getConfig().getString("user", null, "name");
     return MoreObjects.firstNonNull(userName, "");
   }
 
   @Override
-  public String getBuildAuthorEmail() {
+  public String getBuildAuthorEmail() throws GitException {
     String userEmail = git.getConfig().getString("user", null, "email");
     return MoreObjects.firstNonNull(userEmail, "");
   }
@@ -95,7 +89,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   public void prepareGitToExtractMoreDetailedReproInformation() throws GitException {
     try {
       // more details parsed out bellow
-      Ref head = git.getRef(Constants.HEAD);
+      Ref head = git.findRef(Constants.HEAD);
       if (head == null) {
         throw new GitException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
@@ -106,8 +100,6 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
       }
       headCommit = revWalk.parseCommit(headObjectId);
       revWalk.markStart(headCommit);
-    } catch (GitException e) {
-      throw e;
     } catch (Exception e) {
       throw new GitException("Error", e);
     }
@@ -124,58 +116,50 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
 
   @Override
   public String getGitDescribe() throws GitException {
-    String gitDescribe = getGitDescribe(git);
-    return gitDescribe;
+    return getGitDescribe(git);
   }
 
   @Override
-  public String getCommitId() {
-    String commitId = headCommit.getName();
-    return commitId;
+  public String getCommitId() throws GitException {
+    return headCommit.getName();
   }
 
   @Override
   public String getAbbrevCommitId() throws GitException {
-    String abbrevCommitId = getAbbrevCommitId(objectReader, headCommit, abbrevLength);
-    return abbrevCommitId;
+    return getAbbrevCommitId(objectReader, headCommit, abbrevLength);
   }
 
   @Override
   public boolean isDirty() throws GitException {
-    Git gitObject = Git.wrap(git);
     try {
-      return !gitObject.status().call().isClean();
+      return JGitCommon.isRepositoryInDirtyState(git);
     } catch (GitAPIException e) {
       throw new GitException("Failed to get git status: " + e.getMessage(), e);
     }
   }
 
   @Override
-  public String getCommitAuthorName() {
-    String commitAuthor = headCommit.getAuthorIdent().getName();
-    return commitAuthor;
+  public String getCommitAuthorName() throws GitException {
+    return headCommit.getAuthorIdent().getName();
   }
 
   @Override
-  public String getCommitAuthorEmail() {
-    String commitEmail = headCommit.getAuthorIdent().getEmailAddress();
-    return commitEmail;
+  public String getCommitAuthorEmail() throws GitException {
+    return headCommit.getAuthorIdent().getEmailAddress();
   }
 
   @Override
-  public String getCommitMessageFull() {
-    String fullMessage = headCommit.getFullMessage();
-    return fullMessage.trim();
+  public String getCommitMessageFull() throws GitException {
+    return headCommit.getFullMessage().trim();
   }
 
   @Override
-  public String getCommitMessageShort() {
-    String shortMessage = headCommit.getShortMessage();
-    return shortMessage.trim();
+  public String getCommitMessageShort() throws GitException {
+    return headCommit.getShortMessage().trim();
   }
 
   @Override
-  public String getCommitTime() {
+  public String getCommitTime() throws GitException {
     long timeSinceEpoch = headCommit.getCommitTime();
     Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
@@ -184,8 +168,8 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
 
   @Override
   public String getRemoteOriginUrl() throws GitException {
-    String remoteOriginUrl = git.getConfig().getString("remote", "origin", "url");
-    return remoteOriginUrl;
+    String url = git.getConfig().getString("remote", "origin", "url");
+    return UriUserInfoRemover.stripCredentialsFromOriginUrl(url);
   }
 
   @Override
@@ -196,7 +180,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
       Collection<String> tags = jGitCommon.getTags(repo,headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
-      loggerBridge.error("Unable to extract tags from commit: " + headCommit.getName() + " (" + e.getClass().getName() + ")");
+      log.error("Unable to extract tags from commit: {} ({})", headCommit.getName(), e.getClass().getName());
       return "";
     }
   }
@@ -205,7 +189,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   public String getClosestTagName() throws GitException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(loggerBridge,repo);
+      return jGitCommon.getClosestTagName(repo);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -216,7 +200,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   public String getClosestTagCommitCount() throws GitException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(loggerBridge,repo,headCommit);
+      return jGitCommon.getClosestTagCommitCount(repo, headCommit);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -228,14 +212,22 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
     if (revWalk != null) {
       revWalk.dispose();
     }
+    // http://www.programcreek.com/java-api-examples/index.php?api=org.eclipse.jgit.storage.file.WindowCacheConfig
+    // Example 3
+    if( git != null ) {
+      git.close();
+      // git.close() is not enough with jGit on Windows
+      // remove the references from packFile by initializing cache used in the repository
+      // fixing lock issues on Windows when repository has pack files
+      WindowCacheConfig config = new WindowCacheConfig();
+      config.install();
+    }
   }
-
 
   @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitException {
     try {
       DescribeResult describeResult = DescribeCommand
-        .on(repository)
-        .withLoggerBridge(super.loggerBridge)
+        .on(repository, log)
         .apply(super.gitDescribe)
         .call();
 
@@ -255,7 +247,6 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
                                          "You may want to investigate the <abbrevLength/> element in your configuration.", e);
     }
   }
-
 
   @NotNull
   private Repository getGitRepository() throws GitException {

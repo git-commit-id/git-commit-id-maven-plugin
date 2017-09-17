@@ -20,7 +20,6 @@ package pl.project13.maven.git;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import pl.project13.maven.git.FileSystemMavenSandbox.CleanUp;
 
 import java.io.File;
 import java.util.Properties;
@@ -36,7 +35,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
         .withParentProject("my-jar-project", "jar")
         .withGitRepoInParent(AvailableGitTestRepo.WITH_SUBMODULES)
         .withChildProject("example-child", "jar")
-        .create(CleanUp.CLEANUP_FIRST);
+        .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);

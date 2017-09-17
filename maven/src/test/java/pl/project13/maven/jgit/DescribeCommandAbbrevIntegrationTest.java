@@ -18,12 +18,16 @@
 package pl.project13.jgit;
 
 import com.google.common.base.Optional;
+
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+
+import pl.project13.jgit.DescribeResult;
 import pl.project13.maven.git.AvailableGitTestRepo;
-import pl.project13.maven.git.FileSystemMavenSandbox;
 import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -63,22 +67,21 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .abbrev(2) // 2 is enough to be unique in this small repo
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .abbrev(2) // 2 is enough to be unique in this small repo
-        .setVerbose(true)
-        .call();
+      // then
+      // git will notice this, and fallback to use 4 chars
+      String smallestAbbrevGitWillUse = abbrev("b6a73ed747dd8dc98642d731ddbf09824efb9d48", 2);
 
-    // then
-    // git will notice this, and fallback to use 4 chars
-    String smallestAbbrevGitWillUse = abbrev("b6a73ed747dd8dc98642d731ddbf09824efb9d48", 2);
-
-    assertThat(res.prefixedCommitId()).isEqualTo("g" + smallestAbbrevGitWillUse);
+      assertThat(res.prefixedCommitId()).isEqualTo("g" + smallestAbbrevGitWillUse);
+    }
   }
 
   @Test
@@ -88,22 +91,21 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withParentProject(PROJECT_NAME, "jar")
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
-        .create(FileSystemMavenSandbox.CleanUp.CLEANUP_FIRST);
+        .create();
 
-    Repository repo = git().getRepository();
+    try (final Git git = git(); final Repository repo = git.getRepository()) {
+      // when
+      DescribeResult res = DescribeCommand
+              .on(repo, new StdOutLoggerBridge(true))
+              .abbrev(2) // way too small to be unique in git-commit-id's repo!
+              .call();
 
-    // when
-    DescribeResult res = DescribeCommand
-        .on(repo)
-        .abbrev(2) // way too small to be unique in git-commit-id's repo!
-        .setVerbose(true)
-        .call();
+      // then
+      // git will notice this, and fallback to use 4 chars
+      String smallestAbbrevGitWillUse = abbrev("7181832b7d9afdeb86c32cf51214abfca63625be", 4);
 
-    // then
-    // git will notice this, and fallback to use 4 chars
-    String smallestAbbrevGitWillUse = abbrev("7181832b7d9afdeb86c32cf51214abfca63625be", 4);
-
-    assertThat(res.prefixedCommitId()).isEqualTo("g" + smallestAbbrevGitWillUse);
+      assertThat(res.prefixedCommitId()).isEqualTo("g" + smallestAbbrevGitWillUse);
+    }
   }
 
   String abbrev(@NotNull String id, int n) {

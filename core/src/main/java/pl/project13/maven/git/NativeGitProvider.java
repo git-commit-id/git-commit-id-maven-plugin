@@ -18,24 +18,17 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
+import com.google.common.base.Throwables;
 
 import org.jetbrains.annotations.NotNull;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 
 import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.git.api.GitException;
 import pl.project13.git.impl.AbstractBaseGitProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import java.io.*;
+import java.text.SimpleDateFormat;
 
 public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider> {
 
@@ -45,32 +38,28 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
 
   final File canonical;
 
-  private static final int REMOTE_COLS = 3;
-
   @NotNull
-  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    return new NativeGitProvider(dotGitDirectory, loggerBridge);
+  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    return new NativeGitProvider(dotGitDirectory, log);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge loggerBridge) {
-    super(loggerBridge);
+  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+    super(log);
     this.dotGitDirectory = dotGitDirectory;
     try {
       this.canonical = dotGitDirectory.getCanonicalFile();
-    } catch (Exception ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(new GitException("Passed a invalid directory, not a GIT repository: " + dotGitDirectory, ex));
     }
   }
 
-
-  @NotNull
-  public NativeGitProvider setVerbose(boolean verbose) {
-    super.loggerBridge.setVerbose(verbose);
-    return this;
+  @Override
+  public void init() throws GitException {
+    // noop ...
   }
 
   @Override
-  public String getBuildAuthorName() {
+  public String getBuildAuthorName() throws GitException {
     try {
       return runGitCommand(canonical, "config --get user.name");
     } catch (NativeCommandException e) {
@@ -82,7 +71,7 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public String getBuildAuthorEmail() {
+  public String getBuildAuthorEmail() throws GitException {
     try {
       return runGitCommand(canonical, "config --get user.email");
     } catch (NativeCommandException e) {
@@ -94,19 +83,23 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public String getBranchName() {
+  public void prepareGitToExtractMoreDetailedReproInformation() throws GitException {
+  }
+
+  @Override
+  public String getBranchName() throws GitException {
     return getBranch(canonical);
   }
 
-  private String getBranch(File canonical) {
-    String branch = null;
+  private String getBranch(File canonical) throws GitException {
+    String branch;
     try{
       branch = runGitCommand(canonical, "symbolic-ref HEAD");
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
-    } catch(NativeCommandException e) {
-      // it seems that git repro is in 'DETACHED HEAD'-State, using Commid-Id as Branch
+    } catch (NativeCommandException e) {
+      // it seems that git repo is in 'DETACHED HEAD'-State, using Commit-Id as Branch
       String err = e.getStderr();
       if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
         branch = getCommitId();
@@ -118,10 +111,9 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public String getGitDescribe() {
+  public String getGitDescribe() throws GitException {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
-    final String gitDescribe = runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
-    return gitDescribe;
+    return runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
   }
 
   private String getArgumentsForGitDescribe(GitDescribeConfig describeConfig) {
@@ -135,15 +127,15 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
 
     final String dirtyMark = describeConfig.getDirty();
     if (dirtyMark != null && !dirtyMark.isEmpty()) {
-      argumentsForGitDescribe.append(" --dirty=" + dirtyMark);
+      argumentsForGitDescribe.append(" --dirty=").append(dirtyMark);
     }
 
     final String matchOption = describeConfig.getMatch();
     if (matchOption != null && !matchOption.isEmpty()) {
-      argumentsForGitDescribe.append(" --match=" + matchOption);
+      argumentsForGitDescribe.append(" --match=").append(matchOption);
     }
 
-    argumentsForGitDescribe.append(" --abbrev=" + describeConfig.getAbbrev());
+    argumentsForGitDescribe.append(" --abbrev=").append(describeConfig.getAbbrev());
 
     if (describeConfig.getTags()) {
       argumentsForGitDescribe.append(" --tags");
@@ -156,12 +148,12 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public String getCommitId() {
+  public String getCommitId() throws GitException {
     return runQuietGitCommand(canonical, "rev-parse HEAD");
   }
 
   @Override
-  public String getAbbrevCommitId() {
+  public String getAbbrevCommitId() throws GitException {
     // we could run: tryToRunGitCommand(canonical, "rev-parse --short="+abbrevLength+" HEAD");
     // but minimum length for --short is 4, our abbrevLength could be 2
     String commitId = getCommitId();
@@ -175,39 +167,39 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public boolean isDirty() {
+  public boolean isDirty() throws GitException {
     return !tryCheckEmptyRunGitCommand(canonical, "status -s");
   }
 
   @Override
-  public String getCommitAuthorName() {
+  public String getCommitAuthorName() throws GitException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%an");
   }
 
   @Override
-  public String getCommitAuthorEmail() {
+  public String getCommitAuthorEmail() throws GitException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae");
   }
 
   @Override
-  public String getCommitMessageFull() {
+  public String getCommitMessageFull() throws GitException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%B");
   }
 
   @Override
-  public String getCommitMessageShort() {
+  public String getCommitMessageShort() throws GitException {
     return runQuietGitCommand(canonical, "log -1 --pretty=format:%s");
   }
 
   @Override
-  public String getCommitTime() {
+  public String getCommitTime() throws GitException {
     String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value)*1000L);
   }
 
   @Override
-  public String getTags() {
+  public String getTags() throws GitException {
     final String result = runQuietGitCommand(canonical, "tag --contains");
     return result.replace('\n', ',');
   }
@@ -218,7 +210,7 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
   
   @Override
-  public String getClosestTagName(){
+  public String getClosestTagName() throws GitException {
     try {
       return runGitCommand(canonical, "describe --abbrev=0 --tags");
     } catch (NativeCommandException ignore) {
@@ -228,7 +220,7 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
   }
 
   @Override
-  public String getClosestTagCommitCount(){
+  public String getClosestTagCommitCount() throws GitException {
     String closestTagName = getClosestTagName();
     if(closestTagName != null && !closestTagName.trim().isEmpty()){
       return runQuietGitCommand(canonical, "rev-list "+closestTagName+"..HEAD --count");
@@ -236,23 +228,19 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
     return "";
   }
 
+  @Override
+  public void finalCleanUp() throws GitException {
+  }
+
   private String getOriginRemote(File directory) throws GitException {
-    String remoteUrl = null;
-    String remotes = runQuietGitCommand(directory, "remote -v");
+    try {
+      String remoteUrl = runGitCommand(directory, "ls-remote --get-url");
 
-    // welcome to text output parsing hell! - no `\n` is not enough
-    for (String line : Splitter.onPattern("\\((fetch|push)\\)?").split(remotes)) {
-      String trimmed = line.trim();
-
-      if (trimmed.startsWith("origin")) {
-        String[] splited = trimmed.split("\\s+");
-        if (splited.length != REMOTE_COLS - 1) { // because (fetch/push) was trimmed
-          throw new GitException("Unsupported GIT output (verbose remote address): " + line);
-        }
-        remoteUrl = splited[1];
-      }
+      return UriUserInfoRemover.stripCredentialsFromOriginUrl(remoteUrl);
+    } catch (NativeCommandException ignore) {
+      // No remote configured to list refs from
     }
-    return remoteUrl;
+    return null;
   }
 
   /**
@@ -373,7 +361,7 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
             final InputStream is = proc.getInputStream();
             final InputStream err = proc.getErrorStream();
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             final StringBuilder commandResult = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -401,47 +389,28 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
       return errMsg;
     }
 
-//    @Override
-//    public String run(File directory, String command) throws IOException {
-//      String output;
-//      try {
-//        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-//        final Process proc = builder.directory(directory).start();
-//        proc.waitFor();
-//        InputStream is = proc.getInputStream();
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-//        final StringBuilder commandResult = new StringBuilder();
-//
-//        String line;
-//        while ((line = reader.readLine()) != null) {
-//          commandResult.append(line);
-//        }
-//
-//        output = commandResult.toString();
-//
-//        if (proc.exitValue() != 0) {
-//          String message = String.format("Git command exited with invalid status [%d]: `%s`", proc.exitValue(), output);
-//          throw new IOException(message);
-//        }
-//      } catch (InterruptedException e) {
-//        throw new RuntimeException("Unable to attach to git process!", e);
-//      }
-//      return output;
-//    }
-
     @Override
     public boolean runEmpty(File directory, String command) throws IOException {
       boolean empty = true;
 
       try {
-        ProcessBuilder builder = new ProcessBuilder(Lists.asList("/bin/sh", "-c", command.split("\\s")));
+        // this only works on UNIX like system not on Windows
+        // ProcessBuilder builder = new ProcessBuilder(Arrays.asList("/bin/sh", "-c", command));
+        // so use the same protocol as used in the run() method
+        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
         proc.waitFor();
         final InputStream is = proc.getInputStream();
+        final InputStream err = proc.getErrorStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
         if (reader.readLine() != null) {
           empty = false;
+        }
+
+        if (proc.exitValue() != 0) {
+          final StringBuilder errMsg = readStderr(err);
+          throw new NativeCommandException(proc.exitValue(), command, directory, "", errMsg.toString());
         }
 
       } catch (InterruptedException ex) {
@@ -451,3 +420,4 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
     }
   }
 }
+

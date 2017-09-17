@@ -14,33 +14,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+package pl.project13.maven.git;
 
-package pl.project13.maven.git.log;
+public enum CommitIdGenerationMode {
+  FULL,
+  FLAT,
+  UNKNOWN;
 
-import org.junit.Test;
-
-public class StdOutLoggerBridgeTest {
-
-  @Test
-  public void log_shouldNotFailWhenMessageContainsPercentSign() throws Exception {
-    // given
-    StdOutLoggerBridge bridge = new StdOutLoggerBridge(true);
-
-    // when
-    bridge.log();
-
-    // then, should not have thrown
+  public static CommitIdGenerationMode getValue(String o){
+    if(o != null){
+      for(CommitIdGenerationMode v : values()){
+        if(v.name().toString().equalsIgnoreCase(o)){
+          return v;
+        }
+      }
+    }
+    return CommitIdGenerationMode.UNKNOWN;
   }
-
-  @Test
-  public void error_shouldNotFailWhenMessageContainsPercentSign() throws Exception {
-    // given
-    StdOutLoggerBridge bridge = new StdOutLoggerBridge(true);
-
-    // when
-    bridge.error();
-
-    // then, should not have thrown
-  }
-
 }

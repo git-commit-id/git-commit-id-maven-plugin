@@ -17,13 +17,6 @@
 
 package pl.project13.maven.git;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.maven.plugin.MojoExecutionException;
 import org.jetbrains.annotations.NotNull;
 
 import pl.project13.git.api.GitDescribeConfig;
@@ -32,28 +25,31 @@ import pl.project13.git.api.GitProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
-public final class GitDataProvider {
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
+public final class GitDataProvider {
   @NotNull
   private final GitProvider provider;
 
   @NotNull
-  protected LoggerBridge loggerBridge;
+  protected final LoggerBridge log;
 
   protected String prefixDot;
 
   protected int abbrevLength;
 
+  protected CommitIdGenerationMode commitIdGenerationMode;
+
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
-  public GitDataProvider(@NotNull GitProvider provider, @NotNull LoggerBridge loggerBridge) {
+  public GitDataProvider(@NotNull GitProvider provider, @NotNull LoggerBridge log) {
     this.provider = provider;
-    this.loggerBridge = loggerBridge;
-  }
-
-  public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
-    this.gitDescribe = gitDescribe;
-    return this;
+    this.log = log;
   }
 
   public GitDataProvider setPrefixDot(String prefixDot) {
@@ -63,72 +59,107 @@ public final class GitDataProvider {
 
   public GitDataProvider setAbbrevLength(int abbrevLength) {
     this.abbrevLength = abbrevLength;
+    provider.setAbbrevLength(abbrevLength);
     return this;
   }
 
-  public void loadGitData(@NotNull Properties properties) throws IOException, MojoExecutionException, GitException {
+  public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
+    this.gitDescribe = gitDescribe;
+    provider.setGitDescribe(gitDescribe);
+    return this;
+  }
+
+  public GitDataProvider setDateFormat(String dateFormat) {
+    provider.setDateFormat(dateFormat);
+    return this;
+  }
+
+  public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone) {
+    provider.setDateFormatTimeZone(dateFormatTimeZone);
+    return this;
+  }
+
+  public GitDataProvider setCommitIdGenerationMode(CommitIdGenerationMode commitIdGenerationMode) {
+    this.commitIdGenerationMode = commitIdGenerationMode;
+    return this;
+  }
+
+  public void loadGitData(@NotNull Properties properties) throws GitException {
     provider.init();
+    provider.prepareGitToExtractMoreDetailedReproInformation();
     // git.user.name
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_NAME, provider.getBuildAuthorName());
+    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, provider.getBuildAuthorName());
     // git.user.email
-    put(properties, GitCommitIdMojo.BUILD_AUTHOR_EMAIL, provider.getBuildAuthorEmail());
+    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, provider.getBuildAuthorEmail());
 
     try {
       provider.prepareGitToExtractMoreDetailedReproInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
-      put(properties, GitCommitIdMojo.BRANCH, determineBranchName(System.getenv()));
+      put(properties, GitCommitPropertyConstant.BRANCH, determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       // git.commit.id
-      put(properties, GitCommitIdMojo.COMMIT_ID, provider.getCommitId());
-      // git.commit.id.abbrev      
-      put(properties, GitCommitIdMojo.COMMIT_ID_ABBREV, provider.getAbbrevCommitId());
+      switch (commitIdGenerationMode) {
+        case FULL: {
+          put(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, provider.getCommitId());
+          break;
+        }
+        case FLAT: {
+          put(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, provider.getCommitId());
+          break;
+        }
+        default: {
+          throw new GitException("Unsupported commitIdGenerationMode: " + commitIdGenerationMode);
+        }
+      }
+      // git.commit.id.abbrev
+      put(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, provider.getAbbrevCommitId());
       // git.dirty
-      put(properties, GitCommitIdMojo.DIRTY, Boolean.toString(provider.isDirty()));
+      put(properties, GitCommitPropertyConstant.DIRTY, Boolean.toString(provider.isDirty()));
       // git.commit.author.name
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_NAME, provider.getCommitAuthorName());
+      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, provider.getCommitAuthorName());
       // git.commit.author.email
-      put(properties, GitCommitIdMojo.COMMIT_AUTHOR_EMAIL, provider.getCommitAuthorEmail());
+      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, provider.getCommitAuthorEmail());
       // git.commit.message.full
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_FULL, provider.getCommitMessageFull());
+      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, provider.getCommitMessageFull());
       // git.commit.message.short
-      put(properties, GitCommitIdMojo.COMMIT_MESSAGE_SHORT, provider.getCommitMessageShort());
+      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, provider.getCommitMessageShort());
       // git.commit.time
-      put(properties, GitCommitIdMojo.COMMIT_TIME, provider.getCommitTime());
+      put(properties, GitCommitPropertyConstant.COMMIT_TIME, provider.getCommitTime());
       // git remote.origin.url
-      put(properties, GitCommitIdMojo.REMOTE_ORIGIN_URL, provider.getRemoteOriginUrl());
+      put(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, provider.getRemoteOriginUrl());
 
       //
-      put(properties, GitCommitIdMojo.TAGS, provider.getTags());
-      
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_NAME, provider.getClosestTagName());
-      put(properties,GitCommitIdMojo.CLOSEST_TAG_COMMIT_COUNT, provider.getClosestTagCommitCount());
+      put(properties, GitCommitPropertyConstant.TAGS, provider.getTags());
+
+      put(properties, GitCommitPropertyConstant.CLOSEST_TAG_NAME, provider.getClosestTagName());
+      put(properties, GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, provider.getClosestTagCommitCount());
     } finally {
-        provider.finalCleanUp();
+    	provider.finalCleanUp();
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws GitException {
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitException{
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      put(properties, GitCommitIdMojo.COMMIT_DESCRIBE, provider.getGitDescribe());
+      put(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, provider.getGitDescribe());
     }
   }
 
-  void validateAbbrevLength(int abbrevLength) throws MojoExecutionException {
+  void validateAbbrevLength(int abbrevLength) throws GitException {
     if (abbrevLength < 2 || abbrevLength > 40) {
-      throw new MojoExecutionException("Abbreviated commit id lenght must be between 2 and 40, inclusive! Was [%s]. ".codePointBefore(abbrevLength) +
+      throw new GitException(String.format("Abbreviated commit id length must be between 2 and 40, inclusive! Was [%s]. ", abbrevLength) +
                                            "Please fix your configuration (the <abbrevLength/> element).");
     }
   }
 
   /**
-   * If running within Jenkins/Hudosn, honor the branch name passed via GIT_BRANCH env var.  This
-   * is necessary because Jenkins/Hudson alwways invoke build in a detached head state.
+   * If running within Jenkins/Hudson, honor the branch name passed via GIT_BRANCH env var.
+   * This is necessary because Jenkins/Hudson always invoke build in a detached head state.
    *
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
@@ -155,27 +186,29 @@ public final class GitDataProvider {
   }
 
   /**
-   * Is "Jenkins aware", and prefers {@code GIT_BRANCH} to getting the branch via git if that enviroment variable is set.
-   * The {@code GIT_BRANCH} variable is set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
+   * Is "Jenkins aware", and prefers {@code GIT_LOCAL_BRANCH} over {@code GIT_BRANCH} to getting the branch via git if that environment variables are set.
+   * The {@code GIT_LOCAL_BRANCH} and {@code GIT_BRANCH} variables are set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitException {
-    String enviromentBasedBranch = env.get("GIT_BRANCH");
-    if(isNullOrEmpty(enviromentBasedBranch)) {
-      log("Detected that running on CI enviroment, but using repository branch, no GIT_BRANCH detected.");
-      return provider.getBranchName();
-    }else {
-      log("Using environment variable based branch name.", "GIT_BRANCH =", enviromentBasedBranch);
-      return enviromentBasedBranch;
+    String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
+    if(!isNullOrEmpty(environmentBasedLocalBranch)){
+      log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}", environmentBasedLocalBranch);
+      return environmentBasedLocalBranch;
     }
-  }
 
-  void log(String... parts) {
-    loggerBridge.log((Object[]) parts);
+    String environmentBasedBranch = env.get("GIT_BRANCH");
+    if (!isNullOrEmpty(environmentBasedBranch)) {
+      log.info("Using environment variable based branch name. GIT_BRANCH = {}", environmentBasedBranch);
+      return environmentBasedBranch;
+    }
+
+    log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
+    return provider.getBranchName();
   }
 
   protected void put(@NotNull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log(keyWithPrefix, value);
+    log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 }
