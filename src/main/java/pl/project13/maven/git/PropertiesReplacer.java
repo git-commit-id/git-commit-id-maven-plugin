@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import pl.project13.maven.git.log.LoggerBridge;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,30 +39,56 @@ public class PropertiesReplacer
 			for(ReplacementProperty replacementProperty: replacementProperties) {
 				String propertyKey = replacementProperty.getProperty();
 				if(propertyKey == null) {
+					Map<Object, Object> propertiesToBeAdded = new HashMap<>();
 					for (Map.Entry<Object, Object> entry : properties.entrySet()) {
 						String key = (String)entry.getKey();
 						String content = (String)entry.getValue();
 						String result = performReplacement(replacementProperty, content);
-						entry.setValue(result);
-						log.info("apply replace on property " + key + ": original value '" + content + "' with '" + result + "'");
+						if((replacementProperty.getPropertyOutputSuffix() != null) && (!replacementProperty.getPropertyOutputSuffix().isEmpty())) {
+							String newPropertyKey = key + "." + replacementProperty.getPropertyOutputSuffix();
+							propertiesToBeAdded.put(newPropertyKey, result);
+							log.info("apply replace on property " + key + " and save to " + newPropertyKey + ": original value '" + content + "' with '" + result + "'");
+						} else {
+							entry.setValue(result);
+							log.info("apply replace on property " + key + ": original value '" + content + "' with '" + result + "'");
+						}
 					}
+					properties.putAll(propertiesToBeAdded);
 				} else {
 					String content = properties.getProperty(propertyKey);
 					String result = performReplacement(replacementProperty, content);
-					properties.setProperty(propertyKey, result);
-					log.info("apply replace on property " + propertyKey + ": original value '" + content + "' with '" + result + "'");
+					if((replacementProperty.getPropertyOutputSuffix() != null) && (!replacementProperty.getPropertyOutputSuffix().isEmpty())) {
+						String newPropertyKey = propertyKey + "." + replacementProperty.getPropertyOutputSuffix();
+						properties.setProperty(newPropertyKey, result);
+						log.info("apply replace on property " + propertyKey + " and save to " + newPropertyKey + ": original value '" + content + "' with '" + result + "'");
+					} else {
+						properties.setProperty(propertyKey, result);
+						log.info("apply replace on property " + propertyKey + ": original value '" + content + "' with '" + result + "'");
+					}
 				}
 			}
 		}
 	}
 
 	private String performReplacement(ReplacementProperty replacementProperty, String content) {
-		String result = content;
+		String result = performTransformationRules(replacementProperty, content, TransformationRule.ApplyEnum.BEFORE);
 		if(replacementProperty != null) {
 			if(replacementProperty.isRegex()) {
-				result = replaceRegex(content, replacementProperty.getToken(), replacementProperty.getValue());
+				result = replaceRegex(result, replacementProperty.getToken(), replacementProperty.getValue());
 			} else {
-				result = replaceNonRegex(content, replacementProperty.getToken(), replacementProperty.getValue());
+				result = replaceNonRegex(result, replacementProperty.getToken(), replacementProperty.getValue());
+			}
+		}
+		return performTransformationRules(replacementProperty, result, TransformationRule.ApplyEnum.AFTER);
+	}
+
+	private String performTransformationRules(ReplacementProperty replacementProperty, String content, TransformationRule.ApplyEnum forRule) {
+		String result = content;
+		if((replacementProperty.getTransformationRules() != null) && (!replacementProperty.getTransformationRules().isEmpty())) {
+			for(TransformationRule transformationRule: replacementProperty.getTransformationRules()) {
+				if(transformationRule.getApplyRule().equals(forRule)) {
+					result = transformationRule.getActionRule().perform(result);
+				}
 			}
 		}
 		return result;

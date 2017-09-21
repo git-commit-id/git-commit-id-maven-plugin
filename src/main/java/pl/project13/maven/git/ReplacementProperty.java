@@ -17,8 +17,14 @@
 
 package pl.project13.maven.git;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.maven.plugins.annotations.Parameter;
 
+/**
+ * @since 2.2.3
+ */
 public class ReplacementProperty {
   /**
    * Defines if a replacement should only be applied to a single property.
@@ -26,6 +32,20 @@ public class ReplacementProperty {
    */
   @Parameter
   private String property;
+
+  /**
+   * @since 2.2.4
+   * Defines an additional output property suffix.
+   * Note: 
+   * this will only be *appended* to the current property key
+   * (e.g. when the property is set to 'sample' the property
+   * 'git.branch' will be transformed to 'git.branch.sample')
+   * 
+   * Be advised that you might want to adjust your include
+   * or exclude filters which be applied after the regex validation.
+   */
+  @Parameter
+  private String propertyOutputSuffix;
 
   /**
    * Token to replace.
@@ -48,13 +68,22 @@ public class ReplacementProperty {
   @Parameter(defaultValue = "true")
   private boolean regex = true;
 
+  /**
+   * @since 2.2.4
+   * Provides the ability to perform certain string transformations before regex evaluation or after.
+   */
+  @Parameter
+  private List<TransformationRule> transformationRules = new ArrayList<>();
+
   public ReplacementProperty(){}
 
-  public ReplacementProperty(String property, String token, String value, boolean regex) {
+  public ReplacementProperty(String property, String propertyOutputSuffix, String token, String value, boolean regex, List<TransformationRule> transformationRules) {
     this.property = property;
+    this.propertyOutputSuffix = propertyOutputSuffix;
     this.token = token;
     this.value = value;
     this.regex = regex;
+    this.transformationRules = transformationRules;
   }
 
   public String getProperty() {
@@ -63,6 +92,14 @@ public class ReplacementProperty {
 
   public void setProperty(String property) {
     this.property = property;
+  }
+
+  public String getPropertyOutputSuffix() {
+    return propertyOutputSuffix;
+  }
+
+  public void setPropertyOutputSuffix(String propertyOutputSuffix) {
+    this.propertyOutputSuffix = propertyOutputSuffix;
   }
 
   public String getToken() {
@@ -89,4 +126,11 @@ public class ReplacementProperty {
     this.regex = regex;
   }
 
+  public List<TransformationRule> getTransformationRules() {
+    return transformationRules;
+  }
+
+  public void setTransformationRules(List<TransformationRule> transformationRules) {
+    this.transformationRules = transformationRules;
+  }
 }
