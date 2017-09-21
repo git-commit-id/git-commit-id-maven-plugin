@@ -900,7 +900,7 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
 
 
-* **validationProperties** Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set. This feature ships with an additional mojo execution and for instance allows to check if the version is not a snapshot build. If you are interested in the config checkout the[validation utility documentation](https://github.com/ktoso/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
+**validationProperties** Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set. This feature ships with an additional mojo execution and for instance allows to check if the version is not a snapshot build. If you are interested in the config checkout the[validation utility documentation](https://github.com/ktoso/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
 
 All options are documented in the code, so just use `ctrl + q` (intellij @ linux) or `f1` (intellij @ osx) when writing the options in pom.xml - you'll get examples and detailed information about each option (even more than here).
 
