@@ -6,10 +6,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import pl.project13.maven.git.TransformationRule.ActionEnum;
+import pl.project13.maven.git.TransformationRule.ApplyEnum;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +50,7 @@ public class PropertiesReplacerTest
 		Properties actualProperties = build("key1", "value1", "key2", "value2");
 
 		List<ReplacementProperty> replacementProperties = new ArrayList<>();
-		replacementProperties.add(new ReplacementProperty("key1", null, null, regex));
+		replacementProperties.add(new ReplacementProperty("key1", null, null, null, regex, null));
 
 		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 	}
@@ -57,7 +61,7 @@ public class PropertiesReplacerTest
 		Properties actualProperties = build("key1", "value1", "key2", "value2");
 
 		List<ReplacementProperty> replacementProperties = new ArrayList<>();
-		replacementProperties.add(new ReplacementProperty("key1", "value", "another", regex));
+		replacementProperties.add(new ReplacementProperty("key1", null, "value", "another", regex, null));
 
 		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -71,7 +75,7 @@ public class PropertiesReplacerTest
 		Properties actualProperties = build("key1", "value1", "key2", "value2");
 
 		List<ReplacementProperty> replacementProperties = new ArrayList<>();
-		replacementProperties.add(new ReplacementProperty(null, "value", "another", regex));
+		replacementProperties.add(new ReplacementProperty(null, null, "value", "another", regex, null));
 
 		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -84,7 +88,7 @@ public class PropertiesReplacerTest
 		Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author/name");
 
 		List<ReplacementProperty> replacementProperties = new ArrayList<>();
-		replacementProperties.add(new ReplacementProperty("git.branch", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true));
+		replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
 
 		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -97,7 +101,7 @@ public class PropertiesReplacerTest
 		Properties actualProperties = build("git.branch", "feature#feature_name", "git.commit.author", "author#");
 
 		List<ReplacementProperty> replacementProperties = new ArrayList<>();
-		replacementProperties.add(new ReplacementProperty("git.branch", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true));
+		replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
 
 		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -105,10 +109,68 @@ public class PropertiesReplacerTest
 		assertEquals(exptecedProperties, actualProperties);
 	}
 
-	private Properties build(String key1, String value1, String key2, String value2) {
+	@Test
+	public void testPerformReplacementOnSinglePropertyAndExpectNewPropertyGenerated() {
+		Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
+
+		List<ReplacementProperty> replacementProperties = new ArrayList<>();
+		replacementProperties.add(new ReplacementProperty("git.branch", "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+
+		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
+
+		Properties exptecedProperties = build("git.branch", "feature/feature_name", "git.branch.something", "feature-feature_name", "git.commit.author", "author#");
+		assertEquals(exptecedProperties, actualProperties);
+	}
+
+	@Test
+	public void testPerformReplacementOnEveryPropertyAndExpectNewPropertyGenerated() {
+		Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
+
+		List<ReplacementProperty> replacementProperties = new ArrayList<>();
+		replacementProperties.add(new ReplacementProperty(null, "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+
+		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
+
+		Properties exptecedProperties = build("git.branch", "feature/feature_name", "git.branch.something", "feature-feature_name", "git.commit.author", "author#", "git.commit.author.something", "author#");
+		assertEquals(exptecedProperties, actualProperties);
+	}
+
+	public static Collection<Object[]> testPerformReplacementWithTransformationRule() {
+		return Arrays.asList(new Object[][] {
+			{ "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", ApplyEnum.BEFORE, ActionEnum.LOWER_CASE, "feature/abcdefgh0123456789" },
+			{ "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", ApplyEnum.AFTER, ActionEnum.LOWER_CASE, "feature/-b-d-f-h0123456789" },
+			{ "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", ApplyEnum.BEFORE, ActionEnum.UPPER_CASE, "FEATURE/ABCDEFGH0123456789" },
+			{ "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", ApplyEnum.AFTER, ActionEnum.UPPER_CASE, "-------/A-C-E-G-0123456789" },
+		});
+	}
+
+	@Test
+	@Parameters(method = "testPerformReplacementWithTransformationRule")
+	public void runTransformationTestHelper(String input, String regex, ApplyEnum applyRule, ActionEnum actionRule, String expectedOutput) {
+		Properties actualProperties = build("git.branch", input);
+
+		List<TransformationRule> transformationRules = new ArrayList<>();
+		transformationRules.add(new TransformationRule(applyRule, actionRule));
+
+		List<ReplacementProperty> replacementProperties = new ArrayList<>();
+		replacementProperties.add(new ReplacementProperty(null, null, regex , "-", true, transformationRules));
+
+		propertiesReplacer.performReplacement(actualProperties, replacementProperties);
+
+		Properties exptecedProperties = build("git.branch", expectedOutput);
+		assertEquals(exptecedProperties, actualProperties);
+	}
+
+	private Properties build(String... args) {
+		if ((args.length == 0) || ((args.length % 2) != 0)) {
+			Assert.fail("Expecting a pair of values...");
+		}
 		Properties properties = new Properties();
-		properties.put(key1, value1);
-		properties.put(key2, value2);
+		for(int i=0; i<args.length;i=i+2) {
+			String key = args[i];
+			String value = args[i+1];
+			properties.put(key, value);
+		}
 		return properties;
 	}
 

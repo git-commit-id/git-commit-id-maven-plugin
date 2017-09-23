@@ -180,7 +180,8 @@ public abstract class GitDataProvider implements GitProvider {
    * @param env environment settings
    */
   private boolean runningOnBuildServer(Map<String, String> env) {
-    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL");
+    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL") ||
+           env.containsKey("HUDSON_HOME") || env.containsKey("JENKINS_HOME");
   }
 
   /**
