@@ -94,6 +94,9 @@ public class TransformationRule {
   }
 
   public ApplyEnum getApplyRule() {
+    if(applyRule == null) {
+      throw new IllegalStateException("The parameter 'apply' for TransformationRule is missing or invalid");
+    }
     return applyRule;
   }
 
@@ -107,6 +110,9 @@ public class TransformationRule {
   }
 
   public ActionEnum getActionRule() {
+    if(actionRule == null) {
+      throw new IllegalStateException("The parameter 'action' for TransformationRule is missing or invalid");
+    }
     return actionRule;
   }
 }
