@@ -52,7 +52,7 @@ public class Pair<A, B> {
       return false;
     }
 
-    Pair pair = (Pair) o;
+    Pair<?,?> pair = (Pair<?,?>) o;
 
     if (!first.equals(pair.first)) {
       return false;
