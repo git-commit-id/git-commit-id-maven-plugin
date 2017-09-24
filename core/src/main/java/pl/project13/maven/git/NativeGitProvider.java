@@ -306,6 +306,7 @@ public class NativeGitProvider extends AbstractBaseGitProvider<NativeGitProvider
 
   public static class NativeCommandException extends IOException
   {
+    private static final long serialVersionUID = 3511033422542257748L;
     private final int exitCode;
     private final String command;
     private final File directory;

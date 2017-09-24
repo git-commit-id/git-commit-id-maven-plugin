@@ -51,38 +51,34 @@ public class JGitCommon {
   }
 
   public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException{
-    RevWalk walk = null;
-    try {
-      Git git = Git.wrap(repo);
-      walk = new RevWalk(repo);
-      List<Ref> tagRefs = git.tagList().call();
-
-      final RevWalk finalWalk = walk;
-      Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-        @Override public boolean apply(Ref tagRef) {
-        boolean lightweightTag = tagRef.getObjectId().equals(headId);
-
-          try {
-            // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
-            return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
-          } catch (IOException e) {
-            return false;
-          }
-        }
-      });
-
-      Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-        @Override public String apply(Ref input) {
-          return input.getName().replaceAll("refs/tags/", "");
-        }
-      });
-
-      return tags;
-    } finally {
-      if (walk != null) {
+    try (Git git = Git.wrap(repo)) {
+      try(RevWalk walk =  new RevWalk(repo)) {
+        Collection<String> tags = getTags(git, headId, walk);
         walk.dispose();
+        return tags;
       }
     }
+  }
+
+  private Collection<String> getTags(final Git git, final ObjectId headId, final RevWalk finalWalk) throws GitAPIException{
+    List<Ref> tagRefs = git.tagList().call();
+    Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
+      @Override public boolean apply(Ref tagRef) {
+      boolean lightweightTag = tagRef.getObjectId().equals(headId);
+       try {
+          // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
+          return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
+        } catch (IOException e) {
+          return false;
+        }
+      }
+    });
+    Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
+      @Override public String apply(Ref input) {
+        return input.getName().replaceAll("refs/tags/", "");
+      }
+    });
+    return tags;
   }
 
   public String getClosestTagName(@NotNull Repository repo){
@@ -97,12 +93,13 @@ public class JGitCommon {
     HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo));
     ObjectId obj = (ObjectId) map.keySet().toArray()[0];
     
-    RevWalk walk = new RevWalk(repo);
-    RevCommit commit = walk.lookupCommit(obj);
-    walk.dispose();
+    try(RevWalk walk = new RevWalk(repo)){
+      RevCommit commit = walk.lookupCommit(obj);
+      walk.dispose();
     
-    int distance = distanceBetween(repo, headCommit, commit);
-    return String.valueOf(distance);
+      int distance = distanceBetween(repo, headCommit, commit);
+      return String.valueOf(distance);
+    }
   }
 
   private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo){

@@ -60,7 +60,7 @@ public class DescribeResult {
     this(tagName, false, Optional.<String>absent());
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @Nullable ObjectId commitId) {
+  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @NotNull ObjectId commitId) {
     this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.<String>absent(), false);
   }
 
