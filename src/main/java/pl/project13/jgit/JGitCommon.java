@@ -55,27 +55,9 @@ public class JGitCommon {
     try {
       Git git = Git.wrap(repo);
       walk = new RevWalk(repo);
-      List<Ref> tagRefs = git.tagList().call();
 
       final RevWalk finalWalk = walk;
-      Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-        @Override public boolean apply(Ref tagRef) {
-        boolean lightweightTag = tagRef.getObjectId().equals(headId);
-
-          try {
-            // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
-            return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
-          } catch (IOException e) {
-            return false;
-          }
-        }
-      });
-
-      Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-        @Override public String apply(Ref input) {
-          return input.getName().replaceAll("refs/tags/", "");
-        }
-      });
+      Collection<String> tags = getTags(git, headId, finalWalk);
 
       return tags;
     } finally {
@@ -83,6 +65,27 @@ public class JGitCommon {
         walk.dispose();
       }
     }
+  }
+
+  private Collection<String> getTags(final Git git, final ObjectId headId, final RevWalk finalWalk) throws GitAPIException{
+    List<Ref> tagRefs = git.tagList().call();
+    Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
+      @Override public boolean apply(Ref tagRef) {
+      boolean lightweightTag = tagRef.getObjectId().equals(headId);
+       try {
+          // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
+          return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
+        } catch (IOException e) {
+          return false;
+        }
+      }
+    });
+    Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
+      @Override public String apply(Ref input) {
+        return input.getName().replaceAll("refs/tags/", "");
+      }
+    });
+    return tags;
   }
 
   public String getClosestTagName(@NotNull Repository repo){
