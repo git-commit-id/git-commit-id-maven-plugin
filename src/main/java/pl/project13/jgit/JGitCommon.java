@@ -51,18 +51,11 @@ public class JGitCommon {
   }
 
   public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException{
-    RevWalk walk = null;
-    try {
-      Git git = Git.wrap(repo);
-      walk = new RevWalk(repo);
-
-      final RevWalk finalWalk = walk;
-      Collection<String> tags = getTags(git, headId, finalWalk);
-
-      return tags;
-    } finally {
-      if (walk != null) {
+    try (Git git = Git.wrap(repo)) {
+      try(RevWalk walk =  new RevWalk(repo)) {
+        Collection<String> tags = getTags(git, headId, walk);
         walk.dispose();
+        return tags;
       }
     }
   }
