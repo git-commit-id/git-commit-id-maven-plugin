@@ -89,6 +89,7 @@ public class TransformationRule {
   }
 
   public void setApply(String apply) {
+    this.applyRule = ApplyEnum.valueOf(apply);
     this.apply = apply;
   }
 
@@ -101,6 +102,7 @@ public class TransformationRule {
   }
 
   public void setAction(String action) {
+    this.actionRule = ActionEnum.valueOf(action);
     this.action = action;
   }
 

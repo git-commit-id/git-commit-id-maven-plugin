@@ -371,7 +371,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                       <!-- example: apply replacement only to the specific property git.branch and replace '/' with '-'
                       <replacementProperty>
                         <property>git.branch</property>
-                        <propertyOutputSuffix>something<propertyOutputSuffix>
+                        <propertyOutputSuffix>something</propertyOutputSuffix>
                         <token>^([^\/]*)\/([^\/]*)$</token>
                         <value>$1-$2</value>
                         <regex>true</regex>
