@@ -97,12 +97,13 @@ public class JGitCommon {
     HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo));
     ObjectId obj = (ObjectId) map.keySet().toArray()[0];
     
-    RevWalk walk = new RevWalk(repo);
-    RevCommit commit = walk.lookupCommit(obj);
-    walk.dispose();
+    try(RevWalk walk = new RevWalk(repo)){
+      RevCommit commit = walk.lookupCommit(obj);
+      walk.dispose();
     
-    int distance = distanceBetween(repo, headCommit, commit);
-    return String.valueOf(distance);
+      int distance = distanceBetween(repo, headCommit, commit);
+      return String.valueOf(distance);
+    }
   }
 
   private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo){
