@@ -386,8 +386,15 @@
               <replacementProperties>
                 <replacementProperty>
                   <property>git.branch</property>
+                  <propertyOutputSuffix>something</propertyOutputSuffix>
                   <token>^([^\/]*)\/([^\/]*)$</token>
                   <value>$1-$2</value>
+                  <transformationRules>
+                    <transformationRule>
+                      <apply>BEFORE</apply>
+                      <action>UPPER_CASE</action>
+                    </transformationRule>
+                  </transformationRules>
                 </replacementProperty>
               </replacementProperties>
               <failOnNoGitDirectory>false</failOnNoGitDirectory>

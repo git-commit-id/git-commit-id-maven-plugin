@@ -89,10 +89,14 @@ public class TransformationRule {
   }
 
   public void setApply(String apply) {
+    this.applyRule = ApplyEnum.valueOf(apply);
     this.apply = apply;
   }
 
   public ApplyEnum getApplyRule() {
+    if(applyRule == null) {
+      throw new IllegalStateException("The parameter 'apply' for TransformationRule is missing or invalid");
+    }
     return applyRule;
   }
 
@@ -101,10 +105,14 @@ public class TransformationRule {
   }
 
   public void setAction(String action) {
+    this.actionRule = ActionEnum.valueOf(action);
     this.action = action;
   }
 
   public ActionEnum getActionRule() {
+    if(actionRule == null) {
+      throw new IllegalStateException("The parameter 'action' for TransformationRule is missing or invalid");
+    }
     return actionRule;
   }
 }
