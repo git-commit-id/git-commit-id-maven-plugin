@@ -71,15 +71,17 @@ public class PropertiesReplacer
 	}
 
 	private String performReplacement(ReplacementProperty replacementProperty, String content) {
-		String result = performTransformationRules(replacementProperty, content, TransformationRule.ApplyEnum.BEFORE);
+		String result = content;
 		if(replacementProperty != null) {
+			result = performTransformationRules(replacementProperty, result, TransformationRule.ApplyEnum.BEFORE);
 			if(replacementProperty.isRegex()) {
 				result = replaceRegex(result, replacementProperty.getToken(), replacementProperty.getValue());
 			} else {
 				result = replaceNonRegex(result, replacementProperty.getToken(), replacementProperty.getValue());
 			}
+			result = performTransformationRules(replacementProperty, result, TransformationRule.ApplyEnum.AFTER);
 		}
-		return performTransformationRules(replacementProperty, result, TransformationRule.ApplyEnum.AFTER);
+		return result;
 	}
 
 	private String performTransformationRules(ReplacementProperty replacementProperty, String content, TransformationRule.ApplyEnum forRule) {
