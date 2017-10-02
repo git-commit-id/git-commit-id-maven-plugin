@@ -22,25 +22,25 @@ package pl.project13.maven.git;
  * build-tool specific exception at the top level.
  */
 public class GitCommitIdExecutionException extends Exception {
-    private static final long serialVersionUID = 4608506012492555968L;
+  private static final long serialVersionUID = 4608506012492555968L;
 
-    public GitCommitIdExecutionException() {
-        super();
-    }
+  public GitCommitIdExecutionException() {
+    super();
+  }
 
-    public GitCommitIdExecutionException(String message) {
-        super(message);
-    }
+  public GitCommitIdExecutionException(String message) {
+    super(message);
+  }
 
-    public GitCommitIdExecutionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public GitCommitIdExecutionException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public GitCommitIdExecutionException(Throwable cause) {
-        super(cause);
-    }
+  public GitCommitIdExecutionException(Throwable cause) {
+    super(cause);
+  }
 
-    public GitCommitIdExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+  public GitCommitIdExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
+  }
 }

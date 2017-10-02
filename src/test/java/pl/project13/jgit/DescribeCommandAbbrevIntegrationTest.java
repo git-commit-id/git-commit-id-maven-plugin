@@ -30,7 +30,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
-  final String PROJECT_NAME = "my-jar-project";
+  static final String PROJECT_NAME = "my-jar-project";
 
   @Override
   protected Optional<String> projectDir() {

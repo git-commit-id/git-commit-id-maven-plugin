@@ -69,9 +69,9 @@ public class SortedPropertiesTest {
     Properties properties = new Properties();
     Stack<String> expected = new Stack<>();
     int listSize = testList.size();
-    for(int i=0; i<listSize; i++){
+    for (int i = 0; i < listSize; i++) {
       String key = testList.get(i);
-      String val = String.valueOf(listSize-i);
+      String val = String.valueOf(listSize - i);
       properties.put(key, val);
       expected.push(key + "=" + val);
     }
@@ -85,9 +85,9 @@ public class SortedPropertiesTest {
     String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
     Assert.assertNotNull(result);
     
-    for(String line: result.split("\\r?\\n")){
+    for (String line: result.split("\\r?\\n")) {
       Assert.assertNotNull(line);
-      if(line.startsWith("#")){
+      if (line.startsWith("#")) {
         continue;
       }
       Assert.assertEquals(expected.pop(), line);

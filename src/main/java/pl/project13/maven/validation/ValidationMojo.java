@@ -48,12 +48,12 @@ public class ValidationMojo extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException {
-    if(validationProperties != null && validationShouldFailIfNoMatch) {
-      for(ValidationProperty validationProperty: validationProperties) {
+    if (validationProperties != null && validationShouldFailIfNoMatch) {
+      for (ValidationProperty validationProperty: validationProperties) {
         String name = validationProperty.getName();
         String value = validationProperty.getValue();
         String shouldMatchTo = validationProperty.getShouldMatchTo();
-        if((value != null) && (shouldMatchTo != null)) {
+        if ((value != null) && (shouldMatchTo != null)) {
           validateIfValueAndShouldMatchToMatches(name, value, shouldMatchTo);
         } else {
           printLogMessageWhenValueOrShouldMatchToIsEmpty(name, value, shouldMatchTo);
@@ -65,12 +65,12 @@ public class ValidationMojo extends AbstractMojo {
   private void validateIfValueAndShouldMatchToMatches(String name, String value, String shouldMatchTo) throws MojoExecutionException {
     Pattern pattern = Pattern.compile(shouldMatchTo);
     Matcher matcher = pattern.matcher(value);
-    if(!matcher.find()) {
+    if (!matcher.find()) {
       String commonLogMessage = "Expected '" + value + "' to match with '" + shouldMatchTo + "'!";
       if (name != null) {
-        throw new MojoExecutionException("Validation '" + name + "' failed! " +commonLogMessage);
+        throw new MojoExecutionException("Validation '" + name + "' failed! " + commonLogMessage);
       } else {
-        throw new MojoExecutionException("Validation of an unidentified validation (please set the name property-tag to be able to identify the validation) failed! " +commonLogMessage);
+        throw new MojoExecutionException("Validation of an unidentified validation (please set the name property-tag to be able to identify the validation) failed! " + commonLogMessage);
       }
     }
   }
@@ -80,15 +80,15 @@ public class ValidationMojo extends AbstractMojo {
     if (name != null) {
       log.warn("Skipping validation '" + name + "' " + commonLogMessage);
     } else {
-      log.warn("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) "+commonLogMessage);
+      log.warn("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) " + commonLogMessage);
     }
   }
 
-  public void setValidationShouldFailIfNoMatch(boolean validationShouldFailIfNoMatch){
+  public void setValidationShouldFailIfNoMatch(boolean validationShouldFailIfNoMatch) {
     this.validationShouldFailIfNoMatch = validationShouldFailIfNoMatch;
   }
 
-  public void setValidationProperties(List<ValidationProperty> validationProperties){
+  public void setValidationProperties(List<ValidationProperty> validationProperties) {
     this.validationProperties = validationProperties;
   }
 }

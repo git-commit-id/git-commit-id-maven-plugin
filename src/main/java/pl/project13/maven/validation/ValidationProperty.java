@@ -23,7 +23,7 @@ public class ValidationProperty {
   private String value;
   private String shouldMatchTo;
 
-  public ValidationProperty(){};
+  public ValidationProperty() {}
 
   ValidationProperty(String name, String value, String shouldMatchTo) {
     this.name = name;
@@ -31,27 +31,27 @@ public class ValidationProperty {
     this.shouldMatchTo = shouldMatchTo;
   }
 
-  public void setName(String name){
+  public void setName(String name) {
     this.name = name;
   }
 
-  public void setValue(String value){
+  public void setValue(String value) {
     this.value = value;
   }
 
-  public void setShouldMatchTo(String shouldMatchTo){
+  public void setShouldMatchTo(String shouldMatchTo) {
     this.shouldMatchTo = shouldMatchTo;
   }
 
-  public String getName(){
+  public String getName() {
     return name;
   }
 
-  public String getValue(){
+  public String getValue() {
     return value;
   }
 
-  public String getShouldMatchTo(){
+  public String getShouldMatchTo() {
     return shouldMatchTo;
   }
 }

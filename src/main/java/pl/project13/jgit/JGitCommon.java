@@ -50,9 +50,9 @@ public class JGitCommon {
     this.log = log;
   }
 
-  public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException{
+  public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException {
     try (Git git = Git.wrap(repo)) {
-      try(RevWalk walk =  new RevWalk(repo)) {
+      try (RevWalk walk = new RevWalk(repo)) {
         Collection<String> tags = getTags(git, headId, walk);
         walk.dispose();
         return tags;
@@ -60,12 +60,12 @@ public class JGitCommon {
     }
   }
 
-  private Collection<String> getTags(final Git git, final ObjectId headId, final RevWalk finalWalk) throws GitAPIException{
+  private Collection<String> getTags(final Git git, final ObjectId headId, final RevWalk finalWalk) throws GitAPIException {
     List<Ref> tagRefs = git.tagList().call();
     Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
       @Override public boolean apply(Ref tagRef) {
-      boolean lightweightTag = tagRef.getObjectId().equals(headId);
-       try {
+        boolean lightweightTag = tagRef.getObjectId().equals(headId);
+        try {
           // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
           return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
         } catch (IOException e) {
@@ -81,34 +81,34 @@ public class JGitCommon {
     return tags;
   }
 
-  public String getClosestTagName(@NotNull Repository repo){
+  public String getClosestTagName(@NotNull Repository repo) {
     Map<ObjectId, List<DatedRevTag>> map = getClosestTagAsMap(repo);
-    for(Map.Entry<ObjectId, List<DatedRevTag>> entry : map.entrySet()){
+    for (Map.Entry<ObjectId, List<DatedRevTag>> entry : map.entrySet()) {
       return trimFullTagName(entry.getValue().get(0).tagName);
     }
     return "";
   }
 
-  public String getClosestTagCommitCount(@NotNull Repository repo, RevCommit headCommit){
+  public String getClosestTagCommitCount(@NotNull Repository repo, RevCommit headCommit) {
     HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo));
     ObjectId obj = (ObjectId) map.keySet().toArray()[0];
     
-    try(RevWalk walk = new RevWalk(repo)){
+    try (RevWalk walk = new RevWalk(repo)) {
       RevCommit commit = walk.lookupCommit(obj);
       walk.dispose();
-    
+
       int distance = distanceBetween(repo, headCommit, commit);
       return String.valueOf(distance);
     }
   }
 
-  private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo){
+  private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo) {
     Map<ObjectId, List<DatedRevTag>> mapWithClosestTagOnly = new HashMap<>();
     String matchPattern = ".*";
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, true, matchPattern);
     LinkedHashMap<ObjectId, List<DatedRevTag>> sortedCommitIdsToTags = sortByDatedRevTag(commitIdsToTags);
 
-    for (Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()){
+    for (Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()) {
       mapWithClosestTagOnly.put(entry.getKey(), entry.getValue());
       break;
     }
@@ -138,7 +138,7 @@ public class JGitCommon {
     return result;
   }
 
-  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern){
+  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = new HashMap<>();
 
     try (RevWalk walk = new RevWalk(repo)) {
@@ -267,7 +267,7 @@ public class JGitCommon {
     }
   }
 
-   /**
+  /**
    * Calculates the distance (number of commits) between the given parent and child commits.
    *
    * @return distance (number of commits) between the given commits

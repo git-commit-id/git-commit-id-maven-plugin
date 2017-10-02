@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package pl.project13.maven.git;
 
 import static java.lang.String.format;
@@ -90,7 +91,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   private String getBranch(File canonical) throws GitCommitIdExecutionException {
     String branch;
-    try{
+    try {
       branch = runGitCommand(canonical, "symbolic-ref HEAD");
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
@@ -114,7 +115,9 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   private String getArgumentsForGitDescribe(GitDescribeConfig describeConfig) {
-    if (describeConfig == null) return "";
+    if (describeConfig == null) {
+      return "";
+    }
 
     StringBuilder argumentsForGitDescribe = new StringBuilder();
 
@@ -192,7 +195,7 @@ public class NativeGitProvider extends GitDataProvider {
   public String getCommitTime() throws GitCommitIdExecutionException {
     String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
-    return smf.format(Long.parseLong(value)*1000L);
+    return smf.format(Long.parseLong(value) * 1000L);
   }
 
   @Override
@@ -219,8 +222,8 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     String closestTagName = getClosestTagName();
-    if(closestTagName != null && !closestTagName.trim().isEmpty()){
-      return runQuietGitCommand(canonical, "rev-list "+closestTagName+"..HEAD --count");
+    if (closestTagName != null && !closestTagName.trim().isEmpty()) {
+      return runQuietGitCommand(canonical, "rev-list " + closestTagName + "..HEAD --count");
     }
     return "";
   }
@@ -255,7 +258,7 @@ public class NativeGitProvider extends GitDataProvider {
 
       return getRunner().runEmpty(directory, command);
     } catch (IOException ex) {
-        // Error means "non-empty"
+      // Error means "non-empty"
       return false;
       // do nothing...
     }
@@ -297,12 +300,12 @@ public class NativeGitProvider extends GitDataProvider {
   public interface ProcessRunner {
     /** Run a command and return the entire output as a String - naive, we know. */
     String run(File directory, String command) throws IOException;
+
     /** Run a command and return false if it contains at least one output line*/
     boolean runEmpty(File directory, String command) throws IOException;
   }
 
-  public static class NativeCommandException extends IOException
-  {
+  public static class NativeCommandException extends IOException {
     private static final long serialVersionUID = 3511033422542257748L;
     private final int exitCode;
     private final String command;
@@ -350,38 +353,38 @@ public class NativeGitProvider extends GitDataProvider {
 
   protected static class JavaProcessRunner implements ProcessRunner {
     @Override
-        public String run(File directory, String command) throws IOException {
-          String output = "";
-          try {
-            ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
-            final Process proc = builder.directory(directory).start();
-            proc.waitFor();
-            final InputStream is = proc.getInputStream();
-            final InputStream err = proc.getErrorStream();
+    public String run(File directory, String command) throws IOException {
+      String output = "";
+      try {
+        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        final Process proc = builder.directory(directory).start();
+        proc.waitFor();
+        final InputStream is = proc.getInputStream();
+        final InputStream err = proc.getErrorStream();
 
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            final StringBuilder commandResult = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-              commandResult.append(line).append("\n");
-            }
-
-            if (proc.exitValue() != 0) {
-              final StringBuilder errMsg = readStderr(err);
-              throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
-            }
-            output = commandResult.toString();
-          } catch (InterruptedException ex) {
-            throw new IOException(ex);
-          }
-          return output;
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        final StringBuilder commandResult = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          commandResult.append(line).append("\n");
         }
+
+        if (proc.exitValue() != 0) {
+          final StringBuilder errMsg = readStderr(err);
+          throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
+        }
+        output = commandResult.toString();
+      } catch (InterruptedException ex) {
+        throw new IOException(ex);
+      }
+      return output;
+    }
 
     private StringBuilder readStderr(InputStream err) throws IOException {
       String line;
       final BufferedReader errReader = new BufferedReader(new InputStreamReader(err));
       final StringBuilder errMsg = new StringBuilder();
-      while((line = errReader.readLine())!=null){
+      while ((line = errReader.readLine()) != null) {
         errMsg.append(line);
       }
       return errMsg;

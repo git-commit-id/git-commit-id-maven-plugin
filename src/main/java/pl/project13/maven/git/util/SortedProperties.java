@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package pl.project13.maven.git.util;
 
 import java.util.Collections;
@@ -27,28 +28,33 @@ import java.util.Vector;
 
 public class SortedProperties extends Properties {
   private static final long serialVersionUID = -7401401887311920388L;
+
   @Override
   public Enumeration keys() {
-     Enumeration keysEnum = super.keys();
-     Vector<String> keyList = new Vector<String>();
-     while(keysEnum.hasMoreElements()){
-       keyList.add((String)keysEnum.nextElement());
-     }
-     Collections.sort(keyList);
-     return keyList.elements();
+    Enumeration keysEnum = super.keys();
+    Vector<String> keyList = new Vector<String>();
+    while (keysEnum.hasMoreElements()) {
+      keyList.add((String)keysEnum.nextElement());
+    }
+    Collections.sort(keyList);
+    return keyList.elements();
   }
-  
+
   @Override
   public Set<Object> keySet() {
     Set<Object> keySet = super.keySet();
-    if(keySet==null) return keySet;
+    if (keySet == null) {
+      return keySet;
+    }
     return new TreeSet<>(keySet);
   }
   
   @Override
   public Set<Map.Entry<Object, Object>> entrySet() {
     Set<Map.Entry<Object, Object>> entrySet = super.entrySet();
-    if (entrySet==null) return entrySet;
+    if (entrySet == null) {
+      return entrySet;
+    }
 
     Set<Map.Entry<Object, Object>> sortedSet = new TreeSet<>(new EntryComparator());
     sortedSet.addAll(entrySet);
@@ -61,16 +67,16 @@ public class SortedProperties extends Properties {
   class EntryComparator implements Comparator<Map.Entry<Object, Object>> {
     @Override
     public int compare(Map.Entry<Object, Object> entry1, Map.Entry<Object, Object> entry2) {
-      if((entry1 == null) && (entry2 == null)) {
+      if ((entry1 == null) && (entry2 == null)) {
         return 0;
-      } else if((entry1 == null) && (entry2 != null)) {
+      } else if ((entry1 == null) && (entry2 != null)) {
         return 1;
-      } else if((entry1 != null) && (entry2 == null)) {
+      } else if ((entry1 != null) && (entry2 == null)) {
         return -1;
-      } else if((entry1 != null) && (entry2 != null)) {
+      } else if ((entry1 != null) && (entry2 != null)) {
         Object key1 = entry1.getKey();
         Object key2 = entry2.getKey();
-        if((key1 != null) && (key2 != null)) {
+        if ((key1 != null) && (key2 != null)) {
           return key1.toString().compareTo(key2.toString());
         }
       }

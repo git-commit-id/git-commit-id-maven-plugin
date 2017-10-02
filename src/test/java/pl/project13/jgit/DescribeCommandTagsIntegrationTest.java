@@ -31,7 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
-  final String PROJECT_NAME = "my-jar-project";
+  static final String PROJECT_NAME = "my-jar-project";
 
   @Override
   @Before
@@ -131,6 +131,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
    *
    * > git describe
    *   newest-tag-1-gb6a73ed
+   * </pre>
    */
   @Test
   public void shouldFindNewerTagWhenACommitHasTwoOrMoreTags() throws Exception {
