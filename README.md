@@ -191,7 +191,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>2.2.3</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
