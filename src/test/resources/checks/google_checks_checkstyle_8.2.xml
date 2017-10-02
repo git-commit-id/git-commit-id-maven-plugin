@@ -10,6 +10,7 @@
     Manual changes:
     - <module name = "SuppressionFilter"> added
     - disabled module AtclauseOrder entirely due to random JavaDoc parsing errors
+    - disabled module NonEmptyAtclauseDescription entirely due to random JavaDoc parsing errors
 
     Checkstyle configuration that checks the Google coding conventions from Google Java Style
     that can be found at https://google.github.io/styleguide/javaguide.html.
@@ -215,7 +216,7 @@
             <property name="tokens" value="VARIABLE_DEF"/>
             <property name="allowSamelineMultipleAnnotations" value="true"/>
         </module>
-        <module name="NonEmptyAtclauseDescription"/>
+        <!-- <module name="NonEmptyAtclauseDescription"/> -->
         <module name="JavadocTagContinuationIndentation"/>
         <module name="SummaryJavadoc">
             <property name="forbiddenSummaryFragments" value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
