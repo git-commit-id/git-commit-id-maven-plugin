@@ -29,7 +29,7 @@ matrix:
     env: CUSTOM_MVN_VERION="3.5.0"
   - stage: checkstyle
     jdk: oraclejdk9
-    script: mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B
+    script: mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
