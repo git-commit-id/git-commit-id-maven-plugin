@@ -420,6 +420,16 @@
       </build>
     </profile>
     <profile>
+      <id>checkstyleWithJdk17</id>
+      <activation>
+        <jdk>1.7</jdk>
+      </activation>
+      <properties>
+        <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
+        <checkstyle.version>6.11.2</checkstyle.version>
+      </properties>
+    </profile>
+    <profile>
       <id>checkstyle</id>
       <properties>
         <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
