@@ -39,11 +39,11 @@ public enum AvailableGitTestRepo {
    * <pre>
    * $ tag -v newest-tag
    * object d37a598a7a98531ad1375966642c6b1263129436
-   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1346017608 +0200
+   * tagger Konrad Malawski <p>konrad.malawski@project13.pl</p> 1346017608 +0200
    *
    * $ tag -v annotated-tag
    * object 95975455ef2b1af048f2926b9ba7fb804e22171b
-   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1345901561 +0200
+   * tagger Konrad Malawski <p>konrad.malawski@project13.pl</p> 1345901561 +0200
    * </pre>
    */
   WITH_COMMIT_THAT_HAS_TWO_TAGS("src/test/resources/_git_with_commit_that_has_two_tags"),
