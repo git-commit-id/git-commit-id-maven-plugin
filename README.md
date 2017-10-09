@@ -947,7 +947,14 @@ The checkstyle rules for this project are currently residing in `src/test/resour
 * eclipse -- for eclipse / STS you would need to install the `checkstyle plug-in` via `Help -> Eclipse Marketplace -> Search` after restarting eclipse it should pick-up the rules automatically. If this does not work out of the box checkout the [official integration guide](http://checkstyle.sourceforge.net/eclipse.html) or use google to trace down your error message.
 * IntelliJ IDEA -- for IntelliJ you would need to install the `CheckStyle-IDEA` via `File -> Settings -> Plugins -> Search`. After restarting IntelliJ you would need to import the `checkstyle` rules manually via `File -> Settings -> Checkstyle`. As checkstyle version you may choose `6.11.2` or `8.2` and then click on the plus-sign on the right. As description you may choose `maven-git-commit-id-plugin` and as local checkstyle file you may choose one of the checkstyle rule residing in `src/test/resources/checks`. Please note that the rule-file depend on the version you have selected in the previous step and thus it is essential to ensure that the version numbers match up. As next-step you unfortunately will be prompted to enter the **full directory** of the `checkstyle-suppressions.xml`-File. If this does not work out of the box checkout the [official integration guide](http://checkstyle.sourceforge.net/idea.html) or use google to trace down your error message.
 * Netbeans -- feel free to open a ticket and share your installation guide :-) You can also check out the [official integration guide](http://checkstyle.sourceforge.net/netbeans.html) or use google to get any addtional help.
-* Maven -- if you want to run `checkstyle` via maven you simply can execute `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`
+* Maven -- if you want to run `checkstyle` via maven you simply can execute `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`. If you are using java9 you may want to run `mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B` that uses a more recent checkstyle version.
+
+**Note**:
+If you run into
+```
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:2.17:check (validate) on project git-commit-id-plugin: Execution validate of goal org.apache.maven.plugins:maven-checkstyle-plugin:2.17:check failed: Plugin org.apache.maven.plugins:maven-checkstyle-plugin:2.17 or one of its dependencies could not be resolved: Could not find artifact com.sun:tools:jar:1.7.0 at specified path /usr/lib/jvm/java-9-oracle/../lib/tools.jar -> [Help 1]
+```
+you may want to check that your ``JAVA_HOME``-Path is set correctly and that your are running `mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B`.
 
 Maintainers
 ===========
