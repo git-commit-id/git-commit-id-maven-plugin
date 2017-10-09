@@ -30,7 +30,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
-  final String PROJECT_NAME = "my-jar-project";
+  static final String PROJECT_NAME = "my-jar-project";
 
   @Override
   protected Optional<String> projectDir() {
@@ -40,15 +40,15 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
   /**
    * Test for such situation:
    * <pre>
-   * master!tag-test> lg
-   *   b6a73ed - (HEAD, master) third addition (8 hours ago) <Konrad Malawski>
-   *   d37a598 - (lightweight-tag) second line (8 hours ago) <Konrad Malawski>
-   *   9597545 - (annotated-tag) initial commit (8 hours ago) <Konrad Malawski>
+   * master!tag-test$ lg
+   *   b6a73ed - (HEAD, master) third addition (8 hours ago) <p>Konrad Malawski</p>
+   *   d37a598 - (lightweight-tag) second line (8 hours ago) <p>Konrad Malawski</p>
+   *   9597545 - (annotated-tag) initial commit (8 hours ago) <p>Konrad Malawski</p>
    *
-   * master!tag-test> describe --abbrev=1
+   * master!tag-test$ describe --abbrev=1
    *   annotated-tag-2-gb6a7
    *
-   * master!tag-test> describe --abbrev=2
+   * master!tag-test$ describe --abbrev=2
    *   annotated-tag-2-gb6a7
    * </pre>
    *

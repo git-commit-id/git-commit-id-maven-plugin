@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
- */	
+ */
 
 package pl.project13.maven.git;
 
@@ -46,10 +46,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   static final boolean UseJGit = false;
   static final boolean UseNativeGit = true;
 
-  public static Collection useNativeGit() {
+  public static Collection<?> useNativeGit() {
     return asList(UseJGit, UseNativeGit);
   }
-  public static Collection useDirty() {
+
+  public static Collection<?> useDirty() {
     return asList(true, false);
   }
 
@@ -227,7 +228,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertThat(expectedFile).exists();
       String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
       ObjectMapper om = new ObjectMapper();
-      Map map = new HashMap<>();
+      Map<?, ?> map = new HashMap<>();
       map = om.readValue(json, map.getClass());
       assertThat(map.size() > 10);
     } finally {
@@ -898,6 +899,5 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.commit.count"));
-
   }
 }

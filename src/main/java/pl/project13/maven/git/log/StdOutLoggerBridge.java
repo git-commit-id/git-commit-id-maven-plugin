@@ -22,184 +22,184 @@ package pl.project13.maven.git.log;
  */
 public class StdOutLoggerBridge implements LoggerBridge {
 
-    private boolean verbose;
+  private boolean verbose;
 
-    public StdOutLoggerBridge(boolean verbose) {
-        this.verbose = verbose;
+  public StdOutLoggerBridge(boolean verbose) {
+    this.verbose = verbose;
+  }
+
+  @Override
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
+  }
+
+  @Override
+  public boolean isVerbose() {
+    return verbose;
+  }
+
+  @Override
+  public boolean isDebugEnabled() {
+    return true;
+  }
+
+  @Override
+  public void debug(String msg) {
+    if (verbose) {
+      System.out.println("[DEBUG] " + msg);
+    }
+  }
+
+  @Override
+  public void debug(String format, Object arg) {
+    if (verbose) {
+      System.out.println("[DEBUG] " + MessageFormatter.format(format, arg).getMessage());
+    }
+  }
+
+  @Override
+  public void debug(String format, Object arg1, Object arg2) {
+    if (verbose) {
+      System.out.println("[DEBUG] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+    }
+  }
+
+  @Override
+  public void debug(String format, Object... arguments) {
+    if (verbose) {
+      System.out.println("[DEBUG] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+    }
+  }
+
+  @Override
+  public void debug(String msg, Throwable t) {
+    if (verbose) {
+      System.out.println("[DEBUG] " + msg);
+      t.printStackTrace(System.out);
+    }
+  }
+
+  @Override
+  public boolean isInfoEnabled() {
+    return true;
+  }
+
+  @Override
+  public void info(String msg) {
+    if (verbose) {
+      System.out.println("[INFO] " + msg);
+    }
+  }
+
+  @Override
+  public void info(String format, Object arg) {
+    if (verbose) {
+      System.out.println("[INFO] " + MessageFormatter.format(format, arg).getMessage());
+    }
+  }
+
+  @Override
+  public void info(String format, Object arg1, Object arg2) {
+    if (verbose) {
+      System.out.println("[INFO] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+    }
+  }
+
+  @Override
+  public void info(String format, Object... arguments) {
+    if (verbose) {
+      System.out.println("[INFO] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+    }
+  }
+
+  @Override
+  public void info(String msg, Throwable t) {
+    if (verbose) {
+      System.out.println("[INFO] " + msg);
+      t.printStackTrace(System.out);
+    }
+  }
+
+  @Override
+  public boolean isWarnEnabled() {
+    return true;
+  }
+
+  @Override
+  public void warn(String msg) {
+    if (verbose) {
+      System.out.println("[WARN] " + msg);
+    }
+  }
+
+  @Override
+  public void warn(String format, Object arg) {
+    if (verbose) {
+      System.out.println("[WARN] " + MessageFormatter.format(format, arg).getMessage());
+    }
+  }
+
+  @Override
+  public void warn(String format, Object arg1, Object arg2) {
+    if (verbose) {
+      System.out.println("[WARN] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+    }
+  }
+
+  @Override
+  public void warn(String format, Object... arguments) {
+    if (verbose) {
+      System.out.println("[WARN] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+    }
+  }
+
+  @Override
+  public void warn(String msg, Throwable t) {
+    if (verbose) {
+      System.out.println("[WARN] " + msg);
+      t.printStackTrace(System.out);
+    }
+  }
+
+  @Override
+  public boolean isErrorEnabled() {
+    return true;
+  }
+
+  @Override
+  public void error(String msg) {
+    if (verbose) {
+      System.out.println("[ERROR] " + msg);
+    }
+  }
+
+  @Override
+  public void error(String format, Object arg) {
+    if (verbose) {
+      System.out.println("[ERROR] " + MessageFormatter.format(format, arg).getMessage());
+    }
+  }
+
+  @Override
+  public void error(String format, Object arg1, Object arg2) {
+    if (verbose) {
+      System.out.println("[ERROR] " + MessageFormatter.format(format, arg1, arg2).getMessage());
     }
 
-    @Override
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
-    }
+  }
 
-    @Override
-    public boolean isVerbose() {
-        return verbose;
+  @Override
+  public void error(String format, Object... arguments) {
+    if (verbose) {
+      System.out.println("[ERROR] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
     }
+  }
 
-    @Override
-    public boolean isDebugEnabled() {
-        return true;
+  @Override
+  public void error(String msg, Throwable t) {
+    if (verbose) {
+      System.out.println("[ERROR] " + msg);
+      t.printStackTrace(System.out);
     }
-
-    @Override
-    public void debug(String msg) {
-        if (verbose) {
-            System.out.println("[DEBUG] " + msg);
-        }
-    }
-
-    @Override
-    public void debug(String format, Object arg) {
-        if (verbose) {
-            System.out.println("[DEBUG] " + MessageFormatter.format(format, arg).getMessage());
-        }
-    }
-
-    @Override
-    public void debug(String format, Object arg1, Object arg2) {
-        if (verbose) {
-            System.out.println("[DEBUG] " + MessageFormatter.format(format, arg1, arg2).getMessage());
-        }
-    }
-
-    @Override
-    public void debug(String format, Object... arguments) {
-        if (verbose) {
-            System.out.println("[DEBUG] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
-        }
-    }
-
-    @Override
-    public void debug(String msg, Throwable t) {
-        if (verbose) {
-            System.out.println("[DEBUG] " + msg);
-            t.printStackTrace(System.out);
-        }
-    }
-
-    @Override
-    public boolean isInfoEnabled() {
-        return true;
-    }
-
-    @Override
-    public void info(String msg) {
-        if (verbose) {
-            System.out.println("[INFO] " + msg);
-        }
-    }
-
-    @Override
-    public void info(String format, Object arg) {
-        if (verbose) {
-            System.out.println("[INFO] " + MessageFormatter.format(format, arg).getMessage());
-        }
-    }
-
-    @Override
-    public void info(String format, Object arg1, Object arg2) {
-        if (verbose) {
-            System.out.println("[INFO] " + MessageFormatter.format(format, arg1, arg2).getMessage());
-        }
-    }
-
-    @Override
-    public void info(String format, Object... arguments) {
-        if (verbose) {
-            System.out.println("[INFO] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
-        }
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        if (verbose) {
-            System.out.println("[INFO] " + msg);
-            t.printStackTrace(System.out);
-        }
-    }
-
-    @Override
-    public boolean isWarnEnabled() {
-        return true;
-    }
-
-    @Override
-    public void warn(String msg) {
-        if (verbose) {
-            System.out.println("[WARN] " + msg);
-        }
-    }
-
-    @Override
-    public void warn(String format, Object arg) {
-        if (verbose) {
-            System.out.println("[WARN] " + MessageFormatter.format(format, arg).getMessage());
-        }
-    }
-
-    @Override
-    public void warn(String format, Object arg1, Object arg2) {
-        if (verbose) {
-            System.out.println("[WARN] " + MessageFormatter.format(format, arg1, arg2).getMessage());
-        }
-    }
-
-    @Override
-    public void warn(String format, Object... arguments) {
-        if (verbose) {
-            System.out.println("[WARN] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
-        }
-    }
-
-    @Override
-    public void warn(String msg, Throwable t) {
-        if (verbose) {
-            System.out.println("[WARN] " + msg);
-            t.printStackTrace(System.out);
-        }
-    }
-
-    @Override
-    public boolean isErrorEnabled() {
-        return true;
-    }
-
-    @Override
-    public void error(String msg) {
-        if (verbose) {
-            System.out.println("[ERROR] " + msg);
-        }
-    }
-
-    @Override
-    public void error(String format, Object arg) {
-        if (verbose) {
-            System.out.println("[ERROR] " + MessageFormatter.format(format, arg).getMessage());
-        }
-    }
-
-    @Override
-    public void error(String format, Object arg1, Object arg2) {
-        if (verbose) {
-            System.out.println("[ERROR] " + MessageFormatter.format(format, arg1, arg2).getMessage());
-        }
-
-    }
-
-    @Override
-    public void error(String format, Object... arguments) {
-        if (verbose) {
-            System.out.println("[ERROR] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
-        }
-    }
-
-    @Override
-    public void error(String msg, Throwable t) {
-        if (verbose) {
-            System.out.println("[ERROR] " + msg);
-            t.printStackTrace(System.out);
-        }
-    }
+  }
 }

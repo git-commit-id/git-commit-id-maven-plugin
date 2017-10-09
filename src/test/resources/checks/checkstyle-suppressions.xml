@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+ 
+<!DOCTYPE suppressions PUBLIC
+     "-//Puppy Crawl//DTD Suppressions 1.0//EN"
+     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+  <suppress checks="JavadocStyle" files=".*\.java" />
+  <suppress checks="SummaryJavadoc" files=".*\.java" />
+  <suppress checks="JavadocParagraph" files=".*\.java" />
+  <suppress checks="JavadocMethod" files=".*\.java" />
+  <suppress checks="JavadocTagContinuationIndentation" files=".*\.java" />
+  <suppress checks="SingleLineJavadoc" files=".*\.java" />
+
+  <suppress checks="LineLength" files=".*\.java" />
+  <suppress checks="OperatorWrap" files=".*\.java" />
+  <suppress checks="ParameterName" files=".*\.java" />
+  <suppress checks="AvoidStarImport" files=".*\.java" />
+  <suppress checks="MemberName" files=".*\.java" />
+  <suppress checks="LocalVariableName" files=".*\.java" />
+  <suppress checks="MethodName" files=".*\.java" />
+  <suppress checks="CustomImportOrder" files=".*\.java" />
+  <suppress checks="OverloadMethodsDeclarationOrder" files=".*\.java" />
+  <suppress checks="VariableDeclarationUsageDistance" files=".*\.java" />
+
+  <suppress checks="AbbreviationAsWordInName" files="NativeAndJGitProviderTest\.java" lines="90"/>
+
+</suppressions>

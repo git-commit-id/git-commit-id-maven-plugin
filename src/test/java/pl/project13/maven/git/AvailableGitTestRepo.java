@@ -29,21 +29,21 @@ public enum AvailableGitTestRepo {
   ON_A_TAG("src/test/resources/_git_on_a_tag"),
   /**
    * <pre>
-   * > lg
-   *   * b6a73ed - (HEAD, master) third addition (32 hours ago) <Konrad Malawski>
-   *   * d37a598 - (newest-tag, lightweight-tag) second line (32 hours ago) <Konrad Malawski>
-   *   * 9597545 - (annotated-tag) initial commit (32 hours ago) <Konrad Malawski>
+   * $ lg
+   *   * b6a73ed - (HEAD, master) third addition (32 hours ago) <p>Konrad Malawski</p>
+   *   * d37a598 - (newest-tag, lightweight-tag) second line (32 hours ago) <p>Konrad Malawski</p>
+   *   * 9597545 - (annotated-tag) initial commit (32 hours ago) <p>Konrad Malawski</p>
    * </pre>
    *
    * Where the <b>newest-tag</b> was created latest:
    * <pre>
-   * > tag -v newest-tag
+   * $ tag -v newest-tag
    * object d37a598a7a98531ad1375966642c6b1263129436
-   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1346017608 +0200
+   * tagger Konrad Malawski <p>konrad.malawski@project13.pl</p> 1346017608 +0200
    *
-   * > tag -v annotated-tag
+   * $ tag -v annotated-tag
    * object 95975455ef2b1af048f2926b9ba7fb804e22171b
-   * tagger Konrad Malawski <konrad.malawski@project13.pl> 1345901561 +0200
+   * tagger Konrad Malawski <p>konrad.malawski@project13.pl</p> 1345901561 +0200
    * </pre>
    */
   WITH_COMMIT_THAT_HAS_TWO_TAGS("src/test/resources/_git_with_commit_that_has_two_tags"),
@@ -51,9 +51,9 @@ public enum AvailableGitTestRepo {
   WITH_SUBMODULES("src/test/resources/_git_with_submodules"),
   /**
    * <pre>
-   * b6a73ed - (HEAD, master) third addition (4 minutes ago) <Konrad Malawski>
-   * d37a598 - (lightweight-tag) second line (6 minutes ago) <Konrad Malawski>
-   * 9597545 - (annotated-tag) initial commit (6 minutes ago) <Konrad Malawski>
+   * b6a73ed - (HEAD, master) third addition (4 minutes ago) <p>Konrad Malawski</p>
+   * d37a598 - (lightweight-tag) second line (6 minutes ago) <p>Konrad Malawski</p>
+   * 9597545 - (annotated-tag) initial commit (6 minutes ago) <p>Konrad Malawski</p>
    * </pre>
    */
   WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag"),

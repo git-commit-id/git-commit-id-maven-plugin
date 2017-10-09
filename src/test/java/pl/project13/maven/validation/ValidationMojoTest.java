@@ -19,9 +19,6 @@ package pl.project13.maven.validation;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
-
 import org.junit.Test;
 
 import java.util.ArrayList;

@@ -78,7 +78,7 @@ public abstract class GitDataProvider implements GitProvider {
     return this;
   }
 
-  public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone){
+  public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
@@ -139,7 +139,7 @@ public abstract class GitDataProvider implements GitProvider {
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws GitCommitIdExecutionException{
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitCommitIdExecutionException {
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
@@ -175,9 +175,9 @@ public abstract class GitDataProvider implements GitProvider {
    *
    * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
    *
+   * @param env environment settings
    * @return true if running
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @param env environment settings
    */
   private boolean runningOnBuildServer(Map<String, String> env) {
     return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL") ||
@@ -190,7 +190,7 @@ public abstract class GitDataProvider implements GitProvider {
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitCommitIdExecutionException {
     String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
-    if(!isNullOrEmpty(environmentBasedLocalBranch)){
+    if (!isNullOrEmpty(environmentBasedLocalBranch)) {
       log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}", environmentBasedLocalBranch);
       return environmentBasedLocalBranch;
     }
@@ -205,9 +205,9 @@ public abstract class GitDataProvider implements GitProvider {
     return getBranchName();
   }
 
-  protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
+  protected SimpleDateFormat getSimpleDateFormatWithTimeZone() {
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if (dateFormatTimeZone != null){
+    if (dateFormatTimeZone != null) {
       smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
     return smf;
@@ -227,9 +227,10 @@ public abstract class GitDataProvider implements GitProvider {
    * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
    *
    * @param gitRemoteString The value of the git remote
-   * @return
-   * @throws GitCommitIdExecutionException
-     */
+   * @return returns the gitRemoteUri with stripped password (might be used in http or https)
+   * @throws GitCommitIdExecutionException Exception when URI is invalid
+   */
+
   protected static String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
 
     // The URL might be null if the repo hasn't set a remote

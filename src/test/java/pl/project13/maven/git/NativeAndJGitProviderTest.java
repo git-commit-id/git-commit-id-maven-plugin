@@ -29,8 +29,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NativeAndJGitProviderTest extends GitIntegrationTest
-{
+public class NativeAndJGitProviderTest extends GitIntegrationTest {
   public static final String[] GIT_KEYS = new String[] {
     "git.build.time",
     "git.build.host",
@@ -52,8 +51,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
   @Test
-  public void testCompareBasic() throws Exception
-  {
+  public void testCompareBasic() throws Exception {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
@@ -65,8 +63,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
-  public void testCompareSubrepoInRoot() throws Exception
-  {
+  public void testCompareSubrepoInRoot() throws Exception {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
         // Don't create a subrepo based on the plugin repo itself.
@@ -78,8 +75,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
-  public void testCompareSubrepoInChild() throws Exception
-  {
+  public void testCompareSubrepoInChild() throws Exception {
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
         // Don't create a subrepo based on the plugin repo itself.
@@ -91,8 +87,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
   }
 
   @Test
-  public void testCompareISO8601Time() throws Exception
-  {
+  public void testCompareISO8601Time() throws Exception {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {
@@ -103,8 +98,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     }
   }
 
-  private void verifyNativeAndJGit(AvailableGitTestRepo repo, MavenProject targetProject, String formatString) throws Exception
-  {
+  private void verifyNativeAndJGit(AvailableGitTestRepo repo, MavenProject targetProject, String formatString) throws Exception {
     setProjectToExecuteMojoIn(targetProject);
 
     alterMojoSettings("skipPoms", false);
@@ -127,9 +121,8 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
       if (!key.equals("git.build.time")) { // git.build.time is excused because the two runs happened at different times.
         String jGitKey = jgitProps.getProperty(key);
         String nativeKey = nativeProps.getProperty(key);
-        assertEquals("Key difference for key: '" + key + "'; jgit="+jGitKey +"; nativeKey="+nativeKey + "; for " + repo.getDir(), jGitKey, nativeKey);
-      }
-      else {
+        assertEquals("Key difference for key: '" + key + "'; jgit=" + jGitKey + "; nativeKey=" + nativeKey + "; for " + repo.getDir(), jGitKey, nativeKey);
+      } else {
         // Ensure that the date formats are parseable and within reason. If running all the git commands on the
         // native provider takes more than 60 seconds, then something is seriously wrong.
         long jGitBuildTimeInMs = format.parse(jgitProps.getProperty(key)).getTime();
@@ -146,13 +139,11 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     assertEquals("commit times parse to different time stamps", jGitCommitTimeInMs, nativeCommitTimeInMs);
   }
 
-  private void alterMojoSettings(String parameterName, Object parameterValue)
-  {
+  private void alterMojoSettings(String parameterName, Object parameterValue) {
     setInternalState(mojo, parameterName, parameterValue);
   }
 
-  private Properties createCopy(Properties orig)
-  {
+  private Properties createCopy(Properties orig) {
     Properties p = new Properties();
     for (String key : orig.stringPropertyNames()) {
       p.setProperty(key, orig.getProperty(key));
@@ -161,8 +152,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest
     return p;
   }
 
-  private void assertGitPropertiesPresentInProject(Properties properties)
-  {
+  private void assertGitPropertiesPresentInProject(Properties properties) {
     for (String key : GIT_KEYS) {
       assertThat(properties).satisfies(new ContainsKeyCondition(key));
     }

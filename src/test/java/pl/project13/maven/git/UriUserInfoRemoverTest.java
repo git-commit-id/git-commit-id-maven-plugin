@@ -32,23 +32,23 @@ import java.util.Collection;
 public class UriUserInfoRemoverTest {
 
   public static Collection<Object[]> parameters() {
-        Object[][] data = new Object[][] {
-                { "https://example.com", "https://example.com" },
-                { "https://example.com:8888", "https://example.com:8888" },
-                { "https://user@example.com", "https://user@example.com" },
-                { "https://user@example.com:8888", "https://user@example.com:8888" },
-                { "https://user:password@example.com", "https://user@example.com" },
-                { "https://user:password@example.com:8888", "https://user@example.com:8888" },
-                { "git@github.com", "git@github.com" },
-                { "git@github.com:8888", "git@github.com:8888" },
-                { "user@host.xz:~user/path/to/repo.git", "user@host.xz:~user/path/to/repo.git" },
-                { "[user@mygithost:10022]:my-group/my-sample-project.git", "[user@mygithost:10022]:my-group/my-sample-project.git" },
-                { "ssh://git@github.com/", "ssh://git@github.com/" },
-                { "/path/to/repo.git/", "/path/to/repo.git/" },
-                { "file:///path/to/repo.git/", "file:///path/to/repo.git/"},
-                { "file:///C:\\Users\\test\\example", "file:///C:\\Users\\test\\example"},
-                };
-        return Arrays.asList(data);
+    Object[][] data = new Object[][] {
+            { "https://example.com", "https://example.com" },
+            { "https://example.com:8888", "https://example.com:8888" },
+            { "https://user@example.com", "https://user@example.com" },
+            { "https://user@example.com:8888", "https://user@example.com:8888" },
+            { "https://user:password@example.com", "https://user@example.com" },
+            { "https://user:password@example.com:8888", "https://user@example.com:8888" },
+            { "git@github.com", "git@github.com" },
+            { "git@github.com:8888", "git@github.com:8888" },
+            { "user@host.xz:~user/path/to/repo.git", "user@host.xz:~user/path/to/repo.git" },
+            { "[user@mygithost:10022]:my-group/my-sample-project.git", "[user@mygithost:10022]:my-group/my-sample-project.git" },
+            { "ssh://git@github.com/", "ssh://git@github.com/" },
+            { "/path/to/repo.git/", "/path/to/repo.git/" },
+            { "file:///path/to/repo.git/", "file:///path/to/repo.git/"},
+            { "file:///C:\\Users\\test\\example", "file:///C:\\Users\\test\\example"},
+    };
+    return Arrays.asList(data);
   }
 
   @Test

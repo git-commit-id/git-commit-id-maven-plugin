@@ -31,63 +31,65 @@ import pl.project13.maven.git.log.LoggerBridge;
 
 public class PropertiesFilterer {
 
-    private LoggerBridge log;
+  private LoggerBridge log;
 
-    public PropertiesFilterer(LoggerBridge log) {
-        this.log = log;
+  public PropertiesFilterer(LoggerBridge log) {
+    this.log = log;
+  }
+
+  public void filterNot(Properties properties, @Nullable List<String> exclusions, String prefixDot) {
+    if (exclusions == null || exclusions.isEmpty()) {
+      return;
     }
 
-    public void filterNot(Properties properties, @Nullable List<String> exclusions, String prefixDot) {
-        if (exclusions == null || exclusions.isEmpty()) {
-            return;
-        }
-
-        List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, new Function<String, Predicate<CharSequence>>() {
+    List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, 
+        new Function<String, Predicate<CharSequence>>() {
             @Override
             public Predicate<CharSequence> apply(String exclude) {
-                return Predicates.containsPattern(exclude);
+              return Predicates.containsPattern(exclude);
             }
         });
 
-        Predicate<CharSequence> shouldExclude = Predicates.alwaysFalse();
-        for (Predicate<CharSequence> predicate : excludePredicates) {
-            shouldExclude = Predicates.or(shouldExclude, predicate);
-        }
-
-        for (String key : properties.stringPropertyNames()) {
-            if (isOurProperty(key, prefixDot) && shouldExclude.apply(key)) {
-                log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
-                properties.remove(key);
-            }
-        }
+    Predicate<CharSequence> shouldExclude = Predicates.alwaysFalse();
+    for (Predicate<CharSequence> predicate : excludePredicates) {
+      shouldExclude = Predicates.or(shouldExclude, predicate);
     }
 
-    public void filter(Properties properties, @Nullable List<String> inclusions, String prefixDot) {
-        if (inclusions == null || inclusions.isEmpty()) {
-            return;
-        }
+    for (String key : properties.stringPropertyNames()) {
+      if (isOurProperty(key, prefixDot) && shouldExclude.apply(key)) {
+        log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
+        properties.remove(key);
+      }
+    }
+  }
 
-        List<Predicate<CharSequence>> includePredicates = Lists.transform(inclusions, new Function<String, Predicate<CharSequence>>() {
+  public void filter(Properties properties, @Nullable List<String> inclusions, String prefixDot) {
+    if (inclusions == null || inclusions.isEmpty()) {
+      return;
+    }
+
+    List<Predicate<CharSequence>> includePredicates = Lists.transform(inclusions,
+        new Function<String, Predicate<CharSequence>>() {
             @Override
             public Predicate<CharSequence> apply(String exclude) {
-                return Predicates.containsPattern(exclude);
+              return Predicates.containsPattern(exclude);
             }
         });
 
-        Predicate<CharSequence> shouldInclude = Predicates.alwaysFalse();
-        for (Predicate<CharSequence> predicate : includePredicates) {
-            shouldInclude = Predicates.or(shouldInclude, predicate);
-        }
-
-        for (String key : properties.stringPropertyNames()) {
-            if (isOurProperty(key, prefixDot) && !shouldInclude.apply(key)) {
-                log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
-                properties.remove(key);
-            }
-        }
+    Predicate<CharSequence> shouldInclude = Predicates.alwaysFalse();
+    for (Predicate<CharSequence> predicate : includePredicates) {
+      shouldInclude = Predicates.or(shouldInclude, predicate);
     }
 
-    private boolean isOurProperty(String key, String prefixDot) {
-        return key.startsWith(prefixDot);
+    for (String key : properties.stringPropertyNames()) {
+      if (isOurProperty(key, prefixDot) && !shouldInclude.apply(key)) {
+        log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
+        properties.remove(key);
+      }
     }
+  }
+
+  private boolean isOurProperty(String key, String prefixDot) {
+    return key.startsWith(prefixDot);
+  }
 }

@@ -19,7 +19,7 @@ package pl.project13.jgit;
 
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
@@ -49,11 +49,11 @@ public class DescribeCommandOptionsTest {
   @Test
   public void apply_shouldDelegateToAllOptions() throws Exception {
     // given
-    final String DEVEL = "DEVEL";
-    final String MATCH = "*";
-    final int ABBREV = 12;
+    final String devel = "DEVEL";
+    final String match = "*";
+    final int abbrev = 12;
 
-    GitDescribeConfig config = new GitDescribeConfig(true, DEVEL, MATCH, ABBREV, true, true);
+    GitDescribeConfig config = new GitDescribeConfig(true, devel, match, abbrev, true, true);
 
     Repository repo = mock(Repository.class);
     DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
@@ -63,10 +63,10 @@ public class DescribeCommandOptionsTest {
     spiedCommand.apply(config);
 
     // then
-    verify(spiedCommand).always(Matchers.eq(true));
-    verify(spiedCommand).abbrev(Matchers.eq(ABBREV));
-    verify(spiedCommand).dirty(Matchers.eq(DEVEL));
-    verify(spiedCommand).tags(Matchers.eq(true));
-    verify(spiedCommand).forceLongFormat(Matchers.eq(true));
+    verify(spiedCommand).always(ArgumentMatchers.eq(true));
+    verify(spiedCommand).abbrev(ArgumentMatchers.eq(abbrev));
+    verify(spiedCommand).dirty(ArgumentMatchers.eq(devel));
+    verify(spiedCommand).tags(ArgumentMatchers.eq(true));
+    verify(spiedCommand).forceLongFormat(ArgumentMatchers.eq(true));
   }
 }

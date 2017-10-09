@@ -35,7 +35,7 @@ public class TransformationRule {
     BEFORE,
     AFTER,
     ;
-  };
+  }
 
   /**
    * Determines the action that should be performed as transformation.
@@ -50,18 +50,18 @@ public class TransformationRule {
 
   protected enum ActionEnum {
     LOWER_CASE {
-        @Override
-        protected String perform(String input) {
-          if(input != null) {
-            return input.toLowerCase();
-          }
-          return input;
+      @Override
+      protected String perform(String input) {
+        if (input != null) {
+          return input.toLowerCase();
         }
-      },
+        return input;
+      }
+    },
     UPPER_CASE {
       @Override
       protected String perform(String input) {
-        if(input != null) {
+        if (input != null) {
           return input.toUpperCase();
         }
         return null;
@@ -94,7 +94,7 @@ public class TransformationRule {
   }
 
   public ApplyEnum getApplyRule() {
-    if(applyRule == null) {
+    if (applyRule == null) {
       throw new IllegalStateException("The parameter 'apply' for TransformationRule is missing or invalid");
     }
     return applyRule;
@@ -110,7 +110,7 @@ public class TransformationRule {
   }
 
   public ActionEnum getActionRule() {
-    if(actionRule == null) {
+    if (actionRule == null) {
       throw new IllegalStateException("The parameter 'action' for TransformationRule is missing or invalid");
     }
     return actionRule;

@@ -47,12 +47,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   private LoggerBridge log;
   private JGitCommon jGitCommon;
 
-//  TODO not yet implemented options:
-//  private boolean containsFlag = false;
-//  private boolean allFlag = false;
-//  private boolean tagsFlag = false;
-//  private Optional<Integer> candidatesOption = Optional.of(10);
-//  private boolean exactMatchFlag = false;
+  //  TODO not yet implemented options:
+  //  private boolean containsFlag = false;
+  //  private boolean allFlag = false;
+  //  private boolean tagsFlag = false;
+  //  private Optional<Integer> candidatesOption = Optional.of(10);
+  //  private boolean exactMatchFlag = false;
 
   private Optional<String> matchOption = Optional.absent();
 
@@ -275,7 +275,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     List<RevCommit> commits;
     try {
       commits = jGitCommon.findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
-    } catch(Exception e) {
+    } catch (Exception e) {
       if (alwaysFlag) {
         // Show uniquely abbreviated commit object as fallback
         commits = Collections.emptyList();
@@ -360,12 +360,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   // git commit id -> its tag (or tags)
   private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
-	  String matchPattern = createMatchPattern();
-	  Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(repo, tagsFlag, matchPattern);
-      Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
+    String matchPattern = createMatchPattern();
+    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(repo, tagsFlag, matchPattern);
+    Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
     log.info("Created map: [{}]", commitIdsToTagNames);
 
-      return commitIdsToTagNames;
+    return commitIdsToTagNames;
   }
 
   private String createMatchPattern() {

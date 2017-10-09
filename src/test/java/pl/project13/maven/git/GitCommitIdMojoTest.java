@@ -225,18 +225,18 @@ public class GitCommitIdMojoTest {
     Repository git = mock(Repository.class);
     Map<String, String> env = Maps.newHashMap();
 
-    String detachedHeadSHA1 = "16bb801934e652f5e291a003db05e364d83fba25";
+    String detachedHeadSha1 = "16bb801934e652f5e291a003db05e364d83fba25";
     String ciUrl = "http://myciserver.com";
 
-    when(git.getBranch()).thenReturn(detachedHeadSHA1);
+    when(git.getBranch()).thenReturn(detachedHeadSha1);
     jGitProvider.setRepository(git);
     // when
     // in a detached head state, getBranch() will return the SHA1...standard behavior
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
 
     // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
     env.put("JENKINS_URL", "http://myjenkinsserver.com");
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
 
     // now set GIT_BRANCH too and see that the branch name from env var is returned
     env.clear();
@@ -268,7 +268,7 @@ public class GitCommitIdMojoTest {
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
     env.put("GIT_BRANCH", "mylocalbranch");
-    assertThat(detachedHeadSHA1).isEqualTo(jGitProvider.determineBranchName(env));
+    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
   }
   
   @Test
@@ -317,8 +317,7 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldPerformReplacements() throws MojoExecutionException
-  {
+  public void shouldPerformReplacements() throws MojoExecutionException {
     mojo.propertiesReplacer = mock(PropertiesReplacer.class);
     mojo.replacementProperties = mock(List.class);
 

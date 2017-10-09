@@ -89,15 +89,15 @@ public class GitDescribeConfig {
    * Examples:
    *
    * <pre>
-   * > git describe
+   * $ git describe
    *    some-tag-2-gb6a7335 # the default 7 kicked in
    *
-   * > git describe --abbrev=0
+   * $ git describe --abbrev=0
    *   some-tag
-   * > git describe --abbrev=3
+   * $ git describe --abbrev=3
    *   some-tag-2-gb6a73 # you specified 3, but git determined that it wouldn't be unique, and returned 5 chars instead!
    *
-   * > git describe --abbrev=40
+   * $ git describe --abbrev=40
    *   some-tag-2-gb6a73ed747dd8dc98642d731ddbf09824efb9d48
    * </pre>
    *

@@ -37,8 +37,7 @@ public class NaivePerformanceTest extends GitIntegrationTest {
   static final boolean UseJGit = false;
   static final boolean UseNativeGit = true;
 
-  public static Collection performanceParameter() {
-
+  public static Collection<?> performanceParameter() {
     return Arrays.asList(new Object[][]{
         {UseJGit, 10},
         {UseNativeGit, 10},

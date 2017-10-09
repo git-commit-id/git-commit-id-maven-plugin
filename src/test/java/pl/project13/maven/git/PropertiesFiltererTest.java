@@ -22,75 +22,75 @@ import pl.project13.maven.git.log.MavenLoggerBridge;
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesFiltererTest {
 
-    private static final String PREFIX_DOT = "prefix.";
+  private static final String PREFIX_DOT = "prefix.";
 
-    @InjectMocks
-    private PropertiesFilterer propertiesFilterer;
+  @InjectMocks
+  private PropertiesFilterer propertiesFilterer;
 
-    @Mock
-    private MavenLoggerBridge log;
+  @Mock
+  private MavenLoggerBridge log;
 
-    @Mock
-    private Properties properties;
+  @Mock
+  private Properties properties;
 
-    @Test
-    public void filterNotWithoutExclusions() {
-        List<String> exclusions = null;
+  @Test
+  public void filterNotWithoutExclusions() {
+    List<String> exclusions = null;
 
-        propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
+    propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
 
-        Mockito.verifyZeroInteractions(properties);
-    }
+    Mockito.verifyZeroInteractions(properties);
+  }
 
-    @Test
-    public void filterNotWithEmptyExclusions() {
-        List<String> exclusions = Collections.emptyList();
+  @Test
+  public void filterNotWithEmptyExclusions() {
+    List<String> exclusions = Collections.emptyList();
 
-        propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
+    propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
 
-        Mockito.verifyZeroInteractions(properties);
-    }
+    Mockito.verifyZeroInteractions(properties);
+  }
 
-    @Test
-    public void filterNotRemovesOwnPropertyInExclusionAndSkipsOtherOnes() {
-        List<String> inclusions = Arrays.asList("^prefix\\.exclude1.*$", "^prefix\\.exclude2.*$");
-        when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include", "prefix.exclude1", "prefix.exclude2", "global")));
+  @Test
+  public void filterNotRemovesOwnPropertyInExclusionAndSkipsOtherOnes() {
+    List<String> inclusions = Arrays.asList("^prefix\\.exclude1.*$", "^prefix\\.exclude2.*$");
+    when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include", "prefix.exclude1", "prefix.exclude2", "global")));
 
-        propertiesFilterer.filterNot(properties, inclusions, PREFIX_DOT);
+    propertiesFilterer.filterNot(properties, inclusions, PREFIX_DOT);
 
-        verify(properties).stringPropertyNames();
-        verify(properties).remove("prefix.exclude1");
-        verify(properties).remove("prefix.exclude2");
-        verifyNoMoreInteractions(properties);
-    }
+    verify(properties).stringPropertyNames();
+    verify(properties).remove("prefix.exclude1");
+    verify(properties).remove("prefix.exclude2");
+    verifyNoMoreInteractions(properties);
+  }
 
-    @Test
-    public void filterWithoutInclusions() {
-        List<String> inclusions = null;
+  @Test
+  public void filterWithoutInclusions() {
+    List<String> inclusions = null;
 
-        propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
+    propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 
-        Mockito.verifyZeroInteractions(properties);
-    }
+    Mockito.verifyZeroInteractions(properties);
+  }
 
-    @Test
-    public void filterWithEmptyInclusions() {
-        List<String> inclusions = Collections.emptyList();
+  @Test
+  public void filterWithEmptyInclusions() {
+    List<String> inclusions = Collections.emptyList();
 
-        propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
+    propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 
-        Mockito.verifyZeroInteractions(properties);
-    }
+    Mockito.verifyZeroInteractions(properties);
+  }
 
-    @Test
-    public void filterRemovesOwnPropertyNotInInclusionAndSkipsOtherOnes() {
-        List<String> inclusions = Arrays.asList("^prefix\\.include1.*$", "^prefix\\.include2.*$");
-        when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include1", "prefix.include2", "prefix.exclude", "global")));
+  @Test
+  public void filterRemovesOwnPropertyNotInInclusionAndSkipsOtherOnes() {
+    List<String> inclusions = Arrays.asList("^prefix\\.include1.*$", "^prefix\\.include2.*$");
+    when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include1", "prefix.include2", "prefix.exclude", "global")));
 
-        propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
+    propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 
-        verify(properties).stringPropertyNames();
-        verify(properties).remove("prefix.exclude");
-        verifyNoMoreInteractions(properties);
-    }
+    verify(properties).stringPropertyNames();
+    verify(properties).remove("prefix.exclude");
+    verifyNoMoreInteractions(properties);
+  }
 }

@@ -35,7 +35,7 @@ import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public abstract class GitIntegrationTest {
 
-  private final static String SANDBOX_DIR = "target" + File.separator + "sandbox" + File.separator;
+  private static final String SANDBOX_DIR = "target" + File.separator + "sandbox" + File.separator;
 
   /**
    * Sandbox directory with unique name for current test.
