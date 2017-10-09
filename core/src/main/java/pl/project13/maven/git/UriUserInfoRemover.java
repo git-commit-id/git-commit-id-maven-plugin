@@ -34,9 +34,10 @@ public class UriUserInfoRemover {
    * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
    *
    * @param gitRemoteString The value of the git remote
-   * @return
-   * @throws GitException
-     */
+   * @return returns the gitRemoteUri with stripped password (might be used in http or https)
+   * @throws GitCommitIdExecutionException Exception when URI is invalid
+   */
+
   public static String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitException {
 
     // The URL might be null if the repo hasn't set a remote

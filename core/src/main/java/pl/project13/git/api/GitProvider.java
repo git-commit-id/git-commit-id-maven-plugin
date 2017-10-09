@@ -19,50 +19,50 @@ package pl.project13.git.api;
 
 public interface GitProvider {
 
-    void init() throws GitException;
+  void init() throws GitException;
 
-    String getBuildAuthorName() throws GitException;
+  String getBuildAuthorName() throws GitException;
 
-    String getBuildAuthorEmail() throws GitException;
+  String getBuildAuthorEmail() throws GitException;
 
-    void prepareGitToExtractMoreDetailedReproInformation() throws GitException;
+  void prepareGitToExtractMoreDetailedReproInformation() throws GitException;
 
-    String getBranchName() throws GitException;
+  String getBranchName() throws GitException;
 
-    String getGitDescribe() throws GitException;
+  String getGitDescribe() throws GitException;
 
-    String getCommitId() throws GitException;
+  String getCommitId() throws GitException;
 
-    String getAbbrevCommitId() throws GitException;
+  String getAbbrevCommitId() throws GitException;
 
-    boolean isDirty() throws GitException;
+  boolean isDirty() throws GitException;
 
-    String getCommitAuthorName() throws GitException;
+  String getCommitAuthorName() throws GitException;
 
-    String getCommitAuthorEmail() throws GitException;
+  String getCommitAuthorEmail() throws GitException;
 
-    String getCommitMessageFull() throws GitException;
+  String getCommitMessageFull() throws GitException;
 
-    String getCommitMessageShort() throws GitException;
+  String getCommitMessageShort() throws GitException;
 
-    String getCommitTime() throws GitException;
+  String getCommitTime() throws GitException;
 
-    String getRemoteOriginUrl() throws GitException;
+  String getRemoteOriginUrl() throws GitException;
 
-    String getTags() throws GitException;
+  String getTags() throws GitException;
 
-    String getClosestTagName() throws GitException;
+  String getClosestTagName() throws GitException;
 
-    String getClosestTagCommitCount() throws GitException;
+  String getClosestTagCommitCount() throws GitException;
 
-    void finalCleanUp() throws GitException;
+  void finalCleanUp() throws GitException;
 
-    // setter
-    void setAbbrevLength(int abbrevLength);
+  // setter
+  void setAbbrevLength(int abbrevLength);
 
-    void setGitDescribe(GitDescribeConfig gitDescribe);
+  void setGitDescribe(GitDescribeConfig gitDescribe);
 
-    void setDateFormat(String dateFormat);
+  void setDateFormat(String dateFormat);
 
-    void setDateFormatTimeZone(String dateFormatTimeZone);
+  void setDateFormatTimeZone(String dateFormatTimeZone);
 }

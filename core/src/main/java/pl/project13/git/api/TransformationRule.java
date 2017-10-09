@@ -18,30 +18,30 @@
 package pl.project13.git.api;
 
 public class TransformationRule {
-	private ApplyEnum applyRule;
+  private ApplyEnum applyRule;
 
   public enum ApplyEnum {
     BEFORE,
     AFTER,
     ;
-  };
+  }
 
   private ActionEnum actionRule;
 
   public enum ActionEnum {
     LOWER_CASE {
-        @Override
-        public String perform(String input) {
-          if(input != null) {
-            return input.toLowerCase();
-          }
-          return input;
+      @Override
+      public String perform(String input) {
+        if (input != null) {
+          return input.toLowerCase();
         }
-      },
+        return input;
+      }
+    },
     UPPER_CASE {
       @Override
       public String perform(String input) {
-        if(input != null) {
+        if (input != null) {
           return input.toUpperCase();
         }
         return null;

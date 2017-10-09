@@ -31,14 +31,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DescribeResultTest extends GitIntegrationTest {
 
-  final static String PROJECT_NAME = "my-jar-project";
+  static final String PROJECT_NAME = "my-jar-project";
 
-  final static String VERSION = "v2.5";
-  final static String DEFAULT_ABBREV_COMMIT_ID = "b6a73ed";
-  final static String FULL_HEAD_COMMIT_ID = "b6a73ed747dd8dc98642d731ddbf09824efb9d48";
+  static final String VERSION = "v2.5";
+  static final String DEFAULT_ABBREV_COMMIT_ID = "b6a73ed";
+  static final String FULL_HEAD_COMMIT_ID = "b6a73ed747dd8dc98642d731ddbf09824efb9d48";
   public static final ObjectId HEAD_OBJECT_ID = ObjectId.fromString(FULL_HEAD_COMMIT_ID);
-  final static String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
-  final static String DIRTY_MARKER = "-DEV";
+  static final String G_DEFAULT_ABBREV_COMMIT_ID = "g" + DEFAULT_ABBREV_COMMIT_ID;
+  static final String DIRTY_MARKER = "-DEV";
 
   @Override
   @Before

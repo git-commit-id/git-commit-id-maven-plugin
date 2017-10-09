@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
- */	
+ */
 
 package pl.project13.maven.git;
 
@@ -23,14 +23,14 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.*;
-import static java.util.Arrays.asList;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.runner.RunWith;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 import pl.project13.maven.git.util.PropertyManager;
+
+import static java.util.Arrays.asList;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {
@@ -38,7 +38,7 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
   static final boolean USE_JGIT = false;
   static final boolean USE_NATIVE_GIT = true;
 
-  public static Collection useNativeGit() {
+  public static Collection<?> useNativeGit() {
     return asList(USE_JGIT, USE_NATIVE_GIT);
   }
 
@@ -89,7 +89,7 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
       }
 
     } finally {
-      if( !mavenSandbox.isKeepSandboxWhenFinishedTest() ) {
+      if (!mavenSandbox.isKeepSandboxWhenFinishedTest()) {
         FileUtils.forceDelete(expectedFile);
       }
     }

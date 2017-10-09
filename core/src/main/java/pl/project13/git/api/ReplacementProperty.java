@@ -20,10 +20,15 @@ package pl.project13.git.api;
 import java.util.List;
 
 public interface ReplacementProperty {
-	public String getProperty();
-	public String getPropertyOutputSuffix();
-	public String getToken();
-	public String getValue();
-	public boolean isRegex();
-	public List<? extends TransformationRule> getTransformationRules();
+  public String getProperty();
+
+  public String getPropertyOutputSuffix();
+
+  public String getToken();
+
+  public String getValue();
+
+  public boolean isRegex();
+
+  public List<? extends TransformationRule> getTransformationRules();
 }

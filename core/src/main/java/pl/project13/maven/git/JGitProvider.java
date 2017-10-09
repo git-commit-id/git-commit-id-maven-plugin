@@ -95,7 +95,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
       }
       revWalk = new RevWalk(git);
       ObjectId headObjectId = head.getObjectId();
-      if(headObjectId == null){
+      if (headObjectId == null) {
         throw new GitException("Could not get HEAD Ref, are you sure you have some commits in the dotGitDirectory?");
       }
       headCommit = revWalk.parseCommit(headObjectId);
@@ -214,7 +214,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
     }
     // http://www.programcreek.com/java-api-examples/index.php?api=org.eclipse.jgit.storage.file.WindowCacheConfig
     // Example 3
-    if( git != null ) {
+    if (git != null) {
       git.close();
       // git.close() is not enough with jGit on Windows
       // remove the references from packFile by initializing cache used in the repository
@@ -227,9 +227,9 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitException {
     try {
       DescribeResult describeResult = DescribeCommand
-        .on(repository, log)
-        .apply(super.gitDescribe)
-        .call();
+          .on(repository, log)
+          .apply(super.gitDescribe)
+          .call();
 
       return describeResult.toString();
     } catch (GitAPIException ex) {

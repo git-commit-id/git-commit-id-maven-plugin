@@ -26,6 +26,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
+
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
@@ -40,7 +41,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
   public static final int DEFAULT_ABBREV_LEN = 7;
   public static final String DIRTY_SUFFIX = "-dirty";
-  final String PROJECT_NAME = "my-jar-project";
+  static final String PROJECT_NAME = "my-jar-project";
 
   @Override
   protected Optional<String> projectDir() {
@@ -65,8 +66,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       // then
       assertThat(res).isNotNull();
 
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(head.getName()));
     }
   }
 
@@ -89,8 +90,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       // then
       assertThat(res).isNotNull();
 
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(head.getName()));
     }
   }
   
@@ -113,8 +114,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       // then
       assertThat(res).isNotNull();
 
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName()));
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(head.getName()));
     }
   }
 
@@ -140,8 +141,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       // then
       assertThat(res).isNotNull();
 
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo(abbrev(HEAD.getName(), abbrevLength));
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo(abbrev(head.getName(), abbrevLength));
     }
   }
 
@@ -162,8 +163,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(res).isNotNull();
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + DIRTY_SUFFIX);
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(head.getName()) + DIRTY_SUFFIX);
     }
   }
 
@@ -187,8 +188,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(res).isNotNull();
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()) + customDirtySuffix);
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(head.getName()) + customDirtySuffix);
     }
   }
 
@@ -212,8 +213,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(res).isNotNull();
-      RevCommit HEAD = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(HEAD.getName()));
+      RevCommit head = git.log().call().iterator().next();
+      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(head.getName()));
     }
   }
 

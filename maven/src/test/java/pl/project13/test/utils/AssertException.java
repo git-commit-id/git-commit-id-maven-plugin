@@ -38,7 +38,7 @@ public class AssertException {
     void run() throws Exception;
   }
 
-  public static abstract class ExceptionMatch {
+  public abstract static class ExceptionMatch {
 
     public static final ExceptionMatch.Strategy EXCEPTION_CLASS_MUST_EQUAL = new Strategy() {
       @Override

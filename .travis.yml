@@ -1,6 +1,12 @@
 language: java
 sudo: false
 dist: trusty
+
+stages:
+  - checkstyle
+  - test
+  - Integration Test
+
 jdk:
   - oraclejdk9
   - oraclejdk8
@@ -8,7 +14,8 @@ jdk:
 
 matrix:
   include:
-  - jdk: openjdk7
+  - stage: Integration Test
+    jdk: openjdk7
     env: CUSTOM_MVN_VERION="3.0"
   - jdk: openjdk7
     env: CUSTOM_MVN_VERION="3.0.5"
@@ -20,6 +27,14 @@ matrix:
     env: CUSTOM_MVN_VERION="3.3.9"
   - jdk: oraclejdk9
     env: CUSTOM_MVN_VERION="3.5.0"
+  - stage: checkstyle
+    jdk: oraclejdk9
+    script: mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B
+    env: CHECKSTYLE=8.2
+  - stage: checkstyle
+    jdk: openjdk7
+    script: mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B
+    env: CHECKSTYLE=6.11.2
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then

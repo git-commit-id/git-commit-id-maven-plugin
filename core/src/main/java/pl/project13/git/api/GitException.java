@@ -20,16 +20,15 @@ package pl.project13.git.api;
 @SuppressWarnings("serial")
 public final class GitException extends Exception {
 
-    public GitException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public GitException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public GitException(String message) {
-        super(message);
-    }
+  public GitException(String message) {
+    super(message);
+  }
 
-    public GitException(Throwable cause) {
-        super(cause);
-    }
-
+  public GitException(Throwable cause) {
+    super(cause);
+  }
 }

@@ -460,7 +460,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   void loadBuildVersionAndTimeData(@NotNull Properties properties) {
     Date buildDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if(dateFormatTimeZone != null){
+    if (dateFormatTimeZone != null) {
       smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
     put(properties, GitCommitPropertyConstant.BUILD_TIME, smf.format(buildDate));
@@ -521,7 +521,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   void loadGitDataWithJGit(@NotNull Properties properties) throws GitException {
     JGitProvider jGitProvider = JGitProvider
-      .on(dotGitDirectory, log);
+        .on(dotGitDirectory, log);
 
     loadGitDataCommon(jGitProvider);
   }
@@ -638,47 +638,44 @@ public class GitCommitIdMojo extends AbstractMojo {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 
-  @SuppressWarnings( "resource" )
+  @SuppressWarnings("resource")
   private Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
     final HashMap<String, Object> propertiesMap;
 
-    {
-      Closeable closeable = null;
+    Closeable closeable = null;
 
+    try {
+      boolean threw = true;
       try {
-        boolean threw = true;
-        try {
-          final FileInputStream fis = new FileInputStream(jsonFile);
-          closeable = fis;
+        final FileInputStream fis = new FileInputStream(jsonFile);
+        closeable = fis;
 
-          final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
-          closeable = reader;
+        final InputStreamReader reader = new InputStreamReader(fis, sourceCharset);
+        closeable = reader;
 
-          final ObjectMapper mapper = new ObjectMapper();
-          final TypeReference<HashMap<String, Object>> mapTypeRef =
-                  new TypeReference<HashMap<String, Object>>() {
-                  };
+        final ObjectMapper mapper = new ObjectMapper();
+        final TypeReference<HashMap<String, Object>> mapTypeRef =
+                new TypeReference<HashMap<String, Object>>() {};
 
-          propertiesMap = mapper.readValue(reader, mapTypeRef);
-          threw = false;
-        } finally {
-          Closeables.close(closeable, threw);
-        }
-      } catch (final Exception ex) {
-        throw new CannotReadFileException(ex);
+        propertiesMap = mapper.readValue(reader, mapTypeRef);
+        threw = false;
+      } finally {
+        Closeables.close(closeable, threw);
       }
+    } catch (final Exception ex) {
+      throw new CannotReadFileException(ex);
     }
 
-    final Properties retVal = new Properties( );
+    final Properties retVal = new Properties();
 
-    for(final Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
+    for (final Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
       retVal.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
     }
 
     return retVal;
   }
 
-  @SuppressWarnings( "resource" )
+  @SuppressWarnings("resource")
   private Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
     Closeable closeable = null;
 
@@ -700,8 +697,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       } finally {
         Closeables.close(closeable, threw);
       }
-    }
-    catch (final Exception ex) {
+    } catch (final Exception ex) {
       throw new CannotReadFileException(ex);
     }
   }
@@ -709,9 +705,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   static class CannotReadFileException extends Exception {
     private static final long serialVersionUID = -6290782570018307756L;
 
-    CannotReadFileException( Throwable cause )
-    {
-      super( cause );
+    CannotReadFileException(Throwable cause) {
+      super(cause);
     }
   }
 
@@ -761,7 +756,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.useNativeGit = useNativeGit;
   }
 
-  public void setCommitIdGenerationMode(String commitIdGenerationMode){
+  public void setCommitIdGenerationMode(String commitIdGenerationMode) {
     this.commitIdGenerationMode = commitIdGenerationMode;
   }
 }

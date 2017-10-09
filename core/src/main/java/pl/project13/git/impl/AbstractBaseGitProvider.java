@@ -25,65 +25,64 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.git.api.GitException;
 import pl.project13.git.api.GitProvider;
-import pl.project13.maven.git.CommitIdGenerationMode;
 import pl.project13.maven.git.log.LoggerBridge;
 
 public abstract class AbstractBaseGitProvider<T extends AbstractBaseGitProvider<T>>
         implements GitProvider {
 
-    @NotNull
-    protected final LoggerBridge log;
+  @NotNull
+  protected final LoggerBridge log;
 
-    protected int abbrevLength;
+  protected int abbrevLength;
 
-    protected String dateFormat;
+  protected String dateFormat;
 
-    protected String dateFormatTimeZone;
+  protected String dateFormatTimeZone;
 
-    protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
+  protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
-    protected AbstractBaseGitProvider(@NotNull LoggerBridge log) {
-        this.log = log;
+  protected AbstractBaseGitProvider(@NotNull LoggerBridge log) {
+    this.log = log;
+  }
+
+  @Override
+  public void setAbbrevLength(int abbrevLength) {
+    this.abbrevLength = abbrevLength;
+  }
+
+  public void setGitDescribe(GitDescribeConfig gitDescribe) {
+    this.gitDescribe = gitDescribe;
+  }
+
+  public void setDateFormat(String dateFormat) {
+    this.dateFormat = dateFormat;
+  }
+
+  public void setDateFormatTimeZone(String dateFormatTimeZone) {
+    this.dateFormatTimeZone = dateFormatTimeZone;
+  }
+
+  @Override
+  public void init() throws GitException {
+    // noop ...
+  }
+
+  @Override
+  public void prepareGitToExtractMoreDetailedReproInformation()
+         throws GitException {
+    // noop ...
+  }
+
+  @Override
+  public void finalCleanUp() throws GitException {
+    // noop ...
+  }
+
+  protected SimpleDateFormat getSimpleDateFormatWithTimeZone() {
+    final SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+    if (dateFormatTimeZone != null) {
+      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
     }
-
-    @Override
-    public void setAbbrevLength(int abbrevLength) {
-        this.abbrevLength = abbrevLength;
-    }
-
-    public void setGitDescribe(GitDescribeConfig gitDescribe) {
-        this.gitDescribe = gitDescribe;
-    }
-
-    public void setDateFormat(String dateFormat) {
-        this.dateFormat = dateFormat;
-    }
-
-    public void setDateFormatTimeZone(String dateFormatTimeZone) {
-        this.dateFormatTimeZone = dateFormatTimeZone;
-    }
-
-    @Override
-    public void init() throws GitException {
-        // noop ...
-    }
-
-    @Override
-    public void prepareGitToExtractMoreDetailedReproInformation()
-            throws GitException {
-        // noop ...
-    }
-
-    @Override
-    public void finalCleanUp() throws GitException {
-        // noop ...
-    }
-
-    protected SimpleDateFormat getSimpleDateFormatWithTimeZone(){
-        final SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-        if (dateFormatTimeZone != null){
-            smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
-        }
-        return smf;
-    }
+    return smf;
+  }
 }

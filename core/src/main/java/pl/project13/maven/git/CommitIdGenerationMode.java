@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package pl.project13.maven.git;
 
 public enum CommitIdGenerationMode {
@@ -21,10 +22,10 @@ public enum CommitIdGenerationMode {
   FLAT,
   UNKNOWN;
 
-  public static CommitIdGenerationMode getValue(String o){
-    if(o != null){
-      for(CommitIdGenerationMode v : values()){
-        if(v.name().toString().equalsIgnoreCase(o)){
+  public static CommitIdGenerationMode getValue(String o) {
+    if (o != null) {
+      for (CommitIdGenerationMode v : values()) {
+        if (v.name().toString().equalsIgnoreCase(o)) {
           return v;
         }
       }

@@ -108,7 +108,7 @@ public class GitDirLocator {
         // There should be just one line in the file, e.g.
         // "gitdir: /usr/local/src/parentproject/.git/modules/submodule"
         String line = reader.readLine();
-        if(line == null) {
+        if (line == null) {
           return null;
         }
         // Separate the key and the value in the string.

@@ -137,11 +137,11 @@ public final class GitDataProvider {
       put(properties, GitCommitPropertyConstant.CLOSEST_TAG_NAME, provider.getClosestTagName());
       put(properties, GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, provider.getClosestTagCommitCount());
     } finally {
-    	provider.finalCleanUp();
+      provider.finalCleanUp();
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws GitException{
+  private void maybePutGitDescribe(@NotNull Properties properties) throws GitException {
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
@@ -177,9 +177,9 @@ public final class GitDataProvider {
    *
    * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
    *
+   * @param env environment settings
    * @return true if running
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @param env environment settings
    */
   private boolean runningOnBuildServer(Map<String, String> env) {
     return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL") ||
@@ -192,7 +192,7 @@ public final class GitDataProvider {
    */
   protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitException {
     String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
-    if(!isNullOrEmpty(environmentBasedLocalBranch)){
+    if (!isNullOrEmpty(environmentBasedLocalBranch)) {
       log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}", environmentBasedLocalBranch);
       return environmentBasedLocalBranch;
     }
