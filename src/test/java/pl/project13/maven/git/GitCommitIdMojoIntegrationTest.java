@@ -869,6 +869,80 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWithExcludeLightweightTagsForClosestTag(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty("-customDirtyMark");
+    gitDescribe.setTags(false); // exclude lightweight tags
+
+    alterMojoSettings("gitDescribe", gitDescribe);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.abbrev");
+    assertThat(targetProject.getProperties().getProperty("git.commit.id.abbrev")).isEqualTo("b6a73ed");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.describe");
+    assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).isEqualTo("annotated-tag-2-gb6a73ed74-customDirtyMark");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.name");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.name")).isEqualTo("annotated-tag");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.commit.count");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("2");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTag(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty("-customDirtyMark");
+    gitDescribe.setTags(true); // include lightweight tags
+
+    alterMojoSettings("gitDescribe", gitDescribe);
+    alterMojoSettings("useNativeGit", useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.abbrev");
+    assertThat(targetProject.getProperties().getProperty("git.commit.id.abbrev")).isEqualTo("b6a73ed");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.describe");
+    assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).isEqualTo("lightweight-tag-1-gb6a73ed74-customDirtyMark");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.name");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.name")).isEqualTo("lightweight-tag");
+
+    assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.closest.tag.commit.count");
+    assertThat(targetProject.getProperties().getProperty("git.closest.tag.commit.count")).isEqualTo("1");
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);

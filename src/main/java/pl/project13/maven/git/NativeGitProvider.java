@@ -212,7 +212,19 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   public String getClosestTagName() throws GitCommitIdExecutionException {
     try {
-      return runGitCommand(canonical, "describe --abbrev=0 --tags");
+      StringBuilder argumentsForGitDescribe = new StringBuilder();
+      argumentsForGitDescribe.append("describe --abbrev=0");
+      if (gitDescribe != null) {
+        if (gitDescribe.getTags()) {
+          argumentsForGitDescribe.append(" --tags");
+        }
+
+        final String matchOption = gitDescribe.getMatch();
+        if (matchOption != null && !matchOption.isEmpty()) {
+          argumentsForGitDescribe.append(" --match=").append(matchOption);
+        }
+      }
+      return runGitCommand(canonical, argumentsForGitDescribe.toString());
     } catch (NativeCommandException ignore) {
       // could not find any tags to describe
     }
