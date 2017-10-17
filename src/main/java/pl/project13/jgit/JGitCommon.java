@@ -106,7 +106,7 @@ public class JGitCommon {
     if (gitDescribe != null) {
       includeLightweightTags = gitDescribe.getTags();
       if (!"*".equals(gitDescribe.getMatch())) {
-        matchPattern = gitDescribe.getMatch();
+        matchPattern = createMatchPattern(gitDescribe.getMatch());
       }
     }
     Map<ObjectId, List<String>> tagObjectIdToName = findTagObjectIds(repo, includeLightweightTags, matchPattern);
@@ -119,6 +119,12 @@ public class JGitCommon {
     String tagName = tagObjectIdToName.get(revCommit).iterator().next();
 
     return Pair.of(revCommit, tagName);
+  }
+
+  protected String createMatchPattern(String pattern) {
+    return "^refs/tags/\\Q" +
+            pattern.replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
+            "\\E$";
   }
 
   protected Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {

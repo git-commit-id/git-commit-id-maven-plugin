@@ -353,8 +353,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return ".*";
     }
 
-    return "^refs/tags/\\Q" +
-            matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
-            "\\E$";
+    return jGitCommon.createMatchPattern(matchOption.get());
   }
 }

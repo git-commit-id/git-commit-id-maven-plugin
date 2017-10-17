@@ -914,6 +914,73 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndPreferAnnotatedTags(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty("-customDirtyMark");
+    gitDescribe.setTags(true); // include lightweight tags
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "newest-tag-1-gb6a73ed74-customDirtyMark");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "newest-tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndFilter(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty("-customDirtyMark");
+    gitDescribe.setTags(true); // include lightweight tags
+    gitDescribe.setMatch("light*");
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "lightweight-tag-1-gb6a73ed74-customDirtyMark");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "lightweight-tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
