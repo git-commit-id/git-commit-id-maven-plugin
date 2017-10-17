@@ -27,11 +27,7 @@ import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public abstract class GitIntegrationTest {
 
@@ -99,25 +95,21 @@ public abstract class GitIntegrationTest {
   }
 
   public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
-    Map<String, Object> mojoDefaults = new HashMap<>();
-    mojoDefaults.put("verbose", false);
-    mojoDefaults.put("skipPoms", true);
-    mojoDefaults.put("abbrevLength", 7);
-    mojoDefaults.put("generateGitPropertiesFile", false);
-    mojoDefaults.put("generateGitPropertiesFilename", "src/main/resources/git.properties");
-    mojoDefaults.put("prefix", "git");
-    mojoDefaults.put("dateFormat", "yyyy-MM-dd'T'HH:mm:ssZ");
-    mojoDefaults.put("failOnNoGitDirectory", true);
-    mojoDefaults.put("useNativeGit", false);
-    mojoDefaults.put("commitIdGenerationMode", "full");
-    for (Map.Entry<String, Object> entry : mojoDefaults.entrySet()) {
-      setInternalState(mojo, entry.getKey(), entry.getValue());
-    }
+    mojo.setVerbose(false);
+    mojo.setSkipPoms(true);
+    mojo.setAbbrevLength(7);
+    mojo.setGenerateGitPropertiesFile(false);
+    mojo.setGenerateGitPropertiesFilename("src/main/resources/git.properties");
+    mojo.setPrefix("git");
+    mojo.setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    mojo.setFailOnNoGitDirectory(true);
+    mojo.setUseNativeGit(false);
+    mojo.setCommitIdGenerationMode("full");
   }
 
   public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
-    setInternalState(mojo, "project", project);
-    setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
+    mojo.setProject(project);
+    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
   }
 
 }

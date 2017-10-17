@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 public class GitSubmodulesTest extends GitIntegrationTest {
 
@@ -48,8 +47,8 @@ public class GitSubmodulesTest extends GitIntegrationTest {
   }
 
   public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
-    setInternalState(mojo, "project", project);
-    setInternalState(mojo, "dotGitDirectory", new File(project.getBasedir(), ".git"));
+    mojo.setProject(project);
+    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {

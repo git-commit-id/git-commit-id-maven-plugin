@@ -716,6 +716,10 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.verbose = verbose;
   }
 
+  public void setProject(MavenProject project) {
+    this.project = project;
+  }
+
   public void setDotGitDirectory(File dotGitDirectory) {
     this.dotGitDirectory = dotGitDirectory;
   }
@@ -748,11 +752,39 @@ public class GitCommitIdMojo extends AbstractMojo {
     this.includeOnlyProperties = includeOnlyProperties;
   }
 
-  public void useNativeGit(boolean useNativeGit) {
+  public void setUseNativeGit(boolean useNativeGit) {
     this.useNativeGit = useNativeGit;
   }
 
   public void setCommitIdGenerationMode(String commitIdGenerationMode) {
     this.commitIdGenerationMode = commitIdGenerationMode;
+  }
+
+  public void setSkip(boolean skip) {
+    this.skip = skip;
+  }
+
+  public void setSkipPoms(boolean skipPoms) {
+    this.skipPoms = skipPoms;
+  }
+
+  public void setGenerateGitPropertiesFile(boolean generateGitPropertiesFile) {
+    this.generateGitPropertiesFile = generateGitPropertiesFile;
+  }
+
+  public void setGenerateGitPropertiesFilename(String generateGitPropertiesFilename) {
+    this.generateGitPropertiesFilename = generateGitPropertiesFilename;
+  }
+
+  public void setDateFormatTimeZone(String dateFormatTimeZone) {
+    this.dateFormatTimeZone = dateFormatTimeZone;
+  }
+
+  public void setFailOnNoGitDirectory(boolean failOnNoGitDirectory) {
+    this.failOnNoGitDirectory = failOnNoGitDirectory;
+  }
+
+  public void setFailOnUnableToExtractRepoInfo(boolean failOnUnableToExtractRepoInfo) {
+    this.failOnUnableToExtractRepoInfo = failOnUnableToExtractRepoInfo;
   }
 }
