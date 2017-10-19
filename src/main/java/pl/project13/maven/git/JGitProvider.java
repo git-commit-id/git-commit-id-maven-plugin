@@ -187,7 +187,7 @@ public class JGitProvider extends GitDataProvider {
   public String getClosestTagName() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(repo);
+      return jGitCommon.getClosestTagName(repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -198,7 +198,7 @@ public class JGitProvider extends GitDataProvider {
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(repo, headCommit);
+      return jGitCommon.getClosestTagCommitCount(repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }

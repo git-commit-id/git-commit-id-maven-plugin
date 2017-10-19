@@ -25,6 +25,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -40,7 +41,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.maven.git.util.Pair;
 
 public class JGitCommon {
 
@@ -81,61 +84,71 @@ public class JGitCommon {
     return tags;
   }
 
-  public String getClosestTagName(@NotNull Repository repo) {
-    Map<ObjectId, List<DatedRevTag>> map = getClosestTagAsMap(repo);
-    for (Map.Entry<ObjectId, List<DatedRevTag>> entry : map.entrySet()) {
-      return trimFullTagName(entry.getValue().get(0).tagName);
-    }
-    return "";
+  public String getClosestTagName(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+    // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
+    RevCommit headCommit = findHeadObjectId(repo);
+    Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
+    return pair.second;
   }
 
-  public String getClosestTagCommitCount(@NotNull Repository repo, RevCommit headCommit) {
-    HashMap<ObjectId, List<String>> map = transformRevTagsMapToDateSortedTagNames(getClosestTagAsMap(repo));
-    ObjectId obj = (ObjectId) map.keySet().toArray()[0];
-    
-    try (RevWalk walk = new RevWalk(repo)) {
-      RevCommit commit = walk.lookupCommit(obj);
-      walk.dispose();
-
-      int distance = distanceBetween(repo, headCommit, commit);
-      return String.valueOf(distance);
-    }
+  public String getClosestTagCommitCount(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+    // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
+    RevCommit headCommit = findHeadObjectId(repo);
+    Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
+    RevCommit revCommit = pair.first;
+    int distance = distanceBetween(repo, headCommit, revCommit);
+    return String.valueOf(distance);
   }
 
-  private Map<ObjectId, List<DatedRevTag>> getClosestTagAsMap(@NotNull Repository repo) {
-    Map<ObjectId, List<DatedRevTag>> mapWithClosestTagOnly = new HashMap<>();
+  private Pair<RevCommit, String> getClosestRevCommit(@NotNull Repository repo, RevCommit headCommit, GitDescribeConfig gitDescribe) {
+    boolean includeLightweightTags = false;
     String matchPattern = ".*";
-    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, true, matchPattern);
-    LinkedHashMap<ObjectId, List<DatedRevTag>> sortedCommitIdsToTags = sortByDatedRevTag(commitIdsToTags);
-
-    for (Map.Entry<ObjectId, List<DatedRevTag>> entry: sortedCommitIdsToTags.entrySet()) {
-      mapWithClosestTagOnly.put(entry.getKey(), entry.getValue());
-      break;
+    if (gitDescribe != null) {
+      includeLightweightTags = gitDescribe.getTags();
+      if (!"*".equals(gitDescribe.getMatch())) {
+        matchPattern = createMatchPattern(gitDescribe.getMatch());
+      }
     }
+    Map<ObjectId, List<String>> tagObjectIdToName = findTagObjectIds(repo, includeLightweightTags, matchPattern);
+    if (tagObjectIdToName.containsKey(headCommit)) {
+      String tagName = tagObjectIdToName.get(headCommit).iterator().next();
+      return Pair.of(headCommit, tagName);
+    }
+    List<RevCommit> commits = findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+    RevCommit revCommit = commits.get(0);
+    String tagName = tagObjectIdToName.get(revCommit).iterator().next();
 
-    return mapWithClosestTagOnly;
+    return Pair.of(revCommit, tagName);
   }
 
-  private LinkedHashMap<ObjectId, List<DatedRevTag>> sortByDatedRevTag(Map<ObjectId, List<DatedRevTag>> map) {
-    List<Map.Entry<ObjectId, List<DatedRevTag>>> list = new ArrayList<>(map.entrySet());
+  protected String createMatchPattern(String pattern) {
+    return "^refs/tags/\\Q" +
+            pattern.replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
+            "\\E$";
+  }
 
-    Collections.sort(list, new Comparator<Map.Entry<ObjectId, List<DatedRevTag>>>() {
-      public int compare(Map.Entry<ObjectId, List<DatedRevTag>> m1, Map.Entry<ObjectId, List<DatedRevTag>> m2) {
-        // we need to sort the DatedRevTags to a commit first, otherwise we may get problems when we have two tags for the same commit
-        Collections.sort(m1.getValue(), datedRevTagComparator());
-        Collections.sort(m2.getValue(), datedRevTagComparator());
+  protected Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {
+    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, includeLightweightTags, matchPattern);
+    Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
+    log.info("Created map: [{}]", commitIdsToTagNames);
 
-        DatedRevTag datedRevTag1 = m1.getValue().get(0);
-        DatedRevTag datedRevTag2 = m2.getValue().get(0);
-        return datedRevTagComparator().compare(datedRevTag1,datedRevTag2);
+    return commitIdsToTagNames;
+  }
+
+  protected RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
+    try {
+      ObjectId headId = repo.resolve(Constants.HEAD);
+
+      try (RevWalk walk = new RevWalk(repo)) {
+        RevCommit headCommit = walk.lookupCommit(headId);
+        walk.dispose();
+
+        log.info("HEAD is [{}]", headCommit.getName());
+        return headCommit;
       }
-    });
-
-    LinkedHashMap<ObjectId, List<DatedRevTag>> result = new LinkedHashMap<>();
-    for (Map.Entry<ObjectId, List<DatedRevTag>> entry : list) {
-      result.put(entry.getKey(), entry.getValue());
+    } catch (IOException ex) {
+      throw new RuntimeException("Unable to obtain HEAD commit!", ex);
     }
-    return result;
   }
 
   protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {

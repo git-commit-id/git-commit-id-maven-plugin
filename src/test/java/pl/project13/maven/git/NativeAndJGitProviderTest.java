@@ -19,7 +19,6 @@ package pl.project13.maven.git;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -101,16 +100,16 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
   private void verifyNativeAndJGit(AvailableGitTestRepo repo, MavenProject targetProject, String formatString) throws Exception {
     setProjectToExecuteMojoIn(targetProject);
 
-    alterMojoSettings("skipPoms", false);
-    alterMojoSettings("dateFormat", formatString);
+    mojo.setSkipPoms(false);
+    mojo.setDateFormat(formatString);
 
     DateFormat format = new SimpleDateFormat(formatString);
 
-    alterMojoSettings("useNativeGit", false);
+    mojo.setUseNativeGit(false);
     mojo.execute();
     Properties jgitProps = createCopy(targetProject.getProperties());
 
-    alterMojoSettings("useNativeGit", true);
+    mojo.setUseNativeGit(true);
     mojo.execute();
     Properties nativeProps = createCopy(targetProject.getProperties());
 
@@ -137,10 +136,6 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
     long nativeCommitTimeInMs = format.parse(nativeProps.getProperty("git.commit.time")).getTime();
 
     assertEquals("commit times parse to different time stamps", jGitCommitTimeInMs, nativeCommitTimeInMs);
-  }
-
-  private void alterMojoSettings(String parameterName, Object parameterValue) {
-    setInternalState(mojo, parameterName, parameterValue);
   }
 
   private Properties createCopy(Properties orig) {

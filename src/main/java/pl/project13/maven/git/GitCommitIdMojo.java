@@ -708,51 +708,83 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   // SETTERS FOR TESTS ----------------------------------------------------
 
-  public void setFormat(String format) {
+  @VisibleForTesting void setFormat(String format) {
     this.format = format;
   }
 
-  public void setVerbose(boolean verbose) {
+  @VisibleForTesting void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
 
-  public void setDotGitDirectory(File dotGitDirectory) {
+  @VisibleForTesting void setProject(MavenProject project) {
+    this.project = project;
+  }
+
+  @VisibleForTesting void setDotGitDirectory(File dotGitDirectory) {
     this.dotGitDirectory = dotGitDirectory;
   }
 
-  public void setPrefix(String prefix) {
+  @VisibleForTesting void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 
-  public void setDateFormat(String dateFormat) {
+  @VisibleForTesting void setDateFormat(String dateFormat) {
     this.dateFormat = dateFormat;
   }
 
-  public Properties getProperties() {
+  @VisibleForTesting Properties getProperties() {
     return properties;
   }
 
-  public void setGitDescribe(GitDescribeConfig gitDescribe) {
+  @VisibleForTesting void setGitDescribe(GitDescribeConfig gitDescribe) {
     this.gitDescribe = gitDescribe;
   }
 
-  public void setAbbrevLength(int abbrevLength) {
+  @VisibleForTesting void setAbbrevLength(int abbrevLength) {
     this.abbrevLength = abbrevLength;
   }
 
-  public void setExcludeProperties(List<String> excludeProperties) {
+  @VisibleForTesting void setExcludeProperties(List<String> excludeProperties) {
     this.excludeProperties = excludeProperties;
   }
 
-  public void setIncludeOnlyProperties(List<String> includeOnlyProperties) {
+  @VisibleForTesting void setIncludeOnlyProperties(List<String> includeOnlyProperties) {
     this.includeOnlyProperties = includeOnlyProperties;
   }
 
-  public void useNativeGit(boolean useNativeGit) {
+  @VisibleForTesting void setUseNativeGit(boolean useNativeGit) {
     this.useNativeGit = useNativeGit;
   }
 
-  public void setCommitIdGenerationMode(String commitIdGenerationMode) {
+  @VisibleForTesting void setCommitIdGenerationMode(String commitIdGenerationMode) {
     this.commitIdGenerationMode = commitIdGenerationMode;
+  }
+
+  @VisibleForTesting void setSkip(boolean skip) {
+    this.skip = skip;
+  }
+
+  @VisibleForTesting void setSkipPoms(boolean skipPoms) {
+    this.skipPoms = skipPoms;
+  }
+
+  @VisibleForTesting void setGenerateGitPropertiesFile(boolean generateGitPropertiesFile) {
+    this.generateGitPropertiesFile = generateGitPropertiesFile;
+  }
+
+  @VisibleForTesting void setGenerateGitPropertiesFilename(String generateGitPropertiesFilename) {
+    this.generateGitPropertiesFilename = generateGitPropertiesFilename;
+  }
+
+  @VisibleForTesting void setDateFormatTimeZone(String dateFormatTimeZone) {
+    this.dateFormatTimeZone = dateFormatTimeZone;
+  }
+
+  @VisibleForTesting void setFailOnNoGitDirectory(boolean failOnNoGitDirectory) {
+    this.failOnNoGitDirectory = failOnNoGitDirectory;
+  }
+
+  @VisibleForTesting void setFailOnUnableToExtractRepoInfo(boolean failOnUnableToExtractRepoInfo) {
+    this.failOnUnableToExtractRepoInfo = failOnUnableToExtractRepoInfo;
   }
 }

@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 @RunWith(JUnitParamsRunner.class)
 public class NaivePerformanceTest extends GitIntegrationTest {
@@ -61,8 +60,8 @@ public class NaivePerformanceTest extends GitIntegrationTest {
 
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     gitDescribeConfig.setAlways(true);
-    alterMojoSettings("gitDescribe", gitDescribeConfig);
-    alterMojoSettings("useNativeGit", useNativeGit);
+    mojo.setGitDescribe(gitDescribeConfig);
+    mojo.setUseNativeGit(useNativeGit);
 
     // when
     long startTime = System.currentTimeMillis();
@@ -83,10 +82,6 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     gitDescribeConfig.setForceLongFormat(forceLongFormat);
     gitDescribeConfig.setAbbrev(abbrev);
     return gitDescribeConfig;
-  }
-
-  private void alterMojoSettings(String parameterName, Object parameterValue) {
-    setInternalState(mojo, parameterName, parameterValue);
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {

@@ -255,7 +255,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     ObjectReader objectReader = repo.newObjectReader();
 
     // get tags
-    Map<ObjectId, List<String>> tagObjectIdToName = findTagObjectIds(repo, tagsFlag);
+    String matchPattern = createMatchPattern();
+    Map<ObjectId, List<String>> tagObjectIdToName = jGitCommon.findTagObjectIds(repo, tagsFlag, matchPattern);
 
     // get current commit
     RevCommit headCommit = findHeadObjectId(repo);
@@ -344,28 +345,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
-    try {
-      ObjectId headId = repo.resolve("HEAD");
-
-      RevWalk walk = new RevWalk(repo);
-      RevCommit headCommit = walk.lookupCommit(headId);
-      walk.dispose();
-
-      log.info("HEAD is [{}]", headCommit.getName());
-      return headCommit;
-    } catch (IOException ex) {
-      throw new RuntimeException("Unable to obtain HEAD commit!", ex);
-    }
-  }
-
-  // git commit id -> its tag (or tags)
-  private Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean tagsFlag) {
-    String matchPattern = createMatchPattern();
-    Map<ObjectId, List<DatedRevTag>> commitIdsToTags = jGitCommon.getCommitIdsToTags(repo, tagsFlag, matchPattern);
-    Map<ObjectId, List<String>> commitIdsToTagNames = jGitCommon.transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
-    log.info("Created map: [{}]", commitIdsToTagNames);
-
-    return commitIdsToTagNames;
+    return jGitCommon.findHeadObjectId(repo);
   }
 
   private String createMatchPattern() {
@@ -373,8 +353,6 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
       return ".*";
     }
 
-    return "^refs/tags/\\Q" +
-            matchOption.get().replace("*", "\\E.*\\Q").replace("?", "\\E.\\Q") +
-            "\\E$";
+    return jGitCommon.createMatchPattern(matchOption.get());
   }
 }
