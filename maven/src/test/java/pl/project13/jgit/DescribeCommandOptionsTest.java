@@ -20,7 +20,6 @@ package pl.project13.jgit;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.ArgumentMatchers;
 import pl.project13.git.api.GitDescribeConfig;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 

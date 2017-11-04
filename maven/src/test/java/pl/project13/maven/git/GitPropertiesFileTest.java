@@ -30,7 +30,6 @@ import pl.project13.maven.git.util.PropertyManager;
 
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {
@@ -58,9 +57,9 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
     File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
     setProjectToExecuteMojoIn(targetProject);
-    alterMojoSettings("generateGitPropertiesFile", true);
-    alterMojoSettings("generateGitPropertiesFilename", targetFilePath);
-    alterMojoSettings("useNativeGit", useNativeGit);
+    mojo.setGenerateGitPropertiesFile(true);
+    mojo.setGenerateGitPropertiesFilename(targetFilePath);
+    mojo.setUseNativeGit(useNativeGit);
 
     // when
     try {
@@ -93,10 +92,6 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
         FileUtils.forceDelete(expectedFile);
       }
     }
-  }
-
-  private void alterMojoSettings(String parameterName, Object parameterValue) {
-    setInternalState(mojo, parameterName, parameterValue);
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {

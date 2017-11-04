@@ -189,7 +189,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   public String getClosestTagName() throws GitException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(repo);
+      return jGitCommon.getClosestTagName(repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -200,7 +200,7 @@ public class JGitProvider extends AbstractBaseGitProvider<JGitProvider> {
   public String getClosestTagCommitCount() throws GitException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(repo, headCommit);
+      return jGitCommon.getClosestTagCommitCount(repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }

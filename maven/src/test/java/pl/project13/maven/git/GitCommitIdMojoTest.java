@@ -66,7 +66,7 @@ public class GitCommitIdMojoTest {
     mojo.setAbbrevLength(abbrevLength);
     mojo.setDateFormat(dateFormat);
     mojo.setVerbose(true);
-    mojo.useNativeGit(false);
+    mojo.setUseNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
     mojo.setCommitIdGenerationMode("full");
 

@@ -27,8 +27,6 @@ import pl.project13.maven.git.util.PropertyManager;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
-import java.text.SimpleDateFormat;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
