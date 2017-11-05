@@ -32,6 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class GitIntegrationTest {
 
   private static final String SANDBOX_DIR = "target" + File.separator + "sandbox" + File.separator;
+  protected static final String evaluateOnCommit = "HEAD";
 
   /**
    * Sandbox directory with unique name for current test.
@@ -105,6 +106,7 @@ public abstract class GitIntegrationTest {
     mojo.setFailOnNoGitDirectory(true);
     mojo.setUseNativeGit(false);
     mojo.setCommitIdGenerationMode("full");
+    mojo.setEvaluateOnCommit(evaluateOnCommit);
   }
 
   public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {

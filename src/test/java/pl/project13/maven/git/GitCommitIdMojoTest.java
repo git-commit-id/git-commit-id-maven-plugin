@@ -31,8 +31,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -64,6 +67,7 @@ public class GitCommitIdMojoTest {
     mojo.setUseNativeGit(false);
     mojo.setGitDescribe(gitDescribeConfig);
     mojo.setCommitIdGenerationMode("full");
+    mojo.setEvaluateOnCommit("HEAD");
 
 
     mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
@@ -76,7 +80,6 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  @SuppressWarnings("")
   public void shouldIncludeExpectedProperties() throws Exception {
     mojo.execute();
 
@@ -97,7 +100,6 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  @SuppressWarnings("")
   public void shouldExcludeAsConfiguredProperties() throws Exception {
     // given
     mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
@@ -188,7 +190,6 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  @SuppressWarnings("")
   public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties() throws Exception {
     // given
     mojo.setPrefix("");
@@ -326,4 +327,18 @@ public class GitCommitIdMojoTest {
     verify(mojo.propertiesReplacer).performReplacement(any(Properties.class), eq(mojo.replacementProperties));
   }
 
+  @Test
+  public void verifyAllowedCharactersForEvaluateOnCommit() throws MojoExecutionException {
+    Pattern p = GitCommitIdMojo.allowedCharactersForEvaluateOnCommit;
+    assertTrue(p.matcher("5957e419d").matches());
+    assertTrue(p.matcher("my_tag").matches());
+    assertTrue(p.matcher("my-tag").matches());
+    assertTrue(p.matcher("my.tag").matches());
+    assertTrue(p.matcher("HEAD^1").matches());
+    assertTrue(p.matcher("feature/branch").matches());
+
+    assertFalse(p.matcher("; CODE INJECTION").matches());
+    assertFalse(p.matcher("|exit").matches());
+    assertFalse(p.matcher("&&cat /etc/passwd").matches());
+  }
 }

@@ -25,7 +25,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -84,16 +83,16 @@ public class JGitCommon {
     return tags;
   }
 
-  public String getClosestTagName(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagName(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
-    RevCommit headCommit = findHeadObjectId(repo);
+    RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
     return pair.second;
   }
 
-  public String getClosestTagCommitCount(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagCommitCount(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
-    RevCommit headCommit = findHeadObjectId(repo);
+    RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
     RevCommit revCommit = pair.first;
     int distance = distanceBetween(repo, headCommit, revCommit);
@@ -135,19 +134,19 @@ public class JGitCommon {
     return commitIdsToTagNames;
   }
 
-  protected RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
+  protected RevCommit findEvalCommitObjectId(@NotNull String evaluateOnCommit, @NotNull Repository repo) throws RuntimeException {
     try {
-      ObjectId headId = repo.resolve(Constants.HEAD);
+      ObjectId evalCommitId = repo.resolve(evaluateOnCommit);
 
       try (RevWalk walk = new RevWalk(repo)) {
-        RevCommit headCommit = walk.lookupCommit(headId);
+        RevCommit evalCommit = walk.parseCommit(evalCommitId);
         walk.dispose();
 
-        log.info("HEAD is [{}]", headCommit.getName());
-        return headCommit;
+        log.info("evalCommit is [{}]", evalCommit.getName());
+        return evalCommit;
       }
     } catch (IOException ex) {
-      throw new RuntimeException("Unable to obtain HEAD commit!", ex);
+      throw new RuntimeException("Unable to obtain " + evaluateOnCommit + " commit!", ex);
     }
   }
 

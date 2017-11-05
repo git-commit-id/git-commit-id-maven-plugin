@@ -63,7 +63,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .call();
 
       // then
@@ -86,7 +86,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -110,7 +110,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .tags()
               .match("annotated*")
               .call();
@@ -146,7 +146,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 
@@ -179,7 +179,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         wrap.tag().setName(latestTag).call();
 
         DescribeResult res = DescribeCommand
-                .on(repo, new StdOutLoggerBridge(true))
+                .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
                 .tags()
                 .call();
 
@@ -211,7 +211,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
       }
 
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .tags()
               .call();
 

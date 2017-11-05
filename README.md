@@ -472,6 +472,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         -->
                         <forceLongFormat>false</forceLongFormat>
                     </gitDescribe>
+
                     <!-- @since 2.2.2 -->
                     <!-- 
                         Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
@@ -495,6 +496,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         </validationProperty>
                         <!-- the next validationProperty you would like to validate -->
                     </validationProperties>
+
                     <!-- @since 2.2.2 -->
                     <!--
                         true by default, controls whether the validation will fail if *at least one* of the validationProperties does not match with it's expected values. 
@@ -502,6 +504,21 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         *Note*: This configuration will only be taken into account when the additional goal `validateRevision` is configured inside an execution and at least one validationProperty is defined.
                     -->
                     <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
+
+                    <!-- @since 2.2.4 -->
+                    <!--
+                        Allow to tell the plugin what commit should be used as reference to generate the properties from.
+                        By default this property is simply set to `HEAD` which should reference to the latest commit in your repository.
+
+                        In general this property can be set to something generic like `HEAD^1` or point to a branch or tag-name.
+                        To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
+
+                        A use-case for this feature can be found in https://github.com/ktoso/maven-git-commit-id-plugin/issues/338.
+
+                        Please note that for security purposes not all references might be allowed as configuration.
+                        If you have a specific use-case that is currently not white listed feel free to file an issue.
+                    -->
+                    <evaluateOnCommit>HEAD</evaluateOnCommit>
                 </configuration>
 
             </plugin>
@@ -882,6 +899,7 @@ Optional parameters:
 
 *Note*: Depending on your plugin configuration you obviously can choose the 'prefix' of your properties by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration what the switch means when the 'prefix' is set to it's default value.
 *Note*: If you set the value to something that's not equal to 'flat' or 'full' (ignoring the case) the plugin will output a warning and will fallback to the default 'flat' mode.
+* **evaluateOnCommit** - `(default: HEAD)` *(available since v2.2.4)* Allow to tell the plugin what commit should be used as reference to generate the properties from. By default this property is simply set to `HEAD` which should reference to the latest commit in your repository. In general this property can be set to something generic like `HEAD^1` or point to a branch or tag-name. To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version. Please note that for security purposes not all references might be allowed as configuration. If you have a specific use-case that is currently not white listed feel free to file an issue.
 
 **gitDescribe**:
 Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git's plain output, even though the describe functionality has been reimplemented manually using JGit (you don't have to have a git executable to use the plugin). So if you're familiar with [git-describe](https://github.com/ktoso/maven-git-commit-id-plugin#git-describe---short-intro-to-an-awesome-command), you probably can skip this section, as it just explains the same options that git provides.

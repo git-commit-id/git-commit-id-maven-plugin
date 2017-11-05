@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -305,6 +306,23 @@ public class GitCommitIdMojo extends AbstractMojo {
   @VisibleForTesting List<ReplacementProperty> replacementProperties;
 
   /**
+   * Allow to tell the plugin what commit should be used as reference to generate the properties from.
+   * By default this property is simply set to <p>HEAD</p> which should reference to the latest commit in your repository.
+   * 
+   * In general this property can be set to something generic like <p>HEAD^1</p> or point to a branch or tag-name.
+   * To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
+   * 
+   * A use-case for this feature can be found in https://github.com/ktoso/maven-git-commit-id-plugin/issues/338.
+   * 
+   * Please note that for security purposes not all references might be allowed as configuration.
+   * If you have a specific use-case that is currently not white listed feel free to file an issue.
+   * @since 2.2.4
+   */
+  @Parameter(defaultValue = "HEAD")
+  private String evaluateOnCommit;
+  protected static final Pattern allowedCharactersForEvaluateOnCommit = Pattern.compile("[a-zA-Z0-9\\_\\-\\^\\/\\.]+");
+
+  /**
    * The properties we store our data in and then expose them.
    */
   private Properties properties;
@@ -366,6 +384,11 @@ public class GitCommitIdMojo extends AbstractMojo {
         log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
       } else {
         log.info("dotGitDirectory is null, aborting execution!");
+        return;
+      }
+
+      if ((evaluateOnCommit == null) || !allowedCharactersForEvaluateOnCommit.matcher(evaluateOnCommit).matches()) {
+        log.error("suspicious argument for evaluateOnCommit, aborting execution!");
         return;
       }
 
@@ -515,7 +538,7 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setGitDescribe(gitDescribe)
               .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
-      nativeGitProvider.loadGitData(properties);
+      nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
       throw new GitCommitIdExecutionException(e);
     }
@@ -531,7 +554,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setGitDescribe(gitDescribe)
         .setCommitIdGenerationMode(commitIdGenerationModeEnum);
 
-    jGitProvider.loadGitData(properties);
+    jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
 
   void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
@@ -786,5 +809,13 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   @VisibleForTesting void setFailOnUnableToExtractRepoInfo(boolean failOnUnableToExtractRepoInfo) {
     this.failOnUnableToExtractRepoInfo = failOnUnableToExtractRepoInfo;
+  }
+
+  @VisibleForTesting String getEvaluateOnCommit() {
+    return evaluateOnCommit;
+  }
+
+  @VisibleForTesting void setEvaluateOnCommit(String evaluateOnCommit) {
+    this.evaluateOnCommit = evaluateOnCommit;
   }
 }

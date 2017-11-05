@@ -981,6 +981,141 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyEvalOnDifferentCommitWithParentOfHead(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty(null);
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+    mojo.setEvaluateOnCommit("HEAD^1");
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "e3d159d");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "e3d159dd7");
+
+    // TODO: FIXME https://github.com/ktoso/maven-git-commit-id-plugin/issues/339
+    // assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyEvalOnDifferentCommitWithBranchName(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty(null);
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+    mojo.setEvaluateOnCommit("test");
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyEvalOnDifferentCommitWithTagName(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty(null);
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+    mojo.setEvaluateOnCommit("test_tag");
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyEvalOnDifferentCommitWithCommitHash(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+                .withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
+    gitDescribe.setDirty(null);
+
+    mojo.setGitDescribe(gitDescribe);
+    mojo.setUseNativeGit(useNativeGit);
+    mojo.setEvaluateOnCommit("9cb810e");
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+  }
+
+  // TODO: Test that fails when trying to pass invalid data to evaluateOnCommit
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);

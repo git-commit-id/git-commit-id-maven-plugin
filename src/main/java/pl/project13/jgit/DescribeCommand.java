@@ -27,16 +27,12 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevWalk;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import pl.project13.jgit.dummy.DatedRevTag;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.Pair;
-
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -46,6 +42,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   private LoggerBridge log;
   private JGitCommon jGitCommon;
+  private String evaluateOnCommit;
 
   //  TODO not yet implemented options:
   //  private boolean containsFlag = false;
@@ -86,8 +83,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param log logger bridge to direct logs to
    */
   @NotNull
-  public static DescribeCommand on(Repository repo, LoggerBridge log) {
-    return new DescribeCommand(repo, log);
+  public static DescribeCommand on(String evaluateOnCommit, Repository repo, LoggerBridge log) {
+    return new DescribeCommand(evaluateOnCommit, repo, log);
   }
 
   /**
@@ -95,8 +92,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  private DescribeCommand(Repository repo, @NotNull LoggerBridge log) {
+  private DescribeCommand(@NotNull String evaluateOnCommit, @NotNull Repository repo, @NotNull LoggerBridge log) {
     super(repo);
+    this.evaluateOnCommit = evaluateOnCommit;
     this.jGitCommon = new JGitCommon(log);
     this.log = log;
   }
@@ -259,14 +257,14 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     Map<ObjectId, List<String>> tagObjectIdToName = jGitCommon.findTagObjectIds(repo, tagsFlag, matchPattern);
 
     // get current commit
-    RevCommit headCommit = findHeadObjectId(repo);
-    ObjectId headCommitId = headCommit.getId();
+    RevCommit evalCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
+    ObjectId evalCommitId = evalCommit.getId();
 
     // check if dirty
     boolean dirty = findDirtyState(repo);
 
-    if (hasTags(headCommit, tagObjectIdToName) && !forceLongFormat) {
-      String tagName = tagObjectIdToName.get(headCommit).iterator().next();
+    if (hasTags(evalCommit, tagObjectIdToName) && !forceLongFormat) {
+      String tagName = tagObjectIdToName.get(evalCommit).iterator().next();
       log.info("The commit we're on is a Tag ([{}]) and forceLongFormat == false, returning.", tagName);
 
       return new DescribeResult(tagName, dirty, dirtyOption);
@@ -275,7 +273,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     // get commits, up until the nearest tag
     List<RevCommit> commits;
     try {
-      commits = jGitCommon.findCommitsUntilSomeTag(repo, headCommit, tagObjectIdToName);
+      commits = jGitCommon.findCommitsUntilSomeTag(repo, evalCommit, tagObjectIdToName);
     } catch (Exception e) {
       if (alwaysFlag) {
         // Show uniquely abbreviated commit object as fallback
@@ -287,18 +285,18 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
     // if there is no tags or any tag is not on that branch then return generic describe
     if (foundZeroTags(tagObjectIdToName) || commits.isEmpty()) {
-      return new DescribeResult(objectReader, headCommitId, dirty, dirtyOption)
+      return new DescribeResult(objectReader, evalCommitId, dirty, dirtyOption)
           .withCommitIdAbbrev(abbrev);
     }
 
     // check how far away from a tag we are
 
-    int distance = jGitCommon.distanceBetween(repo, headCommit, commits.get(0));
+    int distance = jGitCommon.distanceBetween(repo, evalCommit, commits.get(0));
     String tagName = tagObjectIdToName.get(commits.get(0)).iterator().next();
     Pair<Integer, String> howFarFromWhichTag = Pair.of(distance, tagName);
 
     // if it's null, no tag's were found etc, so let's return just the commit-id
-    return createDescribeResult(objectReader, headCommitId, dirty, howFarFromWhichTag);
+    return createDescribeResult(objectReader, evalCommitId, dirty, howFarFromWhichTag);
   }
 
   /**
@@ -344,8 +342,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
-  RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
-    return jGitCommon.findHeadObjectId(repo);
+  RevCommit findEvalCommitObjectId(@NotNull String evaluateOnCommit, @NotNull Repository repo) throws RuntimeException {
+    return jGitCommon.findEvalCommitObjectId(evaluateOnCommit, repo);
   }
 
   private String createMatchPattern() {

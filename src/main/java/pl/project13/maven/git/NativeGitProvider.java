@@ -92,15 +92,21 @@ public class NativeGitProvider extends GitDataProvider {
   private String getBranch(File canonical) throws GitCommitIdExecutionException {
     String branch;
     try {
-      branch = runGitCommand(canonical, "symbolic-ref HEAD");
+      branch = runGitCommand(canonical, "symbolic-ref " + evaluateOnCommit);
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
     } catch (NativeCommandException e) {
       // it seems that git repo is in 'DETACHED HEAD'-State, using Commit-Id as Branch
       String err = e.getStderr();
-      if (err != null && err.contains("ref HEAD is not a symbolic ref")) {
-        branch = getCommitId();
+      if (err != null) {
+        boolean noSymbolicRef = err.contains("ref " + evaluateOnCommit + " is not a symbolic ref");
+        boolean noSuchRef = err.contains("No such ref: " + evaluateOnCommit);
+        if (noSymbolicRef || noSuchRef) {
+          branch = getCommitId();
+        } else {
+          throw Throwables.propagate(e);
+        }
       } else {
         throw Throwables.propagate(e);
       }
@@ -120,14 +126,23 @@ public class NativeGitProvider extends GitDataProvider {
     }
 
     StringBuilder argumentsForGitDescribe = new StringBuilder();
+    boolean hasCommitish = (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
+    if (hasCommitish) {
+      argumentsForGitDescribe.append(" " + evaluateOnCommit);
+    }
 
     if (describeConfig.isAlways()) {
       argumentsForGitDescribe.append(" --always");
     }
 
     final String dirtyMark = describeConfig.getDirty();
-    if (dirtyMark != null && !dirtyMark.isEmpty()) {
-      argumentsForGitDescribe.append(" --dirty=").append(dirtyMark);
+    if ((dirtyMark != null) && !dirtyMark.isEmpty()) {
+      // we can either have evaluateOnCommit or --dirty flag set
+      if (hasCommitish) {
+        log.warn("You might use strange arguments since it's unfortunately not supported to have evaluateOnCommit and the --dirty flag for the describe command set at the same time");
+      } else {
+        argumentsForGitDescribe.append(" --dirty=").append(dirtyMark);
+      }
     }
 
     final String matchOption = describeConfig.getMatch();
@@ -149,7 +164,17 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitId() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "rev-parse HEAD");
+    boolean evaluateOnCommitIsSet = (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
+    if (evaluateOnCommitIsSet) {
+      // if evaluateOnCommit represents a tag we need to perform the rev-parse on the actual commit reference
+      // in case evaluateOnCommit is not a reference rev-list will just return the argument given
+      // and thus it's always safe(r) to unwrap it
+      // however when evaluateOnCommit is not set we don't want to waste calls to the native binary
+      String actualCommitId = runQuietGitCommand(canonical, "rev-list -n 1 " + evaluateOnCommit);
+      return runQuietGitCommand(canonical, "rev-parse " + actualCommitId);
+    } else {
+      return runQuietGitCommand(canonical, "rev-parse HEAD");
+    }
   }
 
   @Override
@@ -173,34 +198,34 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitAuthorName() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%an");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%an " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitAuthorEmail() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageFull() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%B");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%B " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageShort() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%s");
+    return runQuietGitCommand(canonical, "log -1 --pretty=format:%s " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitTime() throws GitCommitIdExecutionException {
-    String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct");
+    String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct " + evaluateOnCommit);
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value) * 1000L);
   }
 
   @Override
   public String getTags() throws GitCommitIdExecutionException {
-    final String result = runQuietGitCommand(canonical, "tag --contains");
+    final String result = runQuietGitCommand(canonical, "tag --contains " + evaluateOnCommit);
     return result.replace('\n', ',');
   }
 
@@ -213,7 +238,7 @@ public class NativeGitProvider extends GitDataProvider {
   public String getClosestTagName() throws GitCommitIdExecutionException {
     try {
       StringBuilder argumentsForGitDescribe = new StringBuilder();
-      argumentsForGitDescribe.append("describe --abbrev=0");
+      argumentsForGitDescribe.append("describe " + evaluateOnCommit + " --abbrev=0");
       if (gitDescribe != null) {
         if (gitDescribe.getTags()) {
           argumentsForGitDescribe.append(" --tags");
@@ -235,7 +260,7 @@ public class NativeGitProvider extends GitDataProvider {
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     String closestTagName = getClosestTagName();
     if (closestTagName != null && !closestTagName.trim().isEmpty()) {
-      return runQuietGitCommand(canonical, "rev-list " + closestTagName + "..HEAD --count");
+      return runQuietGitCommand(canonical, "rev-list " + closestTagName + ".." + evaluateOnCommit + " --count");
     }
     return "";
   }

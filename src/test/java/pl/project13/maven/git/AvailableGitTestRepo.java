@@ -57,6 +57,14 @@ public enum AvailableGitTestRepo {
    * </pre>
    */
   WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG("src/test/resources/_git_lightweight_tag_before_annotated_tag"),
+  /**
+   * <pre>
+   * * 9cb810e - Change in tag - Fri, 29 Nov 2013 10:39:31 +0100 (tag: test_tag, branch: test)
+   * | * 2343428 - Moved master - Fri, 29 Nov 2013 10:38:34 +0100 (HEAD, branch: master)
+   * |/
+   * * e3d159d - Added readme - Fri, 29 Nov 2013 10:38:02 +0100
+   * </pre>
+   */
   WITH_TAG_ON_DIFFERENT_BRANCH("src/test/resources/_git_with_tag_on_different_branch"),
   WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS("src/test/resources/_git_one_commit_with_umlaut"),
   /**
