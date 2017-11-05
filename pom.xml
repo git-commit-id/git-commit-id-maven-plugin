@@ -163,6 +163,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+      <version>1.16.0</version>
+      <scope>test</scope>
+    </dependency>
+
     <!--to avoid complaints during tests-->
     <dependency>
       <groupId>org.slf4j</groupId>
