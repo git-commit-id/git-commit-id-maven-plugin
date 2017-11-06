@@ -26,7 +26,7 @@ import pl.project13.maven.git.log.StdOutLoggerBridge;
 import static org.mockito.Mockito.*;
 
 public class DescribeCommandOptionsTest {
-
+  private static final String evaluateOnCommit = "HEAD";
 
   @Test(expected = IllegalArgumentException.class)
   public void abbrev_shouldVerifyLengthContract_failOn41() throws Exception {
@@ -34,7 +34,7 @@ public class DescribeCommandOptionsTest {
     final Repository repo = mock(Repository.class);
     final int length = 41;
 
-    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
+    DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -43,7 +43,7 @@ public class DescribeCommandOptionsTest {
     final Repository repo = mock(Repository.class);
     final int length = -12;
 
-    DescribeCommand.on(repo, new StdOutLoggerBridge(true)).abbrev(length);
+    DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)).abbrev(length);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class DescribeCommandOptionsTest {
     GitDescribeConfig config = new GitDescribeConfig(true, devel, match, abbrev, true, true);
 
     Repository repo = mock(Repository.class);
-    DescribeCommand command = DescribeCommand.on(repo, new StdOutLoggerBridge(true));
+    DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true));
     DescribeCommand spiedCommand = spy(command);
 
     // when

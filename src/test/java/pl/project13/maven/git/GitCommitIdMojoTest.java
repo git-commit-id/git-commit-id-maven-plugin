@@ -17,260 +17,21 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.eclipse.jgit.lib.Repository;
-import org.junit.Before;
 import org.junit.Test;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-/**
- * I'm not a big fan of this test - let's move to integration test from now on.
- *
- */
-// todo remove this test in favor of complete integration tests
 public class GitCommitIdMojoTest {
 
-  GitCommitIdMojo mojo;
-  JGitProvider jGitProvider;
-
-  @Before
-  public void setUp() throws Exception {
-    File dotGitDirectory = AvailableGitTestRepo.GIT_COMMIT_ID.getDir();
-    GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
-    gitDescribeConfig.setSkip(false);
-
-    String prefix = "git";
-    int abbrevLength = 7;
-    String dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
-
-    mojo = new GitCommitIdMojo();
-    mojo.setDotGitDirectory(dotGitDirectory);
-    mojo.setPrefix(prefix);
-    mojo.setAbbrevLength(abbrevLength);
-    mojo.setDateFormat(dateFormat);
-    mojo.setVerbose(true);
-    mojo.setUseNativeGit(false);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setCommitIdGenerationMode("full");
-
-
-    mojo.project = mock(MavenProject.class, RETURNS_MOCKS);
-    Properties props = new Properties();
-    when(mojo.project.getProperties()).thenReturn(props);
-    when(mojo.project.getPackaging()).thenReturn("jar");
-    when(mojo.project.getVersion()).thenReturn("3.3-SNAPSHOT");
-
-    jGitProvider = JGitProvider.on(mojo.lookupGitDirectory(), new StdOutLoggerBridge(true));
-  }
-
-  @Test
-  @SuppressWarnings("")
-  public void shouldIncludeExpectedProperties() throws Exception {
-    mojo.execute();
-
-    Properties properties = mojo.getProperties();
-
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.dirty"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-  }
-
-  @Test
-  @SuppressWarnings("")
-  public void shouldExcludeAsConfiguredProperties() throws Exception {
-    // given
-    mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
-
-    // when
-    mojo.execute();
-
-    // then
-    Properties properties = mojo.getProperties();
-
-    // explicitly excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
-
-    // glob excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.user.email"));
-
-    // these stay
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-  }
-
-  @Test
-  public void shouldIncludeOnlyAsConfiguredProperties() throws Exception {
-    // given
-    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$"));
-
-    // when
-    mojo.execute();
-
-    // then
-    Properties properties = mojo.getProperties();
-
-    // explicitly included
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-
-    // glob included
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-
-    // these excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
-  }
-
-  @Test
-  public void shouldExcludeAndIncludeAsConfiguredProperties() throws Exception {
-    // given
-    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
-    mojo.setExcludeProperties(ImmutableList.of("git.build.user.email"));
-
-    // when
-    mojo.execute();
-
-    // then
-    Properties properties = mojo.getProperties();
-
-    // explicitly included
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-
-    // explicitly excluded -> overrules include only properties
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.build.user.email"));
-
-    // glob included
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-
-    // these excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
-  }
-
-  @Test
-  @SuppressWarnings("")
-  public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties() throws Exception {
-    // given
-    mojo.setPrefix("");
-
-    // when
-    mojo.execute();
-
-    // then
-    Properties properties = mojo.getProperties();
-
-    // explicitly excluded
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.remote.origin.url"));
-    assertThat(properties).satisfies(new DoesNotContainKeyCondition(".remote.origin.url"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("remote.origin.url"));
-  }
-
-  @Test
-  public void shouldSkipDescribeWhenConfiguredToDoSo() throws Exception {
-    // given
-    GitDescribeConfig config = new GitDescribeConfig();
-    config.setSkip(true);
-
-    // when
-    mojo.setGitDescribe(config);
-    mojo.execute();
-
-    // then
-    assertThat(mojo.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
-  }
-
-  @Test
-  public void shouldUseJenkinsBranchInfoWhenAvailable() throws GitCommitIdExecutionException, IOException {
-    // given
-    Repository git = mock(Repository.class);
-    Map<String, String> env = Maps.newHashMap();
-
-    String detachedHeadSha1 = "16bb801934e652f5e291a003db05e364d83fba25";
-    String ciUrl = "http://myciserver.com";
-
-    when(git.getBranch()).thenReturn(detachedHeadSha1);
-    jGitProvider.setRepository(git);
-    // when
-    // in a detached head state, getBranch() will return the SHA1...standard behavior
-    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
-
-    // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
-    env.put("JENKINS_URL", "http://myjenkinsserver.com");
-    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
-
-    // now set GIT_BRANCH too and see that the branch name from env var is returned
-    env.clear();
-    env.put("JENKINS_URL", ciUrl);
-    env.put("GIT_BRANCH", "mybranch");
-    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
-  
-    // same, but for hudson
-    env.clear();
-    env.put("GIT_BRANCH", "mybranch");
-    env.put("HUDSON_URL", ciUrl);
-    assertThat("mybranch").isEqualTo(jGitProvider.determineBranchName(env));
-
-    // now set GIT_LOCAL_BRANCH too and see that the branch name from env var is returned
-    env.clear();
-    env.put("JENKINS_URL", ciUrl);
-    env.put("GIT_BRANCH", "mybranch");
-    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
-    assertThat("mylocalbranch").isEqualTo(jGitProvider.determineBranchName(env));
-
-    // same, but for hudson
-    env.clear();
-    env.put("GIT_BRANCH", "mybranch");
-    env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
-    env.put("HUDSON_URL", ciUrl);
-    assertThat("mylocalbranch").isEqualTo(jGitProvider.determineBranchName(env));
-
-    // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
-    env.clear();
-    env.put("GIT_BRANCH", "mybranch");
-    env.put("GIT_BRANCH", "mylocalbranch");
-    assertThat(detachedHeadSha1).isEqualTo(jGitProvider.determineBranchName(env));
-  }
-  
   @Test
   public void loadShortDescribe() {
     assertShortDescribe("1.0.2-12-g19471", "1.0.2-12");
@@ -317,13 +78,17 @@ public class GitCommitIdMojoTest {
   }
 
   @Test
-  public void shouldPerformReplacements() throws MojoExecutionException {
-    mojo.propertiesReplacer = mock(PropertiesReplacer.class);
-    mojo.replacementProperties = mock(List.class);
+  public void verifyAllowedCharactersForEvaluateOnCommit() throws MojoExecutionException {
+    Pattern p = GitCommitIdMojo.allowedCharactersForEvaluateOnCommit;
+    assertTrue(p.matcher("5957e419d").matches());
+    assertTrue(p.matcher("my_tag").matches());
+    assertTrue(p.matcher("my-tag").matches());
+    assertTrue(p.matcher("my.tag").matches());
+    assertTrue(p.matcher("HEAD^1").matches());
+    assertTrue(p.matcher("feature/branch").matches());
 
-    mojo.execute();
-
-    verify(mojo.propertiesReplacer).performReplacement(any(Properties.class), eq(mojo.replacementProperties));
+    assertFalse(p.matcher("; CODE INJECTION").matches());
+    assertFalse(p.matcher("|exit").matches());
+    assertFalse(p.matcher("&&cat /etc/passwd").matches());
   }
-
 }

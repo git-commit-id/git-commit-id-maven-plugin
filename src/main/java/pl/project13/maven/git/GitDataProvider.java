@@ -49,6 +49,8 @@ public abstract class GitDataProvider implements GitProvider {
 
   protected CommitIdGenerationMode commitIdGenerationMode;
 
+  protected String evaluateOnCommit;
+
   public GitDataProvider(@NotNull LoggerBridge log) {
     this.log = log;
   }
@@ -83,7 +85,8 @@ public abstract class GitDataProvider implements GitProvider {
     return this;
   }
 
-  public void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
+  public void loadGitData(@NotNull String evaluateOnCommit, @NotNull Properties properties) throws GitCommitIdExecutionException {
+    this.evaluateOnCommit = evaluateOnCommit;
     init();
     // git.user.name
     put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, getBuildAuthorName());

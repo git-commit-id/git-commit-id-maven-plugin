@@ -23,7 +23,6 @@ import com.google.common.base.MoreObjects;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
@@ -51,7 +50,7 @@ public class JGitProvider extends GitDataProvider {
   private Repository git;
   private ObjectReader objectReader;
   private RevWalk revWalk;
-  private RevCommit headCommit;
+  private RevCommit evalCommit;
   private JGitCommon jGitCommon;
 
   @NotNull
@@ -87,17 +86,25 @@ public class JGitProvider extends GitDataProvider {
   public void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
     try {
       // more details parsed out bellow
-      Ref head = git.findRef(Constants.HEAD);
-      if (head == null) {
-        throw new GitCommitIdExecutionException("Could not get HEAD Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
+      Ref evaluateOnCommitReference = git.findRef(evaluateOnCommit);
+      ObjectId evaluateOnCommitResolvedObjectId = git.resolve(evaluateOnCommit);
+
+      if ((evaluateOnCommitReference == null) && (evaluateOnCommitResolvedObjectId == null)) {
+        throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
       revWalk = new RevWalk(git);
-      ObjectId headObjectId = head.getObjectId();
-      if (headObjectId == null) {
-        throw new GitCommitIdExecutionException("Could not get HEAD Ref, are you sure you have some commits in the dotGitDirectory?");
+      ObjectId headObjectId = null;
+      if (evaluateOnCommitReference != null) {
+        headObjectId = evaluateOnCommitReference.getObjectId();
+      } else {
+        headObjectId = evaluateOnCommitResolvedObjectId;
       }
-      headCommit = revWalk.parseCommit(headObjectId);
-      revWalk.markStart(headCommit);
+
+      if (headObjectId == null) {
+        throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have some commits in the dotGitDirectory?");
+      }
+      evalCommit = revWalk.parseCommit(headObjectId);
+      revWalk.markStart(evalCommit);
     } catch (Exception e) {
       throw new GitCommitIdExecutionException("Error", e);
     }
@@ -119,12 +126,12 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitId() throws GitCommitIdExecutionException {
-    return headCommit.getName();
+    return evalCommit.getName();
   }
 
   @Override
   public String getAbbrevCommitId() throws GitCommitIdExecutionException {
-    return getAbbrevCommitId(objectReader, headCommit, abbrevLength);
+    return getAbbrevCommitId(objectReader, evalCommit, abbrevLength);
   }
 
   @Override
@@ -138,27 +145,27 @@ public class JGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitAuthorName() throws GitCommitIdExecutionException {
-    return headCommit.getAuthorIdent().getName();
+    return evalCommit.getAuthorIdent().getName();
   }
 
   @Override
   public String getCommitAuthorEmail() throws GitCommitIdExecutionException {
-    return headCommit.getAuthorIdent().getEmailAddress();
+    return evalCommit.getAuthorIdent().getEmailAddress();
   }
 
   @Override
   public String getCommitMessageFull() throws GitCommitIdExecutionException {
-    return headCommit.getFullMessage().trim();
+    return evalCommit.getFullMessage().trim();
   }
 
   @Override
   public String getCommitMessageShort() throws GitCommitIdExecutionException {
-    return headCommit.getShortMessage().trim();
+    return evalCommit.getShortMessage().trim();
   }
 
   @Override
   public String getCommitTime() throws GitCommitIdExecutionException {
-    long timeSinceEpoch = headCommit.getCommitTime();
+    long timeSinceEpoch = evalCommit.getCommitTime();
     Date commitDate = new Date(timeSinceEpoch * 1000); // git is "by sec" and java is "by ms"
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(commitDate);
@@ -174,11 +181,11 @@ public class JGitProvider extends GitDataProvider {
   public String getTags() throws GitCommitIdExecutionException {
     try {
       Repository repo = getGitRepository();
-      ObjectId headId = headCommit.toObjectId();
-      Collection<String> tags = jGitCommon.getTags(repo,headId);
+      ObjectId headId = evalCommit.toObjectId();
+      Collection<String> tags = jGitCommon.getTags(repo, headId);
       return Joiner.on(",").join(tags);
     } catch (GitAPIException e) {
-      log.error("Unable to extract tags from commit: {} ({})", headCommit.getName(), e.getClass().getName());
+      log.error("Unable to extract tags from commit: {} ({})", evalCommit.getName(), e.getClass().getName());
       return "";
     }
   }
@@ -187,7 +194,7 @@ public class JGitProvider extends GitDataProvider {
   public String getClosestTagName() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagName(repo, gitDescribe);
+      return jGitCommon.getClosestTagName(evaluateOnCommit, repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -198,7 +205,7 @@ public class JGitProvider extends GitDataProvider {
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     Repository repo = getGitRepository();
     try {
-      return jGitCommon.getClosestTagCommitCount(repo, gitDescribe);
+      return jGitCommon.getClosestTagCommitCount(evaluateOnCommit, repo, gitDescribe);
     } catch (Throwable t) {
       // could not find any tags to describe
     }
@@ -225,7 +232,7 @@ public class JGitProvider extends GitDataProvider {
   @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitCommitIdExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
-          .on(repository, log)
+          .on(evaluateOnCommit, repository, log)
           .apply(super.gitDescribe)
           .call();
 

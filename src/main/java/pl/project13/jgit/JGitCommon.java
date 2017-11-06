@@ -25,7 +25,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -53,27 +52,31 @@ public class JGitCommon {
     this.log = log;
   }
 
-  public Collection<String> getTags(Repository repo, final ObjectId headId) throws GitAPIException {
+  public Collection<String> getTags(Repository repo, final ObjectId objectId) throws GitAPIException {
     try (Git git = Git.wrap(repo)) {
       try (RevWalk walk = new RevWalk(repo)) {
-        Collection<String> tags = getTags(git, headId, walk);
+        Collection<String> tags = getTags(git, objectId, walk);
         walk.dispose();
         return tags;
       }
     }
   }
 
-  private Collection<String> getTags(final Git git, final ObjectId headId, final RevWalk finalWalk) throws GitAPIException {
+  private Collection<String> getTags(final Git git, final ObjectId objectId, final RevWalk finalWalk) throws GitAPIException {
     List<Ref> tagRefs = git.tagList().call();
     Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-      @Override public boolean apply(Ref tagRef) {
-        boolean lightweightTag = tagRef.getObjectId().equals(headId);
+      @Override
+      public boolean apply(Ref tagRef) {
         try {
-          // TODO make this configurable (most users shouldn't really care too much what kind of tag it is though)
-          return lightweightTag || finalWalk.parseTag(tagRef.getObjectId()).getObject().getId().equals(headId); // or normal tag
-        } catch (IOException e) {
-          return false;
+          final RevCommit tagCommit = finalWalk.parseCommit(tagRef.getObjectId());
+          final RevCommit objectCommit = finalWalk.parseCommit(objectId);
+          if (finalWalk.isMergedInto(objectCommit, tagCommit)) {
+            return true;
+          }
+        } catch (Exception ignored) {
+          log.debug("Failed while getTags [{}] -- ", tagRef, ignored);
         }
+        return false;
       }
     });
     Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
@@ -84,16 +87,16 @@ public class JGitCommon {
     return tags;
   }
 
-  public String getClosestTagName(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagName(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
-    RevCommit headCommit = findHeadObjectId(repo);
+    RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
     return pair.second;
   }
 
-  public String getClosestTagCommitCount(@NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagCommitCount(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
-    RevCommit headCommit = findHeadObjectId(repo);
+    RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
     RevCommit revCommit = pair.first;
     int distance = distanceBetween(repo, headCommit, revCommit);
@@ -135,19 +138,19 @@ public class JGitCommon {
     return commitIdsToTagNames;
   }
 
-  protected RevCommit findHeadObjectId(@NotNull Repository repo) throws RuntimeException {
+  protected RevCommit findEvalCommitObjectId(@NotNull String evaluateOnCommit, @NotNull Repository repo) throws RuntimeException {
     try {
-      ObjectId headId = repo.resolve(Constants.HEAD);
+      ObjectId evalCommitId = repo.resolve(evaluateOnCommit);
 
       try (RevWalk walk = new RevWalk(repo)) {
-        RevCommit headCommit = walk.lookupCommit(headId);
+        RevCommit evalCommit = walk.parseCommit(evalCommitId);
         walk.dispose();
 
-        log.info("HEAD is [{}]", headCommit.getName());
-        return headCommit;
+        log.info("evalCommit is [{}]", evalCommit.getName());
+        return evalCommit;
       }
     } catch (IOException ex) {
-      throw new RuntimeException("Unable to obtain HEAD commit!", ex);
+      throw new RuntimeException("Unable to obtain " + evaluateOnCommit + " commit!", ex);
     }
   }
 

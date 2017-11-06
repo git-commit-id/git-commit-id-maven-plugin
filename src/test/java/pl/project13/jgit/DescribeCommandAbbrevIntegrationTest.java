@@ -69,7 +69,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .abbrev(2) // 2 is enough to be unique in this small repo
               .call();
 
@@ -93,7 +93,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
               .abbrev(2) // way too small to be unique in git-commit-id's repo!
               .call();
 
