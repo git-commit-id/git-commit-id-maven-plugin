@@ -892,6 +892,39 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
+  public void shouldExtractTagsOnGivenCommitWithOldestCommit(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+                .create();
+
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("9597545").call();
+    }
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    mojo.setGitDescribe(null);
+    mojo.setUseNativeGit(useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertGitPropertiesPresentInProject(properties);
+
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
+    assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
+
+    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+      .containsOnly("annotated-tag", "lightweight-tag", "newest-tag");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
   public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox.withParentProject("my-plugin-project", "jar")
