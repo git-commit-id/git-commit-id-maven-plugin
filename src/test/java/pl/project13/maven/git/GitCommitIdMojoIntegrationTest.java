@@ -1351,8 +1351,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "e3d159dd7");
 
-    // TODO: FIXME https://github.com/ktoso/maven-git-commit-id-plugin/issues/339
-    // assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
   }
