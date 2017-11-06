@@ -925,6 +925,35 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
+  public void shouldExtractTagsOnHead(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+                .create();
+
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    mojo.setGitDescribe(null);
+    mojo.setUseNativeGit(useNativeGit);
+
+    // when
+    mojo.execute();
+
+    // then
+    Properties properties = targetProject.getProperties();
+    assertGitPropertiesPresentInProject(properties);
+
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
+    assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
+
+    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+      .containsOnly("v1.0.0");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
   public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox.withParentProject("my-plugin-project", "jar")
