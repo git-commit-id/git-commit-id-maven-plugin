@@ -29,7 +29,7 @@ public class DatedRevTag {
   public final DateTime date;
 
   public DatedRevTag(RevTag tag) {
-    this(tag.getId(), tag.getTagName(), new DateTime(tag.getTaggerIdent().getWhen()));
+    this(tag.getId(), tag.getTagName(), (tag.getTaggerIdent() != null) ? new DateTime(tag.getTaggerIdent().getWhen()) : DateTime.now().minusYears(1900));
   }
 
   public DatedRevTag(AnyObjectId id, String tagName) {
