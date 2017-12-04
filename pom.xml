@@ -59,7 +59,7 @@
 
     <jgit.version>4.5.4.201711221230-r</jgit.version>
     <junit.version>4.12</junit.version>
-    <mockito.version>2.8.47</mockito.version>
+    <mockito.version>2.12.0</mockito.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
