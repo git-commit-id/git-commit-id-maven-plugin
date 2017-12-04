@@ -29,6 +29,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -280,5 +281,18 @@ public class JGitProvider extends GitDataProvider {
   @VisibleForTesting
   public void setRepository(Repository git) {
     this.git = git;
+  }
+
+  @Override
+  public String getCommitRevListHeadCount() throws GitCommitIdExecutionException
+  {
+      try {
+        return String.valueOf(
+            RevWalkUtils.count(revWalk, evalCommit, null)
+            );
+      } catch (Throwable t) {
+        // could not find any tags to describe
+      }
+      return "";
   }
 }

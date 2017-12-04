@@ -233,7 +233,7 @@ public class NativeGitProvider extends GitDataProvider {
   public String getRemoteOriginUrl() throws GitCommitIdExecutionException {
     return getOriginRemote(canonical);
   }
-  
+
   @Override
   public String getClosestTagName() throws GitCommitIdExecutionException {
     try {
@@ -456,6 +456,12 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return empty; // was non-empty
     }
+  }
+
+  @Override
+  public String getCommitRevListHeadCount() throws GitCommitIdExecutionException
+  {
+    return runQuietGitCommand(canonical, "rev-list HEAD --count");
   }
 }
 
