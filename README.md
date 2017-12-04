@@ -108,7 +108,7 @@ A detailed description of using the plugin is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.2.3** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.3)).
+The current version is **2.2.4** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.4)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -191,7 +191,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.3</version>
+                <version>2.2.4</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
