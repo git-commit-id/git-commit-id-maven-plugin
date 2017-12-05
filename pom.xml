@@ -57,9 +57,9 @@
     <maven-plugin-api.version>3.0</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
-    <jgit.version>4.5.2.201704071617-r</jgit.version>
+    <jgit.version>4.5.4.201711221230-r</jgit.version>
     <junit.version>4.12</junit.version>
-    <mockito.version>2.8.47</mockito.version>
+    <mockito.version>2.12.0</mockito.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
@@ -88,14 +88,14 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.6.4</version>
+      <version>2.9.2</version>
     </dependency>
 
     <!-- Joda Time -->
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
-      <version>2.9.1</version>
+      <version>2.9.9</version>
     </dependency>
 
     <!-- Guava -->
@@ -137,7 +137,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.0.22</version>
+      <version>3.1.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -151,7 +151,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.4</version>
+      <version>2.6</version>
       <type>jar</type>
       <scope>test</scope>
     </dependency>
@@ -159,14 +159,14 @@
     <dependency>
       <groupId>pl.pragmatists</groupId>
       <artifactId>JUnitParams</artifactId>
-      <version>1.0.4</version>
+      <version>1.1.1</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.github.stefanbirkner</groupId>
       <artifactId>system-rules</artifactId>
-      <version>1.16.0</version>
+      <version>1.17.0</version>
       <scope>test</scope>
     </dependency>
 
