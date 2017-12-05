@@ -43,6 +43,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
     "git.commit.message.full",
     "git.commit.message.short",
     "git.commit.time",
+    "git.commit.revlist.head.count",
     "git.remote.origin.url"
   };
 
