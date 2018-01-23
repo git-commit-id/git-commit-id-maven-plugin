@@ -266,6 +266,11 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
+  public String getTotalCommitCount() throws GitCommitIdExecutionException {
+    return runQuietGitCommand(canonical, "rev-list " + evaluateOnCommit + " --count");
+  }
+
+  @Override
   public void finalCleanUp() throws GitCommitIdExecutionException {
   }
 

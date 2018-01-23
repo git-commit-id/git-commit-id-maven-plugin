@@ -888,6 +888,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
       .containsOnly("lightweight-tag", "newest-tag");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
   @Test
@@ -921,6 +922,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
       .containsOnly("annotated-tag", "lightweight-tag", "newest-tag");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "1");
   }
 
   @Test
@@ -990,6 +992,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.full");
       assertThat(targetProject.getProperties().get("git.commit.id.full")).isNotEqualTo(commitIdOfMatchNeedle);
       assertThat(targetProject.getProperties().get("git.commit.id.full")).isEqualTo(headCommitId);
+      assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "3");
     }
   }
 
@@ -1229,6 +1232,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "annotated-tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "2");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "3");
   }
 
   @Test
@@ -1385,6 +1390,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
   @Test
@@ -1416,6 +1423,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
   @Test
@@ -1447,6 +1456,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
   // TODO: Test that fails when trying to pass invalid data to evaluateOnCommit

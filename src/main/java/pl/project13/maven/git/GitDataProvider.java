@@ -137,6 +137,8 @@ public abstract class GitDataProvider implements GitProvider {
       
       put(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, getClosestTagName());
       put(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
+
+      put(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, getTotalCommitCount());
     } finally {
       finalCleanUp();
     }
