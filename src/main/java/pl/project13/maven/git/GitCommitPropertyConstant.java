@@ -24,5 +24,6 @@ public class GitCommitPropertyConstant {
   public static final String TAGS = "tags";
   public static final String CLOSEST_TAG_NAME = "closest.tag.name";
   public static final String CLOSEST_TAG_COMMIT_COUNT = "closest.tag.commit.count";
+  public static final String TOTAL_COMMIT_COUNT = "total.commit.count";
 
 }

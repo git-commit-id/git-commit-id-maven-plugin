@@ -37,6 +37,8 @@ public interface GitProvider {
 
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException;
 
+  public String getTotalCommitCount() throws GitCommitIdExecutionException;
+
   public void finalCleanUp() throws GitCommitIdExecutionException;
 
 }

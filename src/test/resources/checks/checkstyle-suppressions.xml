@@ -23,6 +23,6 @@
   <suppress checks="OverloadMethodsDeclarationOrder" files=".*\.java" />
   <suppress checks="VariableDeclarationUsageDistance" files=".*\.java" />
 
-  <suppress checks="AbbreviationAsWordInName" files="NativeAndJGitProviderTest\.java" lines="89"/>
+  <suppress checks="AbbreviationAsWordInName" files="NativeAndJGitProviderTest\.java" lines="90"/>
 
 </suppressions>
