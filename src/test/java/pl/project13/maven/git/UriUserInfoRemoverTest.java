@@ -19,8 +19,11 @@ package pl.project13.maven.git;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -30,7 +33,6 @@ import java.util.Collection;
 
 @RunWith(JUnitParamsRunner.class)
 public class UriUserInfoRemoverTest {
-
   public static Collection<Object[]> parameters() {
     Object[][] data = new Object[][] {
             { "https://example.com", "https://example.com" },
@@ -55,7 +57,9 @@ public class UriUserInfoRemoverTest {
   @Test
   @Parameters(method = "parameters")
   public void testStripCrecentialsFromOriginUrl(String input, String expected) throws GitCommitIdExecutionException {
-    String result = GitDataProvider.stripCredentialsFromOriginUrl(input);
+    GitDataProvider gitDataProvider = mock(GitDataProvider.class);
+    when(gitDataProvider.stripCredentialsFromOriginUrl(ArgumentMatchers.<String>any())).thenCallRealMethod();
+    String result = gitDataProvider.stripCredentialsFromOriginUrl(input);
     assertEquals(expected, result);
   }
 

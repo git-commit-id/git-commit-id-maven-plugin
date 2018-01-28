@@ -234,7 +234,7 @@ public abstract class GitDataProvider implements GitProvider {
    * @throws GitCommitIdExecutionException Exception when URI is invalid
    */
 
-  protected static String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
+  protected String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
 
     // The URL might be null if the repo hasn't set a remote
     if (gitRemoteString == null) {
@@ -263,7 +263,8 @@ public abstract class GitDataProvider implements GitProvider {
       return b.build().toString();
 
     } catch (URISyntaxException e) {
-      throw new GitCommitIdExecutionException(e);
+      log.error("Something went wrong to strip the credentials from git's remote url (please report this)!", e);
+      return "";
     }
   }
 }
