@@ -400,7 +400,6 @@ public class NativeGitProvider extends GitDataProvider {
       try {
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
-        proc.waitFor();
         final InputStream is = proc.getInputStream();
         final InputStream err = proc.getErrorStream();
 
@@ -411,8 +410,9 @@ public class NativeGitProvider extends GitDataProvider {
           commandResult.append(line).append("\n");
         }
 
+        final StringBuilder errMsg = readStderr(err);
+        proc.waitFor();
         if (proc.exitValue() != 0) {
-          final StringBuilder errMsg = readStderr(err);
           throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
         }
         output = commandResult.toString();
@@ -442,7 +442,6 @@ public class NativeGitProvider extends GitDataProvider {
         // so use the same protocol as used in the run() method
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
-        proc.waitFor();
         final InputStream is = proc.getInputStream();
         final InputStream err = proc.getErrorStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -451,8 +450,9 @@ public class NativeGitProvider extends GitDataProvider {
           empty = false;
         }
 
+        final StringBuilder errMsg = readStderr(err);
+        proc.waitFor();
         if (proc.exitValue() != 0) {
-          final StringBuilder errMsg = readStderr(err);
           throw new NativeCommandException(proc.exitValue(), command, directory, "", errMsg.toString());
         }
 
