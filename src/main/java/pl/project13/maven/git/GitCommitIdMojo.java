@@ -408,6 +408,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         loadGitData(properties);
         loadBuildVersionAndTimeData(properties);
         loadBuildHostData(properties);
+        loadBuildNumber(properties);
         loadShortDescribe(properties);
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
@@ -523,6 +524,41 @@ public class GitCommitIdMojo extends AbstractMojo {
     } else {
       loadGitDataWithJGit(properties);
     }
+  }
+
+  /**
+   * Fill the properties file build number environment variables which are supplied by build servers
+   *  build.number is the project specific build number, if this number is not available the unique number will be used
+   *  build.number.unique is a server wide unique build number
+   * @param properties a properties instance to put the entries on
+   */
+  void loadBuildNumber(@NotNull Properties properties) {
+    String buildNumber = null;
+    String uniqueBuildNumber = null;
+
+    //JENKINS
+    if (System.getenv().containsKey("BUILD_NUMBER"))  {
+      buildNumber = System.getenv().get("BUILD_NUMBER");
+
+      //TRAVIS CI
+    } else if (System.getenv().containsKey("TRAVIS_BUILD_NUMBER")) {
+      buildNumber = System.getenv().get("TRAVIS_BUILD_NUMBER");
+    } else {
+      // GITLAB CI
+      // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
+      if (System.getenv().containsKey("CI_PIPELINE_ID")) {
+        uniqueBuildNumber = System.getenv().get("CI_PIPELINE_ID");
+        // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
+        buildNumber = System.getenv().get("CI_PIPELINE_IID");
+      }
+    }
+
+    if (buildNumber == null) {
+      buildNumber = uniqueBuildNumber;
+    }
+
+    put(properties, "build.number", buildNumber == null ? "" : buildNumber);
+    put(properties, "build.number.unique", uniqueBuildNumber == null ? "" : uniqueBuildNumber);
   }
 
   void loadGitDataWithNativeGit(@NotNull Properties properties) throws GitCommitIdExecutionException {

@@ -559,6 +559,8 @@ git.build.user.email=${git.build.user.email}
 git.build.time=${git.build.time}
 git.build.host=${git.build.host}
 git.build.version=${git.build.version}
+git.build.number=${git.build.number}
+git.build.number.unique=${git.build.number.unique}
 ```
 
 The `git` prefix may be configured in the plugin declaration above.
@@ -598,6 +600,8 @@ Start out with with adding the above steps to your project, next paste this **gi
         <property name="buildTime" value="${git.build.time}"/>
         <property name="buildHost" value="${git.build.host}"/>
         <property name="buildVersion" value="${git.build.version}"/>
+        <property name="buildNumber" value="${git.build.number}"/>
+        <property name="buildNumberUnique" value="${git.build.number.unique}"/>
     </bean>
 </beans>
 ```
@@ -637,7 +641,9 @@ public class GitRepositoryState {
   String buildUserEmail;          // =${git.build.user.email}
   String buildTime;               // =${git.build.time}
   String buildHost;               // =${git.build.host}
-  String buildVersion             // =${git.build.version}
+  String buildVersion;            // =${git.build.version}
+  String buildNumber;             // =${git.build.number}
+  String buildNumberUnique;       // =${git.build.number.unique}
 
   public GitRepositoryState() {
   }
@@ -763,6 +769,8 @@ public GitRepositoryState(Properties properties)
   this.buildTime = String.valueOf(properties.get("git.build.time"));
   this.buildHost = String.valueOf(properties.get("git.build.host"));
   this.buildVersion = String.valueOf(properties.get("git.build.version"));
+  this.buildNumber = String.valueOf(properties.get("git.build.number"));
+  this.buildNumberUnique = String.valueOf(properties.get("git.build.number.unique"));
 }
 ```
 
@@ -779,6 +787,17 @@ If you need the actual *build time* then simply use the a filtered properties fi
 ```
 git.build.time=${git.build.time}
 ```
+
+Note on the git.build.number module
+ ------------------------------------
+ Be aware that *git.build.number* is a project specific build number and *git.build.number.unique* contains the server wide
+ unique build number. If *git.build.number* could not be retrieved, *git.build.number.unique* will be used.
+  
+ 
+ | variable                  | supported CIs                                             |    
+ | ------------------------- |:---------------------------------------------------------:|   
+ |*git.build.number*        | Travis, Jenkins, Gitlab CI (Gitlab >8.10 & Gitlab CI >0.5)|        
+ |*git.build.number.unique* | Gitlab CI (Gitlab >11.0)                                  |
 
 Yet another way to use the plugin
 =================================
