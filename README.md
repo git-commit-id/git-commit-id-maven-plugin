@@ -788,16 +788,16 @@ If you need the actual *build time* then simply use the a filtered properties fi
 git.build.time=${git.build.time}
 ```
 
-Note on the git.build.number module
+Note on git.build.number variables
  ------------------------------------
- Be aware that *git.build.number* is a project specific build number and *git.build.number.unique* contains the server wide
- unique build number. If *git.build.number* could not be retrieved, *git.build.number.unique* will be used.
+The `git.build.number` variables are available on some hosted CIs and can be used to identify the "number" of the build.
+Refer to the table below to see which values are supported by which CIs.
   
  
- | variable                  | supported CIs                                             |    
- | ------------------------- |:---------------------------------------------------------:|   
- |*git.build.number*        | Travis, Jenkins, Gitlab CI (Gitlab >8.10 & Gitlab CI >0.5)|        
- |*git.build.number.unique* | Gitlab CI (Gitlab >11.0)                                  |
+ | variable                  | description                             | supported CIs                                             |    
+ | ------------------------- | ----------------------------------------|:---------------------------------------------------------:|   
+ |`git.build.number`         | holds a project specific build number   | Bamboo, Hudson, Jenkins, TeamCity, Travis, Gitlab CI (Gitlab >8.10 & Gitlab CI >0.5)|        
+ |`git.build.number.unique`  | holds a system wide unique build number | TeamCity, Travis, Gitlab CI (Gitlab >11.0)                          |
 
 Yet another way to use the plugin
 =================================

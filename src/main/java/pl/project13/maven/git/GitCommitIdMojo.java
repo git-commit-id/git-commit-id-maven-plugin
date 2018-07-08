@@ -25,17 +25,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
@@ -55,6 +51,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import java.io.OutputStream;
 
+import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -308,12 +305,12 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Allow to tell the plugin what commit should be used as reference to generate the properties from.
    * By default this property is simply set to <p>HEAD</p> which should reference to the latest commit in your repository.
-   * 
+   *
    * In general this property can be set to something generic like <p>HEAD^1</p> or point to a branch or tag-name.
    * To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
-   * 
+   *
    * A use-case for this feature can be found in https://github.com/ktoso/maven-git-commit-id-plugin/issues/338.
-   * 
+   *
    * Please note that for security purposes not all references might be allowed as configuration.
    * If you have a specific use-case that is currently not white listed feel free to file an issue.
    * @since 2.2.4
@@ -406,9 +403,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
         loadGitData(properties);
-        loadBuildVersionAndTimeData(properties);
-        loadBuildHostData(properties);
-        loadBuildNumber(properties);
+        loadBuildData(properties);
         loadShortDescribe(properties);
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
@@ -429,6 +424,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+  }
+
+  private void loadBuildData(Properties properties) {
+    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
+    buildServerDataProvider
+        .setDateFormat(dateFormat)
+        .setDateFormatTimeZone(dateFormatTimeZone)
+        .setProject(project)
+        .setPrefixDot(prefixDot);
+
+    buildServerDataProvider.loadBuildData(properties);
   }
 
   private void publishPropertiesInto(MavenProject target) {
@@ -477,26 +483,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadBuildVersionAndTimeData(@NotNull Properties properties) {
-    Date buildDate = new Date();
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if (dateFormatTimeZone != null) {
-      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_TIME, smf.format(buildDate));
-    put(properties, GitCommitPropertyConstant.BUILD_VERSION, project.getVersion());
-  }
-
-  void loadBuildHostData(@NotNull Properties properties) {
-    String buildHost = null;
-    try {
-      buildHost = InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      log.info("Unable to get build host, skipping property {}. Error message: {}", GitCommitPropertyConstant.BUILD_HOST, e.getMessage());
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
-  }
-
   void loadShortDescribe(@NotNull Properties properties) {
     //removes git hash part from describe
     String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
@@ -524,41 +510,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     } else {
       loadGitDataWithJGit(properties);
     }
-  }
-
-  /**
-   * Fill the properties file build number environment variables which are supplied by build servers
-   *  build.number is the project specific build number, if this number is not available the unique number will be used
-   *  build.number.unique is a server wide unique build number
-   * @param properties a properties instance to put the entries on
-   */
-  void loadBuildNumber(@NotNull Properties properties) {
-    String buildNumber = null;
-    String uniqueBuildNumber = null;
-
-    //JENKINS
-    if (System.getenv().containsKey("BUILD_NUMBER"))  {
-      buildNumber = System.getenv().get("BUILD_NUMBER");
-
-      //TRAVIS CI
-    } else if (System.getenv().containsKey("TRAVIS_BUILD_NUMBER")) {
-      buildNumber = System.getenv().get("TRAVIS_BUILD_NUMBER");
-    } else {
-      // GITLAB CI
-      // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
-      if (System.getenv().containsKey("CI_PIPELINE_ID")) {
-        uniqueBuildNumber = System.getenv().get("CI_PIPELINE_ID");
-        // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
-        buildNumber = System.getenv().get("CI_PIPELINE_IID");
-      }
-    }
-
-    if (buildNumber == null) {
-      buildNumber = uniqueBuildNumber;
-    }
-
-    put(properties, "build.number", buildNumber == null ? "" : buildNumber);
-    put(properties, "build.number.unique", uniqueBuildNumber == null ? "" : uniqueBuildNumber);
   }
 
   void loadGitDataWithNativeGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
