@@ -9,13 +9,8 @@ import java.util.Properties;
 
 public class TravisBuildServerData extends BuildServerDataProvider {
 
-  TravisBuildServerData(LoggerBridge log) {
-    super(log);
-  }
-
-  @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.TRAVIS;
+  TravisBuildServerData(LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log, env);
   }
 
   /**
@@ -26,7 +21,7 @@ public class TravisBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
+  void loadBuildNumber(@NotNull Properties properties) {
     String buildNumber = env.get("TRAVIS_BUILD_NUMBER");
     String uniqueBuildNumber = env.get("TRAVIS_BUILD_ID");
 
@@ -35,7 +30,7 @@ public class TravisBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     String environmentBasedBranch = env.get("TRAVIS_BRANCH");
     log.info("Using environment variable based branch name. TRAVIS_BRANCH = {}", environmentBasedBranch);
     return environmentBasedBranch;

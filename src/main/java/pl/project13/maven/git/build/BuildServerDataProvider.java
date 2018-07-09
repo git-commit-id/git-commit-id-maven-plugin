@@ -16,14 +16,16 @@ import java.util.TimeZone;
 
 public abstract class BuildServerDataProvider {
 
-  private final LoggerBridge log;
+  final LoggerBridge log;
+  final Map<String, String> env;
   private String dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
   private String dateFormatTimeZone = null;
   private String prefixDot = "";
   private MavenProject project = null;
 
-  BuildServerDataProvider(LoggerBridge log) {
+  BuildServerDataProvider(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
     this.log = log;
+    this.env = env;
   }
 
   public BuildServerDataProvider setDateFormat(@NotNull String dateFormat) {
@@ -46,38 +48,36 @@ public abstract class BuildServerDataProvider {
     return this;
   }
 
-  public abstract BuildEnvironmentType getBuildEnvironmentType();
-
   /**
-   * Get the {@link BuildServerDataProvider} impelementation for the running environment
+   * Get the {@link BuildServerDataProvider} implementation for the running environment
+   *
    * @param env environment variables which get used to identify the environment
    * @param log logging provider which will be used to log events
    * @return the corresponding {@link BuildServerDataProvider} for your environment or {@link UnknownBuildServerData}
    */
-  public static BuildServerDataProvider getBuildServerProvider(@NotNull Map<String, String> env, LoggerBridge log) {
-    switch (checkBuildEnvironmentForType(env)) {
-      case JENKINS:
-        return new JenkinsBuildServerData(log);
-      case HUDSON:
-        return new HudsonBuildServerData(log);
-      case GITLAB:
-        return new GitlabBuildServerData(log);
-      case TRAVIS:
-        return new TravisBuildServerData(log);
-      case TEAM_CITY:
-        return new TeamCityBuildServerData(log);
-      case BAMBOO:
-        return new BambooBuildServerData(log);
-      case UNKNOWN:
-      default:
-        return new UnknownBuildServerData(log);
+  public static BuildServerDataProvider getBuildServerProvider(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+    if (BambooBuildServerData.isActiveServer(env)) {
+      return new BambooBuildServerData(log, env);
     }
+    if (GitlabBuildServerData.isActiveServer(env)) {
+      return new GitlabBuildServerData(log, env);
+    }
+    if (HudsonJenkinsBuildServerData.isActiveServer(env)) {
+      return new HudsonJenkinsBuildServerData(log, env);
+    }
+    if (TeamCityBuildServerData.isActiveServer(env)) {
+      return new TeamCityBuildServerData(log, env);
+    }
+    if (TravisBuildServerData.isActiveServer(env)) {
+      return new TravisBuildServerData(log, env);
+    }
+    return new UnknownBuildServerData(log, env);
   }
 
   public void loadBuildData(@NotNull Properties properties) {
     loadBuildVersionAndTimeData(properties);
     loadBuildHostData(properties);
-    loadBuildNumber(System.getenv(), properties);
+    loadBuildNumber(properties);
   }
 
   /**
@@ -87,14 +87,12 @@ public abstract class BuildServerDataProvider {
    *
    * @param properties a properties instance to put the entries on
    */
-  abstract void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties);
+  abstract void loadBuildNumber(@NotNull Properties properties);
 
   /**
-   * @param env environment variables which get used to identify the environment
-   * @param log logging provider which will be used to log events
    * @return the branch name provided by the server or an empty string
    */
-  public abstract String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log);
+  public abstract String getBuildBranch();
 
   private void loadBuildVersionAndTimeData(@NotNull Properties properties) {
     Date buildDate = new Date();
@@ -121,31 +119,10 @@ public abstract class BuildServerDataProvider {
     put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
   }
 
-  protected void put(@NotNull Properties properties, String key, String value) {
+  protected void put(@NotNull Properties properties, @NotNull String key, String value) {
     String keyWithPrefix = prefixDot + key;
     log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 
-  public static BuildEnvironmentType checkBuildEnvironmentForType(Map<String, String> env) {
-    if (BambooBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.BAMBOO;
-    }
-    if (GitlabBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.GITLAB;
-    }
-    if (HudsonBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.HUDSON;
-    }
-    if (JenkinsBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.JENKINS;
-    }
-    if (TeamCityBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.TEAM_CITY;
-    }
-    if (TravisBuildServerData.isActiveServer(env)) {
-      return BuildEnvironmentType.TRAVIS;
-    }
-    return BuildEnvironmentType.UNKNOWN;
-  }
 }

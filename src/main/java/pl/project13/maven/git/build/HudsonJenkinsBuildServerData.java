@@ -9,33 +9,29 @@ import java.util.Properties;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public class JenkinsBuildServerData extends BuildServerDataProvider {
+public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
 
-  JenkinsBuildServerData(LoggerBridge log) {
-    super(log);
-  }
-
-  @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.JENKINS;
+  HudsonJenkinsBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log, env);
   }
 
   /**
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
    */
   public static boolean isActiveServer(@NotNull Map<String, String> env) {
-    return env.containsKey("JENKINS_URL") || env.containsKey("JENKINS_HOME");
+    return env.containsKey("JENKINS_URL") || env.containsKey("JENKINS_HOME") ||
+        env.containsKey("HUDSON_URL") || env.containsKey("HUDSON_HOME");
   }
 
   @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
+  void loadBuildNumber(@NotNull Properties properties) {
     String buildNumber = env.get("BUILD_NUMBER");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
   }
 
   @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
     if (!isNullOrEmpty(environmentBasedLocalBranch)) {
       log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}",

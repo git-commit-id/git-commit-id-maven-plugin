@@ -19,8 +19,8 @@ package pl.project13.maven.git;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
-import pl.project13.maven.git.build.BuildEnvironmentType;
 import pl.project13.maven.git.build.BuildServerDataProvider;
+import pl.project13.maven.git.build.UnknownBuildServerData;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
@@ -170,8 +170,9 @@ public abstract class GitDataProvider implements GitProvider {
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
   protected String determineBranchName(@NotNull Map<String, String> env) throws GitCommitIdExecutionException {
-    if (!BuildServerDataProvider.checkBuildEnvironmentForType(env).equals(BuildEnvironmentType.UNKNOWN)) {
-      String branchName = BuildServerDataProvider.getBuildServerProvider(env,log).getBuildBranch(env,log);
+    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
+    if (!(buildServerDataProvider instanceof UnknownBuildServerData)) {
+      String branchName = buildServerDataProvider.getBuildBranch();
       if (isNullOrEmpty(branchName)) {
         log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
         return getBranchName();

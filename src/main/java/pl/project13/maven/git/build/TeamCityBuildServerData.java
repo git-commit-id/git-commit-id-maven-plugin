@@ -11,19 +11,15 @@ import java.util.Properties;
 
 public class TeamCityBuildServerData extends BuildServerDataProvider {
 
-  private final Properties systemProperties = new Properties();
+  private final Properties teamcitySystemProperties = new Properties();
 
-  TeamCityBuildServerData(LoggerBridge log) {
-    this(log, System.getenv());
-  }
-
-  TeamCityBuildServerData(LoggerBridge log, @NotNull Map<String, String> env) {
-    super(log);
+  TeamCityBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log, env);
     if (isActiveServer(env)) {
       //https://confluence.jetbrains.com/display/TCD18/Predefined+Build+Parameters
       try {
-        systemProperties.load(new FileInputStream(env.get("TEAMCITY_BUILD_PROPERTIES_FILE")));
-      } catch (IOException e) {
+        teamcitySystemProperties.load(new FileInputStream(env.get("TEAMCITY_BUILD_PROPERTIES_FILE")));
+      } catch (IOException | NullPointerException e) {
         log.error("Failed to retrieve Teamcity properties file", e);
       }
     }
@@ -37,24 +33,22 @@ public class TeamCityBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.TEAM_CITY;
-  }
-
-  @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
+  void loadBuildNumber(@NotNull Properties properties) {
     String buildNumber = env.get("BUILD_NUMBER");
-    String buildNumberUnique = systemProperties.getProperty("teamcity.build.id");
+    String buildNumberUnique = teamcitySystemProperties.getProperty("teamcity.build.id");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, buildNumberUnique == null ? "" : buildNumberUnique);
+    put(properties,
+        GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE,
+        buildNumberUnique == null ? "" : buildNumberUnique);
   }
 
   @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     //there is no branch environment variable in TeamCity 10 or earlier
-    String environmentBasedBranch = systemProperties.getProperty("teamcity.build.branch");
-    log.info("Using property file based branch name. teamcity.build.branch = {}", environmentBasedBranch);
+    String environmentBasedBranch = teamcitySystemProperties.getProperty("teamcity.build.branch");
+    log.info("Using property file based branch name. teamcity.build.branch = {}",
+        environmentBasedBranch);
     return environmentBasedBranch;
   }
 }

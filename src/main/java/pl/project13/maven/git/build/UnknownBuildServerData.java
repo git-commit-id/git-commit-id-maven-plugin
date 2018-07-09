@@ -7,21 +7,16 @@ import java.util.Map;
 import java.util.Properties;
 
 public class UnknownBuildServerData extends BuildServerDataProvider {
-  public UnknownBuildServerData(LoggerBridge log) {
-    super(log);
+  public UnknownBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log, env);
   }
 
   @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.UNKNOWN;
+  void loadBuildNumber(@NotNull Properties properties) {
   }
 
   @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
-  }
-
-  @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     return "";
   }
 }

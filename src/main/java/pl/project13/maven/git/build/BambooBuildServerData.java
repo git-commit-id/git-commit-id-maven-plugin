@@ -9,8 +9,8 @@ import java.util.Properties;
 
 public class BambooBuildServerData extends BuildServerDataProvider {
 
-  BambooBuildServerData(LoggerBridge log) {
-    super(log);
+  BambooBuildServerData(LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log, env);
   }
 
   public static boolean isActiveServer(Map<String, String> env) {
@@ -18,19 +18,14 @@ public class BambooBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.BAMBOO;
-  }
-
-  @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
+  void loadBuildNumber(@NotNull Properties properties) {
     String buildNumber = env.get("BAMBOO_BUILDNUMBER");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
   }
 
   @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     String environmentBasedBranch = env.get("BAMBOO_PLANREPOSITORY_BRANCH");
     log.info("Using environment variable based branch name. BAMBOO_PLANREPOSITORY_BRANCH = {}", environmentBasedBranch);
     return environmentBasedBranch;

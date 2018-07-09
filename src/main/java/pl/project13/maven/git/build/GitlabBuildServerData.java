@@ -9,13 +9,8 @@ import java.util.Properties;
 
 public class GitlabBuildServerData extends BuildServerDataProvider {
 
-  GitlabBuildServerData(LoggerBridge log) {
-    super(log);
-  }
-
-  @Override
-  public BuildEnvironmentType getBuildEnvironmentType() {
-    return BuildEnvironmentType.GITLAB;
+  GitlabBuildServerData(LoggerBridge log, @NotNull Map<String, String> env) {
+    super(log,env);
   }
 
   /**
@@ -26,7 +21,7 @@ public class GitlabBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  void loadBuildNumber(@NotNull Map<String, String> env, @NotNull Properties properties) {
+  void loadBuildNumber(@NotNull Properties properties) {
     // GITLAB CI
     // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
     String uniqueBuildNumber = env.get("CI_PIPELINE_ID");
@@ -40,7 +35,7 @@ public class GitlabBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  public String getBuildBranch(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public String getBuildBranch() {
     String environmentBasedBranch = env.get("CI_COMMIT_REF_NAME");
     log.info("Using environment variable based branch name. CI_COMMIT_REF_NAME = {}", environmentBasedBranch);
     return environmentBasedBranch;
