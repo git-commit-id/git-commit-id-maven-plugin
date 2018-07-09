@@ -19,6 +19,8 @@ package pl.project13.maven.git;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
+import pl.project13.maven.git.build.BuildServerDataProvider;
+import pl.project13.maven.git.build.UnknownBuildServerData;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
@@ -167,55 +169,18 @@ public abstract class GitDataProvider implements GitProvider {
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
-  protected String determineBranchName(Map<String, String> env) throws GitCommitIdExecutionException {
-    if (runningOnBuildServer(env)) {
-      return determineBranchNameOnBuildServer(env);
+  protected String determineBranchName(@NotNull Map<String, String> env) throws GitCommitIdExecutionException {
+    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
+    if (!(buildServerDataProvider instanceof UnknownBuildServerData)) {
+      String branchName = buildServerDataProvider.getBuildBranch();
+      if (isNullOrEmpty(branchName)) {
+        log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
+        return getBranchName();
+      }
+      return branchName;
     } else {
       return getBranchName();
     }
-  }
-
-  /**
-   * Detects if we're running on Jenkins or Hudson, based on expected env variables.
-   *
-   * TODO: How can we detect Bamboo, TeamCity etc? Pull requests welcome.
-   *
-   * @param env environment settings
-   * @return true if running
-   * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
-   * @see <a href="https://docs.gitlab.com/ce/ci/variables/#predefined-variables-environment-variables">GitlabCIVariables</a>
-   */
-  private boolean runningOnBuildServer(Map<String, String> env) {
-    return env.containsKey("HUDSON_URL") || env.containsKey("JENKINS_URL") || env.containsKey("CI") ||
-           env.containsKey("HUDSON_HOME") || env.containsKey("JENKINS_HOME");
-  }
-
-  /**
-   * Is "Jenkins aware", and prefers {@code GIT_LOCAL_BRANCH} over {@code GIT_BRANCH} to getting the branch via git if that environment variables are set.
-   * The {@code GIT_LOCAL_BRANCH} and {@code GIT_BRANCH} variables are set by Jenkins/Hudson when put in detached HEAD state, but it still knows which branch was cloned.
-   * If the above fails the environment will be checked for a Gitlab CI environment (>0.4 Runner && >9.0 Gitlab). Is this the case the {@code CI_COMMIT_REF_NAME} will be read out which holds the branch name or tag name if a tag is built.
-   */
-  protected String determineBranchNameOnBuildServer(Map<String, String> env) throws GitCommitIdExecutionException {
-    String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
-    if (!isNullOrEmpty(environmentBasedLocalBranch)) {
-      log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}", environmentBasedLocalBranch);
-      return environmentBasedLocalBranch;
-    }
-
-    String environmentBasedBranch = env.get("GIT_BRANCH");
-    if (!isNullOrEmpty(environmentBasedBranch)) {
-      log.info("Using environment variable based branch name. GIT_BRANCH = {}", environmentBasedBranch);
-      return environmentBasedBranch;
-    }
-
-    environmentBasedBranch = env.get("CI_COMMIT_REF_NAME");
-    if (!isNullOrEmpty(environmentBasedBranch)) {
-      log.info("Using environment variable based branch name. CI_COMMIT_REF_NAME = {}", environmentBasedBranch);
-      return environmentBasedBranch;
-    }
-
-    log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
-    return getBranchName();
   }
 
   protected SimpleDateFormat getSimpleDateFormatWithTimeZone() {

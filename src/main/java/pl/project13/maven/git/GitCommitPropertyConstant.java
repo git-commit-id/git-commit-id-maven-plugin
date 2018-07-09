@@ -15,6 +15,8 @@ public class GitCommitPropertyConstant {
   public static final String BUILD_TIME = "build.time";
   public static final String BUILD_VERSION = "build.version";
   public static final String BUILD_HOST = "build.host";
+  public static final String BUILD_NUMBER = "build.number";
+  public static final String BUILD_NUMBER_UNIQUE = "build.number.unique";
   public static final String COMMIT_AUTHOR_NAME = "commit.user.name";
   public static final String COMMIT_AUTHOR_EMAIL = "commit.user.email";
   public static final String COMMIT_MESSAGE_FULL = "commit.message.full";

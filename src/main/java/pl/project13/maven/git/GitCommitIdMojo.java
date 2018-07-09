@@ -25,17 +25,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
@@ -55,6 +51,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import java.io.OutputStream;
 
+import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
@@ -308,12 +305,12 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Allow to tell the plugin what commit should be used as reference to generate the properties from.
    * By default this property is simply set to <p>HEAD</p> which should reference to the latest commit in your repository.
-   * 
+   *
    * In general this property can be set to something generic like <p>HEAD^1</p> or point to a branch or tag-name.
    * To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
-   * 
+   *
    * A use-case for this feature can be found in https://github.com/ktoso/maven-git-commit-id-plugin/issues/338.
-   * 
+   *
    * Please note that for security purposes not all references might be allowed as configuration.
    * If you have a specific use-case that is currently not white listed feel free to file an issue.
    * @since 2.2.4
@@ -406,8 +403,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
         loadGitData(properties);
-        loadBuildVersionAndTimeData(properties);
-        loadBuildHostData(properties);
+        loadBuildData(properties);
         loadShortDescribe(properties);
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
@@ -428,6 +424,17 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+  }
+
+  private void loadBuildData(Properties properties) {
+    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
+    buildServerDataProvider
+        .setDateFormat(dateFormat)
+        .setDateFormatTimeZone(dateFormatTimeZone)
+        .setProject(project)
+        .setPrefixDot(prefixDot);
+
+    buildServerDataProvider.loadBuildData(properties);
   }
 
   private void publishPropertiesInto(MavenProject target) {
@@ -474,26 +481,6 @@ public class GitCommitIdMojo extends AbstractMojo {
       String keyString = key.toString();
       log.info("found property {}", keyString);
     }
-  }
-
-  void loadBuildVersionAndTimeData(@NotNull Properties properties) {
-    Date buildDate = new Date();
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if (dateFormatTimeZone != null) {
-      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_TIME, smf.format(buildDate));
-    put(properties, GitCommitPropertyConstant.BUILD_VERSION, project.getVersion());
-  }
-
-  void loadBuildHostData(@NotNull Properties properties) {
-    String buildHost = null;
-    try {
-      buildHost = InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      log.info("Unable to get build host, skipping property {}. Error message: {}", GitCommitPropertyConstant.BUILD_HOST, e.getMessage());
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
   }
 
   void loadShortDescribe(@NotNull Properties properties) {
