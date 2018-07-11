@@ -8,6 +8,7 @@ stages:
   - Integration Test
 
 jdk:
+  - oraclejdk10
   - oraclejdk9
   - oraclejdk8
   - openjdk7
@@ -28,7 +29,7 @@ matrix:
   - jdk: oraclejdk9
     env: CUSTOM_MVN_VERION="3.5.0"
   - jdk: oraclejdk9
-    env: CUSTOM_MVN_VERION="3.5.2"
+    env: CUSTOM_MVN_VERION="3.5.4"
   - stage: checkstyle
     jdk: oraclejdk9
     script: mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B
