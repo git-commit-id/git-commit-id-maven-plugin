@@ -198,6 +198,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         <goals>
                             <goal>revision</goal>
                         </goals>
+                        <!-- *NOTE*: The default phase of revision is initialize, but in case you want to change it, you can do so by adding the phase here -->
+                        <phase>initialize</phase>
                     </execution>
                     <execution>
                         <id>validate-the-git-infos</id>
