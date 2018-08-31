@@ -26,6 +26,7 @@ import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 
 public class NativeGitProvider extends GitDataProvider {
@@ -34,16 +35,19 @@ public class NativeGitProvider extends GitDataProvider {
 
   final File dotGitDirectory;
 
+  final long nativeGitTimeoutInMs;
+
   final File canonical;
 
   @NotNull
-  public static NativeGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
-    return new NativeGitProvider(dotGitDirectory, log);
+  public static NativeGitProvider on(@NotNull File dotGitDirectory, long nativeGitTimeoutInMs, @NotNull LoggerBridge log) {
+    return new NativeGitProvider(dotGitDirectory, nativeGitTimeoutInMs, log);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+  NativeGitProvider(@NotNull File dotGitDirectory, long nativeGitTimeoutInMs, @NotNull LoggerBridge log) {
     super(log);
     this.dotGitDirectory = dotGitDirectory;
+    this.nativeGitTimeoutInMs = nativeGitTimeoutInMs;
     try {
       this.canonical = dotGitDirectory.getCanonicalFile();
     } catch (IOException ex) {
@@ -59,7 +63,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   public String getBuildAuthorName() throws GitCommitIdExecutionException {
     try {
-      return runGitCommand(canonical, "config --get user.name");
+      return runGitCommand(canonical, nativeGitTimeoutInMs, "config --get user.name");
     } catch (NativeCommandException e) {
       if (e.getExitCode() == 1) { // No config file found
         return "";
@@ -71,7 +75,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   public String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     try {
-      return runGitCommand(canonical, "config --get user.email");
+      return runGitCommand(canonical, nativeGitTimeoutInMs, "config --get user.email");
     } catch (NativeCommandException e) {
       if (e.getExitCode() == 1) { // No config file found
         return "";
@@ -92,7 +96,7 @@ public class NativeGitProvider extends GitDataProvider {
   private String getBranch(File canonical) throws GitCommitIdExecutionException {
     String branch;
     try {
-      branch = runGitCommand(canonical, "symbolic-ref " + evaluateOnCommit);
+      branch = runGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref " + evaluateOnCommit);
       if (branch != null) {
         branch = branch.replace("refs/heads/", "");
       }
@@ -117,7 +121,7 @@ public class NativeGitProvider extends GitDataProvider {
   @Override
   public String getGitDescribe() throws GitCommitIdExecutionException {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
-    return runQuietGitCommand(canonical, "describe" + argumentsForGitDescribe);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "describe" + argumentsForGitDescribe);
   }
 
   private String getArgumentsForGitDescribe(GitDescribeConfig describeConfig) {
@@ -170,10 +174,10 @@ public class NativeGitProvider extends GitDataProvider {
       // in case evaluateOnCommit is not a reference rev-list will just return the argument given
       // and thus it's always safe(r) to unwrap it
       // however when evaluateOnCommit is not set we don't want to waste calls to the native binary
-      String actualCommitId = runQuietGitCommand(canonical, "rev-list -n 1 " + evaluateOnCommit);
-      return runQuietGitCommand(canonical, "rev-parse " + actualCommitId);
+      String actualCommitId = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list -n 1 " + evaluateOnCommit);
+      return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-parse " + actualCommitId);
     } else {
-      return runQuietGitCommand(canonical, "rev-parse HEAD");
+      return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-parse HEAD");
     }
   }
 
@@ -193,45 +197,45 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public boolean isDirty() throws GitCommitIdExecutionException {
-    return !tryCheckEmptyRunGitCommand(canonical, "status -s");
+    return !tryCheckEmptyRunGitCommand(canonical, nativeGitTimeoutInMs, "status -s");
   }
 
   @Override
   public String getCommitAuthorName() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%an " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%an " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitAuthorEmail() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%ae " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ae " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageFull() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%B " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%B " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageShort() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "log -1 --pretty=format:%s " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%s " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitTime() throws GitCommitIdExecutionException {
-    String value =  runQuietGitCommand(canonical, "log -1 --pretty=format:%ct " + evaluateOnCommit);
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct " + evaluateOnCommit);
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value) * 1000L);
   }
 
   @Override
   public String getTags() throws GitCommitIdExecutionException {
-    final String result = runQuietGitCommand(canonical, "tag --contains " + evaluateOnCommit);
+    final String result = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "tag --contains " + evaluateOnCommit);
     return result.replace('\n', ',');
   }
 
   @Override
   public String getRemoteOriginUrl() throws GitCommitIdExecutionException {
-    return getOriginRemote(canonical);
+    return getOriginRemote(canonical, nativeGitTimeoutInMs);
   }
   
   @Override
@@ -249,7 +253,7 @@ public class NativeGitProvider extends GitDataProvider {
           argumentsForGitDescribe.append(" --match=").append(matchOption);
         }
       }
-      return runGitCommand(canonical, argumentsForGitDescribe.toString());
+      return runGitCommand(canonical, nativeGitTimeoutInMs, argumentsForGitDescribe.toString());
     } catch (NativeCommandException ignore) {
       // could not find any tags to describe
     }
@@ -260,23 +264,23 @@ public class NativeGitProvider extends GitDataProvider {
   public String getClosestTagCommitCount() throws GitCommitIdExecutionException {
     String closestTagName = getClosestTagName();
     if (closestTagName != null && !closestTagName.trim().isEmpty()) {
-      return runQuietGitCommand(canonical, "rev-list " + closestTagName + ".." + evaluateOnCommit + " --count");
+      return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list " + closestTagName + ".." + evaluateOnCommit + " --count");
     }
     return "";
   }
 
   @Override
   public String getTotalCommitCount() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, "rev-list " + evaluateOnCommit + " --count");
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list " + evaluateOnCommit + " --count");
   }
 
   @Override
   public void finalCleanUp() throws GitCommitIdExecutionException {
   }
 
-  private String getOriginRemote(File directory) throws GitCommitIdExecutionException {
+  private String getOriginRemote(File directory, long nativeGitTimeoutInMs) throws GitCommitIdExecutionException {
     try {
-      String remoteUrl = runGitCommand(directory, "ls-remote --get-url");
+      String remoteUrl = runGitCommand(directory, nativeGitTimeoutInMs, "ls-remote --get-url");
 
       return stripCredentialsFromOriginUrl(remoteUrl);
     } catch (NativeCommandException ignore) {
@@ -292,13 +296,13 @@ public class NativeGitProvider extends GitDataProvider {
    * Return true if the result is empty.
    *
    **/
-  private boolean tryCheckEmptyRunGitCommand(File directory, String gitCommand) {
+  private boolean tryCheckEmptyRunGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) {
     try {
       String env = System.getenv("GIT_PATH");
       String exec = (env == null) ? "git" : env;
       String command = String.format("%s %s", exec, gitCommand);
 
-      return getRunner().runEmpty(directory, command);
+      return getRunner().runEmpty(directory, nativeGitTimeoutInMs, command);
     } catch (IOException ex) {
       // Error means "non-empty"
       return false;
@@ -306,25 +310,25 @@ public class NativeGitProvider extends GitDataProvider {
     }
   }
 
-  private String runQuietGitCommand(File directory, String gitCommand) {
+  private String runQuietGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) {
     final String env = System.getenv("GIT_PATH");
     final String exec = (env == null) ? "git" : env;
     final String command = String.format("%s %s", exec, gitCommand);
 
     try {
-      return getRunner().run(directory, command.trim()).trim();
+      return getRunner().run(directory, nativeGitTimeoutInMs, command.trim()).trim();
     } catch (IOException e) {
       throw Throwables.propagate(e);
     }
   }
 
-  private String runGitCommand(File directory, String gitCommand) throws NativeCommandException {
+  private String runGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) throws NativeCommandException {
     final String env = System.getenv("GIT_PATH");
     final String exec = (env == null) ? "git" : env;
     final String command = String.format("%s %s", exec, gitCommand);
 
     try {
-      return getRunner().run(directory, command.trim()).trim();
+      return getRunner().run(directory, nativeGitTimeoutInMs, command.trim()).trim();
     } catch (NativeCommandException e) {
       throw e;
     } catch (IOException e) {
@@ -341,10 +345,10 @@ public class NativeGitProvider extends GitDataProvider {
 
   public interface ProcessRunner {
     /** Run a command and return the entire output as a String - naive, we know. */
-    String run(File directory, String command) throws IOException;
+    String run(File directory, long nativeGitTimeoutInMs, String command) throws IOException;
 
     /** Run a command and return false if it contains at least one output line*/
-    boolean runEmpty(File directory, String command) throws IOException;
+    boolean runEmpty(File directory, long nativeGitTimeoutInMs, String command) throws IOException;
   }
 
   public static class NativeCommandException extends IOException {
@@ -395,7 +399,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   protected static class JavaProcessRunner implements ProcessRunner {
     @Override
-    public String run(File directory, String command) throws IOException {
+    public String run(File directory, long nativeGitTimeoutInMs, String command) throws IOException {
       String output = "";
       try {
         ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
@@ -411,12 +415,12 @@ public class NativeGitProvider extends GitDataProvider {
         }
 
         final StringBuilder errMsg = readStderr(err);
-        proc.waitFor();
+        proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS);
         if (proc.exitValue() != 0) {
           throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
         }
         output = commandResult.toString();
-      } catch (InterruptedException ex) {
+      } catch (final InterruptedException ex) {
         throw new IOException(ex);
       }
       return output;
@@ -433,7 +437,7 @@ public class NativeGitProvider extends GitDataProvider {
     }
 
     @Override
-    public boolean runEmpty(File directory, String command) throws IOException {
+    public boolean runEmpty(File directory, long nativeGitTimeoutInMs, String command) throws IOException {
       boolean empty = true;
 
       try {
@@ -451,12 +455,12 @@ public class NativeGitProvider extends GitDataProvider {
         }
 
         final StringBuilder errMsg = readStderr(err);
-        proc.waitFor();
+        proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS);
         if (proc.exitValue() != 0) {
           throw new NativeCommandException(proc.exitValue(), command, directory, "", errMsg.toString());
         }
 
-      } catch (InterruptedException ex) {
+      } catch (final InterruptedException ex) {
         throw new IOException(ex);
       }
       return empty; // was non-empty

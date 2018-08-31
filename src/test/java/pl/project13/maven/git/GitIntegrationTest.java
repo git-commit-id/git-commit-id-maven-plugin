@@ -107,6 +107,7 @@ public abstract class GitIntegrationTest {
     mojo.setUseNativeGit(false);
     mojo.setCommitIdGenerationMode("full");
     mojo.setEvaluateOnCommit(evaluateOnCommit);
+    mojo.setNativeGitTimeoutInMs(30 * 1000);
   }
 
   public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {

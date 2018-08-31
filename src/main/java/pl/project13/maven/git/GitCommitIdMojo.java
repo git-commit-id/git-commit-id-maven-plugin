@@ -320,6 +320,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   protected static final Pattern allowedCharactersForEvaluateOnCommit = Pattern.compile("[a-zA-Z0-9\\_\\-\\^\\/\\.]+");
 
   /**
+   * Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
+   * Note that {@code useNativeGit} needs to be set to {@code 'true'} to use native Git executable.
+   * @since 3.0.0
+   */
+  @Parameter(defaultValue = "30000")
+  private long nativeGitTimeoutInMs;
+
+  /**
    * The properties we store our data in and then expose them.
    */
   private Properties properties;
@@ -517,7 +525,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       final File basedir = project.getBasedir().getCanonicalFile();
 
       GitDataProvider nativeGitProvider = NativeGitProvider
-              .on(basedir, log)
+              .on(basedir, nativeGitTimeoutInMs, log)
               .setPrefixDot(prefixDot)
               .setAbbrevLength(abbrevLength)
               .setDateFormat(dateFormat)
@@ -804,5 +812,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   @VisibleForTesting void setEvaluateOnCommit(String evaluateOnCommit) {
     this.evaluateOnCommit = evaluateOnCommit;
+  }
+
+  @VisibleForTesting void setNativeGitTimeoutInMs(long nativeGitTimeoutInMs) {
+    this.nativeGitTimeoutInMs = nativeGitTimeoutInMs;
   }
 }

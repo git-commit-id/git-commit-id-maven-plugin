@@ -51,8 +51,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Rule
   public final EnvironmentVariables environmentVariablesMock = new EnvironmentVariables();
 
-  static final boolean UseJGit = false;
-  static final boolean UseNativeGit = true;
+  private static final boolean UseJGit = false;
+  private static final boolean UseNativeGit = true;
 
   public static Collection<?> useNativeGit() {
     return asList(UseJGit, UseNativeGit);
@@ -247,8 +247,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig config = new GitDescribeConfig();
     config.setSkip(true);
 
-    // when
+    mojo.setUseNativeGit(useNativeGit);
     mojo.setGitDescribe(config);
+
+    // when
     mojo.execute();
 
     // then
@@ -313,6 +315,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
+
+    mojo.setUseNativeGit(useNativeGit);
 
     // remove all keys from System.getenv()
     List<String> keySet = new ArrayList<>(System.getenv().keySet());

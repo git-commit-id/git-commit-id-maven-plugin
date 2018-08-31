@@ -407,6 +407,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     -->
                     <useNativeGit>false</useNativeGit>
 
+                    <!-- @since 3.0.0 -->
+                    <!--
+                        Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
+                        By default this timeout is set to 30000 (30 seconds) and can be altered based on individual use cases.
+                        This option might come in handy in cases where fetching information about the repository with the native Git executable does not terminate (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/336 for an example)
+
+                        *Note*: `useNativeGit` needs to be set to `true` to use the native Git executable.
+                    -->
+                    <nativeGitTimeoutInMs>30000</nativeGitTimeoutInMs>
+
                     <!-- @since v2.0.4 -->
                     <!--
                          Controls the length of the abbreviated git commit it (git.commit.id.abbrev)
@@ -918,6 +928,7 @@ Optional parameters:
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
 * **replacementProperties** - `(default: empty)` *(available since v2.2.3)* Can be used to replace certain characters or strings using regular expressions within the generated git properties. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/138), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
+* **nativeGitTimeoutInMs** - `(default: 30000)` *(available since v3.0.0)* - Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable. By default this timeout is set to 30000 (30 seconds) and can be altered based on individual use cases. This option might come in handy in cases where fetching information about the repository with the native Git executable does not terminate (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/336 for an example). `useNativeGit` needs to be set to `true` to use the native Git executable.
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 * **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
