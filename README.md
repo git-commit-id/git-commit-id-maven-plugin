@@ -108,13 +108,18 @@ A detailed description of using the plugin is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.2.4** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.4)).
+The current version is **2.2.5** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.5)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
-Migration Issues you may come across when using the latest 2.2.X
------------------------------
-If you are already using the git-commit-id-plugin and would like to move to the latest major release (`2.2.X`) there are some design choices that resulted in the fact that we needed to dropped the support of Java `1.6` (if you still rely on this version, the `2.1.15` version still has support for this and you may want to check the fixed issues since then before reporting a new one).
+Plugin compatibility with Java
+-------------------------------
+| Plugin Version  | Required Java Version |
+| --------------- | ---------------------:|
+| 2.1.15          | Java 1.6              |
+| 2.2.5           | Java 1.7              |
+| 3.0.0           | Java 1.8              |
+
 
 Plugin compatibility with maven
 -----------------------------
@@ -191,7 +196,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.4</version>
+                <version>2.2.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -941,11 +946,6 @@ All options are documented in the code, so just use `ctrl + q` (intellij @ linux
 
 Frequently Asked Question (FAQ)
 =========
-
-Supported Maven & Java Versions
--------------------------------
-Checkout the `Plugin compatibility with maven` section of this readme to find out what Maven version this plugin currently supports.
-If you still rely on Java `1.6` you can use the plugin version `2.1.15` - more Information can be found in `Migration Issues you may come across when using the latest 2.2.X`
 
 Generated properties are not usable inside the pom / properties don't get exposed by the plugin
 -------------------------------
