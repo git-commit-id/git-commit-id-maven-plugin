@@ -43,6 +43,7 @@ public class PropertiesFilterer {
             .forEach(key -> {
               if (exclusions.stream()
                       .anyMatch(exclusion -> key.matches(exclusion))) {
+                log.debug("shouldExclude.apply({})", key);
                 properties.remove(key);
               }
             });
@@ -59,6 +60,7 @@ public class PropertiesFilterer {
             .forEach(key -> {
               if (inclusions.stream()
                       .noneMatch(inclusion -> key.matches(inclusion))) {
+                log.debug("!shouldInclude.apply({})", key);
                 properties.remove(key);
               }
             });
