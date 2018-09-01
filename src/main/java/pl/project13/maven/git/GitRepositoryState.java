@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Joiner;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -173,7 +172,7 @@ public class GitRepositoryState {
     appendProperty(sb, "buildUserName", buildUserName);
     appendProperty(sb, "buildUserEmail", buildUserEmail);
 
-    appendProperty(sb, "tags", Joiner.on(",").join(tags));
+    appendProperty(sb, "tags", String.join(",", tags));
 
     appendProperty(sb, "mavenProjectVersion", mavenProjectVersion);
 

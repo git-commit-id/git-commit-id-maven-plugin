@@ -17,8 +17,6 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
@@ -29,6 +27,9 @@ import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -376,7 +377,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(oid, singletonList(tagName)));
+    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(oid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -393,7 +394,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(tagOid, singletonList(tagName)));
+    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(tagOid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();

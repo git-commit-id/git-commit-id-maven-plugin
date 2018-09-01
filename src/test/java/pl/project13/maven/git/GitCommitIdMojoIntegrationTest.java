@@ -18,10 +18,6 @@
 package pl.project13.maven.git;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -37,8 +33,8 @@ import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -106,7 +102,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.setUseNativeGit(useNativeGit);
-    mojo.setExcludeProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
+    mojo.setExcludeProperties(Arrays.asList("git.remote.origin.url", ".*.user.*"));
 
     // when
     mojo.execute();
@@ -143,7 +139,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.setUseNativeGit(useNativeGit);
-    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$"));
+    mojo.setIncludeOnlyProperties(Arrays.asList("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$"));
 
     // when
     mojo.execute();
@@ -180,8 +176,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.setUseNativeGit(useNativeGit);
-    mojo.setIncludeOnlyProperties(ImmutableList.of("git.remote.origin.url", ".*.user.*"));
-    mojo.setExcludeProperties(ImmutableList.of("git.build.user.email"));
+    mojo.setIncludeOnlyProperties(Arrays.asList("git.remote.origin.url", ".*.user.*"));
+    mojo.setExcludeProperties(Arrays.asList("git.build.user.email"));
 
     // when
     mojo.execute();
@@ -262,7 +258,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldUseJenkinsBranchInfoWhenAvailable(boolean useNativeGit) throws Exception {
     // given
-    Map<String, String> env = Maps.newHashMap();
+    Map<String, String> env = new HashMap<>();
 
     String detachedHeadSha1 = "b6a73ed747dd8dc98642d731ddbf09824efb9d48";
     String ciUrl = "http://myciserver.com";
@@ -532,7 +528,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      String json = Files.asCharSource(expectedFile, StandardCharsets.UTF_8).read();
+      String json = new String(Files.readAllBytes(expectedFile.toPath()), StandardCharsets.UTF_8);
       ObjectMapper om = new ObjectMapper();
       Map<?, ?> map = new HashMap<>();
       map = om.readValue(json, map.getClass());
@@ -891,7 +887,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
-    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+    assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
       .containsOnly("lightweight-tag", "newest-tag");
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
@@ -925,7 +921,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
-    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+    assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
       .containsOnly("annotated-tag", "lightweight-tag", "newest-tag");
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "1");
   }
@@ -955,7 +951,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
-    assertThat(Splitter.on(",").split(properties.get("git.tags").toString()))
+    assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
       .containsOnly("v1.0.0");
   }
 

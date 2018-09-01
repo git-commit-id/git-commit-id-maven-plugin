@@ -18,7 +18,6 @@
 package pl.project13.jgit;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.jgit.api.GitCommand;
@@ -51,7 +50,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   //  private Optional<Integer> candidatesOption = Optional.of(10);
   //  private boolean exactMatchFlag = false;
 
-  private Optional<String> matchOption = Optional.absent();
+  private Optional<String> matchOption = Optional.empty();
 
   /**
    * How many chars of the commit hash should be displayed? 7 is the default used by git.
@@ -74,7 +73,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * The string marker (such as "DEV") to be suffixed to the describe result when the working directory is dirty
    */
-  private Optional<String> dirtyOption = Optional.absent();
+  private Optional<String> dirtyOption = Optional.empty();
 
   /**
    * Creates a new describe command which interacts with a single repository
@@ -225,8 +224,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    */
   @NotNull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
-    Optional<String> option = Optional.fromNullable(dirtyMarker);
-    log.info("--dirty = {}", option.or(""));
+    Optional<String> option = Optional.ofNullable(dirtyMarker);
+    log.info("--dirty = {}", option.orElse(""));
     this.dirtyOption = option;
     return this;
   }
@@ -241,8 +240,8 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @NotNull
   public DescribeCommand match(@Nullable String pattern) {
     if (!"*".equals(pattern)) {
-      matchOption = Optional.fromNullable(pattern);
-      log.info("--match = {}", matchOption.or(""));
+      matchOption = Optional.ofNullable(pattern);
+      log.info("--match = {}", matchOption.orElse(""));
     }
     return this;
   }

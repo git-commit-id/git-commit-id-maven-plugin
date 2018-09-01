@@ -20,6 +20,7 @@ package pl.project13.jgit;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -36,10 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.jgit.dummy.DatedRevTag;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.Pair;
@@ -63,28 +60,22 @@ public class JGitCommon {
   }
 
   private Collection<String> getTags(final Git git, final ObjectId objectId, final RevWalk finalWalk) throws GitAPIException {
-    List<Ref> tagRefs = git.tagList().call();
-    Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-      @Override
-      public boolean apply(Ref tagRef) {
-        try {
-          final RevCommit tagCommit = finalWalk.parseCommit(tagRef.getObjectId());
-          final RevCommit objectCommit = finalWalk.parseCommit(objectId);
-          if (finalWalk.isMergedInto(objectCommit, tagCommit)) {
-            return true;
-          }
-        } catch (Exception ignored) {
-          log.debug("Failed while getTags [{}] -- ", tagRef, ignored);
-        }
-        return false;
-      }
-    });
-    Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-      @Override public String apply(Ref input) {
-        return input.getName().replaceAll("refs/tags/", "");
-      }
-    });
-    return tags;
+    return git.tagList().call()
+            .stream()
+            .filter(tagRef -> {
+              try {
+                final RevCommit tagCommit = finalWalk.parseCommit(tagRef.getObjectId());
+                final RevCommit objectCommit = finalWalk.parseCommit(objectId);
+                if (finalWalk.isMergedInto(objectCommit, tagCommit)) {
+                  return true;
+                }
+              } catch (Exception ignored) {
+                log.debug("Failed while getTags [{}] -- ", tagRef, ignored);
+              }
+              return false;
+            })
+            .map(tagRef -> tagRef.getName().replaceAll("refs/tags/", ""))
+            .collect(Collectors.toList());
   }
 
   public String getClosestTagName(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
@@ -235,27 +226,15 @@ public class JGitCommon {
   }
 
   private List<String> transformRevTagsMapEntryToDateSortedTagNames(Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry) {
-    List<DatedRevTag> tags = objectIdListEntry.getValue();
-
-    List<DatedRevTag> newTags = new ArrayList<>(tags);
-    Collections.sort(newTags, datedRevTagComparator());
-
-    List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {
-      @Override
-      public String apply(DatedRevTag input) {
-        return trimFullTagName(input.tagName);
-      }
-    });
-    return tagNames;
+    return objectIdListEntry.getValue()
+            .stream()
+            .sorted(datedRevTagComparator())
+            .map(datedRevTag -> trimFullTagName(datedRevTag.tagName))
+            .collect(Collectors.toList());
   }
 
   private Comparator<DatedRevTag> datedRevTagComparator() {
-    return new Comparator<DatedRevTag>() {
-        @Override
-        public int compare(DatedRevTag revTag, DatedRevTag revTag2) {
-          return revTag2.date.compareTo(revTag.date);
-        }
-      };
+    return (revTag, revTag2) -> revTag2.date.compareTo(revTag.date);
   }
 
   @VisibleForTesting

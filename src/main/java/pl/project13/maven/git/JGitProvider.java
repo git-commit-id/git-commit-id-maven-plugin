@@ -18,8 +18,6 @@
 package pl.project13.maven.git;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
@@ -43,6 +41,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
+
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 
 public class JGitProvider extends GitDataProvider {
@@ -74,13 +74,13 @@ public class JGitProvider extends GitDataProvider {
   @Override
   public String getBuildAuthorName() throws GitCommitIdExecutionException {
     String userName = git.getConfig().getString("user", null, "name");
-    return MoreObjects.firstNonNull(userName, "");
+    return Optional.ofNullable(userName).orElse("");
   }
 
   @Override
   public String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     String userEmail = git.getConfig().getString("user", null, "email");
-    return MoreObjects.firstNonNull(userEmail, "");
+    return Optional.ofNullable(userEmail).orElse("");
   }
 
   @Override
@@ -184,7 +184,7 @@ public class JGitProvider extends GitDataProvider {
       Repository repo = getGitRepository();
       ObjectId headId = evalCommit.toObjectId();
       Collection<String> tags = jGitCommon.getTags(repo, headId);
-      return Joiner.on(",").join(tags);
+      return String.join(",", tags);
     } catch (GitAPIException e) {
       log.error("Unable to extract tags from commit: {} ({})", evalCommit.getName(), e.getClass().getName());
       return "";

@@ -17,6 +17,7 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-
-import com.google.common.io.Files;
 
 /**
  * Quick and dirty maven projects tree structure to create on disk during integration tests.

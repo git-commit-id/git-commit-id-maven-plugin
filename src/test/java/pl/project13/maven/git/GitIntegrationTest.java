@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
@@ -27,6 +26,7 @@ import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class GitIntegrationTest {
@@ -83,7 +83,7 @@ public abstract class GitIntegrationTest {
   }
 
   protected Optional<String> projectDir() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
   @NotNull

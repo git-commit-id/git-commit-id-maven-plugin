@@ -22,11 +22,6 @@ import java.util.Properties;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Lists;
-
 import pl.project13.maven.git.log.LoggerBridge;
 
 public class PropertiesFilterer {
@@ -42,25 +37,15 @@ public class PropertiesFilterer {
       return;
     }
 
-    List<Predicate<CharSequence>> excludePredicates = Lists.transform(exclusions, 
-        new Function<String, Predicate<CharSequence>>() {
-            @Override
-            public Predicate<CharSequence> apply(String exclude) {
-              return Predicates.containsPattern(exclude);
-            }
-        });
-
-    Predicate<CharSequence> shouldExclude = Predicates.alwaysFalse();
-    for (Predicate<CharSequence> predicate : excludePredicates) {
-      shouldExclude = Predicates.or(shouldExclude, predicate);
-    }
-
-    for (String key : properties.stringPropertyNames()) {
-      if (isOurProperty(key, prefixDot) && shouldExclude.apply(key)) {
-        log.debug("shouldExclude.apply({}) = {}", key, shouldExclude.apply(key));
-        properties.remove(key);
-      }
-    }
+    properties.stringPropertyNames()
+            .stream()
+            .filter(key -> isOurProperty(key, prefixDot))
+            .forEach(key -> {
+              if (exclusions.stream()
+                      .anyMatch(exclusion -> key.matches(exclusion))) {
+                properties.remove(key);
+              }
+            });
   }
 
   public void filter(Properties properties, @Nullable List<String> inclusions, String prefixDot) {
@@ -68,25 +53,15 @@ public class PropertiesFilterer {
       return;
     }
 
-    List<Predicate<CharSequence>> includePredicates = Lists.transform(inclusions,
-        new Function<String, Predicate<CharSequence>>() {
-            @Override
-            public Predicate<CharSequence> apply(String exclude) {
-              return Predicates.containsPattern(exclude);
-            }
-        });
-
-    Predicate<CharSequence> shouldInclude = Predicates.alwaysFalse();
-    for (Predicate<CharSequence> predicate : includePredicates) {
-      shouldInclude = Predicates.or(shouldInclude, predicate);
-    }
-
-    for (String key : properties.stringPropertyNames()) {
-      if (isOurProperty(key, prefixDot) && !shouldInclude.apply(key)) {
-        log.debug("!shouldInclude.apply({}) = {}", key, shouldInclude.apply(key));
-        properties.remove(key);
-      }
-    }
+    properties.stringPropertyNames()
+            .stream()
+            .filter(key -> isOurProperty(key, prefixDot))
+            .forEach(key -> {
+              if (inclusions.stream()
+                      .noneMatch(inclusion -> key.matches(inclusion))) {
+                properties.remove(key);
+              }
+            });
   }
 
   private boolean isOurProperty(String key, String prefixDot) {

@@ -19,8 +19,6 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
-import com.google.common.base.Throwables;
-
 import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 

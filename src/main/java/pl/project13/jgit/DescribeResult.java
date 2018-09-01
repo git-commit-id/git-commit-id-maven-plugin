@@ -17,14 +17,10 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -38,10 +34,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DescribeResult {
 
-  private Optional<String> tagName = Optional.absent();
+  private Optional<String> tagName = Optional.empty();
 
-  private Optional<ObjectId> commitId = Optional.absent();
-  private Optional<AbbreviatedObjectId> abbreviatedObjectId = Optional.absent();
+  private Optional<ObjectId> commitId = Optional.empty();
+  private Optional<AbbreviatedObjectId> abbreviatedObjectId = Optional.empty();
 
   private int abbrev = 7;
   private int commitsAwayFromTag;
@@ -56,11 +52,11 @@ public class DescribeResult {
   public static final DescribeResult EMPTY = new DescribeResult("");
 
   public DescribeResult(@NotNull String tagName) {
-    this(tagName, false, Optional.absent());
+    this(tagName, false, Optional.empty());
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @NotNull ObjectId commitId) {
-    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.absent(), false);
+    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.empty(), false);
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId) {
@@ -88,13 +84,13 @@ public class DescribeResult {
     this.abbreviatedObjectId = createAbbreviatedCommitId(objectReader, commitId, this.abbrev);
 
     this.dirty = dirty;
-    this.dirtyMarker = dirtyMarker.or("");
+    this.dirtyMarker = dirtyMarker.orElse("");
   }
 
   public DescribeResult(@NotNull String tagName, boolean dirty, @NotNull Optional<String> dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.dirty = dirty;
-    this.dirtyMarker = dirtyMarker.or("");
+    this.dirtyMarker = dirtyMarker.orElse("");
   }
 
   @NotNull
@@ -139,7 +135,9 @@ public class DescribeResult {
       parts = new ArrayList<>(Arrays.asList(tag(), commitsAwayFromTag(), prefixedCommitId()));
     }
 
-    return Joiner.on("-").skipNulls().join(parts) + dirtyMarker(); // like in the describe spec the entire "-dirty" is configurable (incl. "-")
+    final StringJoiner sj = new StringJoiner("-");
+    parts.stream().filter(Objects::nonNull).forEach(sj::add);
+    return sj.toString() + dirtyMarker(); // like in the describe spec the entire "-dirty" is configurable (incl. "-")
   }
 
   private boolean abbrevZeroHidesCommitsPartOfDescribe() {
@@ -211,14 +209,14 @@ public class DescribeResult {
   private static Optional<AbbreviatedObjectId> createAbbreviatedCommitId(@NotNull ObjectReader objectReader, ObjectId commitId, int requestedLength) {
     if (requestedLength < 2) {
       // 0 means we don't want to print commit id's at all
-      return Optional.absent();
+      return Optional.empty();
     }
 
     try {
       AbbreviatedObjectId abbreviatedObjectId = objectReader.abbreviate(commitId, requestedLength);
       return Optional.of(abbreviatedObjectId);
     } catch (IOException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
@@ -233,6 +231,6 @@ public class DescribeResult {
 
   @Nullable
   public String tag() {
-    return tagName.orNull();
+    return tagName.orElse(null);
   }
 }
