@@ -68,7 +68,7 @@ public class NativeGitProvider extends GitDataProvider {
       if (e.getExitCode() == 1) { // No config file found
         return "";
       }
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -80,7 +80,7 @@ public class NativeGitProvider extends GitDataProvider {
       if (e.getExitCode() == 1) { // No config file found
         return "";
       }
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -109,10 +109,10 @@ public class NativeGitProvider extends GitDataProvider {
         if (noSymbolicRef || noSuchRef) {
           branch = getCommitId();
         } else {
-          throw Throwables.propagate(e);
+          throw new RuntimeException(e);
         }
       } else {
-        throw Throwables.propagate(e);
+        throw new RuntimeException(e);
       }
     }
     return branch;
@@ -318,7 +318,7 @@ public class NativeGitProvider extends GitDataProvider {
     try {
       return getRunner().run(directory, nativeGitTimeoutInMs, command.trim()).trim();
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -332,7 +332,7 @@ public class NativeGitProvider extends GitDataProvider {
     } catch (NativeCommandException e) {
       throw e;
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
