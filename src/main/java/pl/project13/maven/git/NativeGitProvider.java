@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
@@ -405,7 +406,7 @@ public class NativeGitProvider extends GitDataProvider {
         final InputStream is = proc.getInputStream();
         final InputStream err = proc.getErrorStream();
 
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
         final StringBuilder commandResult = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {

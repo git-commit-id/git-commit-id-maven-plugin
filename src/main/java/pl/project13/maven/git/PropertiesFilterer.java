@@ -42,7 +42,7 @@ public class PropertiesFilterer {
             .filter(key -> isOurProperty(key, prefixDot))
             .forEach(key -> {
               if (exclusions.stream()
-                      .anyMatch(exclusion -> key.matches(exclusion))) {
+                      .anyMatch(key::matches)) {
                 log.debug("shouldExclude.apply({})", key);
                 properties.remove(key);
               }
@@ -59,7 +59,7 @@ public class PropertiesFilterer {
             .filter(key -> isOurProperty(key, prefixDot))
             .forEach(key -> {
               if (inclusions.stream()
-                      .noneMatch(inclusion -> key.matches(inclusion))) {
+                      .noneMatch(key::matches)) {
                 log.debug("!shouldInclude.apply({})", key);
                 properties.remove(key);
               }
