@@ -58,7 +58,7 @@
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
     <jgit.version>5.0.2.201807311906-r</jgit.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>5.2.0</junit.version>
     <mockito.version>2.21.0</mockito.version>
 
     <fest-assert.version>1.4</fest-assert.version>
@@ -121,8 +121,8 @@
 
     <!-- Test stuff -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
