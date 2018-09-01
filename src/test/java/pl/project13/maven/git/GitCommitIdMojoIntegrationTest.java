@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -531,7 +532,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      String json = Files.toString(expectedFile, Charset.forName("UTF-8"));
+      String json = Files.asCharSource(expectedFile, StandardCharsets.UTF_8).read();
       ObjectMapper om = new ObjectMapper();
       Map<?, ?> map = new HashMap<>();
       map = om.readValue(json, map.getClass());

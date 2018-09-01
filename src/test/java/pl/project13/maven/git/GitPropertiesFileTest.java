@@ -22,6 +22,7 @@ import org.codehaus.plexus.util.FileUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -75,13 +76,14 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
       // when the properties file is conform
       // it does not matter if we read as UTF8 or ISO-8859-1
       {
-        Properties propertiesFromFile = PropertyManager.readProperties(expectedFile, "UTF-8");
+
+        Properties propertiesFromFile = PropertyManager.readProperties(expectedFile, StandardCharsets.UTF_8);
         assertGitPropertiesPresentInProject(propertiesFromFile);
         assertThat(propertiesFromFile.get("git.commit.message.full"))
                 .isEqualTo(propertiesInProject.get("git.commit.message.full"));
       }
       {
-        Properties propertiesFromFile = PropertyManager.readProperties(expectedFile, "ISO-8859-1");
+        Properties propertiesFromFile = PropertyManager.readProperties(expectedFile, StandardCharsets.ISO_8859_1);
         assertGitPropertiesPresentInProject(propertiesFromFile);
         assertThat(propertiesFromFile.get("git.commit.message.full"))
                 .isEqualTo(propertiesInProject.get("git.commit.message.full"));
