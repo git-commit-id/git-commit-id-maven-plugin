@@ -7,7 +7,4 @@
 - [ ] Added relevant integration or unit tests to verify the changes
 - [ ] Update the Readme or any other documentation (including relevant Javadoc)
 - [ ] Ensured that tests pass locally: `mvn clean package`
-- [ ] Ensured that the code meets the current `checkstyle` coding style definition
-   - for **java9** users: `mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B`
-   - for older java versions: `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`
-
+- [ ] Ensured that the code meets the current `checkstyle` coding style definition: `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`
