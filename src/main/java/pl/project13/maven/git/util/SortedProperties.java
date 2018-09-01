@@ -32,7 +32,7 @@ public class SortedProperties extends Properties {
   @Override
   public Enumeration keys() {
     Enumeration keysEnum = super.keys();
-    Vector<String> keyList = new Vector<String>();
+    Vector<String> keyList = new Vector<>();
     while (keysEnum.hasMoreElements()) {
       keyList.add((String)keysEnum.nextElement());
     }

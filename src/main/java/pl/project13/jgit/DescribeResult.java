@@ -56,11 +56,11 @@ public class DescribeResult {
   public static final DescribeResult EMPTY = new DescribeResult("");
 
   public DescribeResult(@NotNull String tagName) {
-    this(tagName, false, Optional.<String>absent());
+    this(tagName, false, Optional.absent());
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @NotNull ObjectId commitId) {
-    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.<String>absent(), false);
+    this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.absent(), false);
   }
 
   public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId) {

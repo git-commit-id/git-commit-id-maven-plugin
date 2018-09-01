@@ -58,7 +58,7 @@ public class UriUserInfoRemoverTest {
   @Parameters(method = "parameters")
   public void testStripCrecentialsFromOriginUrl(String input, String expected) throws GitCommitIdExecutionException {
     GitDataProvider gitDataProvider = mock(GitDataProvider.class);
-    when(gitDataProvider.stripCredentialsFromOriginUrl(ArgumentMatchers.<String>any())).thenCallRealMethod();
+    when(gitDataProvider.stripCredentialsFromOriginUrl(ArgumentMatchers.any())).thenCallRealMethod();
     String result = gitDataProvider.stripCredentialsFromOriginUrl(input);
     assertEquals(expected, result);
   }

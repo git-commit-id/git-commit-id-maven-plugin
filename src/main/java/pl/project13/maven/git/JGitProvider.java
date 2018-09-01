@@ -94,7 +94,7 @@ public class JGitProvider extends GitDataProvider {
         throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
       revWalk = new RevWalk(git);
-      ObjectId headObjectId = null;
+      ObjectId headObjectId;
       if (evaluateOnCommitReference != null) {
         headObjectId = evaluateOnCommitReference.getObjectId();
       } else {
