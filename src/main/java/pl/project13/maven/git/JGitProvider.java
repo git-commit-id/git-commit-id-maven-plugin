@@ -29,7 +29,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
@@ -45,6 +44,8 @@ import java.util.Optional;
 
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 
+import javax.annotation.Nonnull;
+
 public class JGitProvider extends GitDataProvider {
 
   private File dotGitDirectory;
@@ -54,12 +55,12 @@ public class JGitProvider extends GitDataProvider {
   private RevCommit evalCommit;
   private JGitCommon jGitCommon;
 
-  @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+  @Nonnull
+  public static JGitProvider on(@Nonnull File dotGitDirectory, @Nonnull LoggerBridge log) {
     return new JGitProvider(dotGitDirectory, log);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+  JGitProvider(@Nonnull File dotGitDirectory, @Nonnull LoggerBridge log) {
     super(log);
     this.dotGitDirectory = dotGitDirectory;
     this.jGitCommon = new JGitCommon(log);
@@ -240,7 +241,7 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitCommitIdExecutionException {
+  @VisibleForTesting String getGitDescribe(@Nonnull Repository repository) throws GitCommitIdExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(evaluateOnCommit, repository, log)
@@ -264,7 +265,7 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  @NotNull
+  @Nonnull
   private Repository getGitRepository() throws GitCommitIdExecutionException {
     Repository repository;
 

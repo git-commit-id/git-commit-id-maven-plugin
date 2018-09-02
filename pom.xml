@@ -105,13 +105,6 @@
       <version>26.0-jre</version>
     </dependency>
 
-    <!-- IntelliJ Annotations -->
-    <dependency>
-      <groupId>org.jetbrains</groupId>
-      <artifactId>annotations</artifactId>
-      <version>16.0.2</version>
-    </dependency>
-
     <!-- JGit -->
     <dependency>
       <groupId>org.eclipse.jgit</groupId>

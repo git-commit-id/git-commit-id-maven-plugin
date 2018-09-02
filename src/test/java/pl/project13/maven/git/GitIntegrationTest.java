@@ -20,10 +20,10 @@ package pl.project13.maven.git;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
-import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -86,8 +86,8 @@ public abstract class GitIntegrationTest {
     return Optional.empty();
   }
 
-  @NotNull
-  protected File dotGitDir(@NotNull Optional<String> projectDir) {
+  @Nonnull
+  protected File dotGitDir(@Nonnull Optional<String> projectDir) {
     if (projectDir.isPresent()) {
       return new File(currSandbox + File.separator + projectDir.get() + File.separator + ".git");
     } else {
@@ -110,7 +110,7 @@ public abstract class GitIntegrationTest {
     mojo.setNativeGitTimeoutInMs(30 * 1000);
   }
 
-  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
+  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
     mojo.setProject(project);
     mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
   }

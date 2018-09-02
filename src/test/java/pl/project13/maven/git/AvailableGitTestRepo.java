@@ -17,8 +17,8 @@
 
 package pl.project13.maven.git;
 
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 
 public enum AvailableGitTestRepo {
@@ -85,7 +85,7 @@ public enum AvailableGitTestRepo {
     this.dir = dir;
   }
 
-  @NotNull
+  @Nonnull
   public File getDir() {
     return new File(dir);
   }

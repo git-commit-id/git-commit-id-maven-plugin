@@ -26,12 +26,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.Pair;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 /**
@@ -81,7 +82,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param repo the {@link Repository} this command should interact with
    * @param log logger bridge to direct logs to
    */
-  @NotNull
+  @Nonnull
   public static DescribeCommand on(String evaluateOnCommit, Repository repo, LoggerBridge log) {
     return new DescribeCommand(evaluateOnCommit, repo, log);
   }
@@ -91,7 +92,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
    */
-  private DescribeCommand(@NotNull String evaluateOnCommit, @NotNull Repository repo, @NotNull LoggerBridge log) {
+  private DescribeCommand(@Nonnull String evaluateOnCommit, @Nonnull Repository repo, @Nonnull LoggerBridge log) {
     super(repo);
     this.evaluateOnCommit = evaluateOnCommit;
     this.jGitCommon = new JGitCommon(log);
@@ -105,7 +106,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * <pre>true</pre> by default.
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand always(boolean always) {
     this.alwaysFlag = always;
     log.info("--always = {}", always);
@@ -123,7 +124,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * <pre>false</pre> by default.
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
     if (forceLongFormat != null && forceLongFormat) {
       this.forceLongFormat = true;
@@ -140,7 +141,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * An `n` of 0 will suppress long format, only showing the closest tag.
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand abbrev(@Nullable Integer n) {
     if (n != null) {
       Preconditions.checkArgument(n < 41, String.format("N (commit abbrev length) must be < 41. (Was:[%s])", n));
@@ -179,7 +180,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * tags to be included in the search, enable this option.
    * </p>
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
     if (includeLightweightTagsInSearch != null && includeLightweightTagsInSearch) {
       tagsFlag = includeLightweightTagsInSearch;
@@ -201,7 +202,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    *
    * @return itself, after applying the settings
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand apply(@Nullable GitDescribeConfig config) {
     if (config != null) {
       always(config.isAlways());
@@ -222,7 +223,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
    * @return itself, to allow fluent configuration
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
     Optional<String> option = Optional.ofNullable(dirtyMarker);
     log.info("--dirty = {}", option.orElse(""));
@@ -237,7 +238,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param pattern the glob style pattern to match against the tag names
    * @return itself, to allow fluent configuration
    */
-  @NotNull
+  @Nonnull
   public DescribeCommand match(@Nullable String pattern) {
     if (!"*".equals(pattern)) {
       matchOption = Optional.ofNullable(pattern);
@@ -327,7 +328,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     }
   }
 
-  private static boolean foundZeroTags(@NotNull Map<ObjectId, List<String>> tags) {
+  private static boolean foundZeroTags(@Nonnull Map<ObjectId, List<String>> tags) {
     return tags.isEmpty();
   }
 
@@ -337,11 +338,11 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   }
 
   @VisibleForTesting
-  static boolean hasTags(ObjectId headCommit, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
+  static boolean hasTags(ObjectId headCommit, @Nonnull Map<ObjectId, List<String>> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }
 
-  RevCommit findEvalCommitObjectId(@NotNull String evaluateOnCommit, @NotNull Repository repo) throws RuntimeException {
+  RevCommit findEvalCommitObjectId(@Nonnull String evaluateOnCommit, @Nonnull Repository repo) throws RuntimeException {
     return jGitCommon.findEvalCommitObjectId(evaluateOnCommit, repo);
   }
 

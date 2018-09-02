@@ -1,9 +1,9 @@
 package pl.project13.maven.git.build;
 
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.GitCommitPropertyConstant;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class TeamCityBuildServerData extends BuildServerDataProvider {
 
   private final Properties teamcitySystemProperties = new Properties();
 
-  TeamCityBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+  TeamCityBuildServerData(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log, env);
     if (isActiveServer(env)) {
       //https://confluence.jetbrains.com/display/TCD18/Predefined+Build+Parameters
@@ -28,12 +28,12 @@ public class TeamCityBuildServerData extends BuildServerDataProvider {
   /**
    * @see <a href=https://confluence.jetbrains.com/display/TCD18/Predefined+Build+Parameters#PredefinedBuildParameters-ServerBuildProperties>TeamCity</a>
    */
-  public static boolean isActiveServer(@NotNull Map<String, String> env) {
+  public static boolean isActiveServer(@Nonnull Map<String, String> env) {
     return env.containsKey("TEAMCITY_VERSION");
   }
 
   @Override
-  void loadBuildNumber(@NotNull Properties properties) {
+  void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.get("BUILD_NUMBER");
     String buildNumberUnique = teamcitySystemProperties.getProperty("teamcity.build.id");
 

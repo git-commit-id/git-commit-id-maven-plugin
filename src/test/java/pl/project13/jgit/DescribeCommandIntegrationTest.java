@@ -22,12 +22,12 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -430,11 +430,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  String abbrev(@NotNull String id) {
+  String abbrev(@Nonnull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
 
-  String abbrev(@NotNull String id, int n) {
+  String abbrev(@Nonnull String id, int n) {
     return id.substring(0, n);
   }
 }

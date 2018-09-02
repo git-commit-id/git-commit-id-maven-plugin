@@ -20,9 +20,9 @@ package pl.project13.maven.git;
 import java.util.List;
 import java.util.Properties;
 
-import org.jetbrains.annotations.Nullable;
-
 import pl.project13.maven.git.log.LoggerBridge;
+
+import javax.annotation.Nullable;
 
 public class PropertiesFilterer {
 

@@ -19,9 +19,9 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -38,12 +38,12 @@ public class NativeGitProvider extends GitDataProvider {
 
   final File canonical;
 
-  @NotNull
-  public static NativeGitProvider on(@NotNull File dotGitDirectory, long nativeGitTimeoutInMs, @NotNull LoggerBridge log) {
+  @Nonnull
+  public static NativeGitProvider on(@Nonnull File dotGitDirectory, long nativeGitTimeoutInMs, @Nonnull LoggerBridge log) {
     return new NativeGitProvider(dotGitDirectory, nativeGitTimeoutInMs, log);
   }
 
-  NativeGitProvider(@NotNull File dotGitDirectory, long nativeGitTimeoutInMs, @NotNull LoggerBridge log) {
+  NativeGitProvider(@Nonnull File dotGitDirectory, long nativeGitTimeoutInMs, @Nonnull LoggerBridge log) {
     super(log);
     this.dotGitDirectory = dotGitDirectory;
     this.nativeGitTimeoutInMs = nativeGitTimeoutInMs;

@@ -40,8 +40,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +52,9 @@ import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 import pl.project13.maven.git.util.SortedProperties;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Puts git build-time information into property files or maven's properties.
@@ -335,13 +336,13 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Charset sourceCharset = StandardCharsets.UTF_8;
 
-  @NotNull
+  @Nonnull
   private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
-  @NotNull
+  @Nonnull
   private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
 
-  @NotNull @VisibleForTesting PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log);
+  @Nonnull @VisibleForTesting PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log);
 
   @Override
   public void execute() throws MojoExecutionException {
@@ -489,7 +490,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadShortDescribe(@NotNull Properties properties) {
+  void loadShortDescribe(@Nonnull Properties properties) {
     //removes git hash part from describe
     String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
 
@@ -510,7 +511,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitData(@NotNull Properties properties) throws GitCommitIdExecutionException {
+  void loadGitData(@Nonnull Properties properties) throws GitCommitIdExecutionException {
     if (useNativeGit) {
       loadGitDataWithNativeGit(properties);
     } else {
@@ -518,7 +519,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitDataWithNativeGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
+  void loadGitDataWithNativeGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
     try {
       final File basedir = project.getBasedir().getCanonicalFile();
 
@@ -537,7 +538,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  void loadGitDataWithJGit(@NotNull Properties properties) throws GitCommitIdExecutionException {
+  void loadGitDataWithJGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
     GitDataProvider jGitProvider = JGitProvider
         .on(dotGitDirectory, log)
         .setPrefixDot(prefixDot)
@@ -550,7 +551,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
 
-  void maybeGeneratePropertiesFile(@NotNull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
+  void maybeGeneratePropertiesFile(@Nonnull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
     try {
       final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
       final boolean isJsonFormat = "json".equalsIgnoreCase(format);
@@ -625,11 +626,11 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
 
-  boolean isPomProject(@NotNull MavenProject project) {
+  boolean isPomProject(@Nonnull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
   }
 
-  private void put(@NotNull Properties properties, String key, String value) {
+  private void put(@Nonnull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
     log.info(keyWithPrefix + " " + value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
@@ -639,7 +640,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 
-  private Properties readJsonProperties(@NotNull File jsonFile) throws CannotReadFileException {
+  private Properties readJsonProperties(@Nonnull File jsonFile) throws CannotReadFileException {
     final HashMap<String, Object> propertiesMap;
 
     try (final FileInputStream fis = new FileInputStream(jsonFile)) {
@@ -663,7 +664,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     return retVal;
   }
 
-  private Properties readProperties(@NotNull File propertiesFile) throws CannotReadFileException {
+  private Properties readProperties(@Nonnull File propertiesFile) throws CannotReadFileException {
     try (final FileInputStream fis = new FileInputStream(propertiesFile)) {
       try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
         final Properties retVal = new Properties();

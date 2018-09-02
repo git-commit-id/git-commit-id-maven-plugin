@@ -1,18 +1,18 @@
 package pl.project13.maven.git.build;
 
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
 public class UnknownBuildServerData extends BuildServerDataProvider {
-  public UnknownBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+  public UnknownBuildServerData(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log, env);
   }
 
   @Override
-  void loadBuildNumber(@NotNull Properties properties) {
+  void loadBuildNumber(@Nonnull Properties properties) {
   }
 
   @Override

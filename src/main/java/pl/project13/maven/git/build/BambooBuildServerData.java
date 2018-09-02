@@ -1,15 +1,15 @@
 package pl.project13.maven.git.build;
 
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.GitCommitPropertyConstant;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
 public class BambooBuildServerData extends BuildServerDataProvider {
 
-  BambooBuildServerData(LoggerBridge log, @NotNull Map<String, String> env) {
+  BambooBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log, env);
   }
 
@@ -18,7 +18,7 @@ public class BambooBuildServerData extends BuildServerDataProvider {
   }
 
   @Override
-  void loadBuildNumber(@NotNull Properties properties) {
+  void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.get("BAMBOO_BUILDNUMBER");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);

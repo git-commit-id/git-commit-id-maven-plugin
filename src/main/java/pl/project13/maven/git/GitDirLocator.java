@@ -19,9 +19,9 @@ package pl.project13.maven.git;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class GitDirLocator {
   }
 
   @Nullable
-  public File lookupGitDirectory(@NotNull File manuallyConfiguredDir) {
+  public File lookupGitDirectory(@Nonnull File manuallyConfiguredDir) {
     if (manuallyConfiguredDir.exists()) {
 
       // If manuallyConfiguredDir is a directory then we can use it as the git path.
@@ -98,7 +98,7 @@ public class GitDirLocator {
    *
    * @return File object with path loaded or null
    */
-  private File processGitDirFile(@NotNull File file) {
+  private File processGitDirFile(@Nonnull File file) {
     try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
       // There should be just one line in the file, e.g.
       // "gitdir: /usr/local/src/parentproject/.git/modules/submodule"

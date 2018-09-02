@@ -24,8 +24,9 @@ import java.util.*;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents the result of a <code>git describe</code> command.
@@ -51,33 +52,33 @@ public class DescribeResult {
 
   public static final DescribeResult EMPTY = new DescribeResult("");
 
-  public DescribeResult(@NotNull String tagName) {
+  public DescribeResult(@Nonnull String tagName) {
     this(tagName, false, Optional.empty());
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @NotNull ObjectId commitId) {
+  public DescribeResult(@Nonnull ObjectReader objectReader, String tagName, int commitsAwayFromTag, @Nonnull ObjectId commitId) {
     this(objectReader, tagName, commitsAwayFromTag, commitId, false, Optional.empty(), false);
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId) {
+  public DescribeResult(@Nonnull ObjectReader objectReader, @Nonnull ObjectId commitId) {
     this.objectReader = objectReader;
 
     this.commitId = Optional.of(commitId);
     this.abbreviatedObjectId = createAbbreviatedCommitId(objectReader, commitId, this.abbrev);
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, String dirtyMarker) {
+  public DescribeResult(@Nonnull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, String dirtyMarker) {
     this(objectReader, tagName, commitsAwayFromTag, commitId, dirty, Optional.of(dirtyMarker), false);
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker, boolean forceLongFormat) {
+  public DescribeResult(@Nonnull ObjectReader objectReader, String tagName, int commitsAwayFromTag, ObjectId commitId, boolean dirty, Optional<String> dirtyMarker, boolean forceLongFormat) {
     this(objectReader, commitId, dirty, dirtyMarker);
     this.tagName = Optional.of(tagName);
     this.commitsAwayFromTag = commitsAwayFromTag;
     this.forceLongFormat = forceLongFormat;
   }
 
-  public DescribeResult(@NotNull ObjectReader objectReader, @NotNull ObjectId commitId, boolean dirty, @NotNull Optional<String> dirtyMarker) {
+  public DescribeResult(@Nonnull ObjectReader objectReader, @Nonnull ObjectId commitId, boolean dirty, @Nonnull Optional<String> dirtyMarker) {
     this.objectReader = objectReader;
 
     this.commitId = Optional.of(commitId);
@@ -87,13 +88,13 @@ public class DescribeResult {
     this.dirtyMarker = dirtyMarker.orElse("");
   }
 
-  public DescribeResult(@NotNull String tagName, boolean dirty, @NotNull Optional<String> dirtyMarker) {
+  public DescribeResult(@Nonnull String tagName, boolean dirty, @Nonnull Optional<String> dirtyMarker) {
     this.tagName = Optional.of(tagName);
     this.dirty = dirty;
     this.dirtyMarker = dirtyMarker.orElse("");
   }
 
-  @NotNull
+  @Nonnull
   public DescribeResult withCommitIdAbbrev(int n) {
     Preconditions.checkArgument(n >= 0, String.format("The --abbrev parameter must be >= 0, but it was: [%s]", n));
     this.abbrev = n;
@@ -206,7 +207,7 @@ public class DescribeResult {
    *
    * @return the abbreviated commit id, possibly longer than the requested len (if it wouldn't be unique)
    */
-  private static Optional<AbbreviatedObjectId> createAbbreviatedCommitId(@NotNull ObjectReader objectReader, ObjectId commitId, int requestedLength) {
+  private static Optional<AbbreviatedObjectId> createAbbreviatedCommitId(@Nonnull ObjectReader objectReader, ObjectId commitId, int requestedLength) {
     if (requestedLength < 2) {
       // 0 means we don't want to print commit id's at all
       return Optional.empty();
