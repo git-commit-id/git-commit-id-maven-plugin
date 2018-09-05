@@ -75,7 +75,7 @@ public class JGitCommon {
               }
               return false;
             })
-            .map(tagRef -> tagRef.getName().replaceAll("refs/tags/", ""))
+            .map(tagRef -> trimFullTagName(tagRef.getName()))
             .collect(Collectors.toList());
   }
 
