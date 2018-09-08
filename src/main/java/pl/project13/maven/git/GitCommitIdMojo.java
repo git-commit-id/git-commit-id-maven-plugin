@@ -411,7 +411,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         loadGitData(properties);
         loadBuildData(properties);
-        loadShortDescribe(properties);
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
@@ -487,27 +486,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
       log.info("found property {}", keyString);
-    }
-  }
-
-  void loadShortDescribe(@Nonnull Properties properties) {
-    //removes git hash part from describe
-    String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
-
-    if (commitDescribe != null) {
-      int startPos = commitDescribe.indexOf("-g");
-      if (startPos > 0) {
-        String commitShortDescribe;
-        int endPos = commitDescribe.indexOf('-', startPos + 1);
-        if (endPos < 0) {
-          commitShortDescribe = commitDescribe.substring(0, startPos);
-        } else {
-          commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
-        }
-        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitShortDescribe);
-      } else {
-        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitDescribe);
-      }
     }
   }
 
@@ -628,12 +606,6 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   boolean isPomProject(@Nonnull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
-  }
-
-  private void put(@Nonnull Properties properties, String key, String value) {
-    String keyWithPrefix = prefixDot + key;
-    log.info(keyWithPrefix + " " + value);
-    PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
   }
 
   private boolean directoryExists(@Nullable File fileLocation) {

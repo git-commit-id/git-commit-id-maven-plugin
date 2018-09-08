@@ -23,7 +23,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
-import java.util.Properties;
 import java.util.regex.Pattern;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -31,30 +30,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class GitCommitIdMojoTest {
-
-  @Test
-  public void loadShortDescribe() {
-    assertShortDescribe("1.0.2-12-g19471", "1.0.2-12");
-    assertShortDescribe("v1.0.0-0-gde4db35917", "v1.0.0-0");
-    assertShortDescribe("1.0.2-12-g19471-DEV", "1.0.2-12-DEV");
-    assertShortDescribe("V-1.0.2-12-g19471-DEV", "V-1.0.2-12-DEV");
-
-    assertShortDescribe(null, null);
-    assertShortDescribe("12.4.0-1432", "12.4.0-1432");
-    assertShortDescribe("12.6.0", "12.6.0");
-    assertShortDescribe("", "");
-  }
-
-  private void assertShortDescribe(String commitDescribe, String expectedShortDescribe) {
-    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
-    Properties prop = new Properties();
-    if (commitDescribe != null) {
-      prop.put(GitCommitPropertyConstant.COMMIT_DESCRIBE, commitDescribe);
-    }
-    commitIdMojo.loadShortDescribe(prop);
-    assertThat(prop.getProperty(GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE)).isEqualTo(expectedShortDescribe);
-  }
-
   @Test
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();

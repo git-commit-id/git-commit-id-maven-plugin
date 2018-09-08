@@ -103,6 +103,7 @@ public abstract class GitDataProvider implements GitProvider {
       put(properties, GitCommitPropertyConstant.BRANCH, determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
+      loadShortDescribe(properties);
       // git.commit.id
       switch (commitIdGenerationMode) {
         case FULL: {
@@ -152,6 +153,27 @@ public abstract class GitDataProvider implements GitProvider {
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
       put(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, getGitDescribe());
+    }
+  }
+
+  protected void loadShortDescribe(@Nonnull Properties properties) {
+    //removes git hash part from describe
+    String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
+
+    if (commitDescribe != null) {
+      int startPos = commitDescribe.indexOf("-g");
+      if (startPos > 0) {
+        String commitShortDescribe;
+        int endPos = commitDescribe.indexOf('-', startPos + 1);
+        if (endPos < 0) {
+          commitShortDescribe = commitDescribe.substring(0, startPos);
+        } else {
+          commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
+        }
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitShortDescribe);
+      } else {
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitDescribe);
+      }
     }
   }
 
