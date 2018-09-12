@@ -58,9 +58,9 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
     File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setGenerateGitPropertiesFile(true);
-    mojo.setGenerateGitPropertiesFilename(targetFilePath);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.generateGitPropertiesFile = true;
+    mojo.generateGitPropertiesFilename = targetFilePath;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     try {

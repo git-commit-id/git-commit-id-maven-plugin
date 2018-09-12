@@ -69,7 +69,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -101,8 +101,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setExcludeProperties(Arrays.asList("git.remote.origin.url", ".*.user.*"));
+    mojo.useNativeGit = useNativeGit;
+    mojo.excludeProperties = Arrays.asList("git.remote.origin.url", ".*.user.*");
 
     // when
     mojo.execute();
@@ -138,8 +138,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setIncludeOnlyProperties(Arrays.asList("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$"));
+    mojo.useNativeGit = useNativeGit;
+    mojo.includeOnlyProperties = Arrays.asList("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$");
 
     // when
     mojo.execute();
@@ -175,9 +175,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setIncludeOnlyProperties(Arrays.asList("git.remote.origin.url", ".*.user.*"));
-    mojo.setExcludeProperties(Arrays.asList("git.build.user.email"));
+    mojo.useNativeGit = useNativeGit;
+    mojo.includeOnlyProperties = Arrays.asList("git.remote.origin.url", ".*.user.*");
+    mojo.excludeProperties = Arrays.asList("git.build.user.email");
 
     // when
     mojo.execute();
@@ -215,8 +215,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setPrefix("");
+    mojo.useNativeGit = useNativeGit;
+    mojo.prefix = "";
 
     // when
     mojo.execute();
@@ -244,8 +244,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig config = new GitDescribeConfig();
     config.setSkip(true);
 
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setGitDescribe(config);
+    mojo.useNativeGit = useNativeGit;
+    mojo.gitDescribe = config;
 
     // when
     mojo.execute();
@@ -313,7 +313,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.useNativeGit = useNativeGit;
 
     // remove all keys from System.getenv()
     List<String> keySet = new ArrayList<>(System.getenv().keySet());
@@ -351,7 +351,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -370,8 +370,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setSkip(true);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.skip = true;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -390,7 +390,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -409,8 +409,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setSkipPoms(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.skipPoms = false;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -429,8 +429,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setSkipPoms(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.skipPoms = false;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -449,8 +449,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setSkipPoms(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.skipPoms = false;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -469,8 +469,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setSkipPoms(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.skipPoms = false;
+    mojo.useNativeGit = useNativeGit;
 
     mojo.execute();
   }
@@ -489,9 +489,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setGenerateGitPropertiesFile(true);
-    mojo.setGenerateGitPropertiesFilename(targetFilePath);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.generateGitPropertiesFile = true;
+    mojo.generateGitPropertiesFilename = targetFilePath;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     try {
@@ -518,10 +518,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     File expectedFile = new File(targetProject.getBasedir(), targetFilePath);
 
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setGenerateGitPropertiesFile(true);
-    mojo.setGenerateGitPropertiesFilename(targetFilePath);
-    mojo.setFormat("json");
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.generateGitPropertiesFile = true;
+    mojo.generateGitPropertiesFilename = targetFilePath;
+    mojo.format = "json";
+    mojo.useNativeGit = useNativeGit;
     // when
     try {
       mojo.execute();
@@ -548,8 +548,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setFailOnNoGitDirectory(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.failOnNoGitDirectory = false;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -568,8 +568,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setFailOnNoGitDirectory(false);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.failOnNoGitDirectory = false;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -592,8 +592,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 7);
     gitDescribeConfig.setDirty("-dirty"); // checking if dirty works as expected
 
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -614,8 +614,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 10);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -638,8 +638,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -660,8 +660,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 10);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -683,8 +683,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setAbbrevLength(7);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.abbrevLength = 7;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -704,8 +704,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
-    mojo.setAbbrevLength(10);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.abbrevLength = 10;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -726,8 +726,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
     String dateFormat = "MM/dd/yyyy";
-    mojo.setDateFormat(dateFormat);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.dateFormat = dateFormat;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -754,8 +754,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     gitDescribeConfig.setSkip(true);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -779,8 +779,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     String dirtySuffix = "-dirtyTest";
     gitDescribeConfig.setDirty(dirtySuffix);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -803,8 +803,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     gitDescribeConfig.setAlways(true);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -826,8 +826,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -848,8 +848,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setGitDescribe(null);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = null;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -874,8 +874,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setGitDescribe(null);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = null;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -908,8 +908,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setGitDescribe(null);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = null;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -938,8 +938,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setGitDescribe(null);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = null;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -980,8 +980,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       gitDescribeConfig.setMatch(gitDescribeMatchNeedle);
       gitDescribeConfig.setAlways(false);
 
-      mojo.setGitDescribe(gitDescribeConfig);
-      mojo.setUseNativeGit(useNativeGit);
+      mojo.gitDescribe = gitDescribeConfig;
+      mojo.useNativeGit = useNativeGit;
 
       // when
       mojo.execute();
@@ -1011,8 +1011,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 7);
     gitDescribeConfig.setDirty("-dirty"); // checking if dirty works as expected
 
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1038,8 +1038,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     String dirtySuffix = "-dirtyTest";
     gitDescribeConfig.setDirty(dirtySuffix);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1067,8 +1067,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setGitDescribe(null);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = null;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1100,10 +1100,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     TimeZone executionTimeZone = TimeZone.getTimeZone("GMT" + executionTimeZoneOffset);
 
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setDateFormat(dateFormat);
-    mojo.setDateFormatTimeZone(expectedTimeZone.getID());
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
+    mojo.dateFormat = dateFormat;
+    mojo.dateFormatTimeZone = expectedTimeZone.getID();
 
     // override the default timezone for execution and testing
     TimeZone currentDefaultTimeZone = TimeZone.getDefault();
@@ -1134,8 +1134,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setCommitIdGenerationMode("flat");
+    mojo.useNativeGit = useNativeGit;
+    mojo.commitIdGenerationMode = "flat";
 
     // when
     mojo.execute();
@@ -1161,10 +1161,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     String dirtySuffix = "-dirtyTest";
     gitDescribeConfig.setDirty(dirtySuffix);
-    mojo.setGitDescribe(gitDescribeConfig);
+    mojo.gitDescribe = gitDescribeConfig;
 
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setCommitIdGenerationMode("flat");
+    mojo.useNativeGit = useNativeGit;
+    mojo.commitIdGenerationMode = "flat";
 
     // when
     mojo.execute();
@@ -1190,10 +1190,10 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     String dirtySuffix = "-dirtyTest";
     gitDescribeConfig.setDirty(dirtySuffix);
-    mojo.setGitDescribe(gitDescribeConfig);
+    mojo.gitDescribe = gitDescribeConfig;
 
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setCommitIdGenerationMode("flat");
+    mojo.useNativeGit = useNativeGit;
+    mojo.commitIdGenerationMode = "flat";
 
     // when
     mojo.execute();
@@ -1219,8 +1219,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribe.setDirty("-customDirtyMark");
     gitDescribe.setTags(false); // exclude lightweight tags
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1252,8 +1252,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribe.setDirty("-customDirtyMark");
     gitDescribe.setTags(true); // include lightweight tags
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1283,8 +1283,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribe.setDirty("-customDirtyMark");
     gitDescribe.setTags(true); // include lightweight tags
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1315,8 +1315,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribe.setTags(true); // include lightweight tags
     gitDescribe.setMatch("light*");
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -1345,9 +1345,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
     gitDescribe.setDirty(null);
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setEvaluateOnCommit("HEAD^1");
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
+    mojo.evaluateOnCommit = "HEAD^1";
 
     // when
     mojo.execute();
@@ -1376,9 +1376,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
     gitDescribe.setDirty(null);
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setEvaluateOnCommit("test");
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
+    mojo.evaluateOnCommit = "test";
 
     // when
     mojo.execute();
@@ -1409,9 +1409,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
     gitDescribe.setDirty(null);
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setEvaluateOnCommit("test_tag");
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
+    mojo.evaluateOnCommit = "test_tag";
 
     // when
     mojo.execute();
@@ -1442,9 +1442,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     GitDescribeConfig gitDescribe = createGitDescribeConfig(true, 9);
     gitDescribe.setDirty(null);
 
-    mojo.setGitDescribe(gitDescribe);
-    mojo.setUseNativeGit(useNativeGit);
-    mojo.setEvaluateOnCommit("9cb810e");
+    mojo.gitDescribe = gitDescribe;
+    mojo.useNativeGit = useNativeGit;
+    mojo.evaluateOnCommit = "9cb810e";
 
     // when
     mojo.execute();

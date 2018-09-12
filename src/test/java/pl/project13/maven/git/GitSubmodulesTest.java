@@ -47,8 +47,8 @@ public class GitSubmodulesTest extends GitIntegrationTest {
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
-    mojo.setProject(project);
-    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
+    mojo.project = project;
+    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {

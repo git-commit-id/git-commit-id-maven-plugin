@@ -60,8 +60,8 @@ public class NaivePerformanceTest extends GitIntegrationTest {
 
     GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(true, 7);
     gitDescribeConfig.setAlways(true);
-    mojo.setGitDescribe(gitDescribeConfig);
-    mojo.setUseNativeGit(useNativeGit);
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
 
     // when
     long startTime = System.currentTimeMillis();

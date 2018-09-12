@@ -96,23 +96,23 @@ public abstract class GitIntegrationTest {
   }
 
   public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
-    mojo.setVerbose(false);
-    mojo.setSkipPoms(true);
-    mojo.setAbbrevLength(7);
-    mojo.setGenerateGitPropertiesFile(false);
-    mojo.setGenerateGitPropertiesFilename("src/main/resources/git.properties");
-    mojo.setPrefix("git");
-    mojo.setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-    mojo.setFailOnNoGitDirectory(true);
-    mojo.setUseNativeGit(false);
-    mojo.setCommitIdGenerationMode("full");
-    mojo.setEvaluateOnCommit(evaluateOnCommit);
-    mojo.setNativeGitTimeoutInMs(30 * 1000);
+    mojo.verbose = false;
+    mojo.skipPoms = true;
+    mojo.abbrevLength = 7;
+    mojo.generateGitPropertiesFile = false;
+    mojo.generateGitPropertiesFilename = "src/main/resources/git.properties";
+    mojo.prefix = "git";
+    mojo.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
+    mojo.failOnNoGitDirectory = true;
+    mojo.useNativeGit = false;
+    mojo.commitIdGenerationMode = "full";
+    mojo.evaluateOnCommit = evaluateOnCommit;
+    mojo.nativeGitTimeoutInMs = (30 * 1000);
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
-    mojo.setProject(project);
-    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
+    mojo.project = project;
+    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
   }
 
 }
