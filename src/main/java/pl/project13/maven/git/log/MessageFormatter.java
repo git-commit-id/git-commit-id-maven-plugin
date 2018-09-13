@@ -138,7 +138,7 @@ public final class MessageFormatter {
    *          The argument to be substituted in place of the formatting anchor
    * @return The formatted message
    */
-  public static final FormattingTuple format(String messagePattern, Object arg) {
+  public static FormattingTuple format(String messagePattern, Object arg) {
     return arrayFormat(messagePattern, new Object[] { arg });
   }
 
@@ -165,11 +165,11 @@ public final class MessageFormatter {
    *          anchor
    * @return The formatted message
    */
-  public static final FormattingTuple format(final String messagePattern, Object arg1, Object arg2) {
+  public static FormattingTuple format(final String messagePattern, Object arg1, Object arg2) {
     return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
   }
 
-  static final Throwable getThrowableCandidate(Object[] argArray) {
+  static Throwable getThrowableCandidate(Object[] argArray) {
     if (argArray == null || argArray.length == 0) {
       return null;
     }
@@ -193,7 +193,7 @@ public final class MessageFormatter {
    *          anchors
    * @return The formatted message
    */
-  public static final FormattingTuple arrayFormat(final String messagePattern, final Object[] argArray) {
+  public static FormattingTuple arrayFormat(final String messagePattern, final Object[] argArray) {
 
     Throwable throwableCandidate = getThrowableCandidate(argArray);
 
@@ -236,13 +236,13 @@ public final class MessageFormatter {
             // itself escaped: "abc x:\\{}"
             // we have to consume one backward slash
             sbuf.append(messagePattern, i, j - 1);
-            deeplyAppendParameter(sbuf, argArray[L], new HashMap<Object[], Object>());
+            deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
             i = j + 2;
           }
         } else {
           // normal case
           sbuf.append(messagePattern, i, j);
-          deeplyAppendParameter(sbuf, argArray[L], new HashMap<Object[], Object>());
+          deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
           i = j + 2;
         }
       }
@@ -256,7 +256,7 @@ public final class MessageFormatter {
     }
   }
 
-  static final boolean isEscapedDelimeter(String messagePattern, int delimeterStartIndex) {
+  static boolean isEscapedDelimeter(String messagePattern, int delimeterStartIndex) {
     if (delimeterStartIndex == 0) {
       return false;
     }
@@ -268,7 +268,7 @@ public final class MessageFormatter {
     }
   }
 
-  static final boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
+  static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
     if (delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
       return true;
     } else {

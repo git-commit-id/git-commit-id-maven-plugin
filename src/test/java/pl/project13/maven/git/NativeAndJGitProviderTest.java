@@ -101,16 +101,16 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
   private void verifyNativeAndJGit(AvailableGitTestRepo repo, MavenProject targetProject, String formatString) throws Exception {
     setProjectToExecuteMojoIn(targetProject);
 
-    mojo.setSkipPoms(false);
-    mojo.setDateFormat(formatString);
+    mojo.skipPoms = false;
+    mojo.dateFormat = formatString;
 
     DateFormat format = new SimpleDateFormat(formatString);
 
-    mojo.setUseNativeGit(false);
+    mojo.useNativeGit = false;
     mojo.execute();
     Properties jgitProps = createCopy(targetProject.getProperties());
 
-    mojo.setUseNativeGit(true);
+    mojo.useNativeGit = true;
     mojo.execute();
     Properties nativeProps = createCopy(targetProject.getProperties());
 

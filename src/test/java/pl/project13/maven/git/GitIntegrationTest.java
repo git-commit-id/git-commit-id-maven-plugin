@@ -17,16 +17,16 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Optional;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
-import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class GitIntegrationTest {
@@ -83,11 +83,11 @@ public abstract class GitIntegrationTest {
   }
 
   protected Optional<String> projectDir() {
-    return Optional.absent();
+    return Optional.empty();
   }
 
-  @NotNull
-  protected File dotGitDir(@NotNull Optional<String> projectDir) {
+  @Nonnull
+  protected File dotGitDir(@Nonnull Optional<String> projectDir) {
     if (projectDir.isPresent()) {
       return new File(currSandbox + File.separator + projectDir.get() + File.separator + ".git");
     } else {
@@ -96,22 +96,23 @@ public abstract class GitIntegrationTest {
   }
 
   public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
-    mojo.setVerbose(false);
-    mojo.setSkipPoms(true);
-    mojo.setAbbrevLength(7);
-    mojo.setGenerateGitPropertiesFile(false);
-    mojo.setGenerateGitPropertiesFilename("src/main/resources/git.properties");
-    mojo.setPrefix("git");
-    mojo.setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-    mojo.setFailOnNoGitDirectory(true);
-    mojo.setUseNativeGit(false);
-    mojo.setCommitIdGenerationMode("full");
-    mojo.setEvaluateOnCommit(evaluateOnCommit);
+    mojo.verbose = false;
+    mojo.skipPoms = true;
+    mojo.abbrevLength = 7;
+    mojo.generateGitPropertiesFile = false;
+    mojo.generateGitPropertiesFilename = "src/main/resources/git.properties";
+    mojo.prefix = "git";
+    mojo.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
+    mojo.failOnNoGitDirectory = true;
+    mojo.useNativeGit = false;
+    mojo.commitIdGenerationMode = "full";
+    mojo.evaluateOnCommit = evaluateOnCommit;
+    mojo.nativeGitTimeoutInMs = (30 * 1000);
   }
 
-  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
-    mojo.setProject(project);
-    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
+  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
+    mojo.project = project;
+    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
   }
 
 }

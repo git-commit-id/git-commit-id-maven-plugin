@@ -18,9 +18,9 @@
 package pl.project13.maven.git;
 
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.Properties;
 
@@ -46,9 +46,9 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  public void setProjectToExecuteMojoIn(@NotNull MavenProject project) {
-    mojo.setProject(project);
-    mojo.setDotGitDirectory(new File(project.getBasedir(), ".git"));
+  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
+    mojo.project = project;
+    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
   }
 
   private void assertGitPropertiesPresentInProject(Properties properties) {

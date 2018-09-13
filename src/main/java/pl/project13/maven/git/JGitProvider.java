@@ -18,8 +18,6 @@
 package pl.project13.maven.git;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
@@ -31,7 +29,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.DescribeCommand;
 import pl.project13.jgit.DescribeResult;
@@ -43,7 +40,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
+
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
+
+import javax.annotation.Nonnull;
 
 public class JGitProvider extends GitDataProvider {
 
@@ -54,12 +55,12 @@ public class JGitProvider extends GitDataProvider {
   private RevCommit evalCommit;
   private JGitCommon jGitCommon;
 
-  @NotNull
-  public static JGitProvider on(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+  @Nonnull
+  public static JGitProvider on(@Nonnull File dotGitDirectory, @Nonnull LoggerBridge log) {
     return new JGitProvider(dotGitDirectory, log);
   }
 
-  JGitProvider(@NotNull File dotGitDirectory, @NotNull LoggerBridge log) {
+  JGitProvider(@Nonnull File dotGitDirectory, @Nonnull LoggerBridge log) {
     super(log);
     this.dotGitDirectory = dotGitDirectory;
     this.jGitCommon = new JGitCommon(log);
@@ -74,13 +75,13 @@ public class JGitProvider extends GitDataProvider {
   @Override
   public String getBuildAuthorName() throws GitCommitIdExecutionException {
     String userName = git.getConfig().getString("user", null, "name");
-    return MoreObjects.firstNonNull(userName, "");
+    return Optional.ofNullable(userName).orElse("");
   }
 
   @Override
   public String getBuildAuthorEmail() throws GitCommitIdExecutionException {
     String userEmail = git.getConfig().getString("user", null, "email");
-    return MoreObjects.firstNonNull(userEmail, "");
+    return Optional.ofNullable(userEmail).orElse("");
   }
 
   @Override
@@ -94,7 +95,7 @@ public class JGitProvider extends GitDataProvider {
         throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
       }
       revWalk = new RevWalk(git);
-      ObjectId headObjectId = null;
+      ObjectId headObjectId;
       if (evaluateOnCommitReference != null) {
         headObjectId = evaluateOnCommitReference.getObjectId();
       } else {
@@ -184,7 +185,7 @@ public class JGitProvider extends GitDataProvider {
       Repository repo = getGitRepository();
       ObjectId headId = evalCommit.toObjectId();
       Collection<String> tags = jGitCommon.getTags(repo, headId);
-      return Joiner.on(",").join(tags);
+      return String.join(",", tags);
     } catch (GitAPIException e) {
       log.error("Unable to extract tags from commit: {} ({})", evalCommit.getName(), e.getClass().getName());
       return "";
@@ -240,7 +241,7 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  @VisibleForTesting String getGitDescribe(@NotNull Repository repository) throws GitCommitIdExecutionException {
+  @VisibleForTesting String getGitDescribe(@Nonnull Repository repository) throws GitCommitIdExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(evaluateOnCommit, repository, log)
@@ -264,7 +265,7 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  @NotNull
+  @Nonnull
   private Repository getGitRepository() throws GitCommitIdExecutionException {
     Repository repository;
 

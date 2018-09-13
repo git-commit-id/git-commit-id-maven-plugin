@@ -17,9 +17,7 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.base.Joiner;
-import org.jetbrains.annotations.NotNull;
-
+import javax.annotation.Nonnull;
 import java.util.Set;
 
 /**
@@ -173,14 +171,14 @@ public class GitRepositoryState {
     appendProperty(sb, "buildUserName", buildUserName);
     appendProperty(sb, "buildUserEmail", buildUserEmail);
 
-    appendProperty(sb, "tags", Joiner.on(",").join(tags));
+    appendProperty(sb, "tags", String.join(",", tags));
 
     appendProperty(sb, "mavenProjectVersion", mavenProjectVersion);
 
     return sb.append("}").toString();
   }
 
-  private void appendProperty(@NotNull StringBuilder sb, String label, String value) {
+  private void appendProperty(@Nonnull StringBuilder sb, String label, String value) {
     sb.append(String.format("\"%s\": \"%s\",", label, value));
   }
 

@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.io.Files;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class GitDirLocatorTest {
   @Test
   public void shouldUseTheManuallySpecifiedDirectory() throws Exception {
     // given
-    File dotGitDir = Files.createTempDir();
+    File dotGitDir = Files.createTempDirectory("temp").toFile();
     try {
 
       // when

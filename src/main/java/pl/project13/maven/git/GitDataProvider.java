@@ -18,12 +18,12 @@
 package pl.project13.maven.git;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.build.UnknownBuildServerData;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
+import javax.annotation.Nonnull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -36,7 +36,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public abstract class GitDataProvider implements GitProvider {
 
-  @NotNull
+  @Nonnull
   protected final LoggerBridge log;
 
   protected String prefixDot;
@@ -53,7 +53,7 @@ public abstract class GitDataProvider implements GitProvider {
 
   protected String evaluateOnCommit;
 
-  public GitDataProvider(@NotNull LoggerBridge log) {
+  public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
   }
 
@@ -87,7 +87,7 @@ public abstract class GitDataProvider implements GitProvider {
     return this;
   }
 
-  public void loadGitData(@NotNull String evaluateOnCommit, @NotNull Properties properties) throws GitCommitIdExecutionException {
+  public void loadGitData(@Nonnull String evaluateOnCommit, @Nonnull Properties properties) throws GitCommitIdExecutionException {
     this.evaluateOnCommit = evaluateOnCommit;
     init();
     // git.user.name
@@ -103,6 +103,7 @@ public abstract class GitDataProvider implements GitProvider {
       put(properties, GitCommitPropertyConstant.BRANCH, determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
+      loadShortDescribe(properties);
       // git.commit.id
       switch (commitIdGenerationMode) {
         case FULL: {
@@ -146,12 +147,33 @@ public abstract class GitDataProvider implements GitProvider {
     }
   }
 
-  private void maybePutGitDescribe(@NotNull Properties properties) throws GitCommitIdExecutionException {
+  private void maybePutGitDescribe(@Nonnull Properties properties) throws GitCommitIdExecutionException {
     boolean isGitDescribeOptOutByDefault = (gitDescribe == null);
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
       put(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, getGitDescribe());
+    }
+  }
+
+  protected void loadShortDescribe(@Nonnull Properties properties) {
+    //removes git hash part from describe
+    String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
+
+    if (commitDescribe != null) {
+      int startPos = commitDescribe.indexOf("-g");
+      if (startPos > 0) {
+        String commitShortDescribe;
+        int endPos = commitDescribe.indexOf('-', startPos + 1);
+        if (endPos < 0) {
+          commitShortDescribe = commitDescribe.substring(0, startPos);
+        } else {
+          commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
+        }
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitShortDescribe);
+      } else {
+        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitDescribe);
+      }
     }
   }
 
@@ -169,7 +191,7 @@ public abstract class GitDataProvider implements GitProvider {
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
    */
-  protected String determineBranchName(@NotNull Map<String, String> env) throws GitCommitIdExecutionException {
+  protected String determineBranchName(@Nonnull Map<String, String> env) throws GitCommitIdExecutionException {
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
     if (!(buildServerDataProvider instanceof UnknownBuildServerData)) {
       String branchName = buildServerDataProvider.getBuildBranch();
@@ -191,7 +213,7 @@ public abstract class GitDataProvider implements GitProvider {
     return smf;
   }
 
-  protected void put(@NotNull Properties properties, String key, String value) {
+  protected void put(@Nonnull Properties properties, String key, String value) {
     String keyWithPrefix = prefixDot + key;
     log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);

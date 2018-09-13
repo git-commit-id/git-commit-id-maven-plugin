@@ -17,7 +17,6 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
@@ -26,6 +25,8 @@ import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
+
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 

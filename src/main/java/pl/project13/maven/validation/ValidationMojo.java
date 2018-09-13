@@ -22,11 +22,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.jetbrains.annotations.NotNull;
 
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @Mojo(name = "validateRevision", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ValidationMojo extends AbstractMojo {
 
-  @NotNull
+  @Nonnull
   private final LoggerBridge log = new MavenLoggerBridge(this, false);
 
   @Parameter(defaultValue = "true")

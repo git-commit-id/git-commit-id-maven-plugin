@@ -32,13 +32,13 @@ Validate if properties are set as expected
 ---------------------------------------------
 Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
 The validation can be used for *any* property that is visible inside the pom.xml and therefore can be used for a various amount of different use cases.
-In order to understand the ideology and intention here are some pretty usefull ideas you could achive by using the validation:
+In order to understand the ideology and intention here are some pretty useful ideas you could achieve by using the validation:
 * validate if the version of your project does not end with SNAPSHOT
 * validate if you are currently on a tag
 * ensure that your repository is not dirty
 * may other's :-)
 
-With the current version of the validation the user can decide if the build should fail if *at least one* of the defined criterias do not match with the desired values.
+With the current version of the validation the user can decide if the build should fail if *at least one* of the defined criteria do not match with the desired values.
 
 For flexibility and due to the fact that this validation has a different scope than the maven-git-commit-id-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
 Once configured, the validation is executed during the verification-phase. However since the validation is done in a separate execution the phase can easily be changed by adding the desired phase to the execution configuration.
@@ -108,13 +108,18 @@ A detailed description of using the plugin is available in the <a href="https://
 
 Versions
 --------
-The current version is **2.2.4** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.4)).
+The current version is **2.2.5** ([changelist](https://github.com/ktoso/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.5)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
-Migration Issues you may come across when using the latest 2.2.X
------------------------------
-If you are already using the git-commit-id-plugin and would like to move to the latest major release (`2.2.X`) there are some design choices that resulted in the fact that we needed to dropped the support of Java `1.6` (if you still rely on this version, the `2.1.15` version still has support for this and you may want to check the fixed issues since then before reporting a new one).
+Plugin compatibility with Java
+-------------------------------
+| Plugin Version  | Required Java Version |
+| --------------- | ---------------------:|
+| 2.1.15          | Java 1.6              |
+| 2.2.5           | Java 1.7              |
+| 3.0.0           | Java 1.8              |
+
 
 Plugin compatibility with maven
 -----------------------------
@@ -191,7 +196,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.4</version>
+                <version>2.2.5</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -401,6 +406,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                       As rule of thumb - stay on `jgit` (keep this `false`) until you notice performance problems.
                     -->
                     <useNativeGit>false</useNativeGit>
+
+                    <!-- @since 3.0.0 -->
+                    <!--
+                        Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
+                        By default this timeout is set to 30000 (30 seconds) and can be altered based on individual use cases.
+                        This option might come in handy in cases where fetching information about the repository with the native Git executable does not terminate (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/336 for an example)
+
+                        *Note*: `useNativeGit` needs to be set to `true` to use the native Git executable.
+                    -->
+                    <nativeGitTimeoutInMs>30000</nativeGitTimeoutInMs>
 
                     <!-- @since v2.0.4 -->
                     <!--
@@ -913,6 +928,7 @@ Optional parameters:
 * **includeOnlyProperties** - `(default: empty)` *(available since v2.1.14)* - Allows to include only properties that you want to expose. This feature was implemented to avoid big exclude properties tag when we only want very few specific properties.
 * **replacementProperties** - `(default: empty)` *(available since v2.2.3)* Can be used to replace certain characters or strings using regular expressions within the generated git properties. This feature was implemented in response to [this issue](https://github.com/ktoso/maven-git-commit-id-plugin/issues/138), so if you're curious about the use-case, check that issue.
 * **useNativeGit** - `(default: false)` *(available since v2.1.10)* - Uses the native `git` binary instead of the custom `jgit` implementation shipped with this plugin to obtain all information. Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly. As rule of thumb, keep using the default `jgit` implementation (keep this option set to `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
+* **nativeGitTimeoutInMs** - `(default: 30000)` *(available since v3.0.0)* - Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable. By default this timeout is set to 30000 (30 seconds) and can be altered based on individual use cases. This option might come in handy in cases where fetching information about the repository with the native Git executable does not terminate (see https://github.com/ktoso/maven-git-commit-id-plugin/issues/336 for an example). `useNativeGit` needs to be set to `true` to use the native Git executable.
 * **abbrevLength** - `(default: 7)` *(available since v2.0.4)* - Configure the "git.commit.id.abbrev" property to be at least of length N (see gitDescribe abbrev for special case abbrev = 0).
 * **commitIdGenerationMode** - `(default: flat)` *(available since v2.2.0)* is an option that can be used to tell the plugin how it should generate the 'git.commit.id' property. Due to some naming issues when exporting the properties as an json-object (https://github.com/ktoso/maven-git-commit-id-plugin/issues/122) we needed to make it possible to export all properties as a valid json-object. Currently the switch allows two different options:
 1. By default this property is set to 'flat' and will generate the formerly known property 'git.commit.id' as it was in the previous versions of the plugin. Keeping it to 'flat' by default preserve backwards compatibility and does not require further adjustments by the end user.
@@ -941,11 +957,6 @@ All options are documented in the code, so just use `ctrl + q` (intellij @ linux
 
 Frequently Asked Question (FAQ)
 =========
-
-Supported Maven & Java Versions
--------------------------------
-Checkout the `Plugin compatibility with maven` section of this readme to find out what Maven version this plugin currently supports.
-If you still rely on Java `1.6` you can use the plugin version `2.1.15` - more Information can be found in `Migration Issues you may come across when using the latest 2.2.X`
 
 Generated properties are not usable inside the pom / properties don't get exposed by the plugin
 -------------------------------
@@ -990,16 +1001,9 @@ In general pull requests and support for open issues is always welcome!
 If you open a pull request or want to help out in any way please keep in mind that we currently use `checkstyle` to ensure that the project somehow maintains a uniform code base. Fortunately the most common IDEs support the integration of `checkstyle` via plugins. On top of more or less native integration into modern development tools the `checkstyle` rules are currently also being verified by using the [maven-checkstyle-plugin](https://maven.apache.org/plugins/maven-checkstyle-plugin/) during the build. it should be worth to highlight that you are not required to install `checkstyle` inside your IDE. If you feel more comfortable running the checks via maven this would to the trick!
 The checkstyle rules for this project are currently residing in `src/test/resources/checks` and for some IDEs those rules need to be imported manually (unfortunately there is no better solution available for this yet). The current rule set is pretty much the same as the `google_checks.xml` with certain checks disabled (e.g. line length). If you choose to integrate `checkstyle` inside your IDE feel free to checkout some high level requirements to get started with checkstyle within your IDE:
 * eclipse -- for eclipse / STS you would need to install the `checkstyle plug-in` via `Help -> Eclipse Marketplace -> Search` after restarting eclipse it should pick-up the rules automatically. If this does not work out of the box checkout the [official integration guide](http://checkstyle.sourceforge.net/eclipse.html) or use google to trace down your error message.
-* IntelliJ IDEA -- for IntelliJ you would need to install the `CheckStyle-IDEA` via `File -> Settings -> Plugins -> Search`. After restarting IntelliJ you would need to import the `checkstyle` rules manually via `File -> Settings -> Checkstyle`. As checkstyle version you may choose `6.11.2` or `8.2` and then click on the plus-sign on the right. As description you may choose `maven-git-commit-id-plugin` and as local checkstyle file you may choose one of the checkstyle rule residing in `src/test/resources/checks`. Please note that the rule-file depend on the version you have selected in the previous step and thus it is essential to ensure that the version numbers match up. As next-step you unfortunately will be prompted to enter the **full directory** of the `checkstyle-suppressions.xml`-File. If this does not work out of the box checkout the [official integration guide](http://checkstyle.sourceforge.net/idea.html) or use google to trace down your error message.
+* IntelliJ IDEA -- for IntelliJ you would need to install the `CheckStyle-IDEA` via `File -> Settings -> Plugins -> Search`. After restarting IntelliJ you would need to import the `checkstyle` rules manually via `File -> Settings -> Checkstyle`. As checkstyle version you may choose `8.2` and then click on the plus-sign on the right. As description you may choose `maven-git-commit-id-plugin` and as local checkstyle file you may choose one of the checkstyle rule residing in `src/test/resources/checks`. Please note that the rule-file depend on the version you have selected in the previous step and thus it is essential to ensure that the version numbers match up. As next-step you unfortunately will be prompted to enter the **full directory** of the `checkstyle-suppressions.xml`-File. If this does not work out of the box checkout the [official integration guide](http://checkstyle.sourceforge.net/idea.html) or use google to trace down your error message.
 * Netbeans -- feel free to open a ticket and share your installation guide :-) You can also check out the [official integration guide](http://checkstyle.sourceforge.net/netbeans.html) or use google to get any addtional help.
-* Maven -- if you want to run `checkstyle` via maven you simply can execute `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`. If you are using java9 you may want to run `mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B` that uses a more recent checkstyle version.
-
-**Note**:
-If you run into
-```
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-checkstyle-plugin:2.17:check (validate) on project git-commit-id-plugin: Execution validate of goal org.apache.maven.plugins:maven-checkstyle-plugin:2.17:check failed: Plugin org.apache.maven.plugins:maven-checkstyle-plugin:2.17 or one of its dependencies could not be resolved: Could not find artifact com.sun:tools:jar:1.7.0 at specified path /usr/lib/jvm/java-9-oracle/../lib/tools.jar -> [Help 1]
-```
-you may want to check that your ``JAVA_HOME``-Path is set correctly and that your are running `mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B`.
+* Maven -- if you want to run `checkstyle` via maven you simply can execute `mvn clean verify -Pcheckstyle -Dmaven.test.skip=true -B`.
 
 Maintainers
 ===========

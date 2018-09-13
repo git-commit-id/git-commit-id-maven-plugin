@@ -17,22 +17,23 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.Optional;
+
 import static java.util.Collections.singletonList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -376,7 +377,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(oid, singletonList(tagName)));
+    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(oid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -393,7 +394,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, ImmutableMap.of(tagOid, singletonList(tagName)));
+    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(tagOid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -429,11 +430,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  String abbrev(@NotNull String id) {
+  String abbrev(@Nonnull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
 
-  String abbrev(@NotNull String id, int n) {
+  String abbrev(@Nonnull String id, int n) {
     return id.substring(0, n);
   }
 }

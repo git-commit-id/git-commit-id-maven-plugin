@@ -17,28 +17,28 @@
 
 package pl.project13.maven.git.util;
 
-import com.google.common.base.Preconditions;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class Pair<A, B> {
 
-  @NotNull
+  @Nonnull
   public final A first;
 
-  @NotNull
+  @Nonnull
   public final B second;
 
   @SuppressWarnings("ConstantConditions")
   public Pair(A first, B second) {
-    Preconditions.checkArgument(first != null, "The first parameter must not be null.");
-    Preconditions.checkArgument(second != null, "The second parameter must not be null.");
+    Objects.requireNonNull(first, "The first parameter must not be null.");
+    Objects.requireNonNull(second, "The second parameter must not be null.");
 
     this.first = first;
     this.second = second;
   }
 
-  @NotNull
+  @Nonnull
   public static <A, B> Pair<A, B> of(A first, B second) {
     return new Pair<>(first, second);
   }
@@ -72,7 +72,7 @@ public class Pair<A, B> {
     return result;
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public String toString() {
     return String.format("Pair(%s, %s)", first, second);

@@ -1,11 +1,11 @@
 package pl.project13.maven.git.build;
 
 import org.apache.maven.project.MavenProject;
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.GitCommitPropertyConstant;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
+import javax.annotation.Nonnull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -23,27 +23,27 @@ public abstract class BuildServerDataProvider {
   private String prefixDot = "";
   private MavenProject project = null;
 
-  BuildServerDataProvider(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+  BuildServerDataProvider(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     this.log = log;
     this.env = env;
   }
 
-  public BuildServerDataProvider setDateFormat(@NotNull String dateFormat) {
+  public BuildServerDataProvider setDateFormat(@Nonnull String dateFormat) {
     this.dateFormat = dateFormat;
     return this;
   }
 
-  public BuildServerDataProvider setDateFormatTimeZone(@NotNull String dateFormatTimeZone) {
+  public BuildServerDataProvider setDateFormatTimeZone(@Nonnull String dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
 
-  public BuildServerDataProvider setProject(@NotNull MavenProject project) {
+  public BuildServerDataProvider setProject(@Nonnull MavenProject project) {
     this.project = project;
     return this;
   }
 
-  public BuildServerDataProvider setPrefixDot(@NotNull String prefixDot) {
+  public BuildServerDataProvider setPrefixDot(@Nonnull String prefixDot) {
     this.prefixDot = prefixDot;
     return this;
   }
@@ -55,7 +55,7 @@ public abstract class BuildServerDataProvider {
    * @param log logging provider which will be used to log events
    * @return the corresponding {@link BuildServerDataProvider} for your environment or {@link UnknownBuildServerData}
    */
-  public static BuildServerDataProvider getBuildServerProvider(@NotNull Map<String, String> env, @NotNull LoggerBridge log) {
+  public static BuildServerDataProvider getBuildServerProvider(@Nonnull Map<String, String> env, @Nonnull LoggerBridge log) {
     if (BambooBuildServerData.isActiveServer(env)) {
       return new BambooBuildServerData(log, env);
     }
@@ -74,7 +74,7 @@ public abstract class BuildServerDataProvider {
     return new UnknownBuildServerData(log, env);
   }
 
-  public void loadBuildData(@NotNull Properties properties) {
+  public void loadBuildData(@Nonnull Properties properties) {
     loadBuildVersionAndTimeData(properties);
     loadBuildHostData(properties);
     loadBuildNumber(properties);
@@ -87,14 +87,14 @@ public abstract class BuildServerDataProvider {
    *
    * @param properties a properties instance to put the entries on
    */
-  abstract void loadBuildNumber(@NotNull Properties properties);
+  abstract void loadBuildNumber(@Nonnull Properties properties);
 
   /**
    * @return the branch name provided by the server or an empty string
    */
   public abstract String getBuildBranch();
 
-  private void loadBuildVersionAndTimeData(@NotNull Properties properties) {
+  private void loadBuildVersionAndTimeData(@Nonnull Properties properties) {
     Date buildDate = new Date();
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     if (dateFormatTimeZone != null) {
@@ -107,7 +107,7 @@ public abstract class BuildServerDataProvider {
     }
   }
 
-  private void loadBuildHostData(@NotNull Properties properties) {
+  private void loadBuildHostData(@Nonnull Properties properties) {
     String buildHost = null;
     try {
       buildHost = InetAddress.getLocalHost().getHostName();
@@ -119,7 +119,7 @@ public abstract class BuildServerDataProvider {
     put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
   }
 
-  protected void put(@NotNull Properties properties, @NotNull String key, String value) {
+  protected void put(@Nonnull Properties properties, @Nonnull String key, String value) {
     String keyWithPrefix = prefixDot + key;
     log.info("{} {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);

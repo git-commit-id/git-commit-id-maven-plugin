@@ -18,8 +18,8 @@
 package pl.project13.maven.git;
 
 import org.fest.assertions.Condition;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 class DoesNotContainKeyCondition extends Condition<Map<?, ?>> {
@@ -31,7 +31,7 @@ class DoesNotContainKeyCondition extends Condition<Map<?, ?>> {
   }
 
   @Override
-  public boolean matches(@NotNull Map<?, ?> map) {
+  public boolean matches(@Nonnull Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
     if (containsKey) {
       System.out.println(String.format("Map contained [%s] key! Map is: %s", key, map));

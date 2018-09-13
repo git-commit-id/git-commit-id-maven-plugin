@@ -1,9 +1,9 @@
 package pl.project13.maven.git.build;
 
-import org.jetbrains.annotations.NotNull;
 import pl.project13.maven.git.GitCommitPropertyConstant;
 import pl.project13.maven.git.log.LoggerBridge;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
@@ -11,20 +11,20 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
 
-  HudsonJenkinsBuildServerData(@NotNull LoggerBridge log, @NotNull Map<String, String> env) {
+  HudsonJenkinsBuildServerData(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log, env);
   }
 
   /**
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
    */
-  public static boolean isActiveServer(@NotNull Map<String, String> env) {
+  public static boolean isActiveServer(@Nonnull Map<String, String> env) {
     return env.containsKey("JENKINS_URL") || env.containsKey("JENKINS_HOME") ||
         env.containsKey("HUDSON_URL") || env.containsKey("HUDSON_HOME");
   }
 
   @Override
-  void loadBuildNumber(@NotNull Properties properties) {
+  void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.get("BUILD_NUMBER");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);

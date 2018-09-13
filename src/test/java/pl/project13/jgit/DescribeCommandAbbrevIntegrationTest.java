@@ -17,14 +17,15 @@
 
 package pl.project13.jgit;
 
-import com.google.common.base.Optional;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 import pl.project13.maven.git.log.StdOutLoggerBridge;
+
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -105,7 +106,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  String abbrev(@NotNull String id, int n) {
+  String abbrev(@Nonnull String id, int n) {
     return id.substring(0, n);
   }
 }

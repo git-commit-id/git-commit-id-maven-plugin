@@ -19,9 +19,9 @@ package pl.project13.maven.git;
 
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class GitDirLocator {
   }
 
   @Nullable
-  public File lookupGitDirectory(@NotNull File manuallyConfiguredDir) {
+  public File lookupGitDirectory(@Nonnull File manuallyConfiguredDir) {
     if (manuallyConfiguredDir.exists()) {
 
       // If manuallyConfiguredDir is a directory then we can use it as the git path.
@@ -98,42 +98,30 @@ public class GitDirLocator {
    *
    * @return File object with path loaded or null
    */
-  private File processGitDirFile(@NotNull File file) {
-    try {
-      BufferedReader reader = null;
-
-      try {
-        reader = new BufferedReader(new FileReader(file));
-
-        // There should be just one line in the file, e.g.
-        // "gitdir: /usr/local/src/parentproject/.git/modules/submodule"
-        String line = reader.readLine();
-        if (line == null) {
-          return null;
-        }
-        // Separate the key and the value in the string.
-        String[] parts = line.split(": ");
-
-        // If we don't have 2 parts or if the key is not gitdir then give up.
-        if (parts.length != 2 || !parts[0].equals("gitdir")) {
-          return null;
-        }
-
-        // All seems ok so return the "gitdir" value read from the file.
-        File gitDir = new File(parts[1]);
-        if (gitDir.isAbsolute()) {
-          // gitdir value is an absolute path. Return as-is
-          return gitDir;
-        } else {
-          // gitdir value is relative.
-          return new File(file.getParentFile(), parts[1]);
-        }
-      } catch (FileNotFoundException e) {
+  private File processGitDirFile(@Nonnull File file) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      // There should be just one line in the file, e.g.
+      // "gitdir: /usr/local/src/parentproject/.git/modules/submodule"
+      String line = reader.readLine();
+      if (line == null) {
         return null;
-      } finally {
-        if (reader != null) {
-          reader.close();
-        }
+      }
+      // Separate the key and the value in the string.
+      String[] parts = line.split(": ");
+
+      // If we don't have 2 parts or if the key is not gitdir then give up.
+      if (parts.length != 2 || !parts[0].equals("gitdir")) {
+        return null;
+      }
+
+      // All seems ok so return the "gitdir" value read from the file.
+      File gitDir = new File(parts[1]);
+      if (gitDir.isAbsolute()) {
+        // gitdir value is an absolute path. Return as-is
+        return gitDir;
+      } else {
+        // gitdir value is relative.
+        return new File(file.getParentFile(), parts[1]);
       }
     } catch (IOException e) {
       return null;

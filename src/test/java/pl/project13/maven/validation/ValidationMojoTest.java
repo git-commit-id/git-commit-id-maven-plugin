@@ -69,7 +69,7 @@ public class ValidationMojoTest {
   }
 
   private List<ValidationProperty> getListValidationProperty(String name, String value, String shouldMatchTo) {
-    List<ValidationProperty> list = new ArrayList<ValidationProperty>();
+    List<ValidationProperty> list = new ArrayList<>();
     list.add(new ValidationProperty(name, value, shouldMatchTo));
     return list;
   }

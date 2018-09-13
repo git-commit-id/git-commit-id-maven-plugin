@@ -20,6 +20,7 @@ package pl.project13.jgit;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
@@ -31,18 +32,15 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.jetbrains.annotations.NotNull;
 
 import pl.project13.jgit.dummy.DatedRevTag;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.Lists;
 import pl.project13.maven.git.GitDescribeConfig;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.Pair;
+
+import javax.annotation.Nonnull;
 
 public class JGitCommon {
 
@@ -63,38 +61,32 @@ public class JGitCommon {
   }
 
   private Collection<String> getTags(final Git git, final ObjectId objectId, final RevWalk finalWalk) throws GitAPIException {
-    List<Ref> tagRefs = git.tagList().call();
-    Collection<Ref> tagsForHeadCommit = Collections2.filter(tagRefs, new Predicate<Ref>() {
-      @Override
-      public boolean apply(Ref tagRef) {
-        try {
-          final RevCommit tagCommit = finalWalk.parseCommit(tagRef.getObjectId());
-          final RevCommit objectCommit = finalWalk.parseCommit(objectId);
-          if (finalWalk.isMergedInto(objectCommit, tagCommit)) {
-            return true;
-          }
-        } catch (Exception ignored) {
-          log.debug("Failed while getTags [{}] -- ", tagRef, ignored);
-        }
-        return false;
-      }
-    });
-    Collection<String> tags = Collections2.transform(tagsForHeadCommit, new Function<Ref, String>() {
-      @Override public String apply(Ref input) {
-        return input.getName().replaceAll("refs/tags/", "");
-      }
-    });
-    return tags;
+    return git.tagList().call()
+            .stream()
+            .filter(tagRef -> {
+              try {
+                final RevCommit tagCommit = finalWalk.parseCommit(tagRef.getObjectId());
+                final RevCommit objectCommit = finalWalk.parseCommit(objectId);
+                if (finalWalk.isMergedInto(objectCommit, tagCommit)) {
+                  return true;
+                }
+              } catch (Exception ignored) {
+                log.debug("Failed while getTags [{}] -- ", tagRef, ignored);
+              }
+              return false;
+            })
+            .map(tagRef -> trimFullTagName(tagRef.getName()))
+            .collect(Collectors.toList());
   }
 
-  public String getClosestTagName(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagName(@Nonnull String evaluateOnCommit, @Nonnull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
     RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
     return pair.second;
   }
 
-  public String getClosestTagCommitCount(@NotNull String evaluateOnCommit, @NotNull Repository repo, GitDescribeConfig gitDescribe) {
+  public String getClosestTagCommitCount(@Nonnull String evaluateOnCommit, @Nonnull Repository repo, GitDescribeConfig gitDescribe) {
     // TODO: Why does some tests fail when it gets headCommit from JGitprovider?
     RevCommit headCommit = findEvalCommitObjectId(evaluateOnCommit, repo);
     Pair<RevCommit, String> pair = getClosestRevCommit(repo, headCommit, gitDescribe);
@@ -103,7 +95,7 @@ public class JGitCommon {
     return String.valueOf(distance);
   }
 
-  private Pair<RevCommit, String> getClosestRevCommit(@NotNull Repository repo, RevCommit headCommit, GitDescribeConfig gitDescribe) {
+  private Pair<RevCommit, String> getClosestRevCommit(@Nonnull Repository repo, RevCommit headCommit, GitDescribeConfig gitDescribe) {
     boolean includeLightweightTags = false;
     String matchPattern = ".*";
     if (gitDescribe != null) {
@@ -130,7 +122,7 @@ public class JGitCommon {
             "\\E$";
   }
 
-  protected Map<ObjectId, List<String>> findTagObjectIds(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {
+  protected Map<ObjectId, List<String>> findTagObjectIds(@Nonnull Repository repo, boolean includeLightweightTags, String matchPattern) {
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = getCommitIdsToTags(repo, includeLightweightTags, matchPattern);
     Map<ObjectId, List<String>> commitIdsToTagNames = transformRevTagsMapToDateSortedTagNames(commitIdsToTags);
     log.info("Created map: [{}]", commitIdsToTagNames);
@@ -138,7 +130,7 @@ public class JGitCommon {
     return commitIdsToTagNames;
   }
 
-  protected RevCommit findEvalCommitObjectId(@NotNull String evaluateOnCommit, @NotNull Repository repo) throws RuntimeException {
+  protected RevCommit findEvalCommitObjectId(@Nonnull String evaluateOnCommit, @Nonnull Repository repo) throws RuntimeException {
     try {
       ObjectId evalCommitId = repo.resolve(evaluateOnCommit);
 
@@ -154,7 +146,7 @@ public class JGitCommon {
     }
   }
 
-  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@NotNull Repository repo, boolean includeLightweightTags, String matchPattern) {
+  protected Map<ObjectId, List<DatedRevTag>> getCommitIdsToTags(@Nonnull Repository repo, boolean includeLightweightTags, String matchPattern) {
     Map<ObjectId, List<DatedRevTag>> commitIdsToTags = new HashMap<>();
 
     try (RevWalk walk = new RevWalk(repo)) {
@@ -235,35 +227,23 @@ public class JGitCommon {
   }
 
   private List<String> transformRevTagsMapEntryToDateSortedTagNames(Map.Entry<ObjectId, List<DatedRevTag>> objectIdListEntry) {
-    List<DatedRevTag> tags = objectIdListEntry.getValue();
-
-    List<DatedRevTag> newTags = new ArrayList<>(tags);
-    Collections.sort(newTags, datedRevTagComparator());
-
-    List<String> tagNames = Lists.transform(newTags, new Function<DatedRevTag, String>() {
-      @Override
-      public String apply(DatedRevTag input) {
-        return trimFullTagName(input.tagName);
-      }
-    });
-    return tagNames;
+    return objectIdListEntry.getValue()
+            .stream()
+            .sorted(datedRevTagComparator())
+            .map(datedRevTag -> trimFullTagName(datedRevTag.tagName))
+            .collect(Collectors.toList());
   }
 
   private Comparator<DatedRevTag> datedRevTagComparator() {
-    return new Comparator<DatedRevTag>() {
-        @Override
-        public int compare(DatedRevTag revTag, DatedRevTag revTag2) {
-          return revTag2.date.compareTo(revTag.date);
-        }
-      };
+    return (revTag, revTag2) -> revTag2.date.compareTo(revTag.date);
   }
 
   @VisibleForTesting
-  protected String trimFullTagName(@NotNull String tagName) {
+  protected String trimFullTagName(@Nonnull String tagName) {
     return tagName.replaceFirst("refs/tags/", "");
   }
 
-  public List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @NotNull Map<ObjectId, List<String>> tagObjectIdToName) {
+  public List<RevCommit> findCommitsUntilSomeTag(Repository repo, RevCommit head, @Nonnull Map<ObjectId, List<String>> tagObjectIdToName) {
     try (RevWalk revWalk = new RevWalk(repo)) {
       revWalk.markStart(head);
 
@@ -289,7 +269,7 @@ public class JGitCommon {
    * @return distance (number of commits) between the given commits
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
    */
-  protected int distanceBetween(@NotNull Repository repo, @NotNull RevCommit child, @NotNull RevCommit parent) {
+  protected int distanceBetween(@Nonnull Repository repo, @Nonnull RevCommit child, @Nonnull RevCommit parent) {
     try (RevWalk revWalk = new RevWalk(repo)) {
       revWalk.markStart(child);
 
@@ -336,7 +316,7 @@ public class JGitCommon {
     }
   }
 
-  private void seeAllParents(@NotNull RevWalk revWalk, RevCommit child, @NotNull Set<ObjectId> seen) throws IOException {
+  private void seeAllParents(@Nonnull RevWalk revWalk, RevCommit child, @Nonnull Set<ObjectId> seen) throws IOException {
     Queue<RevCommit> q = new ArrayDeque<>();
     q.add(child);
 
