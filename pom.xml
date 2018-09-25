@@ -57,9 +57,9 @@
     <maven-plugin-api.version>3.0</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
-    <jgit.version>5.0.2.201807311906-r</jgit.version>
     <junit.version>5.2.0</junit.version>
     <mockito.version>2.21.0</mockito.version>
+    <jgit.version>5.1.1.201809181055-r</jgit.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
@@ -103,6 +103,13 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>26.0-jre</version>
+    </dependency>
+
+    <!-- HttpClient -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.5.6</version>
     </dependency>
 
     <!-- JGit -->
