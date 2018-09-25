@@ -76,6 +76,11 @@
       <artifactId>maven-core</artifactId>
       <version>${maven-plugin-api.version}</version>
     </dependency>
+    <dependency>
+     <groupId>org.sonatype.plexus</groupId>
+     <artifactId>plexus-build-api</artifactId>
+     <version>0.0.7</version>
+    </dependency>
     <!-- dependencies to annotations -->
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>

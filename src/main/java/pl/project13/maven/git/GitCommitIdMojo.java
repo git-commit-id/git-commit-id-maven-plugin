@@ -36,10 +36,12 @@ import java.util.regex.Pattern;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.sonatype.plexus.build.incremental.BuildContext;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -322,6 +324,12 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "30000")
   long nativeGitTimeoutInMs;
+  
+  /**
+   * Injected {@link BuildContext} to recognize incremental builds.
+   */
+  @Component
+  private BuildContext buildContext;
 
   /**
    * The properties we store our data in and then expose them.
@@ -347,6 +355,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     try {
       // Set the verbose setting: now it should be correctly loaded from maven.
       log.setVerbose(verbose);
+
+      // Skip mojo execution on incremental builds.
+      if (buildContext != null && buildContext.isIncremental()) {
+        // Except if properties file is missing at all
+        if (!generateGitPropertiesFile || craftPropertiesOutputFile(project.getBasedir(), generateGitPropertiesFilename).exists()) {
+          return;
+        }
+      }
 
       // read source encoding from project properties for those who still doesn't use UTF-8
       String sourceEncoding = project.getProperties().getProperty("project.build.sourceEncoding");
@@ -582,6 +598,11 @@ public class GitCommitIdMojo extends AbstractMojo {
         } catch (final IOException ex) {
           throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
         }
+        
+        if (buildContext != null) {
+          buildContext.refresh(gitPropsFile);
+        }
+        
       } else {
         log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
       }
