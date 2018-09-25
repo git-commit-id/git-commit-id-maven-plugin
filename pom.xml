@@ -57,9 +57,9 @@
     <maven-plugin-api.version>3.0</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
-    <junit.version>5.2.0</junit.version>
     <mockito.version>2.21.0</mockito.version>
     <jgit.version>5.1.1.201809181055-r</jgit.version>
+    <junit.version>5.3.1</junit.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
