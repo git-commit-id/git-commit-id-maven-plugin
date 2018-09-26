@@ -313,7 +313,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                        Use with caution!
 
-                       In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project.
+                       In a multi-module build, only run once. This means that the plugins effects will only execute once, even if the
+                       parent projet is not in the reactor (when you use Maven's --project option or --resume-from ).
                        This probably won't "do the right thing" if your project has more than one git repository.
 
                        Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
