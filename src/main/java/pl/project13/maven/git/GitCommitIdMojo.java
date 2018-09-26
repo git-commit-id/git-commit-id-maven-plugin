@@ -63,7 +63,10 @@ import javax.annotation.Nullable;
  */
 @Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
-  /**
+  /** if a user property exists with this name and {@link #runOnlyOnce} is true, it means this Mojo has already run */
+  private static final String GIT_COMMITID_MOJO_RUN_ONLY_ONCE_DONE = "GIT_COMMITID_MOJO_RUN_ONLY_ONCE_DONE";
+
+/**
    * The Maven Project.
    */
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
@@ -378,9 +381,12 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (runOnlyOnce) {
-        if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
-          log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+        Properties userProperties = session.getUserProperties();
+		if (userProperties.get(GIT_COMMITID_MOJO_RUN_ONLY_ONCE_DONE) != null) {
+          log.info("runOnlyOnce is enabled and " + this.getClass().getSimpleName() + " has already run, skipping execution!");
           return;
+        } else {
+        	userProperties.put(GIT_COMMITID_MOJO_RUN_ONLY_ONCE_DONE, "1");        	
         }
       }
 
