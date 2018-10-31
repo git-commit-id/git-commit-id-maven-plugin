@@ -253,6 +253,46 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertThat(targetProject.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
+  
+  @Test
+  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet() throws Exception {
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+                .withNoChildProject()
+                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+                .create();
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    mojo.useBranchNameFromBuildEnvironment = false;
+
+    Map<String, String> env = new HashMap<>();
+
+    env.put("JENKINS_URL", "http://myciserver.com");
+    env.put("GIT_BRANCH", "mybranch");
+    env.put("GIT_LOCAL_BRANCH", "localbranch");
+      
+    // remove all keys from System.getenv()
+    List<String> keySet = new ArrayList<>(System.getenv().keySet());
+    keySet.stream().forEach(key -> environmentVariablesMock.set(key, null));
+
+    // set System.getenv() to be equal to given parameter env
+    env.entrySet().stream().forEach(entry -> environmentVariablesMock.set(entry.getKey(), entry.getValue()));
+      
+    // verify that System.getenv() is actually equal
+    Assert.assertEquals(env, System.getenv());
+
+    // reset repo and force detached HEAD
+    try (final Git git = git("my-jar-project")) {   
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("b6a73ed").call();
+      git.checkout().setCreateBranch(true).setName("test_branch").setForce(true).call();
+    }
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test_branch");
+  }
 
   @Test
   @Parameters(method = "useNativeGit")
@@ -314,6 +354,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     mojo.useNativeGit = useNativeGit;
+    mojo.useBranchNameFromBuildEnvironment = true;
 
     // remove all keys from System.getenv()
     List<String> keySet = new ArrayList<>(System.getenv().keySet());
