@@ -9,7 +9,7 @@ stages:
 
 jdk:
   - oraclejdk11
-  - oraclejdk10
+  - openjdk10
   - oraclejdk9
   - oraclejdk8
 
