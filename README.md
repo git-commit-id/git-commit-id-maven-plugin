@@ -536,6 +536,16 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         If you have a specific use-case that is currently not white listed feel free to file an issue.
                     -->
                     <evaluateOnCommit>HEAD</evaluateOnCommit>
+                    
+                    
+                    <!-- @since 3.0.0 -->
+                    <!--
+                        Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
+                        Useful when using the JGitflow maven plugin.
+                        Note: If not using "Check out to specific local branch' and setting this to false may result in getting
+                        detached head state and therefore a commit id as branch name.
+                    -->
+                    <useBranchNameFromBuildEnvironment>false</useBranchNameFromBuildEnvironment>
                 </configuration>
 
             </plugin>
@@ -949,7 +959,7 @@ Worth pointing out is, that git-commit-id tries to be 1-to-1 compatible with git
 * **long** - `(default: false)` git-describe, by default, returns just the tag name, if the current commit is tagged. Use this option to force it to format the output using the typical describe format. An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is 0 here, if you don't use **forceLongFormat** mode, the describe for such commit would look like this: `tagname`.
 * **always** - `(default: true)` if unable to find a tag, print out just the object id of the current commit. Useful when you always want to return something meaningful in the describe property.
 * **skip** - `(default: false)` when you don't use `git-describe` information in your build, you can opt to be calculate it.
-
+* **useBranchNameFromBuildEnvironment** - `(default: true)` use branch name from build environment
 
 **validationProperties** Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set. This feature ships with an additional mojo execution and for instance allows to check if the version is not a snapshot build. If you are interested in the config checkout the[validation utility documentation](https://github.com/ktoso/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
 

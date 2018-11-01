@@ -326,6 +326,15 @@ public class GitCommitIdMojo extends AbstractMojo {
   long nativeGitTimeoutInMs;
   
   /**
+   * Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
+   * Useful when using the JGitflow maven plugin.
+   * Note: If not using "Check out to specific local branch' and setting this to false may result in getting
+   * detached head state and therefore a commit id as branch name.
+   */
+  @Parameter(defaultValue = "true")
+  boolean useBranchNameFromBuildEnvironment;
+  
+  /**
    * Injected {@link BuildContext} to recognize incremental builds.
    */
   @Component
@@ -522,7 +531,8 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setDateFormat(dateFormat)
               .setDateFormatTimeZone(dateFormatTimeZone)
               .setGitDescribe(gitDescribe)
-              .setCommitIdGenerationMode(commitIdGenerationModeEnum);
+              .setCommitIdGenerationMode(commitIdGenerationModeEnum)
+              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
 
       nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
@@ -538,7 +548,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setDateFormat(dateFormat)
         .setDateFormatTimeZone(dateFormatTimeZone)
         .setGitDescribe(gitDescribe)
-        .setCommitIdGenerationMode(commitIdGenerationModeEnum);
+        .setCommitIdGenerationMode(commitIdGenerationModeEnum)
+        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }

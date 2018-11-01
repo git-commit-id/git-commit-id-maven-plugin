@@ -52,6 +52,8 @@ public abstract class GitDataProvider implements GitProvider {
   protected CommitIdGenerationMode commitIdGenerationMode;
 
   protected String evaluateOnCommit;
+  
+  protected boolean useBranchNameFromBuildEnvironment;
 
   public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
@@ -84,6 +86,11 @@ public abstract class GitDataProvider implements GitProvider {
 
   public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
+    return this;
+  }
+  
+  public GitDataProvider setUseBranchNameFromBuildEnvironment(boolean useBranchNameFromBuildEnvironment) {
+    this.useBranchNameFromBuildEnvironment = useBranchNameFromBuildEnvironment;
     return this;
   }
 
@@ -193,7 +200,7 @@ public abstract class GitDataProvider implements GitProvider {
    */
   protected String determineBranchName(@Nonnull Map<String, String> env) throws GitCommitIdExecutionException {
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
-    if (!(buildServerDataProvider instanceof UnknownBuildServerData)) {
+    if (useBranchNameFromBuildEnvironment && !(buildServerDataProvider instanceof UnknownBuildServerData)) {
       String branchName = buildServerDataProvider.getBuildBranch();
       if (isNullOrEmpty(branchName)) {
         log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
