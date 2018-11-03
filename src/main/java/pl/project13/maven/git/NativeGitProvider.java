@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
@@ -463,6 +464,40 @@ public class NativeGitProvider extends GitDataProvider {
         throw new IOException(ex);
       }
       return empty; // was non-empty
+    }
+  }
+
+  @Override
+  public AheadBehind getAheadBehind() throws GitCommitIdExecutionException {
+    try {
+      Optional<String> remoteBranch = remoteBranch();
+      if (!remoteBranch.isPresent()) {
+        return AheadBehind.NO_REMOTE;
+      }
+      fetch(remoteBranch.get());
+      String ahead = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --right-only --count " + remoteBranch.get() + "..." + getBranchName());
+      String behind = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --left-only --count " + remoteBranch.get() + "..." + getBranchName());
+      return AheadBehind.of(ahead, behind);
+    } catch (Exception e) {
+      throw new GitCommitIdExecutionException("Failed to read ahead behind count: " + e.getMessage(), e);
+    }
+  }
+
+  private Optional<String> remoteBranch() {
+    try {
+      String remoteRef = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref -q HEAD");
+      String remoteBranch = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "for-each-ref --format=%(upstream:short) " + remoteRef);
+      return Optional.ofNullable(remoteBranch.isEmpty() ? null : remoteBranch);
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+  
+  private void fetch(String remoteBranch) {
+    try {
+      runQuietGitCommand(canonical, nativeGitTimeoutInMs, "fetch " + remoteBranch.replaceFirst("/", " "));
+    } catch (Exception e) {
+      log.error("Failed to execute fetch", e);
     }
   }
 }

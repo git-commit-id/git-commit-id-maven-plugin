@@ -3,6 +3,8 @@ package pl.project13.maven.git;
 public class GitCommitPropertyConstant {
   // these properties will be exposed to maven
   public static final String BRANCH = "branch";
+  public static final String BRANCH_AHEAD = "branch.ahead";
+  public static final String BRANCH_BEHIND = "branch.behind";
   public static final String DIRTY = "dirty";
   // only one of the following two will be exposed, depending on the commitIdGenerationMode
   public static final String COMMIT_ID_FLAT = "commit.id";

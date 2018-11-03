@@ -565,6 +565,8 @@ Now you just have to include such a properties file in your project under `/src/
 ```
 git.tags=${git.tags}
 git.branch=${git.branch}
+git.branch.ahead=${git.branch.ahead}
+git.branch.behind=${git.branch.behind}
 git.dirty=${git.dirty}
 git.remote.origin.url=${git.remote.origin.url}
   git.commit.id=${git.commit.id}
