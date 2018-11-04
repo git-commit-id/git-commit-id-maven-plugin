@@ -9,7 +9,7 @@ stages:
 
 jdk:
   - oraclejdk11
-  - oraclejdk10
+  - openjdk10
   - oraclejdk9
   - oraclejdk8
 
@@ -30,6 +30,8 @@ matrix:
     env: CUSTOM_MVN_VERION="3.5.0"
   - jdk: oraclejdk9
     env: CUSTOM_MVN_VERION="3.5.4"
+  - jdk: oraclejdk9
+    env: CUSTOM_MVN_VERION="3.6.0"
   - stage: checkstyle
     jdk: oraclejdk9
     script: mvn clean verify -Pcheckstyle -Dcheckstyle.version=8.2 -Dmaven.test.skip=true -B
