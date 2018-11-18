@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
-
 public class NativeGitProvider extends GitDataProvider {
 
   private transient ProcessRunner runner;
@@ -236,7 +235,7 @@ public class NativeGitProvider extends GitDataProvider {
   public String getRemoteOriginUrl() throws GitCommitIdExecutionException {
     return getOriginRemote(canonical, nativeGitTimeoutInMs);
   }
-  
+
   @Override
   public String getClosestTagName() throws GitCommitIdExecutionException {
     try {
@@ -291,14 +290,12 @@ public class NativeGitProvider extends GitDataProvider {
   /**
    * Runs a maven command and returns {@code true} if output was non empty.
    * Can be used to short cut reading output from command when we know it may be a rather long one.
-   *
    * Return true if the result is empty.
-   *
    **/
   private boolean tryCheckEmptyRunGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) {
     try {
       String env = System.getenv("GIT_PATH");
-      String exec = (env == null) ? "git" : env;
+      String exec = env == null ? "git" : env;
       String command = String.format("%s %s", exec, gitCommand);
 
       return getRunner().runEmpty(directory, nativeGitTimeoutInMs, command);
@@ -311,7 +308,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   private String runQuietGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) {
     final String env = System.getenv("GIT_PATH");
-    final String exec = (env == null) ? "git" : env;
+    final String exec = env == null ? "git" : env;
     final String command = String.format("%s %s", exec, gitCommand);
 
     try {
@@ -323,7 +320,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   private String runGitCommand(File directory, long nativeGitTimeoutInMs, String gitCommand) throws NativeCommandException {
     final String env = System.getenv("GIT_PATH");
-    final String exec = (env == null) ? "git" : env;
+    String exec = env == null ? "git" : env;
     final String command = String.format("%s %s", exec, gitCommand);
 
     try {
@@ -358,11 +355,12 @@ public class NativeGitProvider extends GitDataProvider {
     private final String stdout;
     private final String stderr;
 
-    public NativeCommandException(int exitCode,
-                                  String command,
-                                  File directory,
-                                  String stdout,
-                                  String stderr) {
+    public NativeCommandException(
+            int exitCode,
+            String command,
+            File directory,
+            String stdout,
+            String stderr) {
       this.exitCode = exitCode;
       this.command = command;
       this.directory = directory;
@@ -401,21 +399,33 @@ public class NativeGitProvider extends GitDataProvider {
     public String run(File directory, long nativeGitTimeoutInMs, String command) throws IOException {
       String output = "";
       try {
-        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
-        final InputStream is = proc.getInputStream();
-        final InputStream err = proc.getErrorStream();
+        final SubProcessOutputGobbler subProcessOutputGobbler = new SubProcessOutputGobbler(proc.getInputStream());
+        final SubProcessOutputGobbler target = subProcessOutputGobbler;
+        final Thread outGobbleThread = new Thread(target);
+        final SubProcessOutputGobbler subProcessErrGobbler = new SubProcessOutputGobbler(proc.getErrorStream());
+        final Thread errorGobbleThread = new Thread(subProcessErrGobbler);
+        outGobbleThread.start();
+        errorGobbleThread.start();
+        if (!proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS)) {
+          proc.destroy();
+          throw new RuntimeException(String.format("GIT-Command '%s' did not finish in %d milliseconds", command, nativeGitTimeoutInMs));
+        }
+        errorGobbleThread.join();
+        outGobbleThread.join();
 
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new ByteArrayInputStream(subProcessOutputGobbler.getSubProcessOutput()), StandardCharsets.UTF_8));
+
         final StringBuilder commandResult = new StringBuilder();
         String line;
         while ((line = reader.readLine()) != null) {
           commandResult.append(line).append("\n");
         }
 
-        final StringBuilder errMsg = readStderr(err);
-        proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS);
         if (proc.exitValue() != 0) {
+          final StringBuilder errMsg = readStderr(subProcessErrGobbler.getSubProcessOutput());
           throw new NativeCommandException(proc.exitValue(), command, directory, output, errMsg.toString());
         }
         output = commandResult.toString();
@@ -423,16 +433,6 @@ public class NativeGitProvider extends GitDataProvider {
         throw new IOException(ex);
       }
       return output;
-    }
-
-    private StringBuilder readStderr(InputStream err) throws IOException {
-      String line;
-      final BufferedReader errReader = new BufferedReader(new InputStreamReader(err));
-      final StringBuilder errMsg = new StringBuilder();
-      while ((line = errReader.readLine()) != null) {
-        errMsg.append(line);
-      }
-      return errMsg;
     }
 
     @Override
@@ -443,19 +443,29 @@ public class NativeGitProvider extends GitDataProvider {
         // this only works on UNIX like system not on Windows
         // ProcessBuilder builder = new ProcessBuilder(Arrays.asList("/bin/sh", "-c", command));
         // so use the same protocol as used in the run() method
-        ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
+        final ProcessBuilder builder = new ProcessBuilder(command.split("\\s"));
         final Process proc = builder.directory(directory).start();
-        final InputStream is = proc.getInputStream();
-        final InputStream err = proc.getErrorStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        final SubProcessOutputGobbler subProcessOutputGobbler = new SubProcessOutputGobbler(proc.getInputStream());
+        final SubProcessOutputGobbler target = subProcessOutputGobbler;
+        final Thread outGobbleThread = new Thread(target);
+        final SubProcessOutputGobbler subProcessErrGobbler = new SubProcessOutputGobbler(proc.getErrorStream());
+        final Thread errorGobbleThread = new Thread(subProcessErrGobbler);
+        outGobbleThread.start();
+        errorGobbleThread.start();
+        if (!proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS)) {
+          proc.destroy();
+          throw new RuntimeException(String.format("GIT-Command '%s' did not finish in %d milliseconds", command, nativeGitTimeoutInMs));
+        }
+        errorGobbleThread.join();
+        outGobbleThread.join();
 
+        final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new ByteArrayInputStream(subProcessOutputGobbler.getSubProcessOutput()), StandardCharsets.UTF_8));
         if (reader.readLine() != null) {
           empty = false;
         }
-
-        final StringBuilder errMsg = readStderr(err);
-        proc.waitFor(nativeGitTimeoutInMs, TimeUnit.MILLISECONDS);
         if (proc.exitValue() != 0) {
+          final StringBuilder errMsg = readStderr(subProcessErrGobbler.getSubProcessOutput());
           throw new NativeCommandException(proc.exitValue(), command, directory, "", errMsg.toString());
         }
 
@@ -464,6 +474,53 @@ public class NativeGitProvider extends GitDataProvider {
       }
       return empty; // was non-empty
     }
+
+    private StringBuilder readStderr(final byte[] err) throws IOException {
+      String line;
+      final BufferedReader errReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(err)));
+      final StringBuilder errMsg = new StringBuilder();
+      while ((line = errReader.readLine()) != null) {
+        errMsg.append(line);
+      }
+      return errMsg;
+    }
+
+    private static class SubProcessOutputGobbler implements Runnable {
+
+      public byte[] subProcessOutput;
+
+      private final InputStream subProcessOutputStream;
+
+      private IOException caughtException;
+
+      public SubProcessOutputGobbler(final InputStream subProcessOutputStream) {
+        super();
+        this.subProcessOutputStream = subProcessOutputStream;
+      }
+
+      public byte[] getSubProcessOutput() throws IOException {
+        if (caughtException != null) {
+          throw caughtException;
+        }
+        return subProcessOutput;
+      }
+
+      @Override
+      public void run() {
+        try {
+          // equivalent to
+          // subProcessOutput = IOUtils.toByteArray(subProcessOutputStream)
+          // https://stackoverflow.com/questions/1264709
+          final ByteArrayOutputStream os = new ByteArrayOutputStream();
+          final byte[] buffer = new byte[0xFFFF];
+          for (int len = subProcessOutputStream.read(buffer); len != -1; len = subProcessOutputStream.read(buffer)) {
+            os.write(buffer, 0, len);
+          }
+          subProcessOutput = os.toByteArray();
+        } catch (final IOException e) {
+          caughtException = e;
+        }
+      }
+    }
   }
 }
-
