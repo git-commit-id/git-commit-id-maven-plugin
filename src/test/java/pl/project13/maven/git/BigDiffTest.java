@@ -33,9 +33,9 @@ import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * Run this to simulate hanging native-git-process for repo-state with lots of changes.
- * 
+ *
  * The test case will still finish successfully because all git-related errors are cught in.
- * 
+ *
  * @author eternach
  *
  */
