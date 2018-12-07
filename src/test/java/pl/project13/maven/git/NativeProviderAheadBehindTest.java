@@ -6,4 +6,9 @@ public class NativeProviderAheadBehindTest extends AheadBehindTest<NativeGitProv
     protected NativeGitProvider gitProvider() {
 	return new NativeGitProvider(localRepository.getRoot(), 1000l, null);
     }
+    
+    @Override
+    protected void extraSetup() {
+	gitProvider.setEvaluateOnCommit("HEAD");
+    }
 }

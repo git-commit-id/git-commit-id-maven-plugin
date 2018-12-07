@@ -22,6 +22,9 @@ import static java.lang.String.format;
 import pl.project13.maven.git.log.LoggerBridge;
 
 import javax.annotation.Nonnull;
+
+import com.google.common.annotations.VisibleForTesting;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -524,8 +527,9 @@ public class NativeGitProvider extends GitDataProvider {
         return AheadBehind.NO_REMOTE;
       }
       fetch(remoteBranch.get());
-      String ahead = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --right-only --count " + remoteBranch.get() + "..." + getBranchName());
-      String behind = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --left-only --count " + remoteBranch.get() + "..." + getBranchName());
+      String localBranchName = getBranchName();
+      String ahead = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --right-only --count " + remoteBranch.get() + "..." + localBranchName);
+      String behind = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --left-only --count " + remoteBranch.get() + "..." + localBranchName);
       return AheadBehind.of(ahead, behind);
     } catch (Exception e) {
       throw new GitCommitIdExecutionException("Failed to read ahead behind count: " + e.getMessage(), e);
@@ -534,7 +538,11 @@ public class NativeGitProvider extends GitDataProvider {
 
   private Optional<String> remoteBranch() {
     try {
-      String remoteRef = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref -q HEAD");
+      String remoteRef = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref -q " + evaluateOnCommit);
+      if(remoteRef == null || remoteRef.isEmpty()) {
+	  log.debug("Could not find ref for: " + evaluateOnCommit);;
+	  return Optional.empty();
+      }
       String remoteBranch = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "for-each-ref --format=%(upstream:short) " + remoteRef);
       return Optional.ofNullable(remoteBranch.isEmpty() ? null : remoteBranch);
     } catch (Exception e) {
@@ -548,5 +556,10 @@ public class NativeGitProvider extends GitDataProvider {
     } catch (Exception e) {
       log.error("Failed to execute fetch", e);
     }
+  }
+  
+  @VisibleForTesting
+  public void setEvaluateOnCommit(String evaluateOnCommit) {
+      this.evaluateOnCommit = evaluateOnCommit;
   }
 }
