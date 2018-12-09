@@ -59,8 +59,8 @@ public class ReplacementProperty {
    * The text to be written over any found tokens. 
    * You can also reference grouped regex matches made in the token here by $1, $2, etc.
    */
-  @Parameter(required = true)
-  private String value;
+  @Parameter(defaultValue = "")
+  private String value = "";
 
   /**
    * Indicates if the token should be located with regular expressions. 
