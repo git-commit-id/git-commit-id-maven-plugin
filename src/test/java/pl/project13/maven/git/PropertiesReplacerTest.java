@@ -66,6 +66,20 @@ public class PropertiesReplacerTest {
     Properties exptecedProperties = build("key1", "another1", "key2", "value2");
     assertEquals(exptecedProperties, actualProperties);
   }
+  
+  @Test
+  @Parameters(method = "useRegexReplacement")
+  public void testPerformReplacementWithSinglePropertyEmptyValue(boolean regex) throws IOException {
+    Properties actualProperties = build("key1", "value1", "key2", "value2");
+
+    List<ReplacementProperty> replacementProperties = new ArrayList<>();
+    replacementProperties.add(new ReplacementProperty("key1", null, "value", null, regex, null));
+
+    propertiesReplacer.performReplacement(actualProperties, replacementProperties);
+
+    Properties exptecedProperties = build("key1", "1", "key2", "value2");
+    assertEquals(exptecedProperties, actualProperties);
+  }
 
   @Test
   @Parameters(method = "useRegexReplacement")
@@ -78,6 +92,20 @@ public class PropertiesReplacerTest {
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
     Properties exptecedProperties = build("key1", "another1", "key2", "another2");
+    assertEquals(exptecedProperties, actualProperties);
+  }
+  
+  @Test
+  @Parameters(method = "useRegexReplacement")
+  public void testPerformReplacementWithMultiplePropertiesEmptyValue(boolean regex) throws IOException {
+    Properties actualProperties = build("key1", "value1", "key2", "value2");
+
+    List<ReplacementProperty> replacementProperties = new ArrayList<>();
+    replacementProperties.add(new ReplacementProperty(null, null, "value", null, regex, null));
+
+    propertiesReplacer.performReplacement(actualProperties, replacementProperties);
+
+    Properties exptecedProperties = build("key1", "1", "key2", "2");
     assertEquals(exptecedProperties, actualProperties);
   }
 

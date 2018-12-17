@@ -95,19 +95,19 @@ public class PropertiesReplacer {
   }
 
   private String replaceRegex(String content, String token, String value) {
-    if ((token == null) || (value == null)) {
-      log.error("found replacementProperty without required token or value.");
+    if (token == null) {
+      log.error("found replacementProperty without required token.");
       return content;
     }
     final Pattern compiledPattern = Pattern.compile(token);
-    return compiledPattern.matcher(content).replaceAll(value);
+    return compiledPattern.matcher(content).replaceAll(value == null ? "" : value);
   }
 
   private String replaceNonRegex(String content, String token, String value) {
-    if ((token == null) || (value == null)) {
-      log.error("found replacementProperty without required token or value.");
+    if (token == null) {
+      log.error("found replacementProperty without required token.");
       return content;
     }
-    return content.replace(token, value);
+    return content.replace(token, value == null ? "" : value);
   }
 }
