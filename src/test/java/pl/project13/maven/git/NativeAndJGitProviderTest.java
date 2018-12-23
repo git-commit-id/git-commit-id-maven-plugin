@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class NativeAndJGitProviderTest extends GitIntegrationTest {
-  public static final String[] GIT_KEYS = new String[] {
+  private static final String[] GIT_KEYS = new String[] {
     "git.build.time",
     "git.build.host",
     "git.branch",
@@ -45,12 +45,12 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
     "git.commit.time",
     "git.total.commit.count",
     "git.remote.origin.url",
-    "git.branch.ahead",
-    "git.branch.behind"
+    "git.local.branch.ahead",
+    "git.local.branch.behind",
   };
 
-  public static final String DEFAULT_FORMAT_STRING  = "yyyy-MM-dd'T'HH:mm:ssZ";
-  public static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
+  private static final String DEFAULT_FORMAT_STRING  = "yyyy-MM-dd'T'HH:mm:ssZ";
+  private static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
   @Test
   public void testCompareBasic() throws Exception {
