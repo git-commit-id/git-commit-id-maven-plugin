@@ -539,9 +539,9 @@ public class NativeGitProvider extends GitDataProvider {
   private Optional<String> remoteBranch() {
     try {
       String remoteRef = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref -q " + evaluateOnCommit);
-      if(remoteRef == null || remoteRef.isEmpty()) {
-	  log.debug("Could not find ref for: " + evaluateOnCommit);;
-	  return Optional.empty();
+      if (remoteRef == null || remoteRef.isEmpty()) {
+        log.debug("Could not find ref for: " + evaluateOnCommit);
+        return Optional.empty();
       }
       String remoteBranch = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "for-each-ref --format=%(upstream:short) " + remoteRef);
       return Optional.ofNullable(remoteBranch.isEmpty() ? null : remoteBranch);
@@ -560,6 +560,6 @@ public class NativeGitProvider extends GitDataProvider {
   
   @VisibleForTesting
   public void setEvaluateOnCommit(String evaluateOnCommit) {
-      this.evaluateOnCommit = evaluateOnCommit;
+    this.evaluateOnCommit = evaluateOnCommit;
   }
 }
