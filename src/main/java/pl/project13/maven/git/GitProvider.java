@@ -40,5 +40,7 @@ public interface GitProvider {
   String getTotalCommitCount() throws GitCommitIdExecutionException;
 
   void finalCleanUp() throws GitCommitIdExecutionException;
+  
+  AheadBehind getAheadBehind() throws GitCommitIdExecutionException;
 
 }

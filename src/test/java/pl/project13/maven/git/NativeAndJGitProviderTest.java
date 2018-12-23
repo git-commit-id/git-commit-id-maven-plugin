@@ -44,7 +44,9 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
     "git.commit.message.short",
     "git.commit.time",
     "git.total.commit.count",
-    "git.remote.origin.url"
+    "git.remote.origin.url",
+    "git.branch.ahead",
+    "git.branch.behind"
   };
 
   public static final String DEFAULT_FORMAT_STRING  = "yyyy-MM-dd'T'HH:mm:ssZ";
@@ -87,7 +89,7 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
   }
 
   @Test
-  public void testCompareISO8601Time() throws Exception {
+  public void testCompareIso8601Time() throws Exception {
     // Test on all available basic repos to ensure that the output is identical.
     for (AvailableGitTestRepo testRepo : AvailableGitTestRepo.values()) {
       if (testRepo != AvailableGitTestRepo.GIT_COMMIT_ID) {

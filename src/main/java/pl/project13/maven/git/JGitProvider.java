@@ -19,8 +19,11 @@ package pl.project13.maven.git;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import org.eclipse.jgit.api.FetchCommand;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.AbbreviatedObjectId;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
@@ -285,6 +288,27 @@ public class JGitProvider extends GitDataProvider {
     }
 
     return repository;
+  }
+  
+  @Override
+  public AheadBehind getAheadBehind() throws GitCommitIdExecutionException {
+    try {
+      fetch();
+      Optional<BranchTrackingStatus> branchTrackingStatus = Optional.ofNullable(BranchTrackingStatus.of(git, getBranchName()));
+      return branchTrackingStatus.map(bts -> AheadBehind.of(bts.getAheadCount(), bts.getBehindCount()))
+                                 .orElse(AheadBehind.NO_REMOTE);
+    } catch (Exception e) {
+      throw new GitCommitIdExecutionException("Failed to read ahead behind count: " + e.getMessage(), e);
+    }
+  }
+
+  private void fetch() {
+    FetchCommand fetchCommand = Git.wrap(git).fetch();
+    try {
+      fetchCommand.setThin(true).call();
+    } catch (Exception e) {
+      log.error("Failed to perform fetch", e);
+    }
   }
 
   // SETTERS FOR TESTS ----------------------------------------------------
