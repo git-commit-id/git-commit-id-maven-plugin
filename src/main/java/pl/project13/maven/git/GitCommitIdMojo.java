@@ -85,7 +85,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>Set this to {@code 'true'} to inject git properties into all reactor projects, not just the current one.</p>
    *
    * <p>Injecting into all projects may slow down the build and you don't always need this feature.
-   * See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
+   * See <a href="https://github.com/git-commit-id/maven-git-commit-id-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
    * </p>
    */
   @Parameter(defaultValue = "false")
@@ -192,7 +192,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>Setting this value to {@code 'false'} causes the plugin to gracefully tell you "I did my best"
    * and abort its execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
    *
-   * <p>See <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/63">issue #63</a>
+   * <p>See <a href="https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/63">issue #63</a>
    * for a rationale behind this flag.</p>
    */
   @Parameter(defaultValue = "true")
@@ -220,7 +220,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * NOTE / WARNING:
    * Do *NOT* set this property inside the configuration of your plugin.
    * Please read
-   * https://github.com/ktoso/maven-git-commit-id-plugin/issues/315
+   * https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/315
    * to find out why.
    * @since 2.2.4
    */
@@ -269,7 +269,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>The mode of {@code 'git.commit.id'} property generation.</p>
    *
    * <p>{@code 'git.commit.id'} property name is incompatible with json export
-   * (see <a href="https://github.com/ktoso/maven-git-commit-id-plugin/issues/122">issue #122</a>).
+   * (see <a href="https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/122">issue #122</a>).
    * This property allows one either to preserve backward compatibility or to enable fully valid json export:
    *
    * <ol>
@@ -307,7 +307,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * In general this property can be set to something generic like <p>HEAD^1</p> or point to a branch or tag-name.
    * To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
    *
-   * A use-case for this feature can be found in https://github.com/ktoso/maven-git-commit-id-plugin/issues/338.
+   * A use-case for this feature can be found in https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/338.
    *
    * Please note that for security purposes not all references might be allowed as configuration.
    * If you have a specific use-case that is currently not white listed feel free to file an issue.

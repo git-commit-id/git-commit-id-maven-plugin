@@ -16,7 +16,7 @@
     This plugin makes basic repository information available through maven resources. This can be used to display
     "what version is this?" or "who has deployed this and when, from which branch?" information at runtime, making
     it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
-    developers life easier. See https://github.com/ktoso/maven-git-commit-id-plugin
+    developers life easier. See https://github.com/git-commit-id/maven-git-commit-id-plugin
   </description>
   <url>http://www.blog.project13.pl</url>
 
@@ -42,9 +42,9 @@
   </licenses>
 
   <scm>
-    <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
-    <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
-    <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+    <url>git@github.com/git-commit-id/maven-git-commit-id-plugin.git</url>
+    <connection>scm:git:https://github.com/git-commit-id/maven-git-commit-id-plugin</connection>
+    <developerConnection>scm:git:git@github.com:git-commit-id/maven-git-commit-id-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
