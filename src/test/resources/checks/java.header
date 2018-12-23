@@ -14,26 +14,3 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package pl.project13.maven.git.build;
-
-import pl.project13.maven.git.log.LoggerBridge;
-
-import javax.annotation.Nonnull;
-import java.util.Map;
-import java.util.Properties;
-
-public class UnknownBuildServerData extends BuildServerDataProvider {
-  public UnknownBuildServerData(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
-    super(log, env);
-  }
-
-  @Override
-  void loadBuildNumber(@Nonnull Properties properties) {
-  }
-
-  @Override
-  public String getBuildBranch() {
-    return "";
-  }
-}
