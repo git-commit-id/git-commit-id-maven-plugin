@@ -376,7 +376,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         Explanation:
                         Configure the the length of the abbreviated git commit id (`git.commit.id.abbrev`) to be at least of length N.
-                        `0` carries the special meaning (checkout the <a href="https://github.com/git-commit-id/maven-git-commit-id-plugin/blob/master/docs/git-describe.md">git describe documenation</a> for the special case abbrev = 0).
+                        `0` carries the special meaning (checkout the [git describe documenation](docs/git-describe.md) for the special case abbrev = 0).
                         Maximum value is `40`, because of max SHA-1 length.
                      -->
                     <abbrevLength>7</abbrevLength>
@@ -442,7 +442,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                             **Please note that the `g` prefix is included to notify you that it's a commit id, it is NOT part of the commit's object id** - *this is default git behaviour, so we're doing the same*.
                             You can set this to any value between 0 and 40 (inclusive).
-                            `0` carries the special meaning (checkout the <a href="https://github.com/git-commit-id/maven-git-commit-id-plugin/blob/master/docs/git-describe.md">git describe documenation</a> for the special case abbrev = 0).
+                            `0` carries the special meaning (checkout the [git describe documenation](docs/git-describe.md) for the special case abbrev = 0).
                             Maximum value is `40`, because of max SHA-1 length.
                         -->
                         <abbrev>7</abbrev>
