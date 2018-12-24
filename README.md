@@ -3,6 +3,7 @@ maven git commit id plugin
 
 [![Join the chat at https://gitter.im/git-commit-id/maven-git-commit-id-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/git-commit-id/maven-git-commit-id-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://secure.travis-ci.org/git-commit-id/maven-git-commit-id-plugin.svg?branch=master)](http://travis-ci.org/git-commit-id/maven-git-commit-id-plugin)
+[![Coverage Status](https://coveralls.io/repos/github/git-commit-id/maven-git-commit-id-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/maven-git-commit-id-plugin?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](http://search.maven.org/#search|ga|1|pl.project13.maven)
 
 
