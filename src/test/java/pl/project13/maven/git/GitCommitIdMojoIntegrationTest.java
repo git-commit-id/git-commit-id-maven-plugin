@@ -779,6 +779,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     String expectedDate = smf.format(new Date());
     assertThat(targetProject.getProperties()).includes(entry("git.build.time", expectedDate));
+    assertThat(targetProject.getProperties()).includes(entry("git.commit.time", "08/19/2012"));
   }
 
   @Test

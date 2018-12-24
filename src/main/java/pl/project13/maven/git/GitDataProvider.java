@@ -150,7 +150,7 @@ public abstract class GitDataProvider implements GitProvider {
 
       put(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, getTotalCommitCount());
       
-      AheadBehind aheadBehind = getAheadBehind();
+      final AheadBehind aheadBehind = getAheadBehind();
       put(properties, GitCommitPropertyConstant.LOCAL_BRANCH_AHEAD, aheadBehind.ahead());
       put(properties, GitCommitPropertyConstant.LOCAL_BRANCH_BEHIND, aheadBehind.behind());  
     } finally {

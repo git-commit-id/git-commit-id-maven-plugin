@@ -16,7 +16,7 @@
     This plugin makes basic repository information available through maven resources. This can be used to display
     "what version is this?" or "who has deployed this and when, from which branch?" information at runtime, making
     it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
-    developers life easier. See https://github.com/ktoso/maven-git-commit-id-plugin
+    developers life easier. See https://github.com/git-commit-id/maven-git-commit-id-plugin
   </description>
   <url>http://www.blog.project13.pl</url>
 
@@ -42,9 +42,9 @@
   </licenses>
 
   <scm>
-    <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
-    <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
-    <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+    <url>git@github.com/git-commit-id/maven-git-commit-id-plugin.git</url>
+    <connection>scm:git:https://github.com/git-commit-id/maven-git-commit-id-plugin</connection>
+    <developerConnection>scm:git:git@github.com:git-commit-id/maven-git-commit-id-plugin.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -480,6 +480,33 @@
                   <failOnViolation>true</failOnViolation>
                   <linkXRef>false</linkXRef>
                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>coveralls</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>4.3.0</version>
+            <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
+          </plugin>
+          <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.2</version>
+            <executions>
+              <execution>
+              <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
