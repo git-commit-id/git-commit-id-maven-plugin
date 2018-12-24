@@ -638,6 +638,35 @@ You can also change the default phase of each execution by adding a `phase` defi
 Generated properties
 ---------------------
 
+ | generated property            | description                             |
+ | ----------------------------- | ----------------------------------------|
+ |`git.branch`                   | Represents the current branch name. Falls back to commit-id for detached HEAD. |
+ |`git.build.number.unique`      | Represents a system wide unique build number (see notes below). |
+ |`git.build.host`               | Represents the hostname where the properties have been generated. |
+ |`git.build.time`               | Represents the (formated) timestamp when the last build was executed. If written to the git.properties file represents the latest build time when that file was written / updated. |
+ |`git.build.user.email`         | Represents the git user eMail that is configured where the properties have been generated. |
+ |`git.build.user.name`          | Represents the git user name that is configured where the properties have been generated. |
+ |`git.build.version`            | Represents the project version of the current maven project. |
+ |`git.closest.tag.commit.count` | Represents the number of commits to the closest available tag. The closest tag may depend on your git describe config that may or may not take lightweight tags into consideration. |
+ |`git.closest.tag.name`         | Represents the name of the closest available tag. The closest tag may depend on your git describe config that may or may not take lightweight tags into consideration. |
+ |`git.commit.id`                | Represents the commit’s SHA-1 hash. Note this is exchangable with the `git.commit.id.full` property. |
+ |`git.commit.id.abbrev`         | Represents the abbreviated (shorten version) commit hash. |
+ |`git.commit.id.describe`       | Represents an object a human readable name based on a the commit (provides `git describe` for the given commit`). |
+ |`git.commit.id.describe-short` | Represents the same value as `git.commit.id.describe` , just with the git hash part removed (the `g2414721` part from `git describe`). |
+ |`git.commit.message.full`      | Represents the raw body (unwrapped subject and body) of the commit message (`git log -1 --pretty=format:%B`) |
+ |`git.commit.message.short`     | Represents the subject of the commit message - may *not* be suitable for filenames (`git log -1 --pretty=format:%s`) |
+ |`git.commit.time`              | Represents the (formatted) time stamp when the commit has been performed. |
+ |`git.commit.user.email`        | Represents the user eMail of the user who performed the commit. |
+ |`git.commit.user.name`         | Represents the user name of the user who performed the commit. |
+ |`git.dirty`                    | A working tree is said to be "dirty" if it contains modifications which have not been committed to the current branch. |
+ |`git.remote.origin.url`        | Represents the URL of the remote repository for the current git project. |
+ |`git.tags`                     | Represents a list of tags which contain the specified commit (`git tag --contains`). |
+ |`git.total.commit.count`       | Represents the total count of all commits in the current repository (`git rev-list HEAD --count`). |
+
+
+Note that all properties listed here depend on the configurable "namespace" prefix `<prefix>git</prefix>`.
+This plugin may generate other prerties in the format `${configured-prefix}.commit.id`, if this configuration is altered in your pom.
+
 ### Note on git.build.number variables
 The `git.build.number` variables are available on some hosted CIs and can be used to identify the "number" of the build.
 Refer to the table below to see which values are supported by which CIs.
