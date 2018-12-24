@@ -43,7 +43,8 @@ matrix:
     env: CHECKSTYLE=8.2
   - stage: coveralls
     jdk: oraclejdk8
-    secure: "nWocmaofFk759rTMC37hJ5qbLN9V7B5jwxuR15OhsHcE4WuijsatbEP6YY4Z6zomozKEaPYVA8rLbbpSY2B6JQffe4NV975647CZisp/WtJmkvsLEbio0mkJ2Jw11aHZ+o3OI17Kh/vxzVrjYusFuMok/AADT7bV9cBk/2l5u9I="
+    env:
+      secure: "nWocmaofFk759rTMC37hJ5qbLN9V7B5jwxuR15OhsHcE4WuijsatbEP6YY4Z6zomozKEaPYVA8rLbbpSY2B6JQffe4NV975647CZisp/WtJmkvsLEbio0mkJ2Jw11aHZ+o3OI17Kh/vxzVrjYusFuMok/AADT7bV9cBk/2l5u9I="
     script: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${COVERALLS_REPO_TOKEN} -B
 
 install:
