@@ -659,6 +659,8 @@ Generated properties
  |`git.commit.user.email`        | Represents the user eMail of the user who performed the commit. |
  |`git.commit.user.name`         | Represents the user name of the user who performed the commit. |
  |`git.dirty`                    | A working tree is said to be "dirty" if it contains modifications which have not been committed to the current branch. |
+ |`git.local.branch.ahead`       | Represents the count of commits that your local branch is ahead in perspective to the remote branch (usually the case when your local branch has commited changes that are not pushed yet to the remote branch). Note: To obtain the right value for this property this plugin will perform a `git fetch`. |
+ |`git.local.branch.behind`      | Represents the count of commits that your local branch is behind in perspective to the remote branch (usually the case when there are commits in the remote branch that are not yet integrated into your local branch). Note: To obtain the right value for this property this plugin will perform a `git fetch`. |
  |`git.remote.origin.url`        | Represents the URL of the remote repository for the current git project. |
  |`git.tags`                     | Represents a list of tags which contain the specified commit (`git tag --contains`). |
  |`git.total.commit.count`       | Represents the total count of all commits in the current repository (`git rev-list HEAD --count`). |
