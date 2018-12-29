@@ -7,6 +7,8 @@ stages:
   - test
   - Integration Test
   - coveralls
+  - deploy
+    if: (branch = master) AND (NOT (type IN (push, pull_request))) AND (tags = false)
 
 jdk:
   - oraclejdk11
@@ -46,6 +48,11 @@ matrix:
     env:
       secure: "nWocmaofFk759rTMC37hJ5qbLN9V7B5jwxuR15OhsHcE4WuijsatbEP6YY4Z6zomozKEaPYVA8rLbbpSY2B6JQffe4NV975647CZisp/WtJmkvsLEbio0mkJ2Jw11aHZ+o3OI17Kh/vxzVrjYusFuMok/AADT7bV9cBk/2l5u9I="
     script: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${COVERALLS_REPO_TOKEN} -B
+  - stage: deploy
+    env:
+      secure: "o1dqRCwF2bD7Ccb276lQRwq4TVyX74WHz3Gv5kF4yB3BNkrYScoZaCrB0upn6TbJsC9krjao7pOLhYG6tLqQbmy8FTii/gxTTNRf+Ln4TkNqAOZ9dddj6cSOTzcRq2baZoTgZtNYNBhYtU5lPPihYp9l9jN99g76LRDzrBGncAw="
+      secure: "Gm6/TwMCtiw+UEUNuK6c1wrTron3IRvOLdqyOdjCsM/ohYN/xYw3GJXKPVsjMaxNzN+x9/tyMRRHTt9AiOAtp7pktritpKK2LwvCFij6pqpiTitBSz6+h9XsWI4iP0L7rwtS5K5Yc/JiK7iN2660dSmzLfDviD12EneAhPMV01Y="
+    script: mvn clean deploy --settings=".buildscript/settings.xml"
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
