@@ -53,8 +53,8 @@ matrix:
         - if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "master" ]; then echo "the deploy job only runs for the master branch. This build will now exit"; exit 0; fi
         - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then mvn clean deploy --settings=./.buildscript/settings.xml; fi
     env:
-      - secure: "o1dqRCwF2bD7Ccb276lQRwq4TVyX74WHz3Gv5kF4yB3BNkrYScoZaCrB0upn6TbJsC9krjao7pOLhYG6tLqQbmy8FTii/gxTTNRf+Ln4TkNqAOZ9dddj6cSOTzcRq2baZoTgZtNYNBhYtU5lPPihYp9l9jN99g76LRDzrBGncAw="
-      - secure: "Gm6/TwMCtiw+UEUNuK6c1wrTron3IRvOLdqyOdjCsM/ohYN/xYw3GJXKPVsjMaxNzN+x9/tyMRRHTt9AiOAtp7pktritpKK2LwvCFij6pqpiTitBSz6+h9XsWI4iP0L7rwtS5K5Yc/JiK7iN2660dSmzLfDviD12EneAhPMV01Y="
+      - secure: "KzwXvubiQNslVsIMDaLOB6b7CTh2QqRb5tRY/B9XhsvmHdlWGRfWA59ayPX6ZgrVc5suo5V/Mk2jqWs7pBs9A5IngDglo7O7kq4mkK2bVQT3Vhl3eADIm9TcVz96yLWly0UmRJOJ/k1m+PDbGsbahW9AaSlMe6m+7tGYHAyYRG8="
+      - secure: "NLIB70kjj2FQfDRiepqY2j1uTh/bxo/q92pdSwQEYBQBX8K/0Pyygbiujh1jSp8CNoy1Z5Fm4zTy56RPYR6pEF3Y8C5BjBZDsNl+B+VSbNVAoKX6GsLnrd2nD3P68MsZAdB3xYrfhvpEX3OrGBU1IlgODhVt1p1Nvt3YGYiN7og="
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
