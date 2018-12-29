@@ -15,11 +15,6 @@ jdk:
   - oraclejdk9
   - oraclejdk8
 
-env:
-  global:
-    - secure: "o1dqRCwF2bD7Ccb276lQRwq4TVyX74WHz3Gv5kF4yB3BNkrYScoZaCrB0upn6TbJsC9krjao7pOLhYG6tLqQbmy8FTii/gxTTNRf+Ln4TkNqAOZ9dddj6cSOTzcRq2baZoTgZtNYNBhYtU5lPPihYp9l9jN99g76LRDzrBGncAw="
-    - secure: "Gm6/TwMCtiw+UEUNuK6c1wrTron3IRvOLdqyOdjCsM/ohYN/xYw3GJXKPVsjMaxNzN+x9/tyMRRHTt9AiOAtp7pktritpKK2LwvCFij6pqpiTitBSz6+h9XsWI4iP0L7rwtS5K5Yc/JiK7iN2660dSmzLfDviD12EneAhPMV01Y="
-
 matrix:
   include:
   - stage: Integration Test
@@ -55,9 +50,11 @@ matrix:
   - stage: deploy
     jdk: oraclejdk8
     script:
-      - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" && -z ${TRAVIS_TAG+x}]]; then
-          mvn clean deploy --settings=".buildscript/settings.xml";
-        fi
+        - if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "master" ]; then echo "the deploy job only runs for the master branch. This build will now exit"; exit 0; fi
+        - if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then mvn clean deploy --settings=".buildscript/settings.xml"; fi
+    env:
+      - secure: "o1dqRCwF2bD7Ccb276lQRwq4TVyX74WHz3Gv5kF4yB3BNkrYScoZaCrB0upn6TbJsC9krjao7pOLhYG6tLqQbmy8FTii/gxTTNRf+Ln4TkNqAOZ9dddj6cSOTzcRq2baZoTgZtNYNBhYtU5lPPihYp9l9jN99g76LRDzrBGncAw="
+      - secure: "Gm6/TwMCtiw+UEUNuK6c1wrTron3IRvOLdqyOdjCsM/ohYN/xYw3GJXKPVsjMaxNzN+x9/tyMRRHTt9AiOAtp7pktritpKK2LwvCFij6pqpiTitBSz6+h9XsWI4iP0L7rwtS5K5Yc/JiK7iN2660dSmzLfDviD12EneAhPMV01Y="
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
