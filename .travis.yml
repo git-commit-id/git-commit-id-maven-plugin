@@ -53,7 +53,11 @@ matrix:
       secure: "nWocmaofFk759rTMC37hJ5qbLN9V7B5jwxuR15OhsHcE4WuijsatbEP6YY4Z6zomozKEaPYVA8rLbbpSY2B6JQffe4NV975647CZisp/WtJmkvsLEbio0mkJ2Jw11aHZ+o3OI17Kh/vxzVrjYusFuMok/AADT7bV9cBk/2l5u9I="
     script: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${COVERALLS_REPO_TOKEN} -B
   - stage: deploy
-    script: if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" -z "$TRAVIS_TAG"]; then mvn clean deploy --settings=".buildscript/settings.xml"; fi
+    jdk: oraclejdk8
+    script:
+      - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" && -z ${TRAVIS_TAG+x}]]; then
+          mvn clean deploy --settings=".buildscript/settings.xml";
+        fi
 
 install:
   - if [[ -n "${CUSTOM_MVN_VERION}" ]]; then
