@@ -57,7 +57,7 @@
     <maven-plugin-api.version>3.0</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.5</maven-plugin-plugin.version>
 
-    <jgit.version>5.1.1.201809181055-r</jgit.version>
+    <jgit.version>5.2.0.201812061821-r</jgit.version>
     <junit.version>5.3.1</junit.version>
     <mockito.version>2.23.4</mockito.version>
 
