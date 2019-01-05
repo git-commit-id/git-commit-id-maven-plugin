@@ -32,7 +32,7 @@ For more advanced users we also prepared a [guide to provide a brief overview of
 
 Versions
 --------
-The current version is **2.2.5** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.5)).
+The current version is **2.2.6** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A2.2.6)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
@@ -40,8 +40,8 @@ Plugin compatibility with Java
 -------------------------------
 | Plugin Version  | Required Java Version |
 | --------------- | ---------------------:|
-| 2.1.15          | Java 1.6              |
-| 2.2.5           | Java 1.7              |
+| 2.1.X           | Java 1.6              |
+| 2.2.X           | Java 1.7              |
 | 3.0.0           | Java 1.8              |
 
 
