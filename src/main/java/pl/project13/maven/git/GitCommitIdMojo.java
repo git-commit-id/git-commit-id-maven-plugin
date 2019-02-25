@@ -50,6 +50,8 @@ import javax.annotation.Nullable;
  */
 @Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
+  private static final String CONTEXT_KEY = GitCommitIdMojo.class.getName() + ".properties";
+
   /**
    * The Maven Project.
    */
@@ -311,7 +313,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "30000")
   long nativeGitTimeoutInMs;
-  
+
   /**
    * Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
    * Useful when using the JGitflow maven plugin.
@@ -430,28 +432,38 @@ public class GitCommitIdMojo extends AbstractMojo {
         String trimmedPrefix = prefix.trim();
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
-        loadGitData(properties);
-        loadBuildData(properties);
-        propertiesReplacer.performReplacement(properties, replacementProperties);
-        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        // check if properties have already been injected
+        Properties contextProperties = getContextProperties(project);
+        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
+        if (alreadyInjected) {
+          log.info("injectAllReactorProjects is enabled and this project already contains properties - using already computed values");
+          properties = contextProperties;
+        } else {
+          loadGitData(properties);
+          loadBuildData(properties);
+          propertiesReplacer.performReplacement(properties, replacementProperties);
+          propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
+          propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        }
         logProperties();
 
         if (generateGitPropertiesFile) {
           new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
-        publishPropertiesInto(project.getProperties());
-        // some plugins rely on the user properties (e.g. flatten-maven-plugin)
-        publishPropertiesInto(session.getUserProperties());
+        if (!alreadyInjected) {
+          publishPropertiesInto(project.getProperties());
+          // some plugins rely on the user properties (e.g. flatten-maven-plugin)
+          publishPropertiesInto(session.getUserProperties());
 
-        if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects();
-        }
+          if (injectAllReactorProjects) {
+            appendPropertiesToReactorProjects();
+          }
 
-        if(injectIntoSysProperties) {
-          publishPropertiesInto(System.getProperties());
-          publishPropertiesInto(session.getSystemProperties());
+          if (injectIntoSysProperties) {
+            publishPropertiesInto(System.getProperties());
+            publishPropertiesInto(session.getSystemProperties());
+          }
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -459,6 +471,15 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+  }
+
+  @Nullable
+  private Properties getContextProperties(MavenProject project) {
+    Object stored = project.getContextValue(CONTEXT_KEY);
+    if (stored instanceof Properties) {
+      return (Properties)stored;
+    }
+    return null;
   }
 
   private void loadBuildData(Properties properties) {
@@ -498,6 +519,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
       publishPropertiesInto(mavenProject.getProperties());
+      mavenProject.setContextValue(CONTEXT_KEY, properties);
     }
   }
 
