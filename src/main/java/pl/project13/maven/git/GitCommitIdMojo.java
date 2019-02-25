@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import java.io.OutputStream;
 
+
 import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
@@ -63,6 +64,8 @@ import javax.annotation.Nullable;
  */
 @Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
+  private static final String CONTEXT_KEY = GitCommitIdMojo.class.getName() + ".properties";
+
   /**
    * The Maven Project.
    */
@@ -324,7 +327,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "30000")
   long nativeGitTimeoutInMs;
-  
+
   /**
    * Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
    * Useful when using the JGitflow maven plugin.
@@ -333,7 +336,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
-  
+
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
    */
@@ -432,20 +435,31 @@ public class GitCommitIdMojo extends AbstractMojo {
         String trimmedPrefix = prefix.trim();
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
-        loadGitData(properties);
-        loadBuildData(properties);
-        propertiesReplacer.performReplacement(properties, replacementProperties);
-        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        // check if properties have already been injected
+        Properties contextProperties = getContextProperties(project);
+        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
+        if (alreadyInjected) {
+          log.info("injectAllReactorProjects is enabled and this project already contains properties");
+          properties = contextProperties;
+        } else {
+          loadGitData(properties);
+          loadBuildData(properties);
+          propertiesReplacer.performReplacement(properties, replacementProperties);
+          propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
+          propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        }
         logProperties();
 
         if (generateGitPropertiesFile) {
           maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
         }
-        publishPropertiesInto(project);
 
-        if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects();
+        if (!alreadyInjected) {
+          publishPropertiesInto(project);
+
+          if (injectAllReactorProjects) {
+            appendPropertiesToReactorProjects();
+          }
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -492,6 +506,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
       publishPropertiesInto(mavenProject);
+      mavenProject.setContextValue(CONTEXT_KEY, properties);
     }
   }
 
@@ -609,11 +624,11 @@ public class GitCommitIdMojo extends AbstractMojo {
         } catch (final IOException ex) {
           throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
         }
-        
+
         if (buildContext != null) {
           buildContext.refresh(gitPropsFile);
         }
-        
+
       } else {
         log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
       }
@@ -676,6 +691,10 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (final Exception ex) {
       throw new CannotReadFileException(ex);
     }
+  }
+
+  private Properties getContextProperties(MavenProject project) {
+    return (Properties) project.getContextValue(CONTEXT_KEY);
   }
 
   static class CannotReadFileException extends Exception {
