@@ -522,7 +522,9 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setDateFormatTimeZone(dateFormatTimeZone)
               .setGitDescribe(gitDescribe)
               .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
+              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
+              .setExcludeProperties(excludeProperties)
+              .setIncludeOnlyProperties(includeOnlyProperties);
 
       nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
@@ -539,7 +541,9 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setDateFormatTimeZone(dateFormatTimeZone)
         .setGitDescribe(gitDescribe)
         .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
+        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
+        .setExcludeProperties(excludeProperties)
+        .setIncludeOnlyProperties(includeOnlyProperties);
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }

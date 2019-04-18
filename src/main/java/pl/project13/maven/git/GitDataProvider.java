@@ -17,6 +17,7 @@
 
 package pl.project13.maven.git;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.apache.http.client.utils.URIBuilder;
 import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.build.UnknownBuildServerData;
@@ -26,10 +27,10 @@ import pl.project13.maven.git.util.PropertyManager;
 import javax.annotation.Nonnull;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -54,6 +55,10 @@ public abstract class GitDataProvider implements GitProvider {
   protected String evaluateOnCommit;
   
   protected boolean useBranchNameFromBuildEnvironment;
+
+  protected List<String> excludeProperties;
+
+  protected List<String> includeOnlyProperties;
 
   public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
@@ -94,31 +99,41 @@ public abstract class GitDataProvider implements GitProvider {
     return this;
   }
 
+  public GitDataProvider setExcludeProperties(List<String> excludeProperties) {
+    this.excludeProperties = excludeProperties;
+    return this;
+  }
+
+  public GitDataProvider setIncludeOnlyProperties(List<String> includeOnlyProperties) {
+    this.includeOnlyProperties = includeOnlyProperties;
+    return this;
+  }
+
   public void loadGitData(@Nonnull String evaluateOnCommit, @Nonnull Properties properties) throws GitCommitIdExecutionException {
     this.evaluateOnCommit = evaluateOnCommit;
     init();
     // git.user.name
-    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, getBuildAuthorName());
+    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, () -> getBuildAuthorName());
     // git.user.email
-    put(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, getBuildAuthorEmail());
+    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, () -> getBuildAuthorEmail());
 
     try {
       prepareGitToExtractMoreDetailedRepoInformation();
       validateAbbrevLength(abbrevLength);
 
       // git.branch
-      put(properties, GitCommitPropertyConstant.BRANCH, determineBranchName(System.getenv()));
+      maybePut(properties, GitCommitPropertyConstant.BRANCH, () -> determineBranchName(System.getenv()));
       // git.commit.id.describe
       maybePutGitDescribe(properties);
       loadShortDescribe(properties);
       // git.commit.id
       switch (commitIdGenerationMode) {
         case FULL: {
-          put(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, getCommitId());
+          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, () -> getCommitId());
           break;
         }
         case FLAT: {
-          put(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, getCommitId());
+          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, () -> getCommitId());
           break;
         }
         default: {
@@ -126,33 +141,33 @@ public abstract class GitDataProvider implements GitProvider {
         }
       }
       // git.commit.id.abbrev
-      put(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, getAbbrevCommitId());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, () -> getAbbrevCommitId());
       // git.dirty
-      put(properties, GitCommitPropertyConstant.DIRTY, Boolean.toString(isDirty()));
+      maybePut(properties, GitCommitPropertyConstant.DIRTY, () -> Boolean.toString(isDirty()));
       // git.commit.author.name
-      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, getCommitAuthorName());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, () -> getCommitAuthorName());
       // git.commit.author.email
-      put(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, getCommitAuthorEmail());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, () -> getCommitAuthorEmail());
       // git.commit.message.full
-      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, getCommitMessageFull());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, () -> getCommitMessageFull());
       // git.commit.message.short
-      put(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, getCommitMessageShort());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, () -> getCommitMessageShort());
       // git.commit.time
-      put(properties, GitCommitPropertyConstant.COMMIT_TIME, getCommitTime());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_TIME, () -> getCommitTime());
       // git remote.origin.url
-      put(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, getRemoteOriginUrl());
+      maybePut(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, () -> getRemoteOriginUrl());
 
       //
-      put(properties, GitCommitPropertyConstant.TAGS, getTags());
-      
-      put(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, getClosestTagName());
-      put(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, getClosestTagCommitCount());
+      maybePut(properties, GitCommitPropertyConstant.TAGS, () -> getTags());
 
-      put(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, getTotalCommitCount());
-      
-      final AheadBehind aheadBehind = getAheadBehind();
-      put(properties, GitCommitPropertyConstant.LOCAL_BRANCH_AHEAD, aheadBehind.ahead());
-      put(properties, GitCommitPropertyConstant.LOCAL_BRANCH_BEHIND, aheadBehind.behind());  
+      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, () -> getClosestTagName());
+      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, () -> getClosestTagCommitCount());
+
+      maybePut(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, () -> getTotalCommitCount());
+
+      SupplierEx<AheadBehind> aheadBehindSupplier = memoize(() -> getAheadBehind());
+      maybePut(properties, GitCommitPropertyConstant.LOCAL_BRANCH_AHEAD, () -> aheadBehindSupplier.get().ahead());
+      maybePut(properties, GitCommitPropertyConstant.LOCAL_BRANCH_BEHIND, () -> aheadBehindSupplier.get().behind());
     } finally {
       finalCleanUp();
     }
@@ -163,11 +178,11 @@ public abstract class GitDataProvider implements GitProvider {
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      put(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, getGitDescribe());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, () -> getGitDescribe());
     }
   }
 
-  protected void loadShortDescribe(@Nonnull Properties properties) {
+  protected void loadShortDescribe(@Nonnull Properties properties) throws GitCommitIdExecutionException {
     //removes git hash part from describe
     String commitDescribe = properties.getProperty(prefixDot + GitCommitPropertyConstant.COMMIT_DESCRIBE);
 
@@ -181,9 +196,9 @@ public abstract class GitDataProvider implements GitProvider {
         } else {
           commitShortDescribe = commitDescribe.substring(0, startPos) + commitDescribe.substring(endPos);
         }
-        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitShortDescribe);
+        maybePut(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, () -> commitShortDescribe);
       } else {
-        put(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, commitDescribe);
+        maybePut(properties, GitCommitPropertyConstant.COMMIT_SHORT_DESCRIBE, () -> commitDescribe);
       }
     }
   }
@@ -224,10 +239,32 @@ public abstract class GitDataProvider implements GitProvider {
     return smf;
   }
 
-  protected void put(@Nonnull Properties properties, String key, String value) {
+  protected void maybePut(@Nonnull Properties properties, String key, SupplierEx<String> value)
+          throws GitCommitIdExecutionException {
     String keyWithPrefix = prefixDot + key;
-    log.info("{} {}", keyWithPrefix, value);
-    PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
+    if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
+      String propertyValue = value.get();
+      log.info("{} {}", keyWithPrefix, propertyValue);
+      PropertyManager.putWithoutPrefix(properties, keyWithPrefix, propertyValue);
+    }
+  }
+
+  @FunctionalInterface
+  public interface SupplierEx<T> {
+    @CanIgnoreReturnValue
+    T get() throws GitCommitIdExecutionException;
+  }
+
+  public static <T> SupplierEx<T> memoize(SupplierEx<T> delegate) {
+    final AtomicBoolean retrived = new AtomicBoolean(false);
+    final AtomicReference<T> value = new AtomicReference<>();
+    return () -> {
+      if (!retrived.get()) {
+        value.set(delegate.get());
+        retrived.set(true);
+      }
+      return value.get();
+    };
   }
 
   /**

@@ -28,7 +28,7 @@ import static org.mockito.Mockito.spy;
 
 public class GitDataProviderTest  {
   @Test
-  public void loadShortDescribe() {
+  public void loadShortDescribe() throws GitCommitIdExecutionException {
     assertShortDescribe("1.0.2-12-g19471", "1.0.2-12");
     assertShortDescribe("v1.0.0-0-gde4db35917", "v1.0.0-0");
     assertShortDescribe("1.0.2-12-g19471-DEV", "1.0.2-12-DEV");
@@ -40,7 +40,7 @@ public class GitDataProviderTest  {
     assertShortDescribe("", "");
   }
 
-  private void assertShortDescribe(String commitDescribe, String expectedShortDescribe) {
+  private void assertShortDescribe(String commitDescribe, String expectedShortDescribe) throws GitCommitIdExecutionException {
     Properties prop = new Properties();
     if (commitDescribe != null) {
       prop.put(GitCommitPropertyConstant.COMMIT_DESCRIBE, commitDescribe);

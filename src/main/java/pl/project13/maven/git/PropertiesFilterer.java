@@ -66,6 +66,20 @@ public class PropertiesFilterer {
             });
   }
 
+  public static boolean isIncluded(String keyWithPrefix, @Nullable List<String> inclusions, @Nullable List<String> exclusions) {
+    boolean included = true;
+    if (inclusions != null && !inclusions.isEmpty()) {
+      included &= inclusions.stream()
+              .anyMatch(keyWithPrefix::matches);
+    }
+    if (exclusions != null && !exclusions.isEmpty()) {
+      included &= exclusions.stream()
+              .noneMatch(keyWithPrefix::matches);
+    }
+
+    return included;
+  }
+
   private boolean isOurProperty(String key, String prefixDot) {
     return key.startsWith(prefixDot);
   }
