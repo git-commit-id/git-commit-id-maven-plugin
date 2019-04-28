@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NativeGitProvider extends GitDataProvider {
 
@@ -94,16 +96,23 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public String getBranchName() throws GitCommitIdExecutionException {
-    return getBranch(canonical);
+    if (evalCommitIsNotHead()) {
+      // git branch --points-at $evaluateOnCommit
+      return getBranchForCommitish(canonical);
+    } else {
+      // git symbolic-ref --short HEAD
+      return getBranchForHead(canonical);
+    }
   }
 
-  private String getBranch(File canonical) throws GitCommitIdExecutionException {
+  private boolean evalCommitIsNotHead() {
+    return (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
+  }
+
+  private String getBranchForHead(File canonical) throws GitCommitIdExecutionException {
     String branch;
     try {
-      branch = runGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref " + evaluateOnCommit);
-      if (branch != null) {
-        branch = branch.replace("refs/heads/", "");
-      }
+      branch = runGitCommand(canonical, nativeGitTimeoutInMs, "symbolic-ref --short " + evaluateOnCommit);
     } catch (NativeCommandException e) {
       // it seems that git repo is in 'DETACHED HEAD'-State, using Commit-Id as Branch
       String err = e.getStderr();
@@ -122,6 +131,22 @@ public class NativeGitProvider extends GitDataProvider {
     return branch;
   }
 
+  private String getBranchForCommitish(File canonical) throws GitCommitIdExecutionException {
+    String branch = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "branch --points-at " + evaluateOnCommit);
+    if (branch != null && !branch.isEmpty()) {
+      // multiple branches could point to the same commit - return them all...
+      branch = Stream.of(branch.split("\n"))
+              .map(s -> s.replaceAll("[\\* ]+", ""))
+              // --points-at returns detached HEAD as branch, we don't like that
+              .filter(s -> !s.startsWith("(HEAD detached at"))
+              .collect(Collectors.joining(","));
+    } else {
+      // it seems that nothing is pointing to the commit, using Commit-Id as Branch
+      branch = getCommitId();
+    }
+    return branch;
+  }
+
   @Override
   public String getGitDescribe() throws GitCommitIdExecutionException {
     final String argumentsForGitDescribe = getArgumentsForGitDescribe(gitDescribe);
@@ -134,7 +159,7 @@ public class NativeGitProvider extends GitDataProvider {
     }
 
     StringBuilder argumentsForGitDescribe = new StringBuilder();
-    boolean hasCommitish = (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
+    boolean hasCommitish = evalCommitIsNotHead();
     if (hasCommitish) {
       argumentsForGitDescribe.append(" " + evaluateOnCommit);
     }
@@ -172,7 +197,7 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitId() throws GitCommitIdExecutionException {
-    boolean evaluateOnCommitIsSet = (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
+    boolean evaluateOnCommitIsSet = evalCommitIsNotHead();
     if (evaluateOnCommitIsSet) {
       // if evaluateOnCommit represents a tag we need to perform the rev-parse on the actual commit reference
       // in case evaluateOnCommit is not a reference rev-list will just return the argument given

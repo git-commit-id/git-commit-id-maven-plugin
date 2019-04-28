@@ -255,7 +255,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   }
   
   @Test
-  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet() throws Exception {
+  @Parameters(method = "useNativeGit")
+  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit) throws Exception {
     mavenSandbox.withParentProject("my-jar-project", "jar")
                 .withNoChildProject()
                 .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
@@ -264,6 +265,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
 
     mojo.useBranchNameFromBuildEnvironment = false;
+    mojo.useNativeGit = useNativeGit;
 
     Map<String, String> env = new HashMap<>();
 
@@ -1430,6 +1432,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
 
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test");
+
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
@@ -1462,6 +1466,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "9cb810e57e2994f38c7ec6a698a31de66fdd9e24");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
@@ -1496,11 +1502,70 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
 
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test");
+
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyEvalOnCommitWithTwoBranches(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+            .withNoChildProject()
+            .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+            .create();
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    // create a new branch on the current HEAD commit:
+    //    2343428 - Moved master - Fri, 29 Nov 2013 10:38:34 +0100 (HEAD, branch: master)
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("2343428").call();
+      git.checkout().setCreateBranch(true).setName("another_branch").setForce(true).call();
+      git.checkout().setCreateBranch(true).setName("z_branch").setForce(true).call();
+    }
+
+    mojo.useNativeGit = useNativeGit;
+    mojo.evaluateOnCommit = "2343428";
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "2343428");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "another_branch,master,z_branch");
+  }
+
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void verifyDetachedHeadIsNotReportedAsBranch(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-jar-project", "jar")
+            .withNoChildProject()
+            .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+            .create();
+    MavenProject targetProject = mavenSandbox.getParentProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    // detach head
+    try (final Git git = git("my-jar-project")) {
+      git.reset().setMode(ResetCommand.ResetType.HARD).setRef("2343428").call();
+    }
+
+    mojo.useNativeGit = useNativeGit;
+    // mojo.evaluateOnCommit = "HEAD"; // do not change this
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "2343428");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "master");
   }
 
   // TODO: Test that fails when trying to pass invalid data to evaluateOnCommit

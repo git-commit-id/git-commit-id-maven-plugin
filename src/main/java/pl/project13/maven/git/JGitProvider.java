@@ -22,12 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.AbbreviatedObjectId;
-import org.eclipse.jgit.lib.BranchTrackingStatus;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
@@ -41,9 +36,8 @@ import pl.project13.maven.git.log.LoggerBridge;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 
@@ -118,10 +112,58 @@ public class JGitProvider extends GitDataProvider {
   @Override
   public String getBranchName() throws GitCommitIdExecutionException {
     try {
-      return git.getBranch();
+      if (evalCommitIsNotHead()) {
+        return getBranchForCommitish();
+      } else {
+        return getBranchForHead();
+      }
     } catch (IOException e) {
       throw new GitCommitIdExecutionException(e);
     }
+  }
+
+  private String getBranchForHead() throws IOException {
+      return git.getBranch();
+  }
+
+  private String getBranchForCommitish() throws GitCommitIdExecutionException {
+    try {
+      String commitId = getCommitId();
+
+      boolean evaluateOnCommitPointsToTag = git.getRefDatabase().getRefsByPrefix(Constants.R_TAGS)
+              .stream()
+              .anyMatch(ref -> Repository.shortenRefName(ref.getName()).equalsIgnoreCase(evaluateOnCommit));
+
+      if (evaluateOnCommitPointsToTag) {
+        // 'git branch --points-at' only works for <sha-objects> and <branch> names
+        // if the provided evaluateOnCommit points to a tag 'git branch --points-at' returns the commit-id instead
+        return commitId;
+      }
+
+      List<String> branchesForCommit = git.getRefDatabase().getRefsByPrefix(Constants.R_HEADS)
+              .stream()
+              .filter(ref -> commitId.equals(ref.getObjectId().name()))
+              .map(ref -> Repository.shortenRefName(ref.getName()))
+              .distinct()
+              .collect(Collectors.toList());
+
+      Collections.sort(branchesForCommit);
+
+      String branch = branchesForCommit.stream()
+              .collect(Collectors.joining(","));
+
+      if (branch != null && !branch.isEmpty()) {
+        return branch;
+      } else {
+        return commitId;
+      }
+    } catch (IOException e) {
+      throw new GitCommitIdExecutionException(e);
+    }
+  }
+
+  private boolean evalCommitIsNotHead() {
+    return (evaluateOnCommit != null) && !evaluateOnCommit.equals("HEAD");
   }
 
   @Override
