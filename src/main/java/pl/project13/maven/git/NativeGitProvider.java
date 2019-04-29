@@ -331,6 +331,7 @@ public class NativeGitProvider extends GitDataProvider {
 
       return getRunner().runEmpty(directory, nativeGitTimeoutInMs, command);
     } catch (IOException ex) {
+      log.error("Failed to run git command", ex);
       // Error means "non-empty"
       return false;
       // do nothing...
@@ -421,7 +422,7 @@ public class NativeGitProvider extends GitDataProvider {
 
     @Override
     public String getMessage() {
-      return format("Git command exited with invalid status [%d]: stdout: `%s`, stderr: `%s`", exitCode, stdout, stderr);
+      return format("Git command exited with invalid status [%d]: directory: `%s`, command: `%s`, stdout: `%s`, stderr: `%s`", exitCode, directory, command, stdout, stderr);
     }
   }
 
