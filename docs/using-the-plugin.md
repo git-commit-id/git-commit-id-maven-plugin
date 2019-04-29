@@ -271,6 +271,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
 
                         This feature was implemented in response to [this issue](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/91), so if you're curious about the use-case, check that issue.
+
+                        Prior to version 3.0.0 the plugin used the 'naive' approach to ask for all properties and then apply filtering. However with the growing numbers of properties each property eat more and more of execution time that will be filtered out afterwards.
+                        With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the plugin will not even try to get the property when excluded. Such behaviour can result in an overall reduced execution time of the plugin (see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/408 for details).
                     -->
                     <excludeProperties>
                       <!-- <excludeProperty>git.user.*</excludeProperty> -->
@@ -290,6 +293,10 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         as well as {@code email} properties into the resulting files.
 
                         Please note that the strings here are Java regexes ({@code .*} is globbing, not plain {@code *}).
+
+
+                        Prior to version 3.0.0 the plugin used the 'naive' approach to ask for all properties and then apply filtering. However with the growing numbers of properties each property eat more and more of execution time that will be filtered out afterwards.
+                        With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the plugin will not even try to get the property when included. Such behaviour can result in an overall reduced execution time of the plugin (see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/408 for details).
                     -->
                     <includeOnlyProperties>
                       <!-- <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty> -->
@@ -548,6 +555,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         Please note that for security purposes not all references might be allowed as configuration.
                         If you have a specific use-case that is currently not white listed feel free to file an issue.
+
+                        Note with version 3.0.0:
+                        When an user uses the `evaluateOnCommit` property to gather the branch for an arbitrary commit (really anything besides the default `HEAD`) this plugin will perform a `git branch --points-at` which might return a comma separated list of branch names that points to the specified commit.
                     -->
                     <evaluateOnCommit>HEAD</evaluateOnCommit>
 
@@ -640,7 +650,7 @@ Generated properties
 
  | generated property            | description                             |
  | ----------------------------- | ----------------------------------------|
- |`git.branch`                   | Represents the current branch name. Falls back to commit-id for detached HEAD. |
+ |`git.branch`                   | Represents the current branch name. Falls back to commit-id for detached HEAD. Note: When an user uses the `evaluateOnCommit` property to gather the branch for an arbitrary commit (really anything besides the default `HEAD`) this plugin will perform a `git branch --points-at` which might return a comma separated list of branch names that points to the specified commit. |
  |`git.build.number.unique`      | Represents a system wide unique build number (see notes below). |
  |`git.build.host`               | Represents the hostname where the properties have been generated. |
  |`git.build.time`               | Represents the (formated) timestamp when the last build was executed. If written to the git.properties file represents the latest build time when that file was written / updated. |
