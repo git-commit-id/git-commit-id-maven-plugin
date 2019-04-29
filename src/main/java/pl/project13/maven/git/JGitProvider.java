@@ -123,7 +123,7 @@ public class JGitProvider extends GitDataProvider {
   }
 
   private String getBranchForHead() throws IOException {
-      return git.getBranch();
+    return git.getBranch();
   }
 
   private String getBranchForCommitish() throws GitCommitIdExecutionException {
