@@ -575,6 +575,18 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         detached head state and therefore a commit id as branch name.
                     -->
                     <useBranchNameFromBuildEnvironment>true</useBranchNameFromBuildEnvironment>
+
+                    <!-- @since 3.0.0 -->
+                    <!--
+                        Default (optional):
+                        true
+
+                        Explanation:
+                        When set to `true` this plugin will try to expose the generated properties into `System.getProperties()`.
+                        Set to {@code 'false'} to avoid this exposure.
+                        Note that parameters provided via command-line (e.g. `-Dgit.commit.id=value`) still have precedence.
+                    -->
+                    <injectIntoSysProperties>true</injectIntoSysProperties>
                 </configuration>
             </plugin>
             <!-- END OF GIT COMMIT ID PLUGIN CONFIGURATION -->

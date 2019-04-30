@@ -317,9 +317,18 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Useful when using the JGitflow maven plugin.
    * Note: If not using "Check out to specific local branch' and setting this to false may result in getting
    * detached head state and therefore a commit id as branch name.
+   * @since 3.0.0
    */
   @Parameter(defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
+
+
+  /**
+   * Controls if this plugin should expose the generated properties into System.properties
+   * @since 3.0.0
+   */
+  @Parameter(defaultValue = "true")
+  boolean injectIntoSysProperties;
   
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
@@ -432,10 +441,17 @@ public class GitCommitIdMojo extends AbstractMojo {
           new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
-        publishPropertiesInto(project);
+        publishPropertiesInto(project.getProperties());
+        // some plugins rely on the user properties (e.g. flatten-maven-plugin)
+        publishPropertiesInto(session.getUserProperties());
 
         if (injectAllReactorProjects) {
           appendPropertiesToReactorProjects();
+        }
+
+        if(injectIntoSysProperties) {
+          publishPropertiesInto(System.getProperties());
+          publishPropertiesInto(session.getSystemProperties());
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -456,8 +472,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     buildServerDataProvider.loadBuildData(properties);
   }
 
-  private void publishPropertiesInto(MavenProject target) {
-    target.getProperties().putAll(properties);
+  private void publishPropertiesInto(Properties p) {
+    p.putAll(properties);
   }
 
   /**
@@ -481,7 +497,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       // TODO check message
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
-      publishPropertiesInto(mavenProject);
+      publishPropertiesInto(mavenProject.getProperties());
     }
   }
 
