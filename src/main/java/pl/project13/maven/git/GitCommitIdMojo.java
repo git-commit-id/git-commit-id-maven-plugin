@@ -18,18 +18,11 @@
 package pl.project13.maven.git;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -43,15 +36,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Files;
-import java.io.OutputStream;
-
 import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.log.MavenLoggerBridge;
-import pl.project13.maven.git.util.SortedProperties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -63,6 +50,8 @@ import javax.annotation.Nullable;
  */
 @Mojo(name = "revision", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class GitCommitIdMojo extends AbstractMojo {
+  private static final String CONTEXT_KEY = GitCommitIdMojo.class.getName() + ".properties";
+
   /**
    * The Maven Project.
    */
@@ -324,15 +313,24 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "30000")
   long nativeGitTimeoutInMs;
-  
+
   /**
    * Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
    * Useful when using the JGitflow maven plugin.
    * Note: If not using "Check out to specific local branch' and setting this to false may result in getting
    * detached head state and therefore a commit id as branch name.
+   * @since 3.0.0
    */
   @Parameter(defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
+
+
+  /**
+   * Controls if this plugin should expose the generated properties into System.properties
+   * @since 3.0.0
+   */
+  @Parameter(defaultValue = "true")
+  boolean injectIntoSysProperties;
   
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
@@ -368,7 +366,9 @@ public class GitCommitIdMojo extends AbstractMojo {
       // Skip mojo execution on incremental builds.
       if (buildContext != null && buildContext.isIncremental()) {
         // Except if properties file is missing at all
-        if (!generateGitPropertiesFile || craftPropertiesOutputFile(project.getBasedir(), generateGitPropertiesFilename).exists()) {
+        if (!generateGitPropertiesFile ||
+                PropertiesFileGenerator.craftPropertiesOutputFile(
+                        project.getBasedir(), generateGitPropertiesFilename).exists()) {
           return;
         }
       }
@@ -432,20 +432,38 @@ public class GitCommitIdMojo extends AbstractMojo {
         String trimmedPrefix = prefix.trim();
         prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
 
-        loadGitData(properties);
-        loadBuildData(properties);
-        propertiesReplacer.performReplacement(properties, replacementProperties);
-        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        // check if properties have already been injected
+        Properties contextProperties = getContextProperties(project);
+        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
+        if (alreadyInjected) {
+          log.info("injectAllReactorProjects is enabled and this project already contains properties - using already computed values");
+          properties = contextProperties;
+        } else {
+          loadGitData(properties);
+          loadBuildData(properties);
+          propertiesReplacer.performReplacement(properties, replacementProperties);
+          propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
+          propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        }
         logProperties();
 
         if (generateGitPropertiesFile) {
-          maybeGeneratePropertiesFile(properties, project.getBasedir(), generateGitPropertiesFilename);
+          new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
+                  properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
-        publishPropertiesInto(project);
+        if (!alreadyInjected) {
+          publishPropertiesInto(project.getProperties());
+          // some plugins rely on the user properties (e.g. flatten-maven-plugin)
+          publishPropertiesInto(session.getUserProperties());
 
-        if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects();
+          if (injectAllReactorProjects) {
+            appendPropertiesToReactorProjects();
+          }
+
+          if (injectIntoSysProperties) {
+            publishPropertiesInto(System.getProperties());
+            publishPropertiesInto(session.getSystemProperties());
+          }
         }
       } catch (Exception e) {
         handlePluginFailure(e);
@@ -453,6 +471,15 @@ public class GitCommitIdMojo extends AbstractMojo {
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
+  }
+
+  @Nullable
+  private Properties getContextProperties(MavenProject project) {
+    Object stored = project.getContextValue(CONTEXT_KEY);
+    if (stored instanceof Properties) {
+      return (Properties)stored;
+    }
+    return null;
   }
 
   private void loadBuildData(Properties properties) {
@@ -466,8 +493,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     buildServerDataProvider.loadBuildData(properties);
   }
 
-  private void publishPropertiesInto(MavenProject target) {
-    target.getProperties().putAll(properties);
+  private void publishPropertiesInto(Properties p) {
+    p.putAll(properties);
   }
 
   /**
@@ -491,7 +518,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       // TODO check message
       log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
 
-      publishPropertiesInto(mavenProject);
+      publishPropertiesInto(mavenProject.getProperties());
+      mavenProject.setContextValue(CONTEXT_KEY, properties);
     }
   }
 
@@ -532,7 +560,9 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setDateFormatTimeZone(dateFormatTimeZone)
               .setGitDescribe(gitDescribe)
               .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
+              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
+              .setExcludeProperties(excludeProperties)
+              .setIncludeOnlyProperties(includeOnlyProperties);
 
       nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
@@ -549,90 +579,12 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setDateFormatTimeZone(dateFormatTimeZone)
         .setGitDescribe(gitDescribe)
         .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment);
+        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
+        .setExcludeProperties(excludeProperties)
+        .setIncludeOnlyProperties(includeOnlyProperties);
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
-
-  private void maybeGeneratePropertiesFile(@Nonnull Properties localProperties, File base, String propertiesFilename) throws GitCommitIdExecutionException {
-    try {
-      final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
-      final boolean isJsonFormat = "json".equalsIgnoreCase(format);
-
-      boolean shouldGenerate = true;
-
-      if (gitPropsFile.exists()) {
-        final Properties persistedProperties;
-
-        try {
-          if (isJsonFormat) {
-            log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-
-            persistedProperties = readJsonProperties(gitPropsFile);
-          } else {
-            log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-
-            persistedProperties = readProperties(gitPropsFile);
-          }
-
-          final Properties propertiesCopy = (Properties) localProperties.clone();
-
-          final String buildTimeProperty = prefixDot + GitCommitPropertyConstant.BUILD_TIME;
-
-          propertiesCopy.remove(buildTimeProperty);
-          persistedProperties.remove(buildTimeProperty);
-
-          shouldGenerate = !propertiesCopy.equals(persistedProperties);
-        } catch (CannotReadFileException ex) {
-          // Read has failed, regenerate file
-          log.info("Cannot read properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-          shouldGenerate = true;
-        }
-      }
-
-      if (shouldGenerate) {
-        Files.createParentDirs(gitPropsFile);
-        try (OutputStream outputStream = new FileOutputStream(gitPropsFile)) {
-          SortedProperties sortedLocalProperties = new SortedProperties();
-          sortedLocalProperties.putAll(localProperties);
-          if (isJsonFormat) {
-            try (Writer outputWriter = new OutputStreamWriter(outputStream, sourceCharset)) {
-              log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-              ObjectMapper mapper = new ObjectMapper();
-              mapper.writerWithDefaultPrettyPrinter().writeValue(outputWriter, sortedLocalProperties);
-            }
-          } else {
-            log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-            // using outputStream directly instead of outputWriter this way the UTF-8 characters appears in unicode escaped form
-            sortedLocalProperties.store(outputStream, "Generated by Git-Commit-Id-Plugin");
-          }
-        } catch (final IOException ex) {
-          throw new RuntimeException("Cannot create custom git properties file: " + gitPropsFile, ex);
-        }
-        
-        if (buildContext != null) {
-          buildContext.refresh(gitPropsFile);
-        }
-        
-      } else {
-        log.info("Properties file [{}] is up-to-date (for module {})...", gitPropsFile.getAbsolutePath(), project.getName());
-      }
-    } catch (IOException e) {
-      throw new GitCommitIdExecutionException(e);
-    }
-  }
-
-  File craftPropertiesOutputFile(File base, String propertiesFilename) {
-    File returnPath = new File(base, propertiesFilename);
-
-    File currentPropertiesFilepath = new File(propertiesFilename);
-    if (currentPropertiesFilepath.isAbsolute()) {
-      returnPath = currentPropertiesFilepath;
-    }
-
-    return returnPath;
-  }
-
 
   private boolean isPomProject(@Nonnull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
@@ -640,49 +592,5 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private boolean directoryExists(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
-  }
-
-  private Properties readJsonProperties(@Nonnull File jsonFile) throws CannotReadFileException {
-    final HashMap<String, Object> propertiesMap;
-
-    try (final FileInputStream fis = new FileInputStream(jsonFile)) {
-      try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
-        final ObjectMapper mapper = new ObjectMapper();
-        final TypeReference<HashMap<String, Object>> mapTypeRef =
-                new TypeReference<HashMap<String, Object>>() {};
-
-        propertiesMap = mapper.readValue(reader, mapTypeRef);
-      }
-    } catch (final Exception ex) {
-      throw new CannotReadFileException(ex);
-    }
-
-    final Properties retVal = new Properties();
-
-    for (final Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
-      retVal.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
-    }
-
-    return retVal;
-  }
-
-  private Properties readProperties(@Nonnull File propertiesFile) throws CannotReadFileException {
-    try (final FileInputStream fis = new FileInputStream(propertiesFile)) {
-      try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
-        final Properties retVal = new Properties();
-        retVal.load(reader);
-        return retVal;
-      }
-    } catch (final Exception ex) {
-      throw new CannotReadFileException(ex);
-    }
-  }
-
-  static class CannotReadFileException extends Exception {
-    private static final long serialVersionUID = -6290782570018307756L;
-
-    CannotReadFileException(Throwable cause) {
-      super(cause);
-    }
   }
 }

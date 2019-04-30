@@ -32,23 +32,21 @@ import static org.junit.Assert.assertTrue;
 public class GitCommitIdMojoTest {
   @Test
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
-    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
     String generateGitPropertiesFilename = "target" + File.separator + "classes" + File.separator + "git.properties";
     
-    File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
+    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
   }
 
   @Test
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
-    GitCommitIdMojo commitIdMojo = new GitCommitIdMojo();
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
     String generateGitPropertiesFilename = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
 
-    File result = commitIdMojo.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
+    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
     assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
   }
 

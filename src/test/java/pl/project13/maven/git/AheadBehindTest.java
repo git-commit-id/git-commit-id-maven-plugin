@@ -25,6 +25,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.hamcrest.CoreMatchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +62,17 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     gitProvider = gitProvider();
 
     extraSetup();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (localRepositoryGit != null) {
+      localRepositoryGit.close();
+    }
+
+    if (secondLocalRepositoryGit != null) {
+      secondLocalRepositoryGit.close();
+    }
   }
 
   protected abstract T gitProvider();

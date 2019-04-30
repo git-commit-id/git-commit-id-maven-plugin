@@ -59,7 +59,7 @@
 
     <jgit.version>5.2.0.201812061821-r</jgit.version>
     <junit.version>5.3.1</junit.version>
-    <mockito.version>2.23.4</mockito.version>
+    <mockito.version>2.27.0</mockito.version>
 
     <fest-assert.version>1.4</fest-assert.version>
   </properties>
@@ -107,14 +107,14 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>27.0.1-jre</version>
+      <version>27.1-jre</version>
     </dependency>
 
     <!-- HttpClient -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
-      <version>4.5.6</version>
+      <version>4.5.8</version>
     </dependency>
 
     <!-- JGit -->
@@ -142,7 +142,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>3.1.1</version>
+      <version>3.2.0</version>
       <scope>test</scope>
     </dependency>
 
