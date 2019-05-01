@@ -436,35 +436,36 @@ public class GitCommitIdMojo extends AbstractMojo {
         Properties contextProperties = getContextProperties(project);
         boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
         if (alreadyInjected) {
-          log.info("injectAllReactorProjects is enabled and this project already contains properties - using already computed values");
+          log.info("injectAllReactorProjects is enabled - attempting to use the already computed values");
           properties = contextProperties;
-        } else {
-          loadGitData(properties);
-          loadBuildData(properties);
-          propertiesReplacer.performReplacement(properties, replacementProperties);
-          propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-          propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
         }
+
+        loadGitData(properties);
+        loadBuildData(properties);
+        propertiesReplacer.performReplacement(properties, replacementProperties);
+        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
+        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+
         logProperties();
 
         if (generateGitPropertiesFile) {
           new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
-        if (!alreadyInjected) {
-          publishPropertiesInto(project.getProperties());
-          // some plugins rely on the user properties (e.g. flatten-maven-plugin)
-          publishPropertiesInto(session.getUserProperties());
 
-          if (injectAllReactorProjects) {
-            appendPropertiesToReactorProjects();
-          }
+        publishPropertiesInto(project.getProperties());
+        // some plugins rely on the user properties (e.g. flatten-maven-plugin)
+        publishPropertiesInto(session.getUserProperties());
 
-          if (injectIntoSysProperties) {
-            publishPropertiesInto(System.getProperties());
-            publishPropertiesInto(session.getSystemProperties());
-          }
+        if (injectAllReactorProjects) {
+          appendPropertiesToReactorProjects();
         }
+
+        if (injectIntoSysProperties) {
+          publishPropertiesInto(System.getProperties());
+          publishPropertiesInto(session.getSystemProperties());
+        }
+
       } catch (Exception e) {
         handlePluginFailure(e);
       }
@@ -536,7 +537,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   private void logProperties() {
     for (Object key : properties.keySet()) {
       String keyString = key.toString();
-      log.info("found property {}", keyString);
+      log.info("including property {} in results", keyString);
     }
   }
 

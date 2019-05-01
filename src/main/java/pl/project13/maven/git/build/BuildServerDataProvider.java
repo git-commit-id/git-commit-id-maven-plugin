@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 
 public abstract class BuildServerDataProvider {
 
@@ -125,21 +126,37 @@ public abstract class BuildServerDataProvider {
   }
 
   private void loadBuildHostData(@Nonnull Properties properties) {
-    String buildHost = null;
-    try {
-      buildHost = InetAddress.getLocalHost().getHostName();
-    } catch (UnknownHostException e) {
-      log.info("Unable to get build host, skipping property {}. Error message: {}",
-          GitCommitPropertyConstant.BUILD_HOST,
-          e.getMessage());
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_HOST, buildHost);
+    Supplier<String> buildHostSupplier = () -> {
+      String buildHost = null;
+      try {
+        // this call might be costly - try to avoid it too (similar concept as in GitDataProvider)
+        buildHost = InetAddress.getLocalHost().getHostName();
+      } catch (UnknownHostException e) {
+        log.info("Unable to get build host, skipping property {}. Error message: {}",
+            GitCommitPropertyConstant.BUILD_HOST,
+            e.getMessage());
+      }
+      return buildHost;
+    };
+    maybePut(properties, GitCommitPropertyConstant.BUILD_HOST, buildHostSupplier);
   }
 
   protected void put(@Nonnull Properties properties, @Nonnull String key, String value) {
     String keyWithPrefix = prefixDot + key;
-    log.info("{} {}", keyWithPrefix, value);
+    log.info("Collected {} with value {}", keyWithPrefix, value);
     PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
+  }
+
+  protected void maybePut(@Nonnull Properties properties, @Nonnull String key, Supplier<String> supplier) {
+    String keyWithPrefix = prefixDot + key;
+    if (properties.contains(keyWithPrefix)) {
+      String propertyValue = properties.getProperty(keyWithPrefix);
+      log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
+    } else {
+      String propertyValue = supplier.get();
+      log.info("Collected {} with value {}", keyWithPrefix, propertyValue);
+      PropertyManager.putWithoutPrefix(properties, keyWithPrefix, propertyValue);
+    }
   }
 
 }
