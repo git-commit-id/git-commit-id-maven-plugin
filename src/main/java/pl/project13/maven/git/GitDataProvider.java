@@ -242,9 +242,12 @@ public abstract class GitDataProvider implements GitProvider {
   protected void maybePut(@Nonnull Properties properties, String key, SupplierEx<String> value)
           throws GitCommitIdExecutionException {
     String keyWithPrefix = prefixDot + key;
-    if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
+    if (properties.contains(keyWithPrefix)) {
+      String propertyValue = properties.getProperty(keyWithPrefix);
+      log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
+    } else if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
       String propertyValue = value.get();
-      log.info("{} {}", keyWithPrefix, propertyValue);
+      log.info("Collected {} with value {}", keyWithPrefix, propertyValue);
       PropertyManager.putWithoutPrefix(properties, keyWithPrefix, propertyValue);
     }
   }

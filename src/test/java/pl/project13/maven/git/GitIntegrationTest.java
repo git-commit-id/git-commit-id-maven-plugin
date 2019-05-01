@@ -18,6 +18,7 @@
 package pl.project13.maven.git;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.Git;
 import org.junit.After;
@@ -26,8 +27,14 @@ import org.junit.Before;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public abstract class GitIntegrationTest {
 
@@ -108,11 +115,30 @@ public abstract class GitIntegrationTest {
     mojo.commitIdGenerationMode = "full";
     mojo.evaluateOnCommit = evaluateOnCommit;
     mojo.nativeGitTimeoutInMs = (30 * 1000);
+    mojo.session = mockSession();
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
     mojo.project = project;
     mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
+    mojo.reactorProjects = getReactorProjects(project);
+  }
+
+  private static MavenSession mockSession() {
+    MavenSession session = mock(MavenSession.class);
+    when(session.getUserProperties()).thenReturn(new Properties());
+    when(session.getSystemProperties()).thenReturn(new Properties());
+    return session;
+  }
+
+  private static List<MavenProject> getReactorProjects(@Nonnull MavenProject project) {
+    List<MavenProject> reactorProjects = new ArrayList<>();
+    MavenProject mavenProject = project;
+    while (mavenProject != null) {
+      reactorProjects.add(mavenProject);
+      mavenProject = mavenProject.getParent();
+    }
+    return reactorProjects;
   }
 
 }

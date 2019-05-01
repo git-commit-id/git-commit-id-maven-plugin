@@ -1568,7 +1568,45 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "master");
   }
 
-  // TODO: Test that fails when trying to pass invalid data to evaluateOnCommit
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGeneratePropertiesWithMultiplePrefixesAndReactorProject(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox.withParentProject("my-pom-project", "pom")
+            .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+            .withChildProject("my-child-module", "jar")
+            .create();
+    MavenProject targetProject = mavenSandbox.getChildProject(); // "my-child-two-module"
+
+    setProjectToExecuteMojoIn(targetProject);
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 7);
+    gitDescribeConfig.setDirty("-dirty"); // checking if dirty works as expected
+
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
+    mojo.injectAllReactorProjects = true;
+
+    List<String> prefixes = Arrays.asList("prefix-one", "prefix-two");
+    // when
+    // simulate plugin execution with multiple prefixes
+    // see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/137#issuecomment-418144756
+    for (String prefix: prefixes) {
+      mojo.prefix = prefix;
+
+      mojo.execute();
+    }
+
+    // then
+    // since we inject into all reactors both projects should have both properties
+    Properties properties = targetProject.getProperties();
+    for (String prefix: prefixes) {
+      assertPropertyPresentAndEqual(properties, prefix + ".commit.id.abbrev", "de4db35");
+
+      assertPropertyPresentAndEqual(properties, prefix + ".closest.tag.name", "v1.0.0");
+
+      assertPropertyPresentAndEqual(properties, prefix + ".closest.tag.commit.count", "0");
+    }
+  }
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
