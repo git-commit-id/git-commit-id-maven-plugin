@@ -28,7 +28,7 @@ Getting the plugin
 The plugin **is available from Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
 
 A detailed description of using the plugin is available in the [Using the plugin](docs/using-the-plugin.md) section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
-For more advanced users we also prepared a [guide to provide a brief overview of the moreadvanced configurations](docs/using-the-plugin.md)<a>... read on!
+For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](docs/using-the-plugin.md)<a>... read on!
 
 Versions
 --------
@@ -110,6 +110,7 @@ Notable happy users
 License
 =======
 <img style="float:right; padding:3px; " src="https://github.com/git-commit-id/maven-git-commit-id-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3"/>
+
 I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
 You're free to use it as you wish, the full license text is attached in the LICENSE file.
