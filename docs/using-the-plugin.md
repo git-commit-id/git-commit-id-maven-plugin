@@ -234,6 +234,18 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     -->
                     <skip>false</skip>
 
+                    <!-- @since 3.0.1 -->
+                    <--
+                        Default (optional):
+                        false
+
+                        Explanation:
+                        When set to `true`, the plugin will not try to contact any remote repositories.
+                        Any operations will only use the local state of the repo. If set to `false`, it will execute `git fetch` operations
+                        e.g. to determine the `ahead` and `behind` branch information.
+                    -->
+                    <offline>false</offline>
+
                     <!-- @since 2.1.12 -->
                     <!--
                         Default (optional):
