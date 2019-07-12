@@ -331,7 +331,15 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "true")
   boolean injectIntoSysProperties;
-  
+
+  /**
+   * Controls whether the git plugin tries to access remote repos to fetch latest information
+   * or only use local information.
+   * @since 3.0.1
+   */
+  @Parameter(defaultValue = "false")
+  boolean offline;
+
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
    */
@@ -563,7 +571,8 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setCommitIdGenerationMode(commitIdGenerationModeEnum)
               .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
               .setExcludeProperties(excludeProperties)
-              .setIncludeOnlyProperties(includeOnlyProperties);
+              .setIncludeOnlyProperties(includeOnlyProperties)
+              .setOffline(offline);
 
       nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
@@ -582,7 +591,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setCommitIdGenerationMode(commitIdGenerationModeEnum)
         .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
         .setExcludeProperties(excludeProperties)
-        .setIncludeOnlyProperties(includeOnlyProperties);
+        .setIncludeOnlyProperties(includeOnlyProperties)
+        .setOffline(offline);
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }

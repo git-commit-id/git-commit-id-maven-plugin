@@ -552,7 +552,9 @@ public class NativeGitProvider extends GitDataProvider {
       if (!remoteBranch.isPresent()) {
         return AheadBehind.NO_REMOTE;
       }
-      fetch(remoteBranch.get());
+      if (!offline) {
+        fetch(remoteBranch.get());
+      }
       String localBranchName = getBranchName();
       String ahead = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --right-only --count " + remoteBranch.get() + "..." + localBranchName);
       String behind = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "rev-list --left-only --count " + remoteBranch.get() + "..." + localBranchName);
