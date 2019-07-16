@@ -331,7 +331,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "true")
   boolean injectIntoSysProperties;
-  
+
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
    */
@@ -489,7 +489,9 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setDateFormat(dateFormat)
         .setDateFormatTimeZone(dateFormatTimeZone)
         .setProject(project)
-        .setPrefixDot(prefixDot);
+        .setPrefixDot(prefixDot)
+        .setIncludeOnlyProperties(includeOnlyProperties)
+        .setExcludeProperties(excludeProperties);
 
     buildServerDataProvider.loadBuildData(properties);
   }

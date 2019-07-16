@@ -19,6 +19,7 @@ package pl.project13.maven.git.build;
 
 import org.apache.maven.project.MavenProject;
 import pl.project13.maven.git.GitCommitPropertyConstant;
+import pl.project13.maven.git.PropertiesFilterer;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
@@ -26,7 +27,9 @@ import javax.annotation.Nonnull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -41,9 +44,22 @@ public abstract class BuildServerDataProvider {
   private String prefixDot = "";
   private MavenProject project = null;
 
+  private List<String> includeOnlyProperties = new ArrayList<>();
+  private List<String> excludeProperties = new ArrayList<>();
+
   BuildServerDataProvider(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     this.log = log;
     this.env = env;
+  }
+
+  public BuildServerDataProvider setIncludeOnlyProperties(@Nonnull List<String> includeOnlyProperties) {
+    this.includeOnlyProperties = includeOnlyProperties;
+    return this;
+  }
+
+  public BuildServerDataProvider setExcludeProperties(@Nonnull List<String> excludeProperties) {
+    this.excludeProperties = excludeProperties;
+    return this;
   }
 
   public BuildServerDataProvider setDateFormat(@Nonnull String dateFormat) {
@@ -152,7 +168,7 @@ public abstract class BuildServerDataProvider {
     if (properties.contains(keyWithPrefix)) {
       String propertyValue = properties.getProperty(keyWithPrefix);
       log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
-    } else {
+    } else if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
       String propertyValue = supplier.get();
       log.info("Collected {} with value {}", keyWithPrefix, propertyValue);
       PropertyManager.putWithoutPrefix(properties, keyWithPrefix, propertyValue);
