@@ -34,6 +34,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.maven.git.build.BuildServerDataProvider;
@@ -69,6 +70,12 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(property = "session", required = true, readonly = true)
   MavenSession session;
+
+  /**
+   * The Maven settings.
+   */
+  @Parameter(property = "settings", required = true, readonly = true)
+  Settings settings;
 
   /**
    * <p>Set this to {@code 'true'} to inject git properties into all reactor projects, not just the current one.</p>
@@ -572,7 +579,7 @@ public class GitCommitIdMojo extends AbstractMojo {
               .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
               .setExcludeProperties(excludeProperties)
               .setIncludeOnlyProperties(includeOnlyProperties)
-              .setOffline(offline);
+              .setOffline(offline || settings.isOffline());
 
       nativeGitProvider.loadGitData(evaluateOnCommit, properties);
     } catch (IOException e) {
@@ -592,7 +599,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
         .setExcludeProperties(excludeProperties)
         .setIncludeOnlyProperties(includeOnlyProperties)
-        .setOffline(offline);
+        .setOffline(offline || settings.isOffline());
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
