@@ -335,7 +335,9 @@ public class JGitProvider extends GitDataProvider {
   @Override
   public AheadBehind getAheadBehind() throws GitCommitIdExecutionException {
     try {
-      fetch();
+      if (!offline) {
+        fetch();
+      }
       Optional<BranchTrackingStatus> branchTrackingStatus = Optional.ofNullable(BranchTrackingStatus.of(git, getBranchName()));
       return branchTrackingStatus.map(bts -> AheadBehind.of(bts.getAheadCount(), bts.getBehindCount()))
                                  .orElse(AheadBehind.NO_REMOTE);

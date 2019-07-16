@@ -60,6 +60,8 @@ public abstract class GitDataProvider implements GitProvider {
 
   protected List<String> includeOnlyProperties;
 
+  protected boolean offline;
+
   public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
   }
@@ -106,6 +108,11 @@ public abstract class GitDataProvider implements GitProvider {
 
   public GitDataProvider setIncludeOnlyProperties(List<String> includeOnlyProperties) {
     this.includeOnlyProperties = includeOnlyProperties;
+    return this;
+  }
+
+  public GitDataProvider setOffline(boolean offline) {
+    this.offline = offline;
     return this;
   }
 

@@ -20,6 +20,7 @@ package pl.project13.maven.git;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
 import org.junit.After;
 import org.junit.Before;
@@ -116,6 +117,7 @@ public abstract class GitIntegrationTest {
     mojo.evaluateOnCommit = evaluateOnCommit;
     mojo.nativeGitTimeoutInMs = (30 * 1000);
     mojo.session = mockSession();
+    mojo.settings = mockSettings();
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
@@ -129,6 +131,12 @@ public abstract class GitIntegrationTest {
     when(session.getUserProperties()).thenReturn(new Properties());
     when(session.getSystemProperties()).thenReturn(new Properties());
     return session;
+  }
+
+  private static Settings mockSettings() {
+    Settings settings = mock(Settings.class);
+    when(settings.isOffline()).thenReturn(false);
+    return settings;
   }
 
   private static List<MavenProject> getReactorProjects(@Nonnull MavenProject project) {
