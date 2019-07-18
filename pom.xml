@@ -110,13 +110,6 @@
       <version>27.1-jre</version>
     </dependency>
 
-    <!-- HttpClient -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.5.8</version>
-    </dependency>
-
     <!-- JGit -->
     <dependency>
       <groupId>org.eclipse.jgit</groupId>
