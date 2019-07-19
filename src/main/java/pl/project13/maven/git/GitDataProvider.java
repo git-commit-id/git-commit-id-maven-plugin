@@ -18,7 +18,6 @@
 package pl.project13.maven.git;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import org.apache.http.client.utils.URIBuilder;
 import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.git.build.UnknownBuildServerData;
 import pl.project13.maven.git.log.LoggerBridge;
@@ -53,7 +52,7 @@ public abstract class GitDataProvider implements GitProvider {
   protected CommitIdGenerationMode commitIdGenerationMode;
 
   protected String evaluateOnCommit;
-  
+
   protected boolean useBranchNameFromBuildEnvironment;
 
   protected List<String> excludeProperties;
@@ -95,7 +94,7 @@ public abstract class GitDataProvider implements GitProvider {
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
-  
+
   public GitDataProvider setUseBranchNameFromBuildEnvironment(boolean useBranchNameFromBuildEnvironment) {
     this.useBranchNameFromBuildEnvironment = useBranchNameFromBuildEnvironment;
     return this;
@@ -309,13 +308,18 @@ public abstract class GitDataProvider implements GitProvider {
       if (null == userInfoString) {
         return gitRemoteString;
       }
-      URIBuilder b = new URIBuilder(gitRemoteString);
+
       String[] userInfo = userInfoString.split(":");
       // Build a new URL from the original URL, but nulling out the password
       // component of the userinfo. We keep the username so that ssh uris such
       // ssh://git@github.com will retain 'git@'.
-      b.setUserInfo(userInfo[0]);
-      return b.build().toString();
+      return new URI(original.getScheme(),
+              userInfo[0],
+              original.getHost(),
+              original.getPort(),
+              original.getPath(),
+              original.getQuery(),
+              original.getFragment()).toString();
 
     } catch (URISyntaxException e) {
       log.error("Something went wrong to strip the credentials from git's remote url (please report this)!", e);
