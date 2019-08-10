@@ -532,9 +532,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void appendPropertiesToReactorProjects() {
     for (MavenProject mavenProject : reactorProjects) {
-
-      // TODO check message
-      log.info("{}] project {}", mavenProject.getName(), mavenProject.getName());
+      log.info("Adding properties to project: {}", mavenProject.getName());
 
       publishPropertiesInto(mavenProject.getProperties());
       mavenProject.setContextValue(CONTEXT_KEY, properties);
