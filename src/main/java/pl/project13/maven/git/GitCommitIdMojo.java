@@ -504,7 +504,9 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setDateFormat(dateFormat)
         .setDateFormatTimeZone(dateFormatTimeZone)
         .setProject(project)
-        .setPrefixDot(prefixDot);
+        .setPrefixDot(prefixDot)
+        .setExcludeProperties(excludeProperties)
+        .setIncludeOnlyProperties(includeOnlyProperties);
 
     buildServerDataProvider.loadBuildData(properties);
   }

@@ -19,6 +19,7 @@ package pl.project13.maven.git.build;
 
 import org.apache.maven.project.MavenProject;
 import pl.project13.maven.git.GitCommitPropertyConstant;
+import pl.project13.maven.git.PropertiesFilterer;
 import pl.project13.maven.git.log.LoggerBridge;
 import pl.project13.maven.git.util.PropertyManager;
 
@@ -28,6 +29,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
@@ -40,6 +42,8 @@ public abstract class BuildServerDataProvider {
   private String dateFormatTimeZone = null;
   private String prefixDot = "";
   private MavenProject project = null;
+  private List<String> excludeProperties = null;
+  private List<String> includeOnlyProperties = null;
 
   BuildServerDataProvider(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     this.log = log;
@@ -63,6 +67,16 @@ public abstract class BuildServerDataProvider {
 
   public BuildServerDataProvider setPrefixDot(@Nonnull String prefixDot) {
     this.prefixDot = prefixDot;
+    return this;
+  }
+
+  public BuildServerDataProvider setExcludeProperties(List<String> excludeProperties) {
+    this.excludeProperties = excludeProperties;
+    return this;
+  }
+
+  public BuildServerDataProvider setIncludeOnlyProperties(List<String> includeOnlyProperties) {
+    this.includeOnlyProperties = includeOnlyProperties;
     return this;
   }
 
@@ -113,15 +127,18 @@ public abstract class BuildServerDataProvider {
   public abstract String getBuildBranch();
 
   private void loadBuildVersionAndTimeData(@Nonnull Properties properties) {
-    Date buildDate = new Date();
-    SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
-    if (dateFormatTimeZone != null) {
-      smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
-    }
-    put(properties, GitCommitPropertyConstant.BUILD_TIME, smf.format(buildDate));
+    Supplier<String> buildTimeSupplier = () -> {
+      Date buildDate = new Date();
+      SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
+      if (dateFormatTimeZone != null) {
+        smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
+      }
+      return smf.format(buildDate);
+    };
+    maybePut(properties, GitCommitPropertyConstant.BUILD_TIME, buildTimeSupplier);
 
     if (project != null) {
-      put(properties, GitCommitPropertyConstant.BUILD_VERSION, project.getVersion());
+      maybePut(properties, GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
     }
   }
 
@@ -152,7 +169,7 @@ public abstract class BuildServerDataProvider {
     if (properties.contains(keyWithPrefix)) {
       String propertyValue = properties.getProperty(keyWithPrefix);
       log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
-    } else {
+    } else if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
       String propertyValue = supplier.get();
       log.info("Collected {} with value {}", keyWithPrefix, propertyValue);
       PropertyManager.putWithoutPrefix(properties, keyWithPrefix, propertyValue);
