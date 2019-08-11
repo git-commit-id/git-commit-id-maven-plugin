@@ -32,7 +32,7 @@ For more advanced users we also prepared a [guide to provide a brief overview of
 
 Versions
 --------
-The current version is **3.0.0** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A3.0.0)).
+The current version is **3.0.1** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A3.0.1)).
 
 You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
 
