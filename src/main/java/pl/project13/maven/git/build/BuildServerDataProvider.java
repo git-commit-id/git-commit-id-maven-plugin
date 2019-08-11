@@ -166,7 +166,7 @@ public abstract class BuildServerDataProvider {
 
   protected void maybePut(@Nonnull Properties properties, @Nonnull String key, Supplier<String> supplier) {
     String keyWithPrefix = prefixDot + key;
-    if (properties.contains(keyWithPrefix)) {
+    if (properties.containsKey(keyWithPrefix)) {
       String propertyValue = properties.getProperty(keyWithPrefix);
       log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
     } else if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {
