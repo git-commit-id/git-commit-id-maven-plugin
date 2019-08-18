@@ -372,6 +372,8 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         Although this should usually give your build some performance boost, it may randomly break if you upgrade your git version and it decides to print information in a different format suddenly.
                         As rule of thumb, keep using the default `jgit` implementation (keep this `false`) until you notice performance problems within your build (usually when you have *hundreds* of maven modules).
+
+                        With version *3.0.2*  you can also control it using the commandline option `-Dmaven.gitcommitid.nativegit=true`
                     -->
                     <useNativeGit>false</useNativeGit>
 

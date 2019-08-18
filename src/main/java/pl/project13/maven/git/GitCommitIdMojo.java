@@ -198,9 +198,14 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Set this to {@code 'true'} to use native Git executable to fetch information about the repository.
    * It is in most cases faster but requires a git executable to be installed in system.
    * By default the plugin will use jGit implementation as a source of information about the repository.
+   *
+   * NOTE / WARNING:
+   * Do *NOT* set this property inside the configuration of your plugin, so it would be
+   * possible to override it from command line.
+   *
    * @since 2.1.9
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.nativegit", defaultValue = "false")
   boolean useNativeGit;
 
   /**
