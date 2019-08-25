@@ -22,7 +22,6 @@ import pl.project13.maven.git.log.LoggerBridge;
 
 import javax.annotation.Nonnull;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class BambooBuildServerData extends BuildServerDataProvider {
 

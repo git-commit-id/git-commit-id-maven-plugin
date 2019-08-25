@@ -19,7 +19,6 @@ package pl.project13.maven.git;
 
 import junitparams.JUnitParamsRunner;
 import org.apache.maven.project.MavenProject;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

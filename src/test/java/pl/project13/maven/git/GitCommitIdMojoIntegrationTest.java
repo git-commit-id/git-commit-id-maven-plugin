@@ -177,7 +177,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
     mojo.includeOnlyProperties = Arrays.asList("git.remote.origin.url", ".*.user.*");
-    mojo.excludeProperties = Arrays.asList("git.build.user.email");
+    mojo.excludeProperties = Collections.singletonList("git.build.user.email");
 
     // when
     mojo.execute();

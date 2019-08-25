@@ -119,9 +119,9 @@ public abstract class GitDataProvider implements GitProvider {
     this.evaluateOnCommit = evaluateOnCommit;
     init();
     // git.user.name
-    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, () -> getBuildAuthorName());
+    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_NAME, this::getBuildAuthorName);
     // git.user.email
-    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, () -> getBuildAuthorEmail());
+    maybePut(properties, GitCommitPropertyConstant.BUILD_AUTHOR_EMAIL, this::getBuildAuthorEmail);
 
     try {
       prepareGitToExtractMoreDetailedRepoInformation();
@@ -135,11 +135,11 @@ public abstract class GitDataProvider implements GitProvider {
       // git.commit.id
       switch (commitIdGenerationMode) {
         case FULL: {
-          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, () -> getCommitId());
+          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FULL, this::getCommitId);
           break;
         }
         case FLAT: {
-          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, () -> getCommitId());
+          maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_FLAT, this::getCommitId);
           break;
         }
         default: {
@@ -147,31 +147,31 @@ public abstract class GitDataProvider implements GitProvider {
         }
       }
       // git.commit.id.abbrev
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, () -> getAbbrevCommitId());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_ID_ABBREV, this::getAbbrevCommitId);
       // git.dirty
       maybePut(properties, GitCommitPropertyConstant.DIRTY, () -> Boolean.toString(isDirty()));
       // git.commit.author.name
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, () -> getCommitAuthorName());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_NAME, this::getCommitAuthorName);
       // git.commit.author.email
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, () -> getCommitAuthorEmail());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_EMAIL, this::getCommitAuthorEmail);
       // git.commit.message.full
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, () -> getCommitMessageFull());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_FULL, this::getCommitMessageFull);
       // git.commit.message.short
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, () -> getCommitMessageShort());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, this::getCommitMessageShort);
       // git.commit.time
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_TIME, () -> getCommitTime());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_TIME, this::getCommitTime);
       // git remote.origin.url
-      maybePut(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, () -> getRemoteOriginUrl());
+      maybePut(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, this::getRemoteOriginUrl);
 
       //
-      maybePut(properties, GitCommitPropertyConstant.TAGS, () -> getTags());
+      maybePut(properties, GitCommitPropertyConstant.TAGS, this::getTags);
 
-      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, () -> getClosestTagName());
-      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, () -> getClosestTagCommitCount());
+      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_NAME, this::getClosestTagName);
+      maybePut(properties,GitCommitPropertyConstant.CLOSEST_TAG_COMMIT_COUNT, this::getClosestTagCommitCount);
 
-      maybePut(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, () -> getTotalCommitCount());
+      maybePut(properties,GitCommitPropertyConstant.TOTAL_COMMIT_COUNT, this::getTotalCommitCount);
 
-      SupplierEx<AheadBehind> aheadBehindSupplier = memoize(() -> getAheadBehind());
+      SupplierEx<AheadBehind> aheadBehindSupplier = memoize(this::getAheadBehind);
       maybePut(properties, GitCommitPropertyConstant.LOCAL_BRANCH_AHEAD, () -> aheadBehindSupplier.get().ahead());
       maybePut(properties, GitCommitPropertyConstant.LOCAL_BRANCH_BEHIND, () -> aheadBehindSupplier.get().behind());
     } finally {
@@ -184,7 +184,7 @@ public abstract class GitDataProvider implements GitProvider {
     boolean isGitDescribeOptOutByConfiguration = (gitDescribe != null && !gitDescribe.isSkip());
 
     if (isGitDescribeOptOutByDefault || isGitDescribeOptOutByConfiguration) {
-      maybePut(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, () -> getGitDescribe());
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_DESCRIBE, this::getGitDescribe);
     }
   }
 

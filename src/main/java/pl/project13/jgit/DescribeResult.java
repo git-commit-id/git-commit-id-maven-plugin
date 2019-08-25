@@ -223,11 +223,7 @@ public class DescribeResult {
 
   @Nullable
   public ObjectId commitObjectId() {
-    if (commitId.isPresent()) {
-      return commitId.get();
-    } else {
-      return null;
-    }
+    return commitId.orElse(null);
   }
 
   @Nullable
