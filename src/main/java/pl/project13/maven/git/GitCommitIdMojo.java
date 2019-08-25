@@ -572,15 +572,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private boolean isUseNativeGit() {
-    if (System.getProperty("maven.gitcommitid.nativegit") != null) {
-      return useNativeGitViaCommandLine;
-    }
-    return useNativeGit;
-  }
-
   private void loadGitData(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    if (isUseNativeGit()) {
+    if (useNativeGit || useNativeGitViaCommandLine) {
       loadGitDataWithNativeGit(properties);
     } else {
       loadGitDataWithJGit(properties);
