@@ -145,9 +145,8 @@ public class JGitProvider extends GitDataProvider {
               .filter(ref -> commitId.equals(ref.getObjectId().name()))
               .map(ref -> Repository.shortenRefName(ref.getName()))
               .distinct()
+              .sorted()
               .collect(Collectors.toList());
-
-      Collections.sort(branchesForCommit);
 
       String branch = branchesForCommit.stream()
               .collect(Collectors.joining(","));
