@@ -235,7 +235,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <skip>false</skip>
 
                     <!-- @since 3.0.1 -->
-                    <--
+                    <!--
                         Default (optional):
                         false
 
