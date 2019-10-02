@@ -103,6 +103,9 @@ public abstract class BuildServerDataProvider {
     if (TravisBuildServerData.isActiveServer(env)) {
       return new TravisBuildServerData(log, env);
     }
+    if (AzureDevOpsBuildServerData.isActiveServer(env)) {
+      return new AzureDevOpsBuildServerData(log, env);
+    }
     return new UnknownBuildServerData(log, env);
   }
 
