@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit.dummy;
+package pl.project13.core.jgit.dummy;
 
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.revwalk.RevTag;

@@ -15,11 +15,11 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import org.junit.Test;
+import pl.project13.core.log.StdOutLoggerBridge;
 import pl.project13.maven.git.GitIntegrationTest;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import static org.fest.assertions.Assertions.assertThat;
 

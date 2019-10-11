@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -27,9 +27,9 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.util.Pair;
+import pl.project13.core.git.GitDescribeConfig;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.util.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

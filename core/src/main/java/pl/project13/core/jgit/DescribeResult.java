@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import com.google.common.base.Preconditions;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 /**
  * Represents the result of a <code>git describe</code> command.
  *
- * See {@link pl.project13.jgit.DescribeResult#toString()} for a detailed information how this result looks like.
+ * See {@link DescribeResult#toString()} for a detailed information how this result looks like.
  */
 public class DescribeResult {
 
@@ -172,7 +172,7 @@ public class DescribeResult {
    * Notes about the abbreviated object id:
    * Git will try to use your given abbrev length, but when it's too short to guarantee uniqueness -
    * a longer one will be used (which WILL guarantee uniqueness).
-   * If you need the full commit id, it's always available via {@link pl.project13.jgit.DescribeResult#commitObjectId()}.
+   * If you need the full commit id, it's always available via {@link DescribeResult#commitObjectId()}.
    * </p>
    */
   @Nullable

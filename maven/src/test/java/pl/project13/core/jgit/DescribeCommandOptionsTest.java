@@ -15,13 +15,12 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
+import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.core.git.GitDescribeConfig;
 
 import static org.mockito.Mockito.*;
 
@@ -63,10 +62,10 @@ public class DescribeCommandOptionsTest {
     spiedCommand.apply(config);
 
     // then
-    verify(spiedCommand).always(ArgumentMatchers.eq(true));
-    verify(spiedCommand).abbrev(ArgumentMatchers.eq(abbrev));
-    verify(spiedCommand).dirty(ArgumentMatchers.eq(devel));
-    verify(spiedCommand).tags(ArgumentMatchers.eq(true));
-    verify(spiedCommand).forceLongFormat(ArgumentMatchers.eq(true));
+    verify(spiedCommand).always(eq(true));
+    verify(spiedCommand).abbrev(eq(abbrev));
+    verify(spiedCommand).dirty(eq(devel));
+    verify(spiedCommand).tags(eq(true));
+    verify(spiedCommand).forceLongFormat(eq(true));
   }
 }

@@ -23,8 +23,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;
 import java.util.List;

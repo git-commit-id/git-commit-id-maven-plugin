@@ -32,7 +32,6 @@
     <maven-plugin-api.version>3.0</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 
-    <jgit.version>5.2.2.201904231744-r</jgit.version>
     <junit.version>5.5.1</junit.version>
     <mockito.version>3.0.0</mockito.version>
 
@@ -75,24 +74,10 @@
       <version>2.9.10</version>
     </dependency>
 
-    <!-- Joda Time -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.10.3</version>
-    </dependency>
-
     <!-- Guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-    </dependency>
-
-    <!-- JGit -->
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
     </dependency>
 
     <!-- Test stuff -->

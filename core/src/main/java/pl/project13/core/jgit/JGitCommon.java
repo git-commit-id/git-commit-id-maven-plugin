@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,12 +33,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevWalk;
 
-import pl.project13.jgit.dummy.DatedRevTag;
+import pl.project13.core.jgit.dummy.DatedRevTag;
 
 import com.google.common.annotations.VisibleForTesting;
-import pl.project13.maven.git.GitDescribeConfig;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.util.Pair;
+import pl.project13.core.git.GitDescribeConfig;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.util.Pair;
 
 import javax.annotation.Nonnull;
 

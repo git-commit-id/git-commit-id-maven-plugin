@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.log;
+package pl.project13.core.log;
 
 /**
  * Copyright (c) 2004-2011 QOS.ch

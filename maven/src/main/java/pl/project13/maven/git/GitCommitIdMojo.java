@@ -37,9 +37,10 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
+import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.maven.git.build.BuildServerDataProvider;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

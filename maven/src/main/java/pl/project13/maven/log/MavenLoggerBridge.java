@@ -15,16 +15,23 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.log;
+package pl.project13.maven.log;
+
+import org.apache.maven.plugin.Mojo;
+import pl.project13.core.log.FormattingTuple;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.log.MessageFormatter;
 
 /**
- * Logs everything to System.out.
+ * Bridges logging to standard Maven log adhering to verbosity level.
  */
-public class StdOutLoggerBridge implements LoggerBridge {
+public class MavenLoggerBridge implements LoggerBridge {
 
   private boolean verbose;
+  private final Mojo mojo;
 
-  public StdOutLoggerBridge(boolean verbose) {
+  public MavenLoggerBridge(Mojo mojo, boolean verbose) {
+    this.mojo = mojo;
     this.verbose = verbose;
   }
 
@@ -40,166 +47,193 @@ public class StdOutLoggerBridge implements LoggerBridge {
 
   @Override
   public boolean isDebugEnabled() {
-    return true;
+    return mojo.getLog().isDebugEnabled();
+  }
+
+  @Override
+  public boolean isInfoEnabled() {
+    return mojo.getLog().isInfoEnabled();
+  }
+
+  @Override
+  public boolean isWarnEnabled() {
+    return mojo.getLog().isWarnEnabled();
+  }
+
+  @Override
+  public boolean isErrorEnabled() {
+    return mojo.getLog().isErrorEnabled();
   }
 
   @Override
   public void debug(String msg) {
     if (verbose) {
-      System.out.println("[DEBUG] " + msg);
+      mojo.getLog().debug(msg);
     }
   }
 
   @Override
   public void debug(String format, Object arg) {
     if (verbose) {
-      System.out.println("[DEBUG] " + MessageFormatter.format(format, arg).getMessage());
+      debug(MessageFormatter.format(format, arg));
     }
   }
 
   @Override
   public void debug(String format, Object arg1, Object arg2) {
     if (verbose) {
-      System.out.println("[DEBUG] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+      debug(MessageFormatter.format(format, arg1, arg2));
     }
   }
 
   @Override
   public void debug(String format, Object... arguments) {
     if (verbose) {
-      System.out.println("[DEBUG] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+      debug(MessageFormatter.arrayFormat(format, arguments));
     }
   }
 
   @Override
   public void debug(String msg, Throwable t) {
     if (verbose) {
-      System.out.println("[DEBUG] " + msg);
-      t.printStackTrace(System.out);
+      mojo.getLog().debug(msg, t);
     }
-  }
-
-  @Override
-  public boolean isInfoEnabled() {
-    return true;
   }
 
   @Override
   public void info(String msg) {
     if (verbose) {
-      System.out.println("[INFO] " + msg);
+      mojo.getLog().info(msg);
     }
   }
 
   @Override
   public void info(String format, Object arg) {
     if (verbose) {
-      System.out.println("[INFO] " + MessageFormatter.format(format, arg).getMessage());
+      info(MessageFormatter.format(format, arg));
     }
   }
 
   @Override
   public void info(String format, Object arg1, Object arg2) {
     if (verbose) {
-      System.out.println("[INFO] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+      info(MessageFormatter.format(format, arg1, arg2));
     }
   }
 
   @Override
   public void info(String format, Object... arguments) {
     if (verbose) {
-      System.out.println("[INFO] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+      info(MessageFormatter.arrayFormat(format, arguments));
     }
   }
 
   @Override
   public void info(String msg, Throwable t) {
     if (verbose) {
-      System.out.println("[INFO] " + msg);
-      t.printStackTrace(System.out);
+      mojo.getLog().info(msg, t);
     }
-  }
-
-  @Override
-  public boolean isWarnEnabled() {
-    return true;
   }
 
   @Override
   public void warn(String msg) {
     if (verbose) {
-      System.out.println("[WARN] " + msg);
+      mojo.getLog().warn(msg);
     }
   }
 
   @Override
   public void warn(String format, Object arg) {
     if (verbose) {
-      System.out.println("[WARN] " + MessageFormatter.format(format, arg).getMessage());
+      warn(MessageFormatter.format(format, arg));
     }
   }
 
   @Override
   public void warn(String format, Object arg1, Object arg2) {
     if (verbose) {
-      System.out.println("[WARN] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+      warn(MessageFormatter.format(format, arg1, arg2));
     }
   }
 
   @Override
   public void warn(String format, Object... arguments) {
     if (verbose) {
-      System.out.println("[WARN] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+      warn(MessageFormatter.arrayFormat(format, arguments));
     }
   }
 
   @Override
   public void warn(String msg, Throwable t) {
     if (verbose) {
-      System.out.println("[WARN] " + msg);
-      t.printStackTrace(System.out);
+      mojo.getLog().warn(msg, t);
     }
-  }
-
-  @Override
-  public boolean isErrorEnabled() {
-    return true;
   }
 
   @Override
   public void error(String msg) {
     if (verbose) {
-      System.out.println("[ERROR] " + msg);
+      mojo.getLog().error(msg);
     }
   }
 
   @Override
   public void error(String format, Object arg) {
     if (verbose) {
-      System.out.println("[ERROR] " + MessageFormatter.format(format, arg).getMessage());
+      error(MessageFormatter.format(format, arg));
     }
   }
 
   @Override
   public void error(String format, Object arg1, Object arg2) {
     if (verbose) {
-      System.out.println("[ERROR] " + MessageFormatter.format(format, arg1, arg2).getMessage());
+      error(MessageFormatter.format(format, arg1, arg2));
     }
-
   }
 
   @Override
   public void error(String format, Object... arguments) {
     if (verbose) {
-      System.out.println("[ERROR] " + MessageFormatter.arrayFormat(format, arguments).getMessage());
+      error(MessageFormatter.arrayFormat(format, arguments));
     }
   }
 
   @Override
   public void error(String msg, Throwable t) {
     if (verbose) {
-      System.out.println("[ERROR] " + msg);
-      t.printStackTrace(System.out);
+      mojo.getLog().error(msg, t);
+    }
+  }
+
+  private void debug(FormattingTuple tuple) {
+    if (null == tuple.getThrowable()) {
+      mojo.getLog().debug(tuple.getMessage());
+    } else {
+      mojo.getLog().debug(tuple.getMessage(), tuple.getThrowable());
+    }
+  }
+
+  private void info(FormattingTuple tuple) {
+    if (null == tuple.getThrowable()) {
+      mojo.getLog().info(tuple.getMessage());
+    } else {
+      mojo.getLog().info(tuple.getMessage(), tuple.getThrowable());
+    }
+  }
+
+  private void warn(FormattingTuple tuple) {
+    if (null == tuple.getThrowable()) {
+      mojo.getLog().warn(tuple.getMessage());
+    } else {
+      mojo.getLog().warn(tuple.getMessage(), tuple.getThrowable());
+    }
+  }
+
+  private void error(FormattingTuple tuple) {
+    if (null == tuple.getThrowable()) {
+      mojo.getLog().error(tuple.getMessage());
+    } else {
+      mojo.getLog().error(tuple.getMessage(), tuple.getThrowable());
     }
   }
 }

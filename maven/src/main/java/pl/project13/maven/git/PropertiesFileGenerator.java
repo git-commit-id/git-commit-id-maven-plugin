@@ -21,8 +21,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import org.sonatype.plexus.build.incremental.BuildContext;
-import pl.project13.maven.git.log.LoggerBridge;
-import pl.project13.maven.git.util.SortedProperties;
+import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.util.SortedProperties;
 
 import javax.annotation.Nonnull;
 import java.io.*;

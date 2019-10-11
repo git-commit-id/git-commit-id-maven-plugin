@@ -28,10 +28,10 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
-import pl.project13.jgit.DescribeCommand;
-import pl.project13.jgit.DescribeResult;
-import pl.project13.jgit.JGitCommon;
-import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.core.jgit.DescribeResult;
+import pl.project13.core.jgit.JGitCommon;
+import pl.project13.core.jgit.DescribeCommand;
+import pl.project13.core.log.LoggerBridge;
 
 import java.io.File;
 import java.io.IOException;

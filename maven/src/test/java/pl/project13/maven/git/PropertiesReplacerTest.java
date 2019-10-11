@@ -24,9 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import pl.project13.maven.git.TransformationRule.ActionEnum;
-import pl.project13.maven.git.TransformationRule.ApplyEnum;
-import pl.project13.maven.git.log.MavenLoggerBridge;
+import pl.project13.maven.log.MavenLoggerBridge;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -180,16 +178,16 @@ public class PropertiesReplacerTest {
 
   public static Collection<Object[]> testPerformReplacementWithTransformationRule() {
     return Arrays.asList(new Object[][] {
-      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", ApplyEnum.BEFORE, ActionEnum.LOWER_CASE, "feature/abcdefgh0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", ApplyEnum.AFTER, ActionEnum.LOWER_CASE, "feature/-b-d-f-h0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", ApplyEnum.BEFORE, ActionEnum.UPPER_CASE, "FEATURE/ABCDEFGH0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", ApplyEnum.AFTER, ActionEnum.UPPER_CASE, "-------/A-C-E-G-0123456789" },
+      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", TransformationRule.ApplyEnum.BEFORE, TransformationRule.ActionEnum.LOWER_CASE, "feature/abcdefgh0123456789" },
+      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", TransformationRule.ApplyEnum.AFTER, TransformationRule.ActionEnum.LOWER_CASE, "feature/-b-d-f-h0123456789" },
+      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", TransformationRule.ApplyEnum.BEFORE, TransformationRule.ActionEnum.UPPER_CASE, "FEATURE/ABCDEFGH0123456789" },
+      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", TransformationRule.ApplyEnum.AFTER, TransformationRule.ActionEnum.UPPER_CASE, "-------/A-C-E-G-0123456789" },
     });
   }
 
   @Test
   @Parameters(method = "testPerformReplacementWithTransformationRule")
-  public void runTransformationTestHelper(String input, String regex, ApplyEnum applyRule, ActionEnum actionRule, String expectedOutput) {
+  public void runTransformationTestHelper(String input, String regex, TransformationRule.ApplyEnum applyRule, TransformationRule.ActionEnum actionRule, String expectedOutput) {
     Properties actualProperties = build("git.branch", input);
 
     List<TransformationRule> transformationRules = new ArrayList<>();

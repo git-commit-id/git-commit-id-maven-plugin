@@ -18,7 +18,7 @@
 package pl.project13.maven.git;
 
 import org.junit.Test;
-import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.core.log.LoggerBridge;
 
 import java.util.Properties;
 

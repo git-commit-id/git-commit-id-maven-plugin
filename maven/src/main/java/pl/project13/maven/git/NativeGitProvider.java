@@ -19,7 +19,8 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
-import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.core.git.GitDescribeConfig;
+import pl.project13.core.log.LoggerBridge;
 
 import javax.annotation.Nonnull;
 

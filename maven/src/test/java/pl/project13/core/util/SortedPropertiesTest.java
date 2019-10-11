@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.util;
+package pl.project13.core.util;
 
 import org.junit.Assert;
 

@@ -17,7 +17,7 @@
 
 package pl.project13.maven.git;
 
-import pl.project13.maven.git.log.LoggerBridge;
+import pl.project13.core.log.LoggerBridge;
 
 import java.util.HashMap;
 import java.util.List;

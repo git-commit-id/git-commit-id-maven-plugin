@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
+import pl.project13.core.git.GitDescribeConfig;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;

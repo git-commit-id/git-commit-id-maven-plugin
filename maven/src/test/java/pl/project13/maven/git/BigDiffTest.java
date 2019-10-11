@@ -21,6 +21,7 @@ import junitparams.JUnitParamsRunner;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import pl.project13.core.git.GitDescribeConfig;
 
 import java.io.FileOutputStream;
 import java.nio.file.Files;

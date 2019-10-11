@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;

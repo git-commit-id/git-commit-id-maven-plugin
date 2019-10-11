@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.log;
+package pl.project13.core.log;
 
 /**
  * Interface for logging in git-commit-id plugin. Isolates logging to enable future possible code reuse in other tools.

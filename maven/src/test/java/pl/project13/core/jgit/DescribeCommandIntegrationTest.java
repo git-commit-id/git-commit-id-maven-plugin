@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.jgit;
+package pl.project13.core.jgit;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
@@ -23,9 +23,9 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
+import pl.project13.core.log.StdOutLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
-import pl.project13.maven.git.log.StdOutLoggerBridge;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
