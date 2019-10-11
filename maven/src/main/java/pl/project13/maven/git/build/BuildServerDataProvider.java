@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git.build;
 
-import org.apache.maven.project.MavenProject;
 import pl.project13.core.GitCommitPropertyConstant;
 import pl.project13.core.PropertiesFilterer;
 import pl.project13.core.log.LoggerBridge;
@@ -27,23 +26,18 @@ import javax.annotation.Nonnull;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Supplier;
 
 public abstract class BuildServerDataProvider {
-
   final LoggerBridge log;
   final Map<String, String> env;
   private String dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
   private String dateFormatTimeZone = null;
   private String prefixDot = "";
-  private MavenProject project = null;
   private List<String> excludeProperties = null;
   private List<String> includeOnlyProperties = null;
+  private Map<String, Supplier<String>> additionalProperties = new HashMap<>();
 
   BuildServerDataProvider(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
     this.log = log;
@@ -60,11 +54,6 @@ public abstract class BuildServerDataProvider {
     return this;
   }
 
-  public BuildServerDataProvider setProject(@Nonnull MavenProject project) {
-    this.project = project;
-    return this;
-  }
-
   public BuildServerDataProvider setPrefixDot(@Nonnull String prefixDot) {
     this.prefixDot = prefixDot;
     return this;
@@ -77,6 +66,11 @@ public abstract class BuildServerDataProvider {
 
   public BuildServerDataProvider setIncludeOnlyProperties(List<String> includeOnlyProperties) {
     this.includeOnlyProperties = includeOnlyProperties;
+    return this;
+  }
+
+  public BuildServerDataProvider setAdditionalProperties(Map<String, Supplier<String>> additionalProperties) {
+    this.additionalProperties = additionalProperties;
     return this;
   }
 
@@ -140,8 +134,10 @@ public abstract class BuildServerDataProvider {
     };
     maybePut(properties, GitCommitPropertyConstant.BUILD_TIME, buildTimeSupplier);
 
-    if (project != null) {
-      maybePut(properties, GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
+    if (additionalProperties != null) {
+      for (Map.Entry<String, Supplier<String>> e : additionalProperties.entrySet()) {
+        maybePut(properties, e.getKey(), e.getValue());
+      }
     }
   }
 

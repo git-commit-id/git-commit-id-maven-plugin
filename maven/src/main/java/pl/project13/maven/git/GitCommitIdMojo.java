@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
@@ -39,8 +39,9 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.maven.git.build.BuildServerDataProvider;
+import pl.project13.core.util.PropertyManager;
 import pl.project13.core.log.LoggerBridge;
+import pl.project13.maven.git.build.BuildServerDataProvider;
 import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;
@@ -516,11 +517,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void loadBuildData(Properties properties) {
+    Map<String, Supplier<String>> additionalProperties = Collections.singletonMap(
+            GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
     buildServerDataProvider
         .setDateFormat(dateFormat)
         .setDateFormatTimeZone(dateFormatTimeZone)
-        .setProject(project)
+        .setAdditionalProperties(additionalProperties)
         .setPrefixDot(prefixDot)
         .setExcludeProperties(excludeProperties)
         .setIncludeOnlyProperties(includeOnlyProperties);
