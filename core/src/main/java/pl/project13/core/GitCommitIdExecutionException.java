@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 /**
  * Exception used by plugin. Plugin code should operate using this exception, which can then be wrapped into

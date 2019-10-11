@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import pl.project13.core.AheadBehind;
+import pl.project13.core.GitProvider;
 
 public abstract class AheadBehindTest<T extends GitProvider> {
 

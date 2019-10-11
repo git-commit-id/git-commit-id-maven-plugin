@@ -18,8 +18,8 @@
 package pl.project13.maven.git.build;
 
 import org.apache.maven.project.MavenProject;
-import pl.project13.maven.git.GitCommitPropertyConstant;
-import pl.project13.maven.git.PropertiesFilterer;
+import pl.project13.core.GitCommitPropertyConstant;
+import pl.project13.core.PropertiesFilterer;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.PropertyManager;
 

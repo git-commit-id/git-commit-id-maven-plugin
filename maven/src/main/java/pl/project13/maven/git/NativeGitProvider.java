@@ -19,6 +19,8 @@ package pl.project13.maven.git;
 
 import static java.lang.String.format;
 
+import pl.project13.core.AheadBehind;
+import pl.project13.core.GitCommitIdExecutionException;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.log.LoggerBridge;
 

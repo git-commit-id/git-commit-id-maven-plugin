@@ -56,22 +56,12 @@
       <artifactId>git-commit-id-plugin-core</artifactId>
     </dependency>
 
-    <dependency>
-     <groupId>org.sonatype.plexus</groupId>
-     <artifactId>plexus-build-api</artifactId>
-     <version>0.0.7</version>
-    </dependency>
     <!-- dependencies to annotations -->
     <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
       <version>${maven-plugin-plugin.version}</version>
       <scope>provided</scope><!-- annotations are needed only to build the plugin -->
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.9.10</version>
     </dependency>
 
     <!-- Guava -->

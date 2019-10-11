@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.junit.Test;
+import pl.project13.core.PropertiesFileGenerator;
 
 import java.io.File;
 import java.io.IOException;

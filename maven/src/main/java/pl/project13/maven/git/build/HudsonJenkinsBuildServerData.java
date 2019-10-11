@@ -17,7 +17,7 @@
 
 package pl.project13.maven.git.build;
 
-import pl.project13.maven.git.GitCommitPropertyConstant;
+import pl.project13.core.GitCommitPropertyConstant;
 import pl.project13.core.log.LoggerBridge;
 
 import javax.annotation.Nonnull;

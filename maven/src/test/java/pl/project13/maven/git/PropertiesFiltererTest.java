@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import pl.project13.core.PropertiesFilterer;
 import pl.project13.maven.log.MavenLoggerBridge;
 
 @RunWith(MockitoJUnitRunner.class)

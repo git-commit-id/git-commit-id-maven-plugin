@@ -15,12 +15,14 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import org.sonatype.plexus.build.incremental.BuildContext;
+import pl.project13.core.GitCommitIdExecutionException;
+import pl.project13.core.GitCommitPropertyConstant;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.SortedProperties;
 
@@ -47,7 +49,7 @@ public class PropertiesFileGenerator {
     this.projectName = projectName;
   }
 
-  protected void maybeGeneratePropertiesFile(@Nonnull Properties localProperties, File base, String propertiesFilename, Charset sourceCharset) throws GitCommitIdExecutionException {
+  public void maybeGeneratePropertiesFile(@Nonnull Properties localProperties, File base, String propertiesFilename, Charset sourceCharset) throws GitCommitIdExecutionException {
     try {
       final File gitPropsFile = craftPropertiesOutputFile(base, propertiesFilename);
       final boolean isJsonFormat = "json".equalsIgnoreCase(format);
@@ -115,7 +117,7 @@ public class PropertiesFileGenerator {
     }
   }
 
-  protected static File craftPropertiesOutputFile(File base, String propertiesFilename) {
+  public static File craftPropertiesOutputFile(File base, String propertiesFilename) {
     File returnPath = new File(base, propertiesFilename);
 
     File currentPropertiesFilepath = new File(propertiesFilename);

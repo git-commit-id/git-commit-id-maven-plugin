@@ -18,6 +18,7 @@
 package pl.project13.maven.git;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.maven.git.build.UnknownBuildServerData;
 import pl.project13.maven.git.build.BuildServerDataProvider;

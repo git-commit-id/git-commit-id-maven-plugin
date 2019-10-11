@@ -28,6 +28,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
+import pl.project13.core.AheadBehind;
+import pl.project13.core.GitCommitIdExecutionException;
 import pl.project13.core.jgit.DescribeResult;
 import pl.project13.core.jgit.JGitCommon;
 import pl.project13.core.jgit.DescribeCommand;

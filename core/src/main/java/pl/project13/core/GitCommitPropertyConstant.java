@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 public class GitCommitPropertyConstant {
   // these properties will be exposed to maven
