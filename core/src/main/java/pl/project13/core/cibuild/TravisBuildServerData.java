@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.build;
+package pl.project13.core.cibuild;
 
 import pl.project13.core.GitCommitPropertyConstant;
 import pl.project13.core.log.LoggerBridge;
@@ -24,37 +24,32 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
-public class GitlabBuildServerData extends BuildServerDataProvider {
+public class TravisBuildServerData extends BuildServerDataProvider {
 
-  GitlabBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
-    super(log,env);
+  TravisBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
+    super(log, env);
   }
 
   /**
-   * @see <a href="https://docs.gitlab.com/ce/ci/variables/#predefined-variables-environment-variables">GitlabCIVariables</a>
+   * @see <a href=https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables>Travis</a>
    */
-  public static boolean isActiveServer(Map<String, String> env) {
-    return env.containsKey("CI");
+  public static boolean isActiveServer(@Nonnull Map<String, String> env) {
+    return env.containsKey("TRAVIS");
   }
 
   @Override
   void loadBuildNumber(@Nonnull Properties properties) {
-    // GITLAB CI
-    // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
-    String uniqueBuildNumber = env.get("CI_PIPELINE_ID");
-    // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
-    String buildNumber = env.get("CI_PIPELINE_IID");
+    String buildNumber = env.get("TRAVIS_BUILD_NUMBER");
+    String uniqueBuildNumber = env.get("TRAVIS_BUILD_ID");
 
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
-    put(properties,
-        GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE,
-        uniqueBuildNumber == null ? "" : uniqueBuildNumber);
+    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, uniqueBuildNumber == null ? "" : uniqueBuildNumber);
   }
 
   @Override
   public String getBuildBranch() {
-    String environmentBasedBranch = env.get("CI_COMMIT_REF_NAME");
-    log.info("Using environment variable based branch name. CI_COMMIT_REF_NAME = {}", environmentBasedBranch);
+    String environmentBasedBranch = env.get("TRAVIS_BRANCH");
+    log.info("Using environment variable based branch name. TRAVIS_BRANCH = {}", environmentBasedBranch);
     return environmentBasedBranch;
   }
 }

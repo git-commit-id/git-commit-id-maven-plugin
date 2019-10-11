@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import pl.project13.core.GitCommitIdExecutionException;
+import pl.project13.core.GitDataProvider;
 
 import java.util.Arrays;
 import java.util.Collection;

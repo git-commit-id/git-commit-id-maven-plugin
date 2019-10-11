@@ -15,7 +15,7 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git.build;
+package pl.project13.core.cibuild;
 
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.GitCommitPropertyConstant;

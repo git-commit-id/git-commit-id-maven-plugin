@@ -39,9 +39,8 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.util.PropertyManager;
 import pl.project13.core.log.LoggerBridge;
-import pl.project13.maven.git.build.BuildServerDataProvider;
+import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;

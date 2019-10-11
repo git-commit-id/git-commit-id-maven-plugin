@@ -15,7 +15,10 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
+
+import pl.project13.core.JGitProvider;
+import pl.project13.maven.git.AheadBehindTest;
 
 import java.nio.file.Paths;
 

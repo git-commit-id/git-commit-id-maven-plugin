@@ -15,13 +15,13 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.maven.git.build.BuildServerDataProvider;
-import pl.project13.maven.git.build.UnknownBuildServerData;
+import pl.project13.core.cibuild.BuildServerDataProvider;
+import pl.project13.core.cibuild.UnknownBuildServerData;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.PropertyManager;
 

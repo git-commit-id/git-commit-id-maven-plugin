@@ -15,12 +15,10 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 import static java.lang.String.format;
 
-import pl.project13.core.AheadBehind;
-import pl.project13.core.GitCommitIdExecutionException;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.log.LoggerBridge;
 

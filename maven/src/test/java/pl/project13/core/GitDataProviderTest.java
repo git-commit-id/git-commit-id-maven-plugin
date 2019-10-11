@@ -15,11 +15,12 @@
  * along with git-commit-id-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.maven.git;
+package pl.project13.core;
 
 import org.junit.Test;
 import pl.project13.core.GitCommitIdExecutionException;
 import pl.project13.core.GitCommitPropertyConstant;
+import pl.project13.core.GitDataProvider;
 import pl.project13.core.log.LoggerBridge;
 
 import java.util.Properties;
