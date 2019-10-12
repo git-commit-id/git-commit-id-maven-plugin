@@ -419,8 +419,24 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (runOnlyOnce) {
-        if (!session.getExecutionRootDirectory().equals(session.getCurrentProject().getBasedir().getAbsolutePath())) {
-          log.info("runOnlyOnce is enabled and this project is not the top level project, skipping execution!");
+        List<MavenProject> sortedProjects = session.getProjectDependencyGraph().getSortedProjects();
+        MavenProject firstProject = sortedProjects.stream()
+                // skipPoms == true => find first project that is not pom project
+                .filter(p -> {
+                  if (skipPoms) {
+                    return !isPomProject(p);
+                  } else {
+                    return true;
+                  }
+                })
+                .findFirst()
+                .orElse(session.getCurrentProject());
+
+        log.info("Current project: '" + session.getCurrentProject().getName() +
+                "', first project to execute based on dependency graph: '" + firstProject.getName() + "'");
+
+        if (!session.getCurrentProject().equals(firstProject)) {
+          log.info("runOnlyOnce is enabled and this project is not the first project (perhaps skipPoms is configured?), skipping execution!");
           return;
         }
       }
