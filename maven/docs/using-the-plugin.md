@@ -254,16 +254,23 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Explanation:
                         Use with caution!
 
-                        In a multi-module build, only run once. This means that the plugins effects will only execute once, for the parent project.
+                        In a multi-module build, only run once. This means that the plugins effects will only execute
+                        once for the first project in the execution graph. If `skipPoms` is set to true (default)
+                        the plugin will run for the first non pom project in the execution graph (as listed in the reactor build order).
                         This probably won't "do the right thing" if your project has more than one git repository.
 
                         Important: If you're using `generateGitPropertiesFile`, setting `runOnlyOnce` will make the plugin
-                        only generate the file in the directory where you started your build (!).
+                        only generate the file in the project build directory which is the first one based on the execution graph (!).
 
                         Important: Please note that the git-commit-id-plugin also has an option to skip pom project (`<packaging>pom</packaging>`).
                         If you plan to use the `runOnlyOnce` option alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
 
-                        The `git.*` maven properties are available in all modules.
+                        For multi-module build you might also want to set `injectAllReactorProjects` to make
+                        the `git.*` maven properties available in all modules.
+
+                        Note:
+                        prior to version 4.0.0 the plugin was simply using the execute once applied for the parent project
+                        (which might have skipped execution if the parent project was a pom project).
                     -->
                     <runOnlyOnce>false</runOnlyOnce>
 
