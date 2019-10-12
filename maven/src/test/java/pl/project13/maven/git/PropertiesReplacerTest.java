@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,10 @@ import java.util.Map;
 import java.util.Properties;
 
 import static java.util.Arrays.asList;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnitParamsRunner.class)
 public class PropertiesReplacerTest {
@@ -46,8 +50,10 @@ public class PropertiesReplacerTest {
   private PropertiesReplacer propertiesReplacer;
 
   @Before
-  public void setUp() {
-    this.propertiesReplacer = new PropertiesReplacer(mock(MavenLoggerBridge.class));
+  public void setUp() throws Throwable {
+    PluginParameterExpressionEvaluator pluginParameterExpressionEvaluator = mock(PluginParameterExpressionEvaluator.class);
+    when(pluginParameterExpressionEvaluator.evaluate(anyString())).then(returnsFirstArg());
+    this.propertiesReplacer = new PropertiesReplacer(mock(MavenLoggerBridge.class), pluginParameterExpressionEvaluator);
   }
 
   @Test

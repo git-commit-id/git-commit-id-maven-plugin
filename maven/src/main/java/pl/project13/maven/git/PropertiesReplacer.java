@@ -17,19 +17,19 @@
 
 package pl.project13.maven.git;
 
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import pl.project13.core.log.LoggerBridge;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class PropertiesReplacer {
   private final LoggerBridge log;
+  private final PluginParameterExpressionEvaluator expressionEvaluator;
 
-  public PropertiesReplacer(LoggerBridge log) {
+  public PropertiesReplacer(LoggerBridge log, PluginParameterExpressionEvaluator expressionEvaluator) {
     this.log = log;
+    this.expressionEvaluator = expressionEvaluator;
   }
 
   /**
@@ -81,7 +81,12 @@ public class PropertiesReplacer {
   }
 
   private String performReplacement(ReplacementProperty replacementProperty, String content) {
-    String result = content;
+    String result = "";
+    try {
+      result = Optional.ofNullable(expressionEvaluator.evaluate(content)).map(x -> x.toString()).orElse("");
+    } catch (Exception e) {
+      log.error("Something went wrong performing the replacement.", e);
+    }
     if (replacementProperty != null) {
       result = performTransformationRules(replacementProperty, result, TransformationRule.ApplyEnum.BEFORE);
       if (replacementProperty.isRegex()) {
