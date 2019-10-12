@@ -13,22 +13,22 @@ I had to quickly develop an git version of such a plugin. For those who don't kn
 * Make your distributed deployment aware of versions
 * Validate if properties are set as expected
 
-If you are more interested in the different use-cases, feel free to [read about them in more detail](docs/use-cases.md).
+If you are more interested in the different use-cases, feel free to [read about them in more detail](maven/docs/use-cases.md).
 
 Quicklinks (all relevant documentation)
 ==================
-* [Use case documentation](docs/use-cases.md)
-* [Using the plugin documentation (all details for configuration, properties, ...)](docs/using-the-plugin.md)
-* [A more technical documentation  on how to use the leverage the generated properties from this plugin](docs/using-the-plugin-in-more-depth.md)
-* [A general documentation for git describe (usefull feature in this plugin, if you are not familiar with the command)](docs/git-describe.md)
-* [Frequently Asked Question (FAQ)](docs/faq.md)
+* [Use case documentation](maven/docs/use-cases.md)
+* [Using the plugin documentation (all details for configuration, properties, ...)](maven/docs/using-the-plugin.md)
+* [A more technical documentation  on how to use the leverage the generated properties from this plugin](maven/docs/using-the-plugin-in-more-depth.md)
+* [A general documentation for git describe (usefull feature in this plugin, if you are not familiar with the command)](maven/docs/git-describe.md)
+* [Frequently Asked Question (FAQ)](maven/docs/faq.md)
 
 Getting the plugin
 ==================
 The plugin **is available from Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
 
-A detailed description of using the plugin is available in the [Using the plugin](docs/using-the-plugin.md) section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
-For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](docs/using-the-plugin.md)<a>... read on!
+A detailed description of using the plugin is available in the [Using the plugin](maven/docs/using-the-plugin.md) section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
+For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](maven/docs/using-the-plugin.md)<a>... read on!
 
 Versions
 --------

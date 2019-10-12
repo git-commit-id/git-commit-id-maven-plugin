@@ -73,4 +73,4 @@ install:
 script:
   - mvn clean test install -B
   - mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
-  - /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || travis_terminate 1;'
+  - /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || travis_terminate 1;'

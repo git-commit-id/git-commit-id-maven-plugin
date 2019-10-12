@@ -1,510 +1,281 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>9</version>
-  </parent>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
 
-  <groupId>pl.project13.maven</groupId>
-  <artifactId>git-commit-id-plugin</artifactId>
-  <packaging>maven-plugin</packaging>
-  <version>3.0.2-SNAPSHOT</version>
-  <name>Git Commit Id Maven Plugin</name>
-  <description>
-    This plugin makes basic repository information available through maven resources. This can be used to display
-    "what version is this?" or "who has deployed this and when, from which branch?" information at runtime, making
-    it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
-    developers life easier. See https://github.com/git-commit-id/maven-git-commit-id-plugin
-  </description>
-  <url>http://www.blog.project13.pl</url>
+    <groupId>pl.project13.maven</groupId>
+    <artifactId>git-commit-id-plugin-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>3.0.2-SNAPSHOT</version>
+    <name>Git Commit Id Plugin Parent</name>
+    <url>http://www.blog.project13.pl</url>
 
-  <developers>
-    <developer>
-      <id>ktoso</id>
-      <name>Konrad Malawski</name>
-      <email>konrad.malawski@java.pl</email>
-      <organization>project13.pl</organization>
-      <url>http://blog.project13.pl</url>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>ktoso</id>
+            <name>Konrad Malawski</name>
+            <email>konrad.malawski@java.pl</email>
+            <organization>project13.pl</organization>
+            <url>http://blog.project13.pl</url>
+        </developer>
+    </developers>
 
-  <prerequisites>
-    <maven>[${maven-plugin-api.version},)</maven>
-  </prerequisites>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License 3.0</name>
+            <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+        </license>
+    </licenses>
 
-  <licenses>
-    <license>
-      <name>GNU Lesser General Public License 3.0</name>
-      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
-    </license>
-  </licenses>
+    <scm>
+        <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
+        <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
+        <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+    </scm>
 
-  <scm>
-    <url>git@github.com/git-commit-id/maven-git-commit-id-plugin.git</url>
-    <connection>scm:git:https://github.com/git-commit-id/maven-git-commit-id-plugin</connection>
-    <developerConnection>scm:git:git@github.com:git-commit-id/maven-git-commit-id-plugin.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.target>1.8</java.target>
+    </properties>
 
-    <java.target>1.8</java.target>
+    <modules>
+        <module>core</module>
+        <module>maven</module>
+    </modules>
 
-    <maven-plugin-api.version>3.0</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>git-commit-id-plugin-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>28.0-jre</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-    <jgit.version>5.2.2.201904231744-r</jgit.version>
-    <junit.version>5.5.1</junit.version>
-    <mockito.version>3.0.0</mockito.version>
-
-    <fest-assert.version>1.4</fest-assert.version>
-  </properties>
-
-  <dependencies>
-    <!-- MAVEN -->
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-plugin-api</artifactId>
-      <version>${maven-plugin-api.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-core</artifactId>
-      <version>${maven-plugin-api.version}</version>
-    </dependency>
-    <dependency>
-     <groupId>org.sonatype.plexus</groupId>
-     <artifactId>plexus-build-api</artifactId>
-     <version>0.0.7</version>
-    </dependency>
-    <!-- dependencies to annotations -->
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>${maven-plugin-plugin.version}</version>
-      <scope>provided</scope><!-- annotations are needed only to build the plugin -->
-    </dependency>
-
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.9.10</version>
-    </dependency>
-
-    <!-- Joda Time -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.10.3</version>
-    </dependency>
-
-    <!-- Guava -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>28.0-jre</version>
-    </dependency>
-
-    <!-- JGit -->
-    <dependency>
-      <groupId>org.eclipse.jgit</groupId>
-      <artifactId>org.eclipse.jgit</artifactId>
-      <version>${jgit.version}</version>
-    </dependency>
-
-    <!-- Test stuff -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.easytesting</groupId>
-      <artifactId>fest-assert</artifactId>
-      <version>${fest-assert.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <version>3.2.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>2.6</version>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>pl.pragmatists</groupId>
-      <artifactId>JUnitParams</artifactId>
-      <version>1.1.1</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.stefanbirkner</groupId>
-      <artifactId>system-rules</artifactId>
-      <version>1.19.0</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!--to avoid complaints during tests-->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>1.7.25</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <excludes>
-          <exclude>_git_*/**</exclude>
-          <exclude>README.md</exclude>
-        </excludes>
-      </testResource>
-    </testResources>
-
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.8</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.4.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>${maven-plugin-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.0</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <!-- if you would like to run the git-commit-id-plugin for your build, you could also include it here instead using a profile (see README.md) -->
-      <!-- Setting built-in java compiler properties -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.target}</source>
-          <target>${java.target}</target>
-          <compilerArgument>-Xlint:deprecation</compilerArgument>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-descriptor</id>
-            <phase>process-classes</phase>
-          </execution>
-<!--
-          <execution>
-            <id>generated-helpmojo</id>
-            <goals>
-              <goal>helpmojo</goal>
-            </goals>
-            <configuration>
-              <goalPrefix>git-commit-id</goalPrefix>
-              <helpPackageName>pl.project13.maven</helpPackageName>
-            </configuration>
-          </execution>
--->
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
-  <profiles>
-    <profile>
-      <id>gpg</id>
-      <build>
-        <plugins>
-          <!-- GPG -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>demo</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>pl.project13.maven</groupId>
-            <artifactId>git-commit-id-plugin</artifactId>
-            <version>${project.version}</version>
-            <!-- optional to change the phases of the individual mojo's -->
-            <executions>
-              <execution>
-                <id>get-the-git-infos</id>
-                <goals>
-                  <goal>revision</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>validate-the-git-infos</id>
-                <goals>
-                  <goal>validateRevision</goal>
-                </goals>
-                <phase>package</phase>
-             </execution>
-            </executions>
-            <configuration>
-              <verbose>true</verbose>
-              <skip>false</skip>
-              <prefix>git</prefix>
-              <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-              <generateGitPropertiesFile>true</generateGitPropertiesFile>
-              <generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>
-              <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-              <dateFormatTimeZone>GMT-08:00</dateFormatTimeZone>
-              <useNativeGit>false</useNativeGit>
-              <abbrevLength>7</abbrevLength>
-              <format>properties</format>
-              <injectAllReactorProjects>true</injectAllReactorProjects>
-              <gitDescribe>
-                <skip>false</skip>
-                <always>false</always>
-                <abbrev>7</abbrev>
-                <match>*</match>
-                <dirty>-DEVEL</dirty>
-                <forceLongFormat>false</forceLongFormat>
-              </gitDescribe>
-              <excludeProperties>
-                <excludeProperty>git.commit.*</excludeProperty>
-                <excludeProperty>git.remote.origin.url</excludeProperty>
-              </excludeProperties>
-              <replacementProperties>
-                <replacementProperty>
-                  <property>git.branch</property>
-                  <propertyOutputSuffix>something</propertyOutputSuffix>
-                  <token>^([^\/]*)\/([^\/]*)$</token>
-                  <value>$1-$2</value>
-                  <transformationRules>
-                    <transformationRule>
-                      <apply>BEFORE</apply>
-                      <action>UPPER_CASE</action>
-                    </transformationRule>
-                  </transformationRules>
-                </replacementProperty>
-              </replacementProperties>
-              <failOnNoGitDirectory>false</failOnNoGitDirectory>
-              <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
-              <!-- used in validateRevision -->
-              <validationProperties>
-                <validationProperty>
-                  <name>validating project version</name>
-                  <value>${project.version}</value>
-                  <!-- <shouldMatchTo>^[0-9\.]*$</shouldMatchTo> -->
-                  <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
-                </validationProperty>
-                <validationProperty>
-                  <name>validating git dirty</name>
-                  <value>${git.dirty}</value>
-                  <shouldMatchTo>false</shouldMatchTo>
-                </validationProperty>
-              </validationProperties>
-              <validationShouldFailIfNoMatch>true</validationShouldFailIfNoMatch>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>checkstyle</id>
-      <properties>
-        <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
-        <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
-        <checkstyle.version>8.2</checkstyle.version>
-      </properties>
-      <build>
+    <build>
         <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-checkstyle-plugin</artifactId>
-              <version>${maven-checkstyle-plugin.version}</version>
-              <dependencies>
-                <dependency>
-                  <groupId>com.puppycrawl.tools</groupId>
-                  <artifactId>checkstyle</artifactId>
-                  <version>${checkstyle.version}</version>
-                </dependency>
-              </dependencies>
-            </plugin>
-          </plugins>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven-plugin-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.7.1</version>
+                </plugin>
+            </plugins>
         </pluginManagement>
+
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven-checkstyle-plugin.version}</version>
-            <executions>
-              <execution>
-                <id>validate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>check</goal>
-                </goals>
+            <!-- if you would like to run the git-commit-id-plugin for your build, you could also include it here instead using a profile (see README.md) -->
+            <!-- Setting built-in java compiler properties -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                  <configLocation>${basedir}/src/test/resources/checks/google_checks_checkstyle_${checkstyle.version}.xml</configLocation>
-                  <suppressionsLocation>${basedir}/src/test/resources/checks/checkstyle-suppressions.xml</suppressionsLocation>
-                  <propertyExpansion>samedir=${basedir}/src/test/resources/checks</propertyExpansion>
-                  <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                  <encoding>${project.reporting.outputEncoding}</encoding>
-                  <consoleOutput>true</consoleOutput>
-                  <violationSeverity>warning</violationSeverity>
-                  <failsOnError>true</failsOnError>
-                  <failOnViolation>true</failOnViolation>
-                  <linkXRef>false</linkXRef>
-               </configuration>
-              </execution>
-            </executions>
-          </plugin>
+                    <source>${java.target}</source>
+                    <target>${java.target}</target>
+                    <compilerArgument>-Xlint:deprecation</compilerArgument>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>coveralls</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <version>4.3.0</version>
-            <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
-          </plugin>
-          <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.2</version>
-            <executions>
-              <execution>
-              <id>prepare-agent</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <profiles>
+        <profile>
+            <id>gpg</id>
+            <build>
+                <plugins>
+                    <!-- GPG -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>coveralls</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                        <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
+                    </plugin>
+                    <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.2</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>checkstyle</id>
+            <properties>
+                <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+                <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
+                <checkstyle.version>8.2</checkstyle.version>
+                <checkstyle.config.path>${basedir}/.github/.checkstyle</checkstyle.config.path>
+            </properties>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-checkstyle-plugin</artifactId>
+                            <version>${maven-checkstyle-plugin.version}</version>
+                            <dependencies>
+                                <dependency>
+                                    <groupId>com.puppycrawl.tools</groupId>
+                                    <artifactId>checkstyle</artifactId>
+                                    <version>${checkstyle.version}</version>
+                                </dependency>
+                            </dependencies>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>${maven-checkstyle-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>validate</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <configLocation>${checkstyle.config.path}/google_checks_checkstyle_${checkstyle.version}.xml</configLocation>
+                                    <suppressionsLocation>${checkstyle.config.path}/checkstyle-suppressions.xml</suppressionsLocation>
+                                    <propertyExpansion>samedir=${checkstyle.config.path}</propertyExpansion>
+                                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                                    <encoding>${project.reporting.outputEncoding}</encoding>
+                                    <consoleOutput>true</consoleOutput>
+                                    <violationSeverity>warning</violationSeverity>
+                                    <failsOnError>true</failsOnError>
+                                    <failOnViolation>true</failOnViolation>
+                                    <linkXRef>false</linkXRef>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!--
+            ugly hack when we run checkstyle in a submodule
+            we want to find the right config and ${maven.multiModuleProjectDirectory} seems only available with maven 3.6
+            and ${session.executionRootDirectory} does only work from the parent module
+        -->
+        <profile>
+            <id>checkstyle-root-dir</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/../.github/.checkstyle</exists>
+                </file>
+            </activation>
+            <properties>
+                <checkstyle.config.path>${basedir}/../.github/.checkstyle</checkstyle.config.path>
+            </properties>
+        </profile>
+    </profiles>
 </project>
