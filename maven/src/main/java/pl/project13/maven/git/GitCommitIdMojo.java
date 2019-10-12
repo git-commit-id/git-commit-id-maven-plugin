@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -386,9 +387,6 @@ public class GitCommitIdMojo extends AbstractMojo {
   @Nonnull
   private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
 
-  @Nonnull
-  PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log);
-
   @Override
   public void execute() throws MojoExecutionException {
     try {
@@ -490,6 +488,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         loadGitData(properties);
         loadBuildData(properties);
+        PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log, new PluginParameterExpressionEvaluator(session));
         propertiesReplacer.performReplacement(properties, replacementProperties);
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
