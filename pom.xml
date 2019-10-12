@@ -179,5 +179,32 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>coveralls</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>4.3.0</version>
+                        <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
+                    </plugin>
+                    <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.2</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 </project>
