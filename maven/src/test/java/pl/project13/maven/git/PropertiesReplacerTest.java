@@ -200,7 +200,7 @@ public class PropertiesReplacerTest {
     transformationRules.add(new TransformationRule(applyRule, actionRule));
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, regex , "-", true, transformationRules));
+    replacementProperties.add(new ReplacementProperty(null, null, regex, "-", true, transformationRules));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 

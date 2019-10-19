@@ -75,7 +75,8 @@ public class ReplacementProperty {
   @Parameter
   private List<TransformationRule> transformationRules = new ArrayList<>();
 
-  public ReplacementProperty(){}
+  public ReplacementProperty() {
+  }
 
   public ReplacementProperty(String property, String propertyOutputSuffix, String token, String value, boolean regex, List<TransformationRule> transformationRules) {
     this.property = property;

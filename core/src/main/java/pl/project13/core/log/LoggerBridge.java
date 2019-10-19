@@ -42,7 +42,7 @@ public interface LoggerBridge {
       Which is MIT licensed and thus compatible with this project's license.
   */
 
-  /**
+  /*
    * Copyright (c) 2004-2011 QOS.ch
    * All rights reserved.
    *
