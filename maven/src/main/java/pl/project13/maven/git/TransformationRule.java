@@ -71,7 +71,8 @@ public class TransformationRule {
     protected abstract String perform(String input);
   }
 
-  public TransformationRule(){}
+  public TransformationRule() {
+  }
 
   public TransformationRule(String apply, String action) {
     this(ApplyEnum.valueOf(apply), ActionEnum.valueOf(action));

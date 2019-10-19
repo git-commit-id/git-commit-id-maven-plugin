@@ -55,7 +55,7 @@ public class GitDirLocator {
         return gitDirLinkPath;
       }
 
-      /**
+      /*
        * FIXME: I think we should fail here because a manual path was set and it was not found
        * but I'm leaving it falling back to searching for the git path because that is the current
        * behaviour - Unluckypixie.

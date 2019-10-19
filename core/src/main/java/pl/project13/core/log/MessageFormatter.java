@@ -17,7 +17,7 @@
 
 package pl.project13.core.log;
 
-/**
+/*
  * Copyright (c) 2004-2011 QOS.ch
  * All rights reserved.
  *
