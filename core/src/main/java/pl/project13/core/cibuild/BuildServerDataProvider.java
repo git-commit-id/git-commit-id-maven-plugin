@@ -100,6 +100,9 @@ public abstract class BuildServerDataProvider {
     if (AzureDevOpsBuildServerData.isActiveServer(env)) {
       return new AzureDevOpsBuildServerData(log, env);
     }
+    if (CircleCIBuildServerData.isActiveServer(env)) {
+      return new CircleCIBuildServerData(log, env);
+    }
     return new UnknownBuildServerData(log, env);
   }
 
