@@ -24,9 +24,9 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
-public class CircleCIBuildServerData extends BuildServerDataProvider {
+public class CircleCiBuildServerData extends BuildServerDataProvider {
 
-  CircleCIBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
+  CircleCiBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log,env);
   }
 
