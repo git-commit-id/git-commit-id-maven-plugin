@@ -24,38 +24,29 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
-public class GitlabBuildServerData extends BuildServerDataProvider {
+public class CircleCiBuildServerData extends BuildServerDataProvider {
 
-  GitlabBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
+  CircleCiBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log,env);
   }
 
   /**
-   * @see <a href="https://docs.gitlab.com/ce/ci/variables/predefined_variables.html">GitlabCIVariables</a>
+   * @see <a href="https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables">CircleCIBuiltInVariables</a>
    */
   public static boolean isActiveServer(Map<String, String> env) {
-    // CI is not unique to Gitlab CI (e.g. CircleCI). Use GITLAB_CI instead.
-    return env.containsKey("GITLAB_CI");
+    return env.containsKey("CIRCLECI");
   }
 
   @Override
   void loadBuildNumber(@Nonnull Properties properties) {
-    // GITLAB CI
-    // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
-    String uniqueBuildNumber = env.get("CI_PIPELINE_ID");
-    // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
-    String buildNumber = env.get("CI_PIPELINE_IID");
-
+    String buildNumber = env.get("CIRCLE_BUILD_NUM");
     put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
-    put(properties,
-        GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE,
-        uniqueBuildNumber == null ? "" : uniqueBuildNumber);
   }
 
   @Override
   public String getBuildBranch() {
-    String environmentBasedBranch = env.get("CI_COMMIT_REF_NAME");
-    log.info("Using environment variable based branch name. CI_COMMIT_REF_NAME = {}", environmentBasedBranch);
+    String environmentBasedBranch = env.get("CIRCLE_BRANCH");
+    log.info("Using environment variable based branch name. CIRCLE_BRANCH = {}", environmentBasedBranch);
     return environmentBasedBranch;
   }
 }
