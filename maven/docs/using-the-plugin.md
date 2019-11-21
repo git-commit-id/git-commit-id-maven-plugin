@@ -13,7 +13,7 @@ For more in-depth explanation of all options read the next section.
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -74,7 +74,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>4.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
