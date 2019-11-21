@@ -10,6 +10,8 @@ stages:
   - deploy
 
 jdk:
+  - oraclejdk13
+  - oraclejdk12
   - oraclejdk11
   - openjdk10
   - oraclejdk9
