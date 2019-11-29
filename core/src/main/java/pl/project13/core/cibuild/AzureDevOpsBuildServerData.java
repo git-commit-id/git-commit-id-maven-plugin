@@ -39,9 +39,9 @@ public class AzureDevOpsBuildServerData extends BuildServerDataProvider {
 
   @Override
   void loadBuildNumber(@Nonnull Properties properties) {
-    String buildNumber = env.get("BUILD_BUILDNUMBER");
+    String buildNumber = env.getOrDefault("BUILD_BUILDNUMBER", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
+    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
   }
 
   @Override

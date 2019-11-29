@@ -42,14 +42,12 @@ public class GitlabBuildServerData extends BuildServerDataProvider {
   void loadBuildNumber(@Nonnull Properties properties) {
     // GITLAB CI
     // CI_PIPELINE_ID will be present if in a Gitlab CI environment (Gitlab >8.10 & Gitlab CI >0.5)  and contains a server wide unique ID for a pipeline run
-    String uniqueBuildNumber = env.get("CI_PIPELINE_ID");
+    String uniqueBuildNumber = env.getOrDefault("CI_PIPELINE_ID", "");
     // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
-    String buildNumber = env.get("CI_PIPELINE_IID");
+    String buildNumber = env.getOrDefault("CI_PIPELINE_IID", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber == null ? "" : buildNumber);
-    put(properties,
-        GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE,
-        uniqueBuildNumber == null ? "" : uniqueBuildNumber);
+    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
+    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, uniqueBuildNumber);
   }
 
   @Override
