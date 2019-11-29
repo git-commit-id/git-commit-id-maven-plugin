@@ -103,6 +103,9 @@ public abstract class BuildServerDataProvider {
     if (CircleCiBuildServerData.isActiveServer(env)) {
       return new CircleCiBuildServerData(log, env);
     }
+    if (GitHubBuildServerData.isActiveServer(env)) {
+      return new GitHubBuildServerData(log, env);
+    }
     return new UnknownBuildServerData(log, env);
   }
 
