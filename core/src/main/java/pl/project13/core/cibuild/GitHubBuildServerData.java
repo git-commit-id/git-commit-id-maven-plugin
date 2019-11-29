@@ -27,10 +27,10 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class GitHubBuildServerData extends BuildServerDataProvider {
 
-    private static final String BRANCH_REF_PREFIX = "refs/heads/";
-    private static final String PULL_REQUEST_REF_PREFIX = "refs/pull/";
+  private static final String BRANCH_REF_PREFIX = "refs/heads/";
+  private static final String PULL_REQUEST_REF_PREFIX = "refs/pull/";
 
-    GitHubBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
+  GitHubBuildServerData(LoggerBridge log, @Nonnull Map<String, String> env) {
     super(log,env);
   }
 
@@ -51,7 +51,7 @@ public class GitHubBuildServerData extends BuildServerDataProvider {
     String environmentBasedBranchKey = "GITHUB_REF";
     String environmentBasedBranch = env.get(environmentBasedBranchKey);
     if (!isNullOrEmpty(environmentBasedBranch)) {
-        if (environmentBasedBranch.startsWith(BRANCH_REF_PREFIX)) {
+      if (environmentBasedBranch.startsWith(BRANCH_REF_PREFIX)) {
         environmentBasedBranch = environmentBasedBranch.substring(BRANCH_REF_PREFIX.length());
       } else if (environmentBasedBranch.startsWith(PULL_REQUEST_REF_PREFIX)) {
         environmentBasedBranchKey = "GITHUB_HEAD_REF";
