@@ -48,18 +48,19 @@ public class GitHubBuildServerData extends BuildServerDataProvider {
 
   @Override
   public String getBuildBranch() {
-    String environmentBasedBranchKey = "GITHUB_REF";
-    String environmentBasedBranch = env.get(environmentBasedBranchKey);
-    if (!isNullOrEmpty(environmentBasedBranch)) {
-      if (environmentBasedBranch.startsWith(BRANCH_REF_PREFIX)) {
-        environmentBasedBranch = environmentBasedBranch.substring(BRANCH_REF_PREFIX.length());
-      } else if (environmentBasedBranch.startsWith(PULL_REQUEST_REF_PREFIX)) {
-        environmentBasedBranchKey = "GITHUB_HEAD_REF";
-        environmentBasedBranch = env.get(environmentBasedBranchKey);
+    String gitHubRef = env.get("GITHUB_REF");
+    if (!isNullOrEmpty(gitHubRef)) {
+      if (gitHubRef.startsWith(BRANCH_REF_PREFIX)) {
+        String branchName = gitHubRef.substring(BRANCH_REF_PREFIX.length());
+        log.info("Using environment variable based branch name. GITHUB_REF = {} (branch = {})", gitHubRef, branchName);
+        return branchName;
+      }
+      if (gitHubRef.startsWith(PULL_REQUEST_REF_PREFIX)) {
+        String branchName = env.get("GITHUB_HEAD_REF");
+        log.info("Using environment variable based branch name. GITHUB_HEAD_REF = {}", branchName);
+        return branchName;
       }
     }
-    log.info("Using environment variable based branch name. {} = {}",
-            environmentBasedBranchKey, environmentBasedBranch);
-    return environmentBasedBranch;
+    return "";
   }
 }
