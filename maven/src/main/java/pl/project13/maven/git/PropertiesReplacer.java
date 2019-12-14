@@ -81,9 +81,15 @@ public class PropertiesReplacer {
   }
 
   private String performReplacement(ReplacementProperty replacementProperty, String content) {
+    String evaluationContent = content;
+    if (evaluationContent == null || evaluationContent.isEmpty() || replacementProperty.isForceValueEvaluation()) {
+      evaluationContent = replacementProperty.getValue();
+    }
     String result = "";
     try {
-      result = Optional.ofNullable(expressionEvaluator.evaluate(content)).map(x -> x.toString()).orElse("");
+      result = Optional
+              .ofNullable(expressionEvaluator.evaluate(evaluationContent))
+              .map(x -> x.toString()).orElse(evaluationContent);
     } catch (Exception e) {
       log.error("Something went wrong performing the replacement.", e);
     }

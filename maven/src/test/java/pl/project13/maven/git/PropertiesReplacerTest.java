@@ -69,7 +69,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, null, null, regex, null));
+    replacementProperties.add(new ReplacementProperty("key1", null, null, null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
   }
@@ -80,7 +80,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, "value", "another", regex, null));
+    replacementProperties.add(new ReplacementProperty("key1", null, "value", "another", regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -94,7 +94,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, "value", null, regex, null));
+    replacementProperties.add(new ReplacementProperty("key1", null, "value", null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -108,7 +108,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, "value", "another", regex, null));
+    replacementProperties.add(new ReplacementProperty(null, null, "value", "another", regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -122,7 +122,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, "value", null, regex, null));
+    replacementProperties.add(new ReplacementProperty(null, null, "value", null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -135,7 +135,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author/name");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -148,7 +148,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("git.branch", "feature#feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -161,7 +161,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+    replacementProperties.add(new ReplacementProperty("git.branch", "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -174,7 +174,7 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, null));
+    replacementProperties.add(new ReplacementProperty(null, "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -200,7 +200,7 @@ public class PropertiesReplacerTest {
     transformationRules.add(new TransformationRule(applyRule, actionRule));
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, regex, "-", true, transformationRules));
+    replacementProperties.add(new ReplacementProperty(null, null, regex, "-", true, false, transformationRules));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
