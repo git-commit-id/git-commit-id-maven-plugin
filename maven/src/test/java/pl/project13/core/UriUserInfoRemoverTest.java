@@ -43,6 +43,8 @@ public class UriUserInfoRemoverTest {
             { "https://user@example.com:8888", "https://user@example.com:8888" },
             { "https://user:password@example.com", "https://user@example.com" },
             { "https://user:password@example.com:8888", "https://user@example.com:8888" },
+            { "https://:@git.server.com/pathToRepo.git", "https://git.server.com/pathToRepo.git" },
+            { "https://:password@git.server.com/pathToRepo.git", "https://git.server.com/pathToRepo.git" },
             { "git@github.com", "git@github.com" },
             { "git@github.com:8888", "git@github.com:8888" },
             { "user@host.xz:~user/path/to/repo.git", "user@host.xz:~user/path/to/repo.git" },
