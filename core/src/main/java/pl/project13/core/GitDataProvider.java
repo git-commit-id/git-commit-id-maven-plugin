@@ -315,15 +315,22 @@ public abstract class GitDataProvider implements GitProvider {
       // Build a new URL from the original URL, but nulling out the password
       // component of the userinfo. We keep the username so that ssh uris such
       // ssh://git@github.com will retain 'git@'.
+      String extractedUserInfo = null;
+      if (userInfo.length > 0) {
+        extractedUserInfo = userInfo[0];
+        if (extractedUserInfo.isEmpty()) {
+          extractedUserInfo = null;
+        }
+      }
       return new URI(original.getScheme(),
-              userInfo[0],
+              extractedUserInfo,
               original.getHost(),
               original.getPort(),
               original.getPath(),
               original.getQuery(),
               original.getFragment()).toString();
 
-    } catch (URISyntaxException e) {
+    } catch (Exception e) {
       log.error("Something went wrong to strip the credentials from git's remote url (please report this)!", e);
       return "";
     }

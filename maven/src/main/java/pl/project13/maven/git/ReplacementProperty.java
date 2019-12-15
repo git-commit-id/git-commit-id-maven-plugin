@@ -69,6 +69,16 @@ public class ReplacementProperty {
   private boolean regex = true;
 
   /**
+   * Forces the plugin to evaluate the value on *every* project.
+   * Note that this essentially means that the plugin *must* run for every child-project of a reactor
+   * build and thus might cause some overhead (the git properties should be cached).
+   *
+   * For a use-case refer to https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/457.
+   */
+  @Parameter(defaultValue = "false")
+  private boolean forceValueEvaluation = false;
+
+  /**
    * @since 2.2.4
    * Provides the ability to perform certain string transformations before regex evaluation or after.
    */
@@ -78,12 +88,13 @@ public class ReplacementProperty {
   public ReplacementProperty() {
   }
 
-  public ReplacementProperty(String property, String propertyOutputSuffix, String token, String value, boolean regex, List<TransformationRule> transformationRules) {
+  public ReplacementProperty(String property, String propertyOutputSuffix, String token, String value, boolean regex, boolean forceValueEvaluation, List<TransformationRule> transformationRules) {
     this.property = property;
     this.propertyOutputSuffix = propertyOutputSuffix;
     this.token = token;
     this.value = value;
     this.regex = regex;
+    this.forceValueEvaluation = forceValueEvaluation;
     this.transformationRules = transformationRules;
   }
 
@@ -125,6 +136,15 @@ public class ReplacementProperty {
 
   public void setRegex(boolean regex) {
     this.regex = regex;
+  }
+
+
+  public boolean isForceValueEvaluation() {
+    return forceValueEvaluation;
+  }
+
+  public void setForceValueEvaluation(boolean forceValueEvaluation) {
+    this.forceValueEvaluation = forceValueEvaluation;
   }
 
   public List<TransformationRule> getTransformationRules() {

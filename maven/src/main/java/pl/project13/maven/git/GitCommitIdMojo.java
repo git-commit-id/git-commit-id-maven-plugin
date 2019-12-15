@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
 import org.apache.maven.plugins.annotations.Component;
@@ -67,6 +68,12 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "${reactorProjects}", readonly = true)
   List<MavenProject> reactorProjects;
+
+  /**
+   * The Mojo Execution
+   */
+  @Parameter(defaultValue = "${mojoExecution}", readonly = true)
+  MojoExecution mojoExecution;
 
   /**
    * The Maven Session Object.
@@ -488,10 +495,15 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         loadGitData(properties);
         loadBuildData(properties);
-        PropertiesReplacer propertiesReplacer = new PropertiesReplacer(log, new PluginParameterExpressionEvaluator(session));
-        propertiesReplacer.performReplacement(properties, replacementProperties);
+        // first round of publication and filtering (we need to make variables available for the ParameterExpressionEvaluator
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
+        publishToAllSystemEnvironments();
+
+        // now run replacements
+        PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
+                log, new PluginParameterExpressionEvaluator(session, mojoExecution));
+        propertiesReplacer.performReplacement(properties, replacementProperties);
 
         logProperties();
 
@@ -500,24 +512,30 @@ public class GitCommitIdMojo extends AbstractMojo {
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
 
-        publishPropertiesInto(project.getProperties());
-        // some plugins rely on the user properties (e.g. flatten-maven-plugin)
-        publishPropertiesInto(session.getUserProperties());
-
-        if (injectAllReactorProjects) {
-          appendPropertiesToReactorProjects();
-        }
-
-        if (injectIntoSysProperties) {
-          publishPropertiesInto(System.getProperties());
-          publishPropertiesInto(session.getSystemProperties());
-        }
+        // publish properties again since we might have new properties gained by the replacement
+        publishToAllSystemEnvironments();
 
       } catch (Exception e) {
         handlePluginFailure(e);
       }
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
+    }
+  }
+
+  private void publishToAllSystemEnvironments() {
+    publishPropertiesInto(project.getProperties());
+    // some plugins rely on the user properties (e.g. flatten-maven-plugin)
+    publishPropertiesInto(session.getUserProperties());
+
+    if (injectAllReactorProjects) {
+      appendPropertiesToReactorProjects();
+    }
+
+    if (injectIntoSysProperties) {
+      publishPropertiesInto(System.getProperties());
+      publishPropertiesInto(session.getSystemProperties());
+      publishPropertiesInto(session.getRequest().getSystemProperties());
     }
   }
 
