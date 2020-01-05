@@ -457,7 +457,6 @@
                             </dependency>
                         </dependencies>
                     </plugin>
-                    <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
