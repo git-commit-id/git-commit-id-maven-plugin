@@ -1,0 +1,116 @@
+name: Java CI
+
+on: [push, pull_request]
+
+jobs:
+  checkstyle:
+    name: Run checkstyle with java ${{ matrix.java_version }}
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        java_version: ['8']
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Run checkstyle with Maven
+        run: mvn --file pom.xml clean verify -Pcheckstyle -Dmaven.test.skip=true -B
+
+  test:
+    name: Run basic test with java ${{ matrix.java_version }}
+    runs-on: ubuntu-latest
+    needs: checkstyle
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        java_version: ['8', '9', '10', '11', '12', '13']
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+  integration-test:
+    name: Run integration test with java ${{ matrix.java_version }} and Maven ${{ matrix.maven_version }}
+    runs-on: ubuntu-latest
+    needs: checkstyle
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        java_version: ['8']
+        maven_version: ['3.0', '3.0.5', '3.1.1', '3.2.5', '3.3.9', '3.5.4', '3.6.3']
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Setup Maven ${{ matrix.maven_version }}
+        run: /bin/bash -c 'if [[ -n "${{ matrix.maven_version }}" ]]; then \
+            echo "Download Maven ${{ matrix.maven_version }}....";
+            if [[ "${{ matrix.maven_version }}" == "3.0" ]]; then
+              wget https://archive.apache.org/dist/maven/binaries/apache-maven-3.0-bin.zip || terminate 1;
+            else
+              wget https://archive.apache.org/dist/maven/maven-3/${{ matrix.maven_version }}/binaries/apache-maven-${{ matrix.maven_version }}-bin.zip || terminate 1;
+            fi;
+            unzip -qq apache-maven-${{ matrix.maven_version }}-bin.zip || terminate 1;
+            export M2_HOME=$PWD/apache-maven-${{ matrix.maven_version }};
+            export PATH=$M2_HOME/bin:$PATH;
+            mvn -version;
+          fi'
+      - name: Package with Maven
+        run: mvn clean package -B
+      - name: Install a test version with Maven
+        run: mvn clean test install -B
+      - name: Run the local testversion with Maven
+        run: mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
+      - name: Validate if the testversion has produced the desired output
+        run: /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
+
+  coveralls:
+    name: Run coveralls with java ${{ matrix.java_version }}
+    runs-on: ubuntu-latest
+    needs: integration-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    strategy:
+      matrix:
+        java_version: ['8']
+
+    steps:
+      - uses: actions/checkout@v1
+      - run: git checkout "${GITHUB_REF:11}"
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Run Coveralls with maven
+        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -B
+
+  deploy-snapshot:
+    name: Run coveralls with java ${{ matrix.java_version }}
+    runs-on: ubuntu-latest
+    needs: integration-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    strategy:
+      matrix:
+        java_version: ['8']
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK ${{ matrix.java_version }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java_version }}
+      - name: Deploy snapshot with maven
+        run: mvn clean deploy --settings=./.buildscript/settings.xml
+
