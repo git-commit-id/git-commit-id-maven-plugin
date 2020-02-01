@@ -83,5 +83,5 @@ jobs:
         with:
           java-version: ${{ matrix.java_version }}
       - name: Run Coveralls with maven
-        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -B
+        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -Dbranch=${GITHUB_REF##*/} -B
 
