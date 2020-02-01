@@ -67,17 +67,13 @@ jobs:
             mvn -version;
           fi'
       - name: Package with Maven
-        run:
-          - mvn clean package -B
+        run: mvn clean package -B
       - name: Install a test version with Maven
-        run:
-          - mvn clean test install -B
+        run: mvn clean test install -B
       - name: Run the local testversion with Maven
-        run:
-          - mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
+        run: mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
       - name: Validate if the testversion has produced the desired output
-        run:
-          - /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
+        run: /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
 
   coveralls:
     name: Run coveralls with java ${{ matrix.java_version }}
