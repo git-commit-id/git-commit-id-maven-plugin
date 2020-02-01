@@ -78,10 +78,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - run: git checkout "${GITHUB_REF:11}"
       - name: Set up JDK ${{ matrix.java_version }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
       - name: Run Coveralls with maven
-        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -Dbranch=${GITHUB_REF##*/} -B
+        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -B
 
