@@ -1,10 +1,12 @@
 name: Java CI
 
+on: [push, pull_request]
+
 jobs:
   checkstyle:
     name: Run checkstyle with java ${{ matrix.java_version }}
     runs-on: ubuntu-latest
-    on: pull_request
+    if: github.event_name == 'pull_request'
     strategy:
       matrix:
         java_version: ['8']
@@ -21,7 +23,7 @@ jobs:
     name: Run basic test with java ${{ matrix.java_version }}
     runs-on: ubuntu-latest
     needs: checkstyle
-    on: pull_request
+    if: github.event_name == 'pull_request'
     strategy:
       matrix:
         java_version: ['8', '9', '10', '11', '12', '13']
@@ -39,7 +41,7 @@ jobs:
     name: Run integration test with java ${{ matrix.java_version }} and Maven ${{ matrix.maven_version }}
     runs-on: ubuntu-latest
     needs: checkstyle
-    on: pull_request
+    if: github.event_name == 'pull_request'
     strategy:
       matrix:
         java_version: ['8']
@@ -64,22 +66,24 @@ jobs:
             export PATH=$M2_HOME/bin:$PATH;
             mvn -version;
           fi'
-      - name: Build with Maven
+      - name: Package with Maven
         run:
           - mvn clean package -B
+      - name: Install a test version with Maven
+        run:
           - mvn clean test install -B
+      - name: Run the local testversion with Maven
+        run:
           - mvn clean initialize -Pdemo -Dmaven.test.skip=true -B
+      - name: Validate if the testversion has produced the desired output
+        run:
           - /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
 
   coveralls:
     name: Run coveralls with java ${{ matrix.java_version }}
     runs-on: ubuntu-latest
     needs: integration-test
-    on:
-      push:
-        branches:
-          - master # Push events on master branch
-          - 'releases/**' # Push events to branches matching refs/heads/releases/<name>
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     strategy:
       matrix:
@@ -99,10 +103,7 @@ jobs:
     name: Run coveralls with java ${{ matrix.java_version }}
     runs-on: ubuntu-latest
     needs: integration-test
-    on:
-      push:
-        branches:
-          - master # Push events on master branch
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     strategy:
       matrix:
