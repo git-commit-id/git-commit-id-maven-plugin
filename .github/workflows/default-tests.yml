@@ -1,7 +1,7 @@
-name: Java CI
-
 # Trigger the workflow on push or pull request
 on: [push, pull_request]
+
+name: Java CI
 
 jobs:
   checkstyle:
