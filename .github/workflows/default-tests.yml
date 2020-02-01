@@ -82,8 +82,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@v1.0.1
-        with:
-          github-token: ${{ secrets.CoverallsRepoTokenSecret }}
+      - name: Run Coveralls with maven
+        run: mvn clean test jacoco:report coveralls:report -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} -B
 
