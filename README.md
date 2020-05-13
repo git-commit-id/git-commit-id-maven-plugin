@@ -2,13 +2,13 @@ maven git commit id plugin
 ==================================
 
 [![Join the chat at https://gitter.im/git-commit-id/maven-git-commit-id-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/git-commit-id/maven-git-commit-id-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://secure.travis-ci.org/git-commit-id/maven-git-commit-id-plugin.svg?branch=master)](http://travis-ci.org/git-commit-id/maven-git-commit-id-plugin)
+[![Build Status](https://secure.travis-ci.org/git-commit-id/maven-git-commit-id-plugin.svg?branch=master)](https://travis-ci.org/git-commit-id/maven-git-commit-id-plugin)
 [![Coverage Status](https://coveralls.io/repos/github/git-commit-id/maven-git-commit-id-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/maven-git-commit-id-plugin?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](http://search.maven.org/#search|ga|1|pl.project13.maven)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)
 
 
-git-commit-id-plugin is a plugin quite similar to https://fisheye.codehaus.org/browse/mojo/tags/buildnumber-maven-plugin-1.0-beta-4 for example but as buildnumber at the time when I started this plugin only supported CVS and SVN, something had to be done.
-I had to quickly develop an git version of such a plugin. For those who don't know the previous plugins, it basically helps you to help you with the following tasks and answer related questions
+git-commit-id-plugin is a plugin quite similar to [Build Number Maven Plugin](https://www.mojohaus.org/buildnumber-maven-plugin/index.html) for example but as the Build Number plugin at the time when I started this plugin only supported CVS and SVN, something had to be done.
+I had to quickly develop a Git version of such a plugin. For those who don't know the plugin, it basically helps you with the following tasks and answers related questions
 * Which version had the bug? Is that deployed already?
 * Make your distributed deployment aware of versions
 * Validate if properties are set as expected
@@ -22,19 +22,20 @@ Quicklinks (all relevant documentation)
 * [A more technical documentation  on how to use the leverage the generated properties from this plugin](maven/docs/using-the-plugin-in-more-depth.md)
 * [A general documentation for git describe (usefull feature in this plugin, if you are not familiar with the command)](maven/docs/git-describe.md)
 * [Frequently Asked Question (FAQ)](maven/docs/faq.md)
+* [Contributing](CONTRIBUTING.md)
 
 Getting the plugin
 ==================
-The plugin **is available from Maven Central** (<a href="http://search.maven.org/#search%7Cga%7C1%7Cpl.project13">see here</a>), so you don't have to configure any additional repositories to use this plugin.
+The plugin **is available from Maven Central** ([see here](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)), so you don't have to configure any additional repositories to use this plugin.
 
-A detailed description of using the plugin is available in the [Using the plugin](maven/docs/using-the-plugin.md) section. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
-For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](maven/docs/using-the-plugin.md)<a>... read on!
+A detailed description of using the plugin is available in the [Using the plugin](maven/docs/using-the-plugin.md) document. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
+For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](maven/docs/using-the-plugin.md)... read on!
 
 Versions
 --------
 The current version is **4.0.0** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A4.0.0)).
 
-You can check the available versions by visiting [search.maven.org](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22pl.project13.maven%22%20AND%20a%3A%22git-commit-id-plugin%22), though using the newest is obviously the best choice.
+You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin), though using the newest is obviously the best choice.
 
 Plugin compatibility with Java
 -------------------------------
@@ -45,7 +46,7 @@ Plugin compatibility with Java
 | 3.0.0           | Java 1.8              |
 
 
-Plugin compatibility with maven
+Plugin compatibility with Maven
 -----------------------------
 Even though this plugin tries to be compatible with every Maven version there are some known limitations with specific versions. Here is a list that tries to outline the current state of the art:
 
@@ -64,7 +65,7 @@ Starting with Maven 3.1.1 any plugin version is currently compatible. Only known
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
 If you really want to use **snapshots**, here's the repository they are deployed to. 
-But I highly recommend using only stable versions, from maven central... :-)
+But I highly recommend using only stable versions, from Maven Central... :-)
 
 ```xml
 <pluginRepositories>
@@ -101,9 +102,9 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 Notable happy users
 ===================
 
-* [neo4j](http://www.neo4j.org/) – graph database
-* [foundationdb](http://foundationdb.com) – another open source database
-* [Spring Boot](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-git-commit-information) – yes, the upstream Spring project is using us
+* [neo4j](https://neo4j.com/) – graph database
+* [FoundationdDB](https://www.foundationdb.org/) – another open source database
+* [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-maven) – yes, the upstream Spring project is using us
 * Akamai, Sabre, EasyDITA, and many many others,
 * many others I don't know of.
 
@@ -115,7 +116,9 @@ I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
 You're free to use it as you wish, the full license text is attached in the LICENSE file.
 
-The best way to ask for features / improvements is [via the Issues section on github - it's better than email](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
+Feature requests
+================
+The best way to ask for features / improvements is [via the Issues section on GitHub - it's better than email](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
 and maybe someone else has some idea or would like to upvote your issue.
 
 That's all folks! **Happy hacking!**
