@@ -54,7 +54,8 @@ Even though this plugin tries to be compatible with every Maven version there ar
 | --------------------------- | ---------------:|:-------------------------------------------------------------------------------:|
 | Maven 3.1.0 (and below)     | up to 2.1.13    |                                                                                 |
 | Maven 3.1.1 (and onwards)   |          any    |                                                                                 |
-| Maven 3.0   (and onwards)   |   from 2.2.4    | With Maven 3.0.X SLF4J fails to load class "org.slf4j.impl.StaticLoggerBinder". |
+| Maven 3.0   (and onwards)   |   from 2.2.4    |                                                                                 |
+| Maven 3.0.X                 |   from 2.2.4    | SLF4J fails to load class "org.slf4j.impl.StaticLoggerBinder"                   |
 | Maven 3.3.1                 |          any    | plugin version 2.1.14 doesn't work                                              |
 | Maven 3.3.3                 |          any    | plugin version 2.1.14 doesn't work                                              |
 
