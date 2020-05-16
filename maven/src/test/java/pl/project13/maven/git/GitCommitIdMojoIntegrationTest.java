@@ -1590,7 +1590,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     List<String> prefixes = Arrays.asList("prefix-one", "prefix-two");
     // when
     // simulate plugin execution with multiple prefixes
-    // see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/137#issuecomment-418144756
+    // see https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/137#issuecomment-418144756
     for (String prefix: prefixes) {
       mojo.prefix = prefix;
 

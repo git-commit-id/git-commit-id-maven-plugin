@@ -119,7 +119,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         This property will be used as the "namespace" prefix for all exposed/generated properties.
                         An example the plugin may generate the property `${configured-prefix}.commit.id`.
                         Such behaviour can be used to generate properties for multiple git repositories (see
-                        https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/137#issuecomment-418144756
+                        https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/137#issuecomment-418144756
                         for a full example).
                     -->
                     <prefix>git</prefix>
@@ -185,7 +185,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         and rebuild/rerun you will see an older timestamp that you may have expected. Essentially
                         the functional meaning becomes **The latest build time when the git information was written
                         to the git.properties file**. The reason why this was done can be found in
-                        [issue 151](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/151).
+                        [issue 151](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/151).
 
                         If you need the actual *build time* then simply use the a filtered properties file that
                         contains something like this
@@ -215,7 +215,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         the place where all derived/generated resources should go.
                         With version 3.0.0 we introduced a smarter way to counter that issue, but that might not
                         be supported by your IDE.
-                        See: https://github.com/git-commit-id/maven-git-commit-id-plugin/pull/385
+                        See: https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/385
                     -->
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 
@@ -246,7 +246,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Most projects won't need to override this property.
 
                         For an use-case for this kind of behaviour see:
-                        https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/21
+                        https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/21
 
                         Note:
                         The plugin might not execute at all, if you also set `<runOnlyOnce>true</runOnlyOnce>`
@@ -265,7 +265,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         to another maven module (e.g. maven-antrun-plugin) you need to set it to `true`.
                         However, setting this option can have an impact on your build.
                         For details about why you might want to skip this, read this issue:
-                        https://github.com/git-commit-id/maven-git-commit-id-plugin/pull/65
+                        https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/65
                     -->
                     <injectAllReactorProjects>false</injectAllReactorProjects>
 
@@ -365,7 +365,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
                         Please note that the strings here are Java regexes (`.*` is globbing, not plain `*`).
 
-                        This feature was implemented in response to [this issue](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/91),
+                        This feature was implemented in response to [this issue](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/91),
                         so if you're curious about the use-case, check that issue.
 
                         Prior to version 3.0.0 the plugin used the 'naive' approach to ask for all properties
@@ -374,7 +374,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the
                         plugin will not even try to get the property when excluded. Such behaviour can result in
                         an overall reduced execution time of the plugin
-                        (see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/408 for details).
+                        (see https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/408 for details).
                     -->
                     <excludeProperties>
                       <!-- <excludeProperty>git.user.*</excludeProperty> -->
@@ -403,7 +403,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the
                         plugin will not even try to get the property when included. Such behaviour can result in
                         an overall reduced execution time of the plugin
-                        (see https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/408 for details).
+                        (see https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/408 for details).
                     -->
                     <includeOnlyProperties>
                       <!-- <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty> -->
@@ -461,13 +461,13 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         project specific variables like `${project.artifactId}`.
                         Be adviced that this essentially means that the plugin *must* run for every child-project of a
                         reactor build and thus might cause some overhead (the git properties should be cached).
-                        For a use-case refer to https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/457.
+                        For a use-case refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/457.
                     -->
                     <replacementProperties>
                       <!--
                           example:
                           apply replacement only to the specific property git.branch and replace '/' with '-'
-                          see also [issue 138](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/138)
+                          see also [issue 138](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/138)
                       <replacementProperty>
                         <property>git.branch</property>
                         <propertyOutputSuffix>something</propertyOutputSuffix>
@@ -520,7 +520,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Allow to specify a timeout (in milliseconds) for fetching information with the native
                         Git executable. This option might come in handy in cases where fetching information
                         about the repository with the native Git executable does not terminate (see
-                        https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/336 for an example)
+                        https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/336 for an example)
 
                         *Note*: This option will only be taken into consideration when using the native git
                         executable (`useNativeGit` is set to `true`).
@@ -548,7 +548,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         Explanation:
                         The option can be used to tell the plugin how it should generate the 'git.commit.id'
                         property. Due to some naming issues when exporting the properties as an json-object
-                        (https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/122) we needed to
+                        (https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/122) we needed to
                         make it possible to export all properties as a valid json-object.
                         Due to the fact that this is one of the major properties the plugin is exporting we
                         just don't want to change the exporting mechanism and somehow throw the backwards
@@ -578,7 +578,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!--
                         The following `gitDescribe` configuration below is optional and can be leveraged as a
                         really powerful versioning helper. If you are not familiar with
-                        [git-describe](https://github.com/git-commit-id/maven-git-commit-id-plugin#git-describe-&#45;-short-intro-to-an-awesome-command)
+                        [git-describe](https://github.com/git-commit-id/git-commit-id-maven-plugin#git-describe-&#45;-short-intro-to-an-awesome-command)
                         it is highly recommended to go through this part of the documentation. More advanced
                         users can most likely skip the explanations in this section, as it just explains the
                         same options that git provides.
@@ -673,7 +673,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                             to switch this to `true`.
 
                             The difference between *annotated tags* and *lightweight tags* is outlined in more
-                            depth here: https://github.com/git-commit-id/maven-git-commit-id-plugin/#git-describe-and-a-small-gotcha-with-tags
+                            depth here: https://github.com/git-commit-id/git-commit-id-maven-plugin/#git-describe-and-a-small-gotcha-with-tags
                         -->
                         <tags>false</tags>
 
@@ -699,12 +699,12 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         empty list / not set (meaning no properties will be validated by default)
 
                         Explanation:
-                        Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional
+                        Since version **2.2.2** the git-commit-id-maven-plugin comes equipped with an additional
                         validation utility which can be used to verify if your project properties are set as you
                         would like to have them set.
                         This feature ships with an additional mojo execution and for instance allows to check if
                         the version is not a snapshot build. If you are interested in the config checkout the
-                        [validation utility documentation](https://github.com/git-commit-id/maven-git-commit-id-plugin#validate-if-properties-are-set-as-expected).
+                        [validation utility documentation](https://github.com/git-commit-id/git-commit-id-maven-plugin#validate-if-properties-are-set-as-expected).
                         *Note*: This configuration will only be taken into account when the additional goal
                         `validateRevision` is configured inside an execution.
                     -->
@@ -761,7 +761,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         to an entire commit-hash or it's abbreviated version.
 
                         A use-case for this feature can be found in
-                        https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/338.
+                        https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/338.
 
                         Please note that for security purposes not all references might be allowed as
                         configuration. If you have a specific use-case that is currently not white listed
@@ -784,7 +784,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         When set to `true` this plugin will try to use the branch name from build environment.
                         Set to {@code 'false'} to use JGit/GIT to get current branch name which can be useful
                         when using the JGitflow maven plugin.
-                        See https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/24#issuecomment-203285398
+                        See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/24#issuecomment-203285398
 
                         Note: If not using "Check out to specific local branch' and setting this to false may
                         result in getting detached head state and therefore a commit id as branch name.

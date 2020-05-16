@@ -73,7 +73,7 @@ public class ReplacementProperty {
    * Note that this essentially means that the plugin *must* run for every child-project of a reactor
    * build and thus might cause some overhead (the git properties should be cached).
    *
-   * For a use-case refer to https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/457.
+   * For a use-case refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/457.
    */
   @Parameter(defaultValue = "false")
   private boolean forceValueEvaluation = false;
