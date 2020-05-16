@@ -19,7 +19,7 @@ One might say that this is usually accomplished by using `${project.version}` an
 
 Validate if properties are set as expected
 ---------------------------------------------
-Since version **2.2.2** the maven-git-commit-id-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
+Since version **2.2.2** the git-commit-id-maven-plugin comes equipped with an additional validation utility which can be used to verify if your project properties are set as you would like to have them set.
 The validation can be used for *any* property that is visible inside the pom.xml and therefore can be used for a various amount of different use cases.
 In order to understand the ideology and intention here are some pretty useful ideas you could achieve by using the validation:
 * validate if the version of your project does not end with SNAPSHOT
@@ -29,7 +29,7 @@ In order to understand the ideology and intention here are some pretty useful id
 
 With the current version of the validation the user can decide if the build should fail if *at least one* of the defined criteria do not match with the desired values.
 
-For flexibility and due to the fact that this validation has a different scope than the maven-git-commit-id-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
+For flexibility and due to the fact that this validation has a different scope than the git-commit-id-maven-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
 Once configured, the validation is executed during the verification-phase. However since the validation is done in a separate execution the phase can easily be changed by adding the desired phase to the execution configuration.
 
 Note that this feature needs to be enabled properly, before it can be used. Checkout the `Validation Usage Example` in the [using the plugin](using-the-plugin.md) guide to find out more.

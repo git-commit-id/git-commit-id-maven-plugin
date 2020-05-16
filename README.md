@@ -1,9 +1,8 @@
 maven git commit id plugin
 ==================================
 
-[![Join the chat at https://gitter.im/git-commit-id/maven-git-commit-id-plugin](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/git-commit-id/maven-git-commit-id-plugin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://secure.travis-ci.org/git-commit-id/maven-git-commit-id-plugin.svg?branch=master)](https://travis-ci.org/git-commit-id/maven-git-commit-id-plugin)
-[![Coverage Status](https://coveralls.io/repos/github/git-commit-id/maven-git-commit-id-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/maven-git-commit-id-plugin?branch=master)
+[![Build Status](https://secure.travis-ci.org/git-commit-id/git-commit-id-maven-plugin.svg?branch=master)](https://travis-ci.org/github/git-commit-id/git-commit-id-maven-plugin)
+[![Coverage Status](https://coveralls.io/repos/github/git-commit-id/git-commit-id-maven-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/git-commit-id-maven-plugin?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)
 
 
@@ -33,7 +32,7 @@ For more advanced users we also prepared a [guide to provide a brief overview of
 
 Versions
 --------
-The current version is **4.0.0** ([changelist](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues?q=milestone%3A4.0.0)).
+The current version is **4.0.0** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A4.0.0)).
 
 You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin), though using the newest is obviously the best choice.
 
@@ -96,7 +95,7 @@ I'd like to give a big thanks to some of these folks, for their suggestions and 
 * @fredcooke - for consistent feedback and suggestions,
 * @MrOnion - for a small yet fast bugfix,
 * @cardil and @TheSnoozer - for helping with getting the native git support shipped,
-* all the other contributors (as of writing 50) which can be on the [contributors tab](https://github.com/git-commit-id/maven-git-commit-id-plugin/graphs/contributors) - thanks guys,
+* all the other contributors (as of writing 50) which can be on the [contributors tab](https://github.com/git-commit-id/git-commit-id-maven-plugin/graphs/contributors) - thanks guys,
 * ... many others - thank you for your contributions,
 * ... you! - for using the plugin :-)
 
@@ -111,7 +110,7 @@ Notable happy users
 
 License
 =======
-<img style="float:right; padding:3px; " src="https://github.com/git-commit-id/maven-git-commit-id-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3"/>
+<img style="float:right; padding:3px; " src="https://github.com/git-commit-id/git-commit-id-maven-plugin/raw/master/lgplv3-147x51.png" alt="GNU LGPL v3"/>
 
 I'm releasing this plugin under the **GNU Lesser General Public License 3.0**.
 
@@ -119,7 +118,7 @@ You're free to use it as you wish, the full license text is attached in the LICE
 
 Feature requests
 ================
-The best way to ask for features / improvements is [via the Issues section on GitHub - it's better than email](https://github.com/git-commit-id/maven-git-commit-id-plugin/issues) because I won't loose when I have a "million emails inbox" day,
+The best way to ask for features / improvements is [via the Issues section on GitHub - it's better than email](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues) because I won't loose when I have a "million emails inbox" day,
 and maybe someone else has some idea or would like to upvote your issue.
 
 That's all folks! **Happy hacking!**

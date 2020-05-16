@@ -32,9 +32,9 @@
     </licenses>
 
     <scm>
-        <url>git@github.com/ktoso/maven-git-commit-id-plugin.git</url>
-        <connection>scm:git:https://github.com/ktoso/maven-git-commit-id-plugin</connection>
-        <developerConnection>scm:git:git@github.com:ktoso/maven-git-commit-id-plugin.git</developerConnection>
+        <url>git@github.com:git-commit-id/git-commit-id-maven-plugin.git</url>
+        <connection>scm:git@github.com:git-commit-id/git-commit-id-maven-plugin</connection>
+        <developerConnection>scm:git:git@github.com:git-commit-id/git-commit-id-maven-plugin.git</developerConnection>
       <tag>HEAD</tag>
   </scm>
 

@@ -186,7 +186,7 @@ In the end *this is what this service would return*:
          "tags" : "v2.1.14,testing",
          "branch" : "testing-maven-git-plugin",
          "dirty" : "false",
-         "remoteOriginUrl" : "git@github.com\:git-commit-id/maven-git-commit-id-plugin.git",
+         "remoteOriginUrl" : "git@github.com\:git-commit-id/git-commit-id-maven-plugin.git",
          "commitId" : "787e39f61f99110e74deed68ab9093088d64b969",
          "commitIdAbbrev" : "787e39f",
          "describe" : "v2.1.0-2-g2346463",
