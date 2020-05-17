@@ -49,18 +49,20 @@ Plugin compatibility with Maven
 -----------------------------
 Even though this plugin tries to be compatible with every Maven version there are some known limitations with specific versions. Here is a list that tries to outline the current state of the art:
 
-| Maven Version               | Plugin Version  | Notes                                                                           |
-| --------------------------- | ---------------:|:-------------------------------------------------------------------------------:|
-| Maven 3.1.0 (and below)     | up to 2.1.13    |                                                                                 |
-| Maven 3.1.1 (and onwards)   |          any    |                                                                                 |
-| Maven 3.0   (and onwards)   |   from 2.2.4    |                                                                                 |
-| Maven 3.0.X                 |   from 2.2.4    | SLF4J fails to load class "org.slf4j.impl.StaticLoggerBinder"                   |
-| Maven 3.3.1                 |          any    | plugin version 2.1.14 doesn't work                                              |
-| Maven 3.3.3                 |          any    | plugin version 2.1.14 doesn't work                                              |
+| Maven Version               | Plugin Version  | Notes                                                                                                           |
+| --------------------------- | ---------------:|:---------------------------------------------------------------------------------------------------------------:|
+| Maven 2.0.11                | up to 2.2.6     | Maven 2 is EOL, git-commit-id-plugin:1.0 doesn't work -- requires maven version 2.2.1                           |
+| Maven 2.2.1                 | up to 2.2.6     | Maven 2 is EOL                                                                                                  |
+| Maven 3.0.X                 | any             | git-commit-id-plugin:2.1.14, 2.1.15, 2.2.0, 2.2.1, 2.2.3  doesn't work  -- requires maven version 3.1.1         |
+| Maven 3.0.X                 | any             | For git-commit-id-plugin 2.2.4 or higher: works, but failed to load class "org.slf4j.impl.StaticLoggerBinder"   |
+| Maven 3.1.0                 | any             | git-commit-id-plugin:2.1.14, 2.1.15, 2.2.0, 2.2.1, 2.2.3 doesn't work -- requires maven version 3.1.1           |
+| Maven 3.3.1                 | any             | git-commit-id-plugin:2.1.14 doesn't work                                                                        |
+| Maven 3.3.3                 | any             | git-commit-id-plugin:2.1.14 doesn't work                                                                        |
+| Maven 3.X.X                 | any             | Any other non listed version here should work with any plugin version                                           |
 
 
-Starting with Maven 3.1.1 any plugin version is currently compatible. Only known exception is for Maven 3.3.1 and Maven 3.3.3 where the plugin version 2.1.14 is not working properly.
-
+Note:
+As an example -- this table should be read as: For `Maven 3.1.0` `any` Plugin Version should work, besides the ones listed in the `Notes` have the limitations listed.
 
 Getting SNAPSHOT versions of the plugin
 ---------------------------------------
