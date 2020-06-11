@@ -99,10 +99,6 @@ jobs:
     needs: integration-test
     if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master')
 
-    strategy:
-      matrix:
-        java_version: ['8']
-
     steps:
       - uses: actions/checkout@v1
       - run: git checkout "${GITHUB_REF:11}"
