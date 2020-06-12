@@ -17,7 +17,6 @@
 
 package pl.project13.core.jgit;
 
-import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.util.*;
 
@@ -96,7 +95,9 @@ public class DescribeResult {
 
   @Nonnull
   public DescribeResult withCommitIdAbbrev(int n) {
-    Preconditions.checkArgument(n >= 0, String.format("The --abbrev parameter must be >= 0, but it was: [%s]", n));
+    if (n < 0) {
+      throw new IllegalArgumentException("The --abbrev parameter must be >= 0, but it was: [" + n + "]");
+    }
     this.abbrev = n;
     this.abbreviatedObjectId = createAbbreviatedCommitId(this.objectReader, this.commitId.get(), this.abbrev);
     return this;

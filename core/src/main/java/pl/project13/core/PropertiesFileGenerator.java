@@ -19,16 +19,14 @@ package pl.project13.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.Files;
 import org.sonatype.plexus.build.incremental.BuildContext;
-import pl.project13.core.GitCommitIdExecutionException;
-import pl.project13.core.GitCommitPropertyConstant;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.SortedProperties;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -86,7 +84,7 @@ public class PropertiesFileGenerator {
       }
 
       if (shouldGenerate) {
-        Files.createParentDirs(gitPropsFile);
+        Files.createDirectories(gitPropsFile.getParentFile().toPath());
         try (OutputStream outputStream = new FileOutputStream(gitPropsFile)) {
           SortedProperties sortedLocalProperties = new SortedProperties();
           sortedLocalProperties.putAll(localProperties);

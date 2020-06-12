@@ -17,8 +17,6 @@
 
 package pl.project13.core;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.core.cibuild.UnknownBuildServerData;
@@ -27,14 +25,11 @@ import pl.project13.core.util.PropertyManager;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 public abstract class GitDataProvider implements GitProvider {
 
@@ -229,7 +224,7 @@ public abstract class GitDataProvider implements GitProvider {
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);
     if (useBranchNameFromBuildEnvironment && !(buildServerDataProvider instanceof UnknownBuildServerData)) {
       String branchName = buildServerDataProvider.getBuildBranch();
-      if (isNullOrEmpty(branchName)) {
+      if (branchName == null || branchName.isEmpty()) {
         log.info("Detected that running on CI environment, but using repository branch, no GIT_BRANCH detected.");
         return getBranchName();
       }
@@ -262,7 +257,6 @@ public abstract class GitDataProvider implements GitProvider {
 
   @FunctionalInterface
   public interface SupplierEx<T> {
-    @CanIgnoreReturnValue
     T get() throws GitCommitIdExecutionException;
   }
 
