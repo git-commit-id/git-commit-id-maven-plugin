@@ -57,7 +57,7 @@ public class PropertiesFiltererTest {
 
     propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
 
-    Mockito.verifyZeroInteractions(properties);
+    Mockito.verifyNoInteractions(properties);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class PropertiesFiltererTest {
 
     propertiesFilterer.filterNot(properties, exclusions, PREFIX_DOT);
 
-    Mockito.verifyZeroInteractions(properties);
+    Mockito.verifyNoInteractions(properties);
   }
 
   @Test
@@ -88,7 +88,7 @@ public class PropertiesFiltererTest {
 
     propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 
-    Mockito.verifyZeroInteractions(properties);
+    Mockito.verifyNoInteractions(properties);
   }
 
   @Test
@@ -97,7 +97,7 @@ public class PropertiesFiltererTest {
 
     propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 
-    Mockito.verifyZeroInteractions(properties);
+    Mockito.verifyNoInteractions(properties);
   }
 
   @Test
