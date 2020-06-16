@@ -24,8 +24,6 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
 
   HudsonJenkinsBuildServerData(@Nonnull LoggerBridge log, @Nonnull Map<String, String> env) {
@@ -50,7 +48,7 @@ public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
   @Override
   public String getBuildBranch() {
     String environmentBasedLocalBranch = env.get("GIT_LOCAL_BRANCH");
-    if (!isNullOrEmpty(environmentBasedLocalBranch)) {
+    if (environmentBasedLocalBranch != null && !environmentBasedLocalBranch.isEmpty()) {
       log.info("Using environment variable based branch name. GIT_LOCAL_BRANCH = {}",
           environmentBasedLocalBranch);
       return environmentBasedLocalBranch;

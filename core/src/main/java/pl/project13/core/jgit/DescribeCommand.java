@@ -17,9 +17,6 @@
 
 package pl.project13.core.jgit;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-
 import org.eclipse.jgit.api.GitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
@@ -144,8 +141,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   @Nonnull
   public DescribeCommand abbrev(@Nullable Integer n) {
     if (n != null) {
-      Preconditions.checkArgument(n < 41, String.format("N (commit abbrev length) must be < 41. (Was:[%s])", n));
-      Preconditions.checkArgument(n >= 0, String.format("N (commit abbrev length) must be positive! (Was [%s])", n));
+      if (n >= 41) {
+        throw new IllegalArgumentException("N (commit abbrev length) must be < 41. (Was:[" + n + "])");
+      }
+      if (n < 0) {
+        throw new IllegalArgumentException("N (commit abbrev length) must be positive! (Was [" + n + "])");
+      }
       log.info("--abbrev = {}", n);
       abbrev = n;
     }
@@ -332,12 +333,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
     return tags.isEmpty();
   }
 
-  @VisibleForTesting
+  // Visible for testing
   boolean findDirtyState(Repository repo) throws GitAPIException {
     return JGitCommon.isRepositoryInDirtyState(repo);
   }
 
-  @VisibleForTesting
+  // Visible for testing
   static boolean hasTags(ObjectId headCommit, @Nonnull Map<ObjectId, List<String>> tagObjectIdToName) {
     return tagObjectIdToName.containsKey(headCommit);
   }

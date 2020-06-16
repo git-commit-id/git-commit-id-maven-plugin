@@ -35,7 +35,6 @@ import org.eclipse.jgit.revwalk.RevWalk;
 
 import pl.project13.core.jgit.dummy.DatedRevTag;
 
-import com.google.common.annotations.VisibleForTesting;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.Pair;
@@ -238,7 +237,7 @@ public class JGitCommon {
     return (revTag, revTag2) -> revTag2.date.compareTo(revTag.date);
   }
 
-  @VisibleForTesting
+  // Visible for testing
   protected String trimFullTagName(@Nonnull String tagName) {
     return tagName.replaceFirst("refs/tags/", "");
   }

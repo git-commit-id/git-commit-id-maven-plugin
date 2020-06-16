@@ -23,8 +23,6 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 public class GitHubBuildServerData extends BuildServerDataProvider {
 
   private static final String BRANCH_REF_PREFIX = "refs/heads/";
@@ -49,7 +47,7 @@ public class GitHubBuildServerData extends BuildServerDataProvider {
   @Override
   public String getBuildBranch() {
     String gitHubRef = env.get("GITHUB_REF");
-    if (!isNullOrEmpty(gitHubRef)) {
+    if (gitHubRef != null && !gitHubRef.isEmpty()) {
       if (gitHubRef.startsWith(BRANCH_REF_PREFIX)) {
         String branchName = gitHubRef.substring(BRANCH_REF_PREFIX.length());
         log.info("Using environment variable based branch name. GITHUB_REF = {} (branch = {})", gitHubRef, branchName);

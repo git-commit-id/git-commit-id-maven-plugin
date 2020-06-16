@@ -24,8 +24,6 @@ import pl.project13.core.log.LoggerBridge;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -586,8 +584,8 @@ public class NativeGitProvider extends GitDataProvider {
       log.error("Failed to execute fetch", e);
     }
   }
-  
-  @VisibleForTesting
+
+  // Visible for testing
   public void setEvaluateOnCommit(String evaluateOnCommit) {
     this.evaluateOnCommit = evaluateOnCommit;
   }

@@ -17,8 +17,6 @@
 
 package pl.project13.core;
 
-import com.google.common.annotations.VisibleForTesting;
-
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -285,7 +283,8 @@ public class JGitProvider extends GitDataProvider {
     }
   }
 
-  @VisibleForTesting String getGitDescribe(@Nonnull Repository repository) throws GitCommitIdExecutionException {
+  // Visible for testing
+  String getGitDescribe(@Nonnull Repository repository) throws GitCommitIdExecutionException {
     try {
       DescribeResult describeResult = DescribeCommand
           .on(evaluateOnCommit, repository, log)
@@ -356,7 +355,6 @@ public class JGitProvider extends GitDataProvider {
 
   // SETTERS FOR TESTS ----------------------------------------------------
 
-  @VisibleForTesting
   public void setRepository(Repository git) {
     this.git = git;
   }

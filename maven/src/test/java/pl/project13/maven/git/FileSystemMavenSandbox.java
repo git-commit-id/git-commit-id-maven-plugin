@@ -17,7 +17,6 @@
 
 package pl.project13.maven.git;
 
-import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
 
@@ -25,6 +24,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Quick and dirty maven projects tree structure to create on disk during integration tests.
@@ -121,8 +121,8 @@ public class FileSystemMavenSandbox {
       // folders whose existence is crucial for the native git to run (jgit does not mind)
       // *and* because empty folders are silently omitted from git checkins, ensure that
       // these folders exist
-      Files.createParentDirs(new File(gitFolder, "refs/heads"));
-      Files.createParentDirs(new File(gitFolder, "refs/tags"));
+      Files.createDirectories(new File(gitFolder, "refs/heads").toPath());
+      Files.createDirectories(new File(gitFolder, "refs/tags").toPath());
     }
   }
 
