@@ -19,14 +19,15 @@ package pl.project13.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nu.studer.java.util.OrderedProperties;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.log.LoggerBridge;
-import pl.project13.core.util.SortedProperties;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -86,8 +87,11 @@ public class PropertiesFileGenerator {
       if (shouldGenerate) {
         Files.createDirectories(gitPropsFile.getParentFile().toPath());
         try (OutputStream outputStream = new FileOutputStream(gitPropsFile)) {
-          SortedProperties sortedLocalProperties = new SortedProperties();
-          sortedLocalProperties.putAll(localProperties);
+          OrderedProperties sortedLocalProperties = new OrderedProperties.OrderedPropertiesBuilder()
+                  .withSuppressDateInComment(true)
+                  .withOrdering(Comparator.nullsLast(Comparator.naturalOrder()))
+                  .build();
+          localProperties.forEach((key, value) -> sortedLocalProperties.setProperty((String) key, (String) value));
           if (isJsonFormat) {
             try (Writer outputWriter = new OutputStreamWriter(outputStream, sourceCharset)) {
               log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
