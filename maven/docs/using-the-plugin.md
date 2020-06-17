@@ -914,6 +914,6 @@ Refer to the table below to see which values are supported by which CIs.
  
  | variable                  | description                             | supported CIs                                             |    
  | ------------------------- | ----------------------------------------|:---------------------------------------------------------:|   
- |`git.build.number`         | holds a project specific build number   | Bamboo, Hudson, Jenkins, TeamCity, Travis, Gitlab CI (Gitlab >8.10 & Gitlab CI >0.5), Azure DevOps|        
- |`git.build.number.unique`  | holds a system wide unique build number | TeamCity, Travis, Gitlab CI (Gitlab >11.0)                          |
+ |`git.build.number`         | holds a project specific build number   | Bamboo, Hudson, Jenkins, TeamCity, Travis, Gitlab CI (Gitlab >8.10 & Gitlab CI >0.5), Azure DevOps, AWS CodeBuild |        
+ |`git.build.number.unique`  | holds a system wide unique build number | TeamCity, Travis, Gitlab CI (Gitlab >11.0), AWS CodeBuild |
 

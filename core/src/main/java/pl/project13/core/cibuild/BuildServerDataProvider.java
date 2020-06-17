@@ -106,6 +106,9 @@ public abstract class BuildServerDataProvider {
     if (GitHubBuildServerData.isActiveServer(env)) {
       return new GitHubBuildServerData(log, env);
     }
+    if (AwsCodeBuildBuildServerData.isActiveServer(env)) {
+      return new AwsCodeBuildBuildServerData(log, env);
+    }
     return new UnknownBuildServerData(log, env);
   }
 
