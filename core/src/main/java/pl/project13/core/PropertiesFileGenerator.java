@@ -18,6 +18,7 @@
 package pl.project13.core;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.log.LoggerBridge;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class PropertiesFileGenerator {
+  private static final ObjectMapper MAPPER = new ObjectMapper().enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES);
 
   private LoggerBridge log;
   private BuildContext buildContext;
@@ -91,8 +93,7 @@ public class PropertiesFileGenerator {
           if (isJsonFormat) {
             try (Writer outputWriter = new OutputStreamWriter(outputStream, sourceCharset)) {
               log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
-              ObjectMapper mapper = new ObjectMapper();
-              mapper.writerWithDefaultPrettyPrinter().writeValue(outputWriter, sortedLocalProperties);
+              MAPPER.writerWithDefaultPrettyPrinter().writeValue(outputWriter, sortedLocalProperties);
             }
           } else {
             log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
@@ -131,11 +132,10 @@ public class PropertiesFileGenerator {
 
     try (final FileInputStream fis = new FileInputStream(jsonFile)) {
       try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
-        final ObjectMapper mapper = new ObjectMapper();
         final TypeReference<HashMap<String, Object>> mapTypeRef =
                 new TypeReference<HashMap<String, Object>>() {};
 
-        propertiesMap = mapper.readValue(reader, mapTypeRef);
+        propertiesMap = MAPPER.readValue(reader, mapTypeRef);
       }
     } catch (final Exception ex) {
       throw new CannotReadFileException(ex);
