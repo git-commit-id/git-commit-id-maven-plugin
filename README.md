@@ -43,6 +43,7 @@ Plugin compatibility with Java
 | 2.1.X           | Java 1.6              |
 | 2.2.X           | Java 1.7              |
 | 3.0.0           | Java 1.8              |
+| 4.0.0           | Java 1.8              |
 
 
 Plugin compatibility with Maven
