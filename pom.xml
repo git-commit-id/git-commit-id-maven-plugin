@@ -10,7 +10,7 @@
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.1</version>
     <name>Git Commit Id Plugin Parent</name>
     <url>http://www.blog.project13.pl</url>
 
@@ -35,7 +35,7 @@
         <url>git@github.com:git-commit-id/git-commit-id-maven-plugin.git</url>
         <connection>scm:git@github.com:git-commit-id/git-commit-id-maven-plugin</connection>
         <developerConnection>scm:git:git@github.com:git-commit-id/git-commit-id-maven-plugin.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>v4.0.1</tag>
   </scm>
 
     <properties>
