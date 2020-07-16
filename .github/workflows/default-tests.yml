@@ -75,6 +75,10 @@ jobs:
             export PATH=$M2_HOME/bin:$PATH;
             mvn -version;
           fi'
+      - name: Setup M2_HOME Environment variable
+        run: echo "::set-env name=M2_HOME::${PWD}/apache-maven-${{ matrix.maven_version }}"
+      - name: Setup System Path to use the custom Maven
+        run: echo "::add-path::${M2_HOME}/bin"
       - name: Cache local Maven repository
         uses: actions/cache@v1
         with:
@@ -85,7 +89,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ matrix.maven_version }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-${{ matrix.maven_version }}-m2
       - name: Verify Setup of Maven ${{ matrix.maven_version }}
-        run: mvn -version
+        run: bash -c "echo ${M2_HOME}; echo ${PATH}; mvn -version"
       - name: Install a test version with Maven
         run: mvn clean install -B
       - name: Run the local testversion with Maven
