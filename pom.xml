@@ -10,7 +10,7 @@
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.0.1-SNAPSHOT</version>
+    <version>4.0.2-SNAPSHOT</version>
     <name>Git Commit Id Plugin Parent</name>
     <url>http://www.blog.project13.pl</url>
 

@@ -17,15 +17,16 @@
 
 package pl.project13.core;
 
+import nu.studer.java.util.OrderedProperties;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.JsonManager;
-import pl.project13.core.util.SortedProperties;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Comparator;
 import java.util.Properties;
 
 public class PropertiesFileGenerator {
@@ -81,8 +82,8 @@ public class PropertiesFileGenerator {
       if (shouldGenerate) {
         Files.createDirectories(gitPropsFile.getParentFile().toPath());
         try (OutputStream outputStream = new FileOutputStream(gitPropsFile)) {
-          SortedProperties sortedLocalProperties = new SortedProperties();
-          sortedLocalProperties.putAll(localProperties);
+          OrderedProperties sortedLocalProperties = PropertiesFileGenerator.createOrderedProperties();
+          localProperties.forEach((key, value) -> sortedLocalProperties.setProperty((String) key, (String) value));
           if (isJsonFormat) {
             log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
             JsonManager.dumpJson(outputStream, sortedLocalProperties, sourceCharset);
@@ -105,6 +106,13 @@ public class PropertiesFileGenerator {
     } catch (IOException e) {
       throw new GitCommitIdExecutionException(e);
     }
+  }
+
+  public static OrderedProperties createOrderedProperties() {
+    return new OrderedProperties.OrderedPropertiesBuilder()
+            .withSuppressDateInComment(true)
+            .withOrdering(Comparator.nullsLast(Comparator.naturalOrder()))
+            .build();
   }
 
   public static File craftPropertiesOutputFile(File base, String propertiesFilename) {

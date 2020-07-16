@@ -17,10 +17,12 @@
 
 package pl.project13.core.util;
 
+import nu.studer.java.util.OrderedProperties;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import pl.project13.core.PropertiesFileGenerator;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -38,9 +40,9 @@ public class TestJsonManager {
     // given
     Charset sourceCharset = StandardCharsets.UTF_8;
     File jsonFile = tempFolder.newFile("git_properties.json");
-    SortedProperties sortedLocalProperties = new SortedProperties();
-    sortedLocalProperties.put("git.commit.id", "beef4e92e9cabd043b105a14514289f331b40bf2");
-    sortedLocalProperties.put("git.commit.id.abbrev", "beef4e9");
+    OrderedProperties sortedLocalProperties = PropertiesFileGenerator.createOrderedProperties();
+    sortedLocalProperties.setProperty("git.commit.id", "beef4e92e9cabd043b105a14514289f331b40bf2");
+    sortedLocalProperties.setProperty("git.commit.id.abbrev", "beef4e9");
 
     // when
     try (OutputStream outputStream = new FileOutputStream(jsonFile)) {
@@ -87,9 +89,9 @@ public class TestJsonManager {
     // given
     Charset sourceCharset = StandardCharsets.UTF_8;
     File jsonFile = tempFolder.newFile("git_properties.json");
-    SortedProperties sortedLocalProperties = new SortedProperties();
-    sortedLocalProperties.put("git.commit.id.full", "beef4e92e9cabd043b105a14514289f331b40bf2");
-    sortedLocalProperties.put("git.commit.id.abbrev", "beef4e9");
+    OrderedProperties sortedLocalProperties = PropertiesFileGenerator.createOrderedProperties();
+    sortedLocalProperties.setProperty("git.commit.id.full", "beef4e92e9cabd043b105a14514289f331b40bf2");
+    sortedLocalProperties.setProperty("git.commit.id.abbrev", "beef4e9");
 
     // when
     try (OutputStream outputStream = new FileOutputStream(jsonFile)) {
@@ -136,9 +138,9 @@ public class TestJsonManager {
     // given
     Charset sourceCharset = StandardCharsets.UTF_8;
     File jsonFile = tempFolder.newFile("git_properties.json");
-    SortedProperties sortedLocalProperties = new SortedProperties();
-    sortedLocalProperties.put("git.commit.user.name", "Александр Eliáš");
-    sortedLocalProperties.put("git.commit.message.full", "initial commit on test project with some special characters äöüàñ.");
+    OrderedProperties sortedLocalProperties = PropertiesFileGenerator.createOrderedProperties();
+    sortedLocalProperties.setProperty("git.commit.user.name", "Александр Eliáš");
+    sortedLocalProperties.setProperty("git.commit.message.full", "initial commit on test project with some special characters äöüàñ.");
 
     // when
     try (OutputStream outputStream = new FileOutputStream(jsonFile)) {

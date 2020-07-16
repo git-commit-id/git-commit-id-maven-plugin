@@ -17,6 +17,7 @@
 
 package pl.project13.core.util;
 
+import nu.studer.java.util.OrderedProperties;
 import pl.project13.core.CannotReadFileException;
 
 import javax.annotation.Nonnull;
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class JsonManager {
-  public static void dumpJson(OutputStream outputStream, SortedProperties sortedLocalProperties, Charset sourceCharset) throws IOException {
+  public static void dumpJson(OutputStream outputStream, OrderedProperties sortedLocalProperties, Charset sourceCharset) throws IOException {
     JsonGeneratorFactory jgf = Json.createGeneratorFactory(
             Collections.singletonMap(JsonGenerator.PRETTY_PRINTING, true));
 
