@@ -136,3 +136,6 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Deploy snapshot with Maven
         run: mvn clean deploy -B --settings=./.buildscript/settings.xml
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
