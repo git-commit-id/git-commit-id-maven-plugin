@@ -91,9 +91,9 @@ jobs:
       - name: Verify Setup of Maven ${{ matrix.maven_version }}
         run: bash -c "echo ${M2_HOME}; echo ${PATH}; mvn -version"
       - name: Install a test version with Maven
-        run: mvn clean install -B
+        run: mvn clean install -B --settings=./.buildscript/settings.xml
       - name: Run the local testversion with Maven
-        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true
+        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.buildscript/settings.xml
       - name: Validate if the testversion has produced the desired output
         run: /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
 
