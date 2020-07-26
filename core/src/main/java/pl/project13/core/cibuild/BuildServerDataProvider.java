@@ -166,12 +166,6 @@ public abstract class BuildServerDataProvider {
     maybePut(properties, GitCommitPropertyConstant.BUILD_HOST, buildHostSupplier);
   }
 
-  protected void put(@Nonnull Properties properties, @Nonnull String key, String value) {
-    String keyWithPrefix = prefixDot + key;
-    log.info("Collected {} with value {}", keyWithPrefix, value);
-    PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
-  }
-
   protected void maybePut(@Nonnull Properties properties, @Nonnull String key, Supplier<String> supplier) {
     String keyWithPrefix = prefixDot + key;
     if (properties.containsKey(keyWithPrefix)) {

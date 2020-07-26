@@ -54,8 +54,8 @@ public class TeamCityBuildServerData extends BuildServerDataProvider {
     String buildNumber = env.getOrDefault("BUILD_NUMBER", "");
     String buildNumberUnique = teamcitySystemProperties.getProperty("teamcity.build.id", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, buildNumberUnique);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, () -> buildNumberUnique);
   }
 
   @Override

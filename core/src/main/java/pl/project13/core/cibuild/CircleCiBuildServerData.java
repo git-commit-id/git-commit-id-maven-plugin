@@ -40,7 +40,7 @@ public class CircleCiBuildServerData extends BuildServerDataProvider {
   @Override
   void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.getOrDefault("CIRCLE_BUILD_NUM", "");
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
   }
 
   @Override
