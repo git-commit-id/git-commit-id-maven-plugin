@@ -564,7 +564,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void publishPropertiesInto(Properties p) {
-    p.putAll(properties);
+    for (String propertyName : properties.stringPropertyNames()) {
+      p.setProperty(propertyName, properties.getProperty(propertyName));
+    }
   }
 
   /**
@@ -603,9 +605,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void logProperties() {
-    for (Object key : properties.keySet()) {
-      String keyString = key.toString();
-      log.info("including property {} in results", keyString);
+    for (String propertyName : properties.stringPropertyNames()) {
+      log.info("including property {} in results", propertyName);
     }
   }
 

@@ -75,8 +75,8 @@ public class PropertiesFileGenerator {
 
           final String buildTimeProperty = prefixDot + GitCommitPropertyConstant.BUILD_TIME;
 
-          propertiesCopy.remove(buildTimeProperty);
-          persistedProperties.remove(buildTimeProperty);
+          propertiesCopy.setProperty(buildTimeProperty, null);
+          persistedProperties.setProperty(buildTimeProperty, null);
 
           shouldGenerate = !propertiesCopy.equals(persistedProperties);
         } catch (CannotReadFileException ex) {
