@@ -50,21 +50,18 @@ public class PropertiesReplacer {
   }
 
   private void performReplacementOnAllGeneratedProperties(Properties properties, ReplacementProperty replacementProperty) {
-    Map<Object, Object> propertiesToBeAdded = new HashMap<>();
-    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-      String key = (String)entry.getKey();
-      String content = (String)entry.getValue();
+    for (String propertyName : properties.stringPropertyNames()) {
+      String content = properties.getProperty(propertyName);
       String result = performReplacement(replacementProperty, content);
       if ((replacementProperty.getPropertyOutputSuffix() != null) && (!replacementProperty.getPropertyOutputSuffix().isEmpty())) {
-        String newPropertyKey = key + "." + replacementProperty.getPropertyOutputSuffix();
-        propertiesToBeAdded.put(newPropertyKey, result);
-        log.info("apply replace on property " + key + " and save to " + newPropertyKey + ": original value '" + content + "' with '" + result + "'");
+        String newPropertyKey = propertyName + "." + replacementProperty.getPropertyOutputSuffix();
+        properties.setProperty(newPropertyKey, result);
+        log.info("apply replace on property " + propertyName + " and save to " + newPropertyKey + ": original value '" + content + "' with '" + result + "'");
       } else {
-        entry.setValue(result);
-        log.info("apply replace on property " + key + ": original value '" + content + "' with '" + result + "'");
+        properties.setProperty(propertyName, result);
+        log.info("apply replace on property " + propertyName + ": original value '" + content + "' with '" + result + "'");
       }
     }
-    properties.putAll(propertiesToBeAdded);
   }
 
   private void performReplacementOnSingleProperty(Properties properties, ReplacementProperty replacementProperty, String propertyKey) {

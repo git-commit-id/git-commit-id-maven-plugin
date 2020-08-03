@@ -30,7 +30,7 @@ public class PropertyManager {
     if (!isNotEmpty(value)) {
       value = "Unknown";
     }
-    properties.put(key, value);
+    properties.setProperty(key, value);
   }
 
   private static boolean isNotEmpty(@Nullable String value) {

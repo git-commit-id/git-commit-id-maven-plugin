@@ -42,7 +42,7 @@ public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
   void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.getOrDefault("BUILD_NUMBER", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
   }
 
   @Override

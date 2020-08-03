@@ -46,8 +46,8 @@ public class GitlabBuildServerData extends BuildServerDataProvider {
     // CI_PIPELINE_IID will be present if in a Gitlab CI environment (Gitlab >11.0) and contains the project specific build number
     String buildNumber = env.getOrDefault("CI_PIPELINE_IID", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, uniqueBuildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, () -> uniqueBuildNumber);
   }
 
   @Override
