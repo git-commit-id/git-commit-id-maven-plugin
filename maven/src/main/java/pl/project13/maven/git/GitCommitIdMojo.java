@@ -600,7 +600,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       return null;
     }
 
-    DateFormat df = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ssXXX");
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
     try {
       return df.parse(outputTimestamp);
     } catch (ParseException pe) {
