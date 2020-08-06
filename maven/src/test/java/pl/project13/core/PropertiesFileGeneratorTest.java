@@ -27,7 +27,6 @@ import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.log.StdOutLoggerBridge;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;

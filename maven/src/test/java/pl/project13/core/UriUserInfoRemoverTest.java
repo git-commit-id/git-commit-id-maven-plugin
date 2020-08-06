@@ -27,8 +27,6 @@ import static org.mockito.Mockito.when;
 
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import pl.project13.core.GitCommitIdExecutionException;
-import pl.project13.core.GitDataProvider;
 
 import java.util.Arrays;
 import java.util.Collection;

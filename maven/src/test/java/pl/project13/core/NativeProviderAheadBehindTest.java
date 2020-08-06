@@ -17,7 +17,6 @@
 
 package pl.project13.core;
 
-import pl.project13.core.NativeGitProvider;
 import pl.project13.maven.git.AheadBehindTest;
 
 public class NativeProviderAheadBehindTest extends AheadBehindTest<NativeGitProvider> {
