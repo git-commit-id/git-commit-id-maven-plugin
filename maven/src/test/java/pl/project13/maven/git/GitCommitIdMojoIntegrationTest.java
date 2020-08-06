@@ -287,7 +287,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // reset repo and force detached HEAD
     try (final Git git = git("my-jar-project")) {   
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("b6a73ed").call();
-      git.checkout().setCreateBranch(true).setName("test_branch").setForce(true).call();
+      git.checkout().setCreateBranch(true).setName("test_branch").setForceRefUpdate(true).call();
     }
 
     // when
@@ -375,7 +375,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // reset repo and force detached HEAD
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("b6a73ed").call();
-      git.checkout().setName("b6a73ed").setForce(true).call();
+      git.checkout().setName("b6a73ed").setForceRefUpdate(true).call();
     }
 
     // when
@@ -1527,8 +1527,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     //    2343428 - Moved master - Fri, 29 Nov 2013 10:38:34 +0100 (HEAD, branch: master)
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("2343428").call();
-      git.checkout().setCreateBranch(true).setName("another_branch").setForce(true).call();
-      git.checkout().setCreateBranch(true).setName("z_branch").setForce(true).call();
+      git.checkout().setCreateBranch(true).setName("another_branch").setForceRefUpdate(true).call();
+      git.checkout().setCreateBranch(true).setName("z_branch").setForceRefUpdate(true).call();
     }
 
     mojo.useNativeGit = useNativeGit;
