@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -373,6 +375,18 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean offline;
 
   /**
+   * Timestamp for reproducible output archive entries
+   * (https://maven.apache.org/guides/mini/guide-reproducible-builds.html).
+   * The value from <code>${project.build.outputTimestamp}</code> is either formatted as ISO 8601
+   * <code>yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like
+   * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
+   *
+   * @since 4.0.2
+   */
+  @Parameter(defaultValue = "${project.build.outputTimestamp}")
+  private String projectBuildOutputTimestamp;
+
+  /**
    * Injected {@link BuildContext} to recognize incremental builds.
    */
   @Component
@@ -548,7 +562,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     return null;
   }
 
-  private void loadBuildData(Properties properties) {
+  private void loadBuildData(Properties properties) throws GitCommitIdExecutionException {
     Map<String, Supplier<String>> additionalProperties = Collections.singletonMap(
             GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
@@ -560,7 +574,40 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setExcludeProperties(excludeProperties)
         .setIncludeOnlyProperties(includeOnlyProperties);
 
-    buildServerDataProvider.loadBuildData(properties);
+    buildServerDataProvider.loadBuildData(properties, parseOutputTimestamp(projectBuildOutputTimestamp));
+  }
+
+  /**
+   * Parse output timestamp configured for Reproducible Builds' archive entries
+   * (https://maven.apache.org/guides/mini/guide-reproducible-builds.html).
+   * The value from <code>${project.build.outputTimestamp}</code> is either formatted as ISO 8601
+   * <code>yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like
+   * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
+   *
+   * Inspired by https://github.com/apache/maven-archiver/blob/a3103d99396cd8d3440b907ef932a33563225265/src/main/java/org/apache/maven/archiver/MavenArchiver.java#L765
+   *
+   * @param outputTimestamp the value of <code>${project.build.outputTimestamp}</code> (may be <code>null</code>)
+   * @return the parsed timestamp, may be <code>null</code> if <code>null</code> input or input contains only 1
+   *         character
+   */
+  private Date parseOutputTimestamp(String outputTimestamp) throws GitCommitIdExecutionException {
+    if (outputTimestamp != null && !outputTimestamp.trim().isEmpty() && outputTimestamp.chars().allMatch(Character::isDigit)) {
+      return new Date(Long.parseLong(outputTimestamp) * 1000);
+    }
+
+    if ((outputTimestamp == null) || (outputTimestamp.length() < 2)) {
+      // no timestamp configured
+      return null;
+    }
+
+    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    try {
+      return df.parse(outputTimestamp);
+    } catch (ParseException pe) {
+      throw new GitCommitIdExecutionException(
+              "Invalid 'project.build.outputTimestamp' value '" + outputTimestamp + "'",
+              pe);
+    }
   }
 
   private void publishPropertiesInto(Properties p) {
