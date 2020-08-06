@@ -17,14 +17,11 @@
 
 package pl.project13.maven.git;
 
-import static org.junit.Assert.assertThat;
-
 import java.io.File;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +29,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import pl.project13.core.AheadBehind;
 import pl.project13.core.GitProvider;
+
+import static org.junit.Assert.assertEquals;
 
 public abstract class AheadBehindTest<T extends GitProvider> {
 
@@ -87,8 +86,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   public void shouldNotBeAheadOrBehind() throws Exception {
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertThat(aheadBehind.ahead(), CoreMatchers.is("0"));
-    assertThat(aheadBehind.behind(), CoreMatchers.is("0"));
+    assertEquals(aheadBehind.ahead(), "0");
+    assertEquals(aheadBehind.behind(), "0");
   }
 
   @Test
@@ -97,8 +96,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createLocalCommit();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertThat(aheadBehind.ahead(), CoreMatchers.is("1"));
-    assertThat(aheadBehind.behind(), CoreMatchers.is("0"));
+    assertEquals(aheadBehind.ahead(),"1");
+    assertEquals(aheadBehind.behind(),"0");
   }
 
   @Test
@@ -107,8 +106,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createCommitInSecondRepoAndPush();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertThat(aheadBehind.ahead(), CoreMatchers.is("0"));
-    assertThat(aheadBehind.behind(), CoreMatchers.is("1"));
+    assertEquals(aheadBehind.ahead(),"0");
+    assertEquals(aheadBehind.behind(),"1");
   }
 
   @Test
@@ -118,8 +117,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createCommitInSecondRepoAndPush();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertThat(aheadBehind.ahead(), CoreMatchers.is("1"));
-    assertThat(aheadBehind.behind(), CoreMatchers.is("1"));
+    assertEquals(aheadBehind.ahead(),"1");
+    assertEquals(aheadBehind.behind(),"1");
   }
 
   protected void createLocalCommit() throws Exception {

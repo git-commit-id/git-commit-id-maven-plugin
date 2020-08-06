@@ -17,7 +17,6 @@
 
 package pl.project13.core;
 
-import pl.project13.core.JGitProvider;
 import pl.project13.maven.git.AheadBehindTest;
 
 import java.nio.file.Paths;
