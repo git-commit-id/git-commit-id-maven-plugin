@@ -40,10 +40,10 @@ public class AwsCodeBuildBuildServerData extends BuildServerDataProvider {
   @Override
   void loadBuildNumber(@Nonnull Properties properties) {
     String buildNumber = env.getOrDefault("CODEBUILD_BUILD_NUMBER", "");
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
 
     String buildArn = env.get("CODEBUILD_BUILD_ID");
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, buildArn);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, () -> buildArn);
   }
 
   @Override

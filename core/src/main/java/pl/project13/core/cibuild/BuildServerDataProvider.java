@@ -23,6 +23,7 @@ import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.util.PropertyManager;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -112,8 +113,8 @@ public abstract class BuildServerDataProvider {
     return new UnknownBuildServerData(log, env);
   }
 
-  public void loadBuildData(@Nonnull Properties properties) {
-    loadBuildVersionAndTimeData(properties);
+  public void loadBuildData(@Nonnull Properties properties, @Nullable Date reproducibleBuildOutputTimestamp) {
+    loadBuildVersionAndTimeData(properties, reproducibleBuildOutputTimestamp);
     loadBuildHostData(properties);
     loadBuildNumber(properties);
   }
@@ -132,9 +133,9 @@ public abstract class BuildServerDataProvider {
    */
   public abstract String getBuildBranch();
 
-  private void loadBuildVersionAndTimeData(@Nonnull Properties properties) {
+  private void loadBuildVersionAndTimeData(@Nonnull Properties properties, @Nullable Date reproducibleBuildOutputTimestamp) {
     Supplier<String> buildTimeSupplier = () -> {
-      Date buildDate = new Date();
+      Date buildDate = (reproducibleBuildOutputTimestamp == null) ? new Date() : reproducibleBuildOutputTimestamp;
       SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
       if (dateFormatTimeZone != null) {
         smf.setTimeZone(TimeZone.getTimeZone(dateFormatTimeZone));
@@ -166,15 +167,9 @@ public abstract class BuildServerDataProvider {
     maybePut(properties, GitCommitPropertyConstant.BUILD_HOST, buildHostSupplier);
   }
 
-  protected void put(@Nonnull Properties properties, @Nonnull String key, String value) {
-    String keyWithPrefix = prefixDot + key;
-    log.info("Collected {} with value {}", keyWithPrefix, value);
-    PropertyManager.putWithoutPrefix(properties, keyWithPrefix, value);
-  }
-
   protected void maybePut(@Nonnull Properties properties, @Nonnull String key, Supplier<String> supplier) {
     String keyWithPrefix = prefixDot + key;
-    if (properties.containsKey(keyWithPrefix)) {
+    if (properties.stringPropertyNames().contains(keyWithPrefix)) {
       String propertyValue = properties.getProperty(keyWithPrefix);
       log.info("Using cached {} with value {}", keyWithPrefix, propertyValue);
     } else if (PropertiesFilterer.isIncluded(keyWithPrefix, includeOnlyProperties, excludeProperties)) {

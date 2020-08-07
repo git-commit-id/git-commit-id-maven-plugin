@@ -18,9 +18,6 @@
 package pl.project13.core;
 
 import org.junit.Test;
-import pl.project13.core.GitCommitIdExecutionException;
-import pl.project13.core.GitCommitPropertyConstant;
-import pl.project13.core.GitDataProvider;
 import pl.project13.core.log.LoggerBridge;
 
 import java.util.Properties;

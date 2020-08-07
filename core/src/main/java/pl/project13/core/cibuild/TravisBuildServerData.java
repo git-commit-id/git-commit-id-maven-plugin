@@ -42,8 +42,8 @@ public class TravisBuildServerData extends BuildServerDataProvider {
     String buildNumber = env.getOrDefault("TRAVIS_BUILD_NUMBER", "");
     String uniqueBuildNumber = env.getOrDefault("TRAVIS_BUILD_ID", "");
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, uniqueBuildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER_UNIQUE, () -> uniqueBuildNumber);
   }
 
   @Override

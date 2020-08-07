@@ -40,7 +40,7 @@ public class BambooBuildServerData extends BuildServerDataProvider {
     String buildNumber = Optional.ofNullable(env.get("bamboo.buildNumber"))
             .orElseGet(() -> env.getOrDefault("BAMBOO_BUILDNUMBER", ""));
 
-    put(properties, GitCommitPropertyConstant.BUILD_NUMBER, buildNumber);
+    maybePut(properties, GitCommitPropertyConstant.BUILD_NUMBER, () -> buildNumber);
   }
 
   @Override
