@@ -52,6 +52,15 @@ public class UriUserInfoRemoverTest {
             { "file:///path/to/repo.git/", "file:///path/to/repo.git/"},
             { "file:///C:\\Users\\test\\example", "file:///C:\\Users\\test\\example"},
             { "file://C:\\Users\\test\\example", "file://C:\\Users\\test\\example" },
+            // use of 'reserved' characters as https://www.ietf.org/rfc/rfc2396.txt
+            // note: left out '/' since we can't simply escape it
+            { "https://user:A;?:@&=+$,Z@example.com:8888", "https://user@example.com:8888" },
+            // use of 'unreserved' characters as https://www.ietf.org/rfc/rfc2396.txt
+            { "https://user:A-_.!~*'()Z@example.com:8888", "https://user@example.com:8888" },
+            // use of 'delims' characters as https://www.ietf.org/rfc/rfc2396.txt
+            { "https://user:A<>#%\"Z@example.com:8888", "https://user@example.com:8888" },
+            // use of 'unwise' characters as https://www.ietf.org/rfc/rfc2396.txt
+            { "https://user:A{}|\\^[]`Z@example.com:8888", "https://user@example.com:8888" },
     };
     return Arrays.asList(data);
   }

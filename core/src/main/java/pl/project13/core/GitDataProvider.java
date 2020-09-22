@@ -25,6 +25,8 @@ import pl.project13.core.util.PropertyManager;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -299,6 +301,15 @@ public abstract class GitDataProvider implements GitProvider {
     }
     // At this point, we should have a properly formatted URL
     try {
+
+      for (String s: Arrays.asList(
+              // escape all 'delims' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
+              "<", ">", "#", "%", "\"",
+              // escape all 'unwise' characters in a URI as per https://www.ietf.org/rfc/rfc2396.txt
+              "{", "}", "|", "\\", "^", "[", "]", "`")) {
+        gitRemoteString = gitRemoteString.replaceAll(
+                Pattern.quote(s), URLEncoder.encode(s, StandardCharsets.UTF_8.toString()));
+      }
       URI original = new URI(gitRemoteString);
       String userInfoString = original.getUserInfo();
       if (null == userInfoString) {
