@@ -288,7 +288,7 @@ public abstract class GitDataProvider implements GitProvider {
    * <a href=https://www.ietf.org/rfc/rfc2396.txt>RFC-2396</a> in section "3.2.2. Server-based Naming Authority"
    * which declares the following as valid URL schema:
    *  <pre>
-   *  <userinfo>@<host>:<port>
+   *  &lt;userinfo&gt;@&lt;host&gt;:&lt;port&gt;
    *  </pre>
    *  The "userinfo" part is declared in the same section allowing the following pattern:
    *  <pre>
