@@ -52,6 +52,17 @@ public class UriUserInfoRemoverTest {
             { "file:///path/to/repo.git/", "file:///path/to/repo.git/"},
             { "file:///C:\\Users\\test\\example", "file:///C:\\Users\\test\\example"},
             { "file://C:\\Users\\test\\example", "file://C:\\Users\\test\\example" },
+            // ensure a percent encoded password is stripped too, that should be allowed
+            { "https://user:passw%40rd@example.com:8888", "https://user@example.com:8888" },
+            // Must Support: use of 'unreserved' characters as https://www.ietf.org/rfc/rfc2396.txt, Section "2.3. Unreserved Characters"
+            { "https://user:A-_.!~*'()Z@example.com:8888", "https://user@example.com:8888" },
+            // Optional Support: use of 'reserved' characters as https://www.ietf.org/rfc/rfc2396.txt, Section "2.2. Reserved Characters"
+            // note: left out '/', '?', '@' since we technically expect user's need to escape those
+            { "https://user:A;:&=+$,Z@example.com:8888", "https://user@example.com:8888" },
+            // Optional Support: use of 'delims' characters as https://www.ietf.org/rfc/rfc2396.txt, Section "2.4.3. Excluded US-ASCII Characters"
+            { "https://user:A<>#%\"Z@example.com:8888", "https://user@example.com:8888" },
+            // Optional Support: use of 'unwise' characters as https://www.ietf.org/rfc/rfc2396.txt, Section "2.4.3. Excluded US-ASCII Characters"
+            { "https://user:A{}|\\^[]`Z@example.com:8888", "https://user@example.com:8888" },
     };
     return Arrays.asList(data);
   }
