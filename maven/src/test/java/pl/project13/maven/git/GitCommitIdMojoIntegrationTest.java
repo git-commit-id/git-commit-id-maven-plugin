@@ -17,8 +17,6 @@
 
 package pl.project13.maven.git;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,10 +30,10 @@ import org.junit.Test;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import pl.project13.core.git.GitDescribeConfig;
+import pl.project13.core.util.JsonManager;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -572,11 +570,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      String json = new String(Files.readAllBytes(expectedFile.toPath()), StandardCharsets.UTF_8);
-      ObjectMapper om = new ObjectMapper();
-      Map<?, ?> map = new HashMap<>();
-      map = om.readValue(json, map.getClass());
-      assertThat(map.size() > 10);
+      Properties p = JsonManager.readJsonProperties(expectedFile, StandardCharsets.UTF_8);
+      assertThat(p.size() > 10);
     } finally {
       FileUtils.forceDelete(expectedFile);
     }

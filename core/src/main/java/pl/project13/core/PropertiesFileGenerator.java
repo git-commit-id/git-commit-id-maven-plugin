@@ -17,24 +17,19 @@
 
 package pl.project13.core;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import nu.studer.java.util.OrderedProperties;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.util.JsonManager;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 public class PropertiesFileGenerator {
-  private static final ObjectMapper MAPPER = new ObjectMapper().enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES);
 
   private LoggerBridge log;
   private BuildContext buildContext;
@@ -63,11 +58,9 @@ public class PropertiesFileGenerator {
         try {
           if (isJsonFormat) {
             log.info("Reading existing json file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
-
-            persistedProperties = readJsonProperties(gitPropsFile, sourceCharset);
+            persistedProperties = JsonManager.readJsonProperties(gitPropsFile, sourceCharset);
           } else {
             log.info("Reading existing properties file [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
-
             persistedProperties = readProperties(gitPropsFile, sourceCharset);
           }
 
@@ -89,16 +82,11 @@ public class PropertiesFileGenerator {
       if (shouldGenerate) {
         Files.createDirectories(gitPropsFile.getParentFile().toPath());
         try (OutputStream outputStream = new FileOutputStream(gitPropsFile)) {
-          OrderedProperties sortedLocalProperties = new OrderedProperties.OrderedPropertiesBuilder()
-                  .withSuppressDateInComment(true)
-                  .withOrdering(Comparator.nullsLast(Comparator.naturalOrder()))
-                  .build();
+          OrderedProperties sortedLocalProperties = PropertiesFileGenerator.createOrderedProperties();
           localProperties.forEach((key, value) -> sortedLocalProperties.setProperty((String) key, (String) value));
           if (isJsonFormat) {
-            try (Writer outputWriter = new OutputStreamWriter(outputStream, sourceCharset)) {
-              log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
-              MAPPER.writerWithDefaultPrettyPrinter().writeValue(outputWriter, sortedLocalProperties);
-            }
+            log.info("Writing json file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
+            JsonManager.dumpJson(outputStream, sortedLocalProperties, sourceCharset);
           } else {
             log.info("Writing properties file to [{}] (for module {})...", gitPropsFile.getAbsolutePath(), projectName);
             // using outputStream directly instead of outputWriter this way the UTF-8 characters appears in unicode escaped form
@@ -120,6 +108,13 @@ public class PropertiesFileGenerator {
     }
   }
 
+  public static OrderedProperties createOrderedProperties() {
+    return new OrderedProperties.OrderedPropertiesBuilder()
+            .withSuppressDateInComment(true)
+            .withOrdering(Comparator.nullsLast(Comparator.naturalOrder()))
+            .build();
+  }
+
   public static File craftPropertiesOutputFile(File base, String propertiesFilename) {
     File returnPath = new File(base, propertiesFilename);
 
@@ -131,29 +126,6 @@ public class PropertiesFileGenerator {
     return returnPath;
   }
 
-  private Properties readJsonProperties(@Nonnull File jsonFile, Charset sourceCharset) throws CannotReadFileException {
-    final HashMap<String, Object> propertiesMap;
-
-    try (final FileInputStream fis = new FileInputStream(jsonFile)) {
-      try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
-        final TypeReference<HashMap<String, Object>> mapTypeRef =
-                new TypeReference<HashMap<String, Object>>() {};
-
-        propertiesMap = MAPPER.readValue(reader, mapTypeRef);
-      }
-    } catch (final Exception ex) {
-      throw new CannotReadFileException(ex);
-    }
-
-    final Properties retVal = new Properties();
-
-    for (final Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
-      retVal.setProperty(entry.getKey(), String.valueOf(entry.getValue()));
-    }
-
-    return retVal;
-  }
-
   private Properties readProperties(@Nonnull File propertiesFile, Charset sourceCharset) throws CannotReadFileException {
     try (final FileInputStream fis = new FileInputStream(propertiesFile)) {
       try (final InputStreamReader reader = new InputStreamReader(fis, sourceCharset)) {
@@ -163,14 +135,6 @@ public class PropertiesFileGenerator {
       }
     } catch (final Exception ex) {
       throw new CannotReadFileException(ex);
-    }
-  }
-
-  static class CannotReadFileException extends Exception {
-    private static final long serialVersionUID = -6290782570018307756L;
-
-    CannotReadFileException(Throwable cause) {
-      super(cause);
     }
   }
 }
