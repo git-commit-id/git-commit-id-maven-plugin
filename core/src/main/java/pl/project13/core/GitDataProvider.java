@@ -281,6 +281,31 @@ public abstract class GitDataProvider implements GitProvider {
   /**
    * If the git remote value is a URI and contains a user info component, strip the password from it if it exists.
    *
+   * Note that this method will return an empty string if any failure occurred, while stripping the password from the
+   * credentials. This merely serves as save-guard to avoid any potential password exposure inside generated properties.
+   *
+   * This method further operates on the assumption that a valid URL schema follows the rules outlined in
+   * <a href=https://www.ietf.org/rfc/rfc2396.txt>RFC-2396</a> in section "3.2.2. Server-based Naming Authority"
+   * which declares the following as valid URL schema:
+   *  <pre>
+   *  <userinfo>@<host>:<port>
+   *  </pre>
+   *  The "userinfo" part is declared in the same section allowing the following pattern:
+   *  <pre>
+   *    userinfo = *( unreserved | escaped | ";" | ":" | "&" | "=" | "+" | "$" | "," )
+   *  </pre>
+   *  The "unreserved" part is declared in section "2.3. Unreserved Characters" as the following:
+   *  <pre>
+   *    unreserved  = alphanum | mark
+   *    mark = "-" | "_" | "." | "!" | "~" | "*" | "'" | "(" | ")"
+   *
+   *    alphanum = alpha | digit
+   *    digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" |  "8" | "9"
+   *    alpha = lowalpha | upalpha
+   *    lowalpha = "a" | "b" | "c" | ... | "x" | "y" | "z"
+   *    upalpha = "A" | "B" | "C" | ... | "X" | "Y" | "Z"
+   *  </pre>
+   *
    * @param gitRemoteString The value of the git remote
    * @return returns the gitRemoteUri with stripped password (might be used in http or https)
    * @throws GitCommitIdExecutionException Exception when URI is invalid
