@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean verify -B
+        run: mvn clean verify javadoc:javadoc -B
 
   integration-test:
     name: Run integration test with Java ${{ matrix.java_version }} and Maven ${{ matrix.maven_version }}
