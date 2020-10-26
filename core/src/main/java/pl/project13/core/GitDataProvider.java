@@ -292,7 +292,7 @@ public abstract class GitDataProvider implements GitProvider {
    *  </pre>
    *  The "userinfo" part is declared in the same section allowing the following pattern:
    *  <pre>
-   *    userinfo = *( unreserved | escaped | ";" | ":" | "&" | "=" | "+" | "$" | "," )
+   *    userinfo = *( unreserved | escaped | ";" | ":" | "&amp;" | "=" | "+" | "$" | "," )
    *  </pre>
    *  The "unreserved" part is declared in section "2.3. Unreserved Characters" as the following:
    *  <pre>
