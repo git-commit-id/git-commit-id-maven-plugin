@@ -31,6 +31,8 @@ public class AwsCodeBuildBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the AWS specific environment variable; false otherwise
    * @see <a href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html">Environment variables in build environments</a>
    */
   public static boolean isActiveServer(Map<String, String> env) {

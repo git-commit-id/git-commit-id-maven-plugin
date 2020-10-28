@@ -371,10 +371,24 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   public interface ProcessRunner {
-    /** Run a command and return the entire output as a String - naive, we know. */
+    /** Run a command and return the entire output as a String - naive, we know.
+     *
+     * @param directory the directory where the command should be executed in
+     * @param nativeGitTimeoutInMs the timeout in milliseconds before the command get's terminated
+     * @param command the command to execute
+     * @return the output obtained from stdout by running the command
+     * @throws IOException the command execution failed
+     */
     String run(File directory, long nativeGitTimeoutInMs, String command) throws IOException;
 
-    /** Run a command and return false if it contains at least one output line*/
+    /** Run a command and return false if it contains at least one output line
+     *
+     * @param directory the directory where the command should be executed in
+     * @param nativeGitTimeoutInMs the timeout in milliseconds before the command get's terminated
+     * @param command the command to execute
+     * @return false if the output of the command contains at least one line on stdout, true otherwise
+     * @throws IOException the command execution failed
+     */
     boolean runEmpty(File directory, long nativeGitTimeoutInMs, String command) throws IOException;
   }
 

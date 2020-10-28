@@ -33,6 +33,8 @@ public class GitHubBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Github specific environment variable; false otherwise
    * @see <a href="https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables">GitHubActionsUsingEnvironmentVariables</a>
    */
   public static boolean isActiveServer(Map<String, String> env) {

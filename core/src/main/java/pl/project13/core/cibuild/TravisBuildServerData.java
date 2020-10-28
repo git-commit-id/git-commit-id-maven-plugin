@@ -31,6 +31,8 @@ public class TravisBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Travis specific environment variable; false otherwise
    * @see <a href=https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables>Travis</a>
    */
   public static boolean isActiveServer(@Nonnull Map<String, String> env) {

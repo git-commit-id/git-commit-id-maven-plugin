@@ -31,6 +31,8 @@ public class HudsonJenkinsBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Hudson/Jenkins specific environment variable; false otherwise
    * @see <a href="https://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project#Buildingasoftwareproject-JenkinsSetEnvironmentVariables">JenkinsSetEnvironmentVariables</a>
    */
   public static boolean isActiveServer(@Nonnull Map<String, String> env) {

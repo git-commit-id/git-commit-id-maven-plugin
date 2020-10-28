@@ -31,6 +31,8 @@ public class AzureDevOpsBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Azure specific environment variable; false otherwise
    * @see <a href="https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml#build-variables">Azure DevOps - Build variables</a>
    */
   public static boolean isActiveServer(@Nonnull Map<String, String> env) {

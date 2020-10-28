@@ -31,6 +31,8 @@ public class CircleCiBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Circle CI specific environment variable; false otherwise
    * @see <a href="https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables">CircleCIBuiltInVariables</a>
    */
   public static boolean isActiveServer(Map<String, String> env) {
