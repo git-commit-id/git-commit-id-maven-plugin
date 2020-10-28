@@ -79,6 +79,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param evaluateOnCommit the commit that should be used as reference to generate the properties from
    * @param repo the {@link Repository} this command should interact with
    * @param log logger bridge to direct logs to
+   * @return itself with the options set as specified by the arguments to allow fluent configuration
    */
   @Nonnull
   public static DescribeCommand on(String evaluateOnCommit, Repository repo, LoggerBridge log) {
@@ -91,6 +92,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * @param evaluateOnCommit the commit that should be used as reference to generate the properties from
    * @param repo the {@link Repository} this command should interact with
    * @param log logger bridge to direct logs to
+   * @return itself with the options set as specified by the arguments to allow fluent configuration
    */
   private DescribeCommand(@Nonnull String evaluateOnCommit, @Nonnull Repository repo, @Nonnull LoggerBridge log) {
     super(repo);
