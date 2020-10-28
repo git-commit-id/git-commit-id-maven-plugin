@@ -264,7 +264,9 @@ public class JGitCommon {
 
   /**
    * Calculates the distance (number of commits) between the given parent and child commits.
-   *
+   * @param repo the {@link Repository} this command should interact with
+   * @param child the child commit (starting point)
+   * @param parent the parent commit (end point)
    * @return distance (number of commits) between the given commits
    * @see <a href="https://github.com/mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java">mdonoughe/jgit-describe/blob/master/src/org/mdonoughe/JGitDescribeTask.java</a>
    */

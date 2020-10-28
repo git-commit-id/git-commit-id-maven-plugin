@@ -221,6 +221,7 @@ public abstract class GitDataProvider implements GitProvider {
    *
    * @param env environment settings
    * @return results of getBranchName() or, if in Jenkins/Hudson, value of GIT_BRANCH
+   * @throws GitCommitIdExecutionException the branch name could not be determined
    */
   protected String determineBranchName(@Nonnull Map<String, String> env) throws GitCommitIdExecutionException {
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(env,log);

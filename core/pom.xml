@@ -21,6 +21,21 @@
         <junit.version>4.13.1</junit.version>
     </properties>
 
+    <build>
+        <plugins>
+            <!-- Setting built-in java compiler properties -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.target}</source>
+                    <target>${java.target}</target>
+                    <compilerArgument>-Xlint:deprecation</compilerArgument>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- JGit -->
         <dependency>

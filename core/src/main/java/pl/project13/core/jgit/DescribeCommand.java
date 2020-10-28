@@ -76,8 +76,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * Creates a new describe command which interacts with a single repository
    *
+   * @param evaluateOnCommit the commit that should be used as reference to generate the properties from
    * @param repo the {@link Repository} this command should interact with
    * @param log logger bridge to direct logs to
+   * @return itself with the options set as specified by the arguments to allow fluent configuration
    */
   @Nonnull
   public static DescribeCommand on(String evaluateOnCommit, Repository repo, LoggerBridge log) {
@@ -87,7 +89,10 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
   /**
    * Creates a new describe command which interacts with a single repository
    *
-   * @param repo the {@link org.eclipse.jgit.lib.Repository} this command should interact with
+   * @param evaluateOnCommit the commit that should be used as reference to generate the properties from
+   * @param repo the {@link Repository} this command should interact with
+   * @param log logger bridge to direct logs to
+   * @return itself with the options set as specified by the arguments to allow fluent configuration
    */
   private DescribeCommand(@Nonnull String evaluateOnCommit, @Nonnull Repository repo, @Nonnull LoggerBridge log) {
     super(repo);
@@ -102,6 +107,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Show uniquely abbreviated commit object as fallback.
    *
    * <pre>true</pre> by default.
+   *
+   * @param always set to `true` when you want the describe command show uniquely abbreviated commit object as fallback.
+   * @return itself with the `--always` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand always(boolean always) {
@@ -120,6 +128,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * since tag v1.2 that points at object deadbee....).
    *
    * <pre>false</pre> by default.
+   *
+   * @param forceLongFormat set to `true` if you always want to output the long format
+   * @return itself with the `--long` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand forceLongFormat(@Nullable Boolean forceLongFormat) {
@@ -137,6 +148,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * use <b>N</b> digits, or as many digits as needed to form a unique object name.
    *
    * An `n` of 0 will suppress long format, only showing the closest tag.
+   *
+   * @param n the length of the abbreviated object name
+   * @return itself with the `--abbrev` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand abbrev(@Nullable Integer n) {
@@ -180,6 +194,9 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * things like "i'll get back to that" etc - you don't need such tags to be exposed. But if you want lightweight
    * tags to be included in the search, enable this option.
    * </p>
+   *
+   * @param includeLightweightTagsInSearch set to `true` if you want to matching a lightweight (non-annotated) tag
+   * @return itself with the `--tags` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand tags(@Nullable Boolean includeLightweightTagsInSearch) {
@@ -192,6 +209,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
 
   /**
    * Alias for {@link DescribeCommand#tags(Boolean)} with <b>true</b> value
+   * @return itself with the `--tags` option set to `true` to allow fluent configuration
    */
   public DescribeCommand tags() {
     return tags(true);
@@ -201,6 +219,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Apply all configuration options passed in with `config`.
    * If a setting is null, it will not be applied - so for abbrev for example, the default 7 would be used.
    *
+   * @param config A configuration that shall be applied to the current one
    * @return itself, after applying the settings
    */
   @Nonnull
@@ -222,7 +241,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * working tree is dirty.
    *
    * @param dirtyMarker the marker name to be appended to the describe output when the workspace is dirty
-   * @return itself, to allow fluent configuration
+   * @return itself with the `--dirty` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand dirty(@Nullable String dirtyMarker) {
@@ -237,7 +256,7 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * Consider only those tags which match the given glob pattern.
    *
    * @param pattern the glob style pattern to match against the tag names
-   * @return itself, to allow fluent configuration
+   * @return itself with the `--match` option set as specified by the argument to allow fluent configuration
    */
   @Nonnull
   public DescribeCommand match(@Nullable String pattern) {
@@ -306,6 +325,12 @@ public class DescribeCommand extends GitCommand<DescribeResult> {
    * and will fallback to a plain commit hash if nothing better is returnable.
    *
    * The exact logic is following what <pre>git-describe</pre> would do.
+   *
+   * @param objectReader A reader to read objects from {@link Repository#getObjectDatabase()}.
+   * @param headCommitId An unique hash of the head-commit
+   * @param dirty An indication if the current repository is considered <pre>dirty</pre>
+   * @param howFarFromWhichTag A Pair that consists of a string and an integer. The String represents the closest Tag and the integer the amount of commits that have been preformed since then
+   * @return The result of a <code>git describe</code> command with the specified settings.
    */
   private DescribeResult createDescribeResult(ObjectReader objectReader, ObjectId headCommitId, boolean dirty, @Nullable Pair<Integer, String> howFarFromWhichTag) {
     if (howFarFromWhichTag == null) {

@@ -29,6 +29,11 @@ public class BambooBuildServerData extends BuildServerDataProvider {
     super(log, env);
   }
 
+  /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Bamboo specific environment variable; false otherwise
+   * @see <a href="https://confluence.atlassian.com/bamboo/bamboo-variables-289277087.html#Bamboovariables-Build-specificvariables">Bamboo Variables</a>
+   */
   public static boolean isActiveServer(Map<String, String> env) {
     return env.containsKey("bamboo_buildKey") ||
             env.containsKey("bamboo.buildKey") ||

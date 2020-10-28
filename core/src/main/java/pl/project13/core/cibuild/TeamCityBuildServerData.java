@@ -43,6 +43,8 @@ public class TeamCityBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the TeamCity specific environment variable; false otherwise
    * @see <a href=https://confluence.jetbrains.com/display/TCD18/Predefined+Build+Parameters#PredefinedBuildParameters-ServerBuildProperties>TeamCity</a>
    */
   public static boolean isActiveServer(@Nonnull Map<String, String> env) {

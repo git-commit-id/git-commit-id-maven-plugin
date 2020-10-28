@@ -175,6 +175,8 @@ public class DescribeResult {
    * a longer one will be used (which WILL guarantee uniqueness).
    * If you need the full commit id, it's always available via {@link DescribeResult#commitObjectId()}.
    * </p>
+   *
+   * @return The (possibly) "g" prefixed <strong>abbreviated</strong> object id of a commit.
    */
   @Nullable
   public String prefixedCommitId() {

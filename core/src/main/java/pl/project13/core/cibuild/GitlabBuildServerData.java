@@ -31,6 +31,8 @@ public class GitlabBuildServerData extends BuildServerDataProvider {
   }
 
   /**
+   * @param env The current system environment variables, obtained via System.getenv().
+   * @return true, if the system environment variables contain the Gitlab specific environment variable; false otherwise
    * @see <a href="https://docs.gitlab.com/ce/ci/variables/predefined_variables.html">GitlabCIVariables</a>
    */
   public static boolean isActiveServer(Map<String, String> env) {
