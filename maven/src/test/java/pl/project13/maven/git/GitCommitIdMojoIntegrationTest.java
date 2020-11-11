@@ -38,8 +38,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.util.Arrays.*;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
@@ -750,7 +750,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.abbrev", "de4db35917"));
+    assertThat(targetProject.getProperties()).contains(entry("git.commit.id.abbrev", "de4db35917"));
   }
 
   @Test
@@ -776,8 +776,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     SimpleDateFormat smf = new SimpleDateFormat(dateFormat);
     String expectedDate = smf.format(new Date());
-    assertThat(targetProject.getProperties()).includes(entry("git.build.time", expectedDate));
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.time", "08/19/2012"));
+    assertThat(targetProject.getProperties()).contains(entry("git.build.time", expectedDate));
+    assertThat(targetProject.getProperties()).contains(entry("git.commit.time", "08/19/2012"));
   }
 
   @Test
@@ -826,7 +826,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).includes(entry("git.commit.id.describe", "v1.0.0-0-gde4db35" + dirtySuffix));
+    assertThat(targetProject.getProperties()).contains(entry("git.commit.id.describe", "v1.0.0-0-gde4db35" + dirtySuffix));
   }
 
   @Test
@@ -1183,7 +1183,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.stringPropertyNames()).contains("git.commit.id");
-    assertThat(properties.stringPropertyNames()).excludes("git.commit.id.full");
+    assertThat(properties.stringPropertyNames()).doesNotContain("git.commit.id.full");
   }
 
   @Test
@@ -1212,7 +1212,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("false");
-    assertThat(properties).includes(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
+    assertThat(properties).contains(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
   }
 
   @Test
@@ -1241,7 +1241,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("true");
-    assertThat(properties).includes(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
+    assertThat(properties).contains(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
   @Test

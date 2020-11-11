@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import pl.project13.core.util.PropertyManager;
 
 import static java.util.Arrays.asList;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {

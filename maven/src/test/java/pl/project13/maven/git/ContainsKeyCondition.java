@@ -17,7 +17,7 @@
 
 package pl.project13.maven.git;
 
-import org.fest.assertions.Condition;
+import org.assertj.core.api.Condition;
 
 import javax.annotation.Nonnull;
 import java.util.Map;

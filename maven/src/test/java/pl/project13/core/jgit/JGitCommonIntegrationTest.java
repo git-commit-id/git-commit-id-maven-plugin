@@ -21,7 +21,7 @@ import org.junit.Test;
 import pl.project13.core.log.StdOutLoggerBridge;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JGitCommonIntegrationTest extends GitIntegrationTest {
 

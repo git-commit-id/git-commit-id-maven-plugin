@@ -27,7 +27,7 @@ import pl.project13.maven.git.GitIntegrationTest;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
