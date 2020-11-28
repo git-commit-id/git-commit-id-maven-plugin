@@ -438,7 +438,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (runOnlyOnce) {
-        List<MavenProject> sortedProjects = session.getProjectDependencyGraph().getSortedProjects();
+        List<MavenProject> sortedProjects =
+                Optional.ofNullable(session.getProjectDependencyGraph())
+                        .map(graph -> graph.getSortedProjects())
+                        .orElseGet(() -> {
+                          log.warn("Maven's dependency graph is null. Assuming project is the only one executed.");
+                          return Collections.singletonList(session.getCurrentProject());
+                        });
         MavenProject firstProject = sortedProjects.stream()
                 // skipPoms == true => find first project that is not pom project
                 .filter(p -> {
