@@ -68,25 +68,25 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The list of projects in the reactor.
    */
-  @Parameter(defaultValue = "${reactorProjects}", readonly = true)
+  @Parameter(defaultValue = "${reactorProjects}", readonly = true, required = true)
   List<MavenProject> reactorProjects;
 
   /**
    * The Mojo Execution
    */
-  @Parameter(defaultValue = "${mojoExecution}", readonly = true)
+  @Parameter(defaultValue = "${mojoExecution}", readonly = true, required = true)
   MojoExecution mojoExecution;
 
   /**
    * The Maven Session Object.
    */
-  @Parameter(property = "session", required = true, readonly = true)
+  @Parameter(defaultValue = "${session}", readonly = true, required = true)
   MavenSession session;
 
   /**
    * The Maven settings.
    */
-  @Parameter(property = "settings", required = true, readonly = true)
+  @Parameter(defaultValue = "${settings}", readonly = true, required = true)
   Settings settings;
 
   /**
