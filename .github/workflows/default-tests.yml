@@ -73,9 +73,9 @@ jobs:
             mvn -version;
           fi'
       - name: Setup M2_HOME Environment variable
-        run: echo "::set-env name=M2_HOME::${PWD}/apache-maven-${{ matrix.maven_version }}"
+        run: echo "M2_HOME=${PWD}/apache-maven-${{ matrix.maven_version }}" >> $GITHUB_ENV
       - name: Setup System Path to use the custom Maven
-        run: echo "::add-path::${M2_HOME}/bin"
+        run: echo "${M2_HOME}/bin" >> $GITHUB_PATH
       - name: Cache local Maven repository
         uses: actions/cache@v1
         with:
