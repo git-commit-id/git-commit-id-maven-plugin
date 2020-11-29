@@ -262,7 +262,7 @@
                 <forceLongFormat>false</forceLongFormat>
               </gitDescribe>
               <excludeProperties>
-                <excludeProperty>git.commit.*</excludeProperty>
+                <!-- <excludeProperty>git.commit.*</excludeProperty> -->
                 <excludeProperty>git.remote.origin.url</excludeProperty>
               </excludeProperties>
               <replacementProperties>

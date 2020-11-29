@@ -74,7 +74,7 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
       assertGitPropertiesPresentInProject(propertiesInProject);
 
       // when the properties file is conform
-      // it does not matter if we read as UTF8 or ISO-8859-1
+      // it does not matter if we read as UTF-8 or ISO-8859-1
       {
 
         Properties propertiesFromFile = PropertyManager.readProperties(expectedFile, StandardCharsets.UTF_8);
