@@ -60,6 +60,8 @@ public abstract class GitDataProvider implements GitProvider {
 
   protected boolean offline;
 
+  protected String projectDirectory;
+
   public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
   }
@@ -111,6 +113,11 @@ public abstract class GitDataProvider implements GitProvider {
 
   public GitDataProvider setOffline(boolean offline) {
     this.offline = offline;
+    return this;
+  }
+
+  public GitDataProvider setProjectDirectory(String projectDirectory) {
+    this.projectDirectory = projectDirectory;
     return this;
   }
 

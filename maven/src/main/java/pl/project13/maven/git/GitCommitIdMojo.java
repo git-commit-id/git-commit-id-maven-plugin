@@ -135,6 +135,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   File dotGitDirectory;
 
   /**
+   *  Get version number / build number based of the last git commit in the module itself,
+   *  and not based on the last git commit of the whole git project.
+   *  Works only in JGit mode.
+   */
+  @Parameter(defaultValue = "false")
+  boolean enablePerModuleVersions;
+
+  /**
    * Configuration for the {@code 'git-describe'} command.
    * You can modify the dirty marker, abbrev length and other options here.
    */
@@ -695,6 +703,11 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void loadGitDataWithJGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
+    String projectDirectory = null;
+    if (enablePerModuleVersions) {
+      String projectRootDir = dotGitDirectory.getAbsolutePath().substring(0, dotGitDirectory.getAbsolutePath().indexOf(".git"));
+      projectDirectory = project.getBasedir().getAbsolutePath().substring(projectRootDir.length()).replace("\\", "/");
+    }
     GitDataProvider jGitProvider = JGitProvider
         .on(dotGitDirectory, log)
         .setPrefixDot(prefixDot)
@@ -706,7 +719,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
         .setExcludeProperties(excludeProperties)
         .setIncludeOnlyProperties(includeOnlyProperties)
-        .setOffline(offline || settings.isOffline());
+        .setOffline(offline || settings.isOffline())
+        .setProjectDirectory(projectDirectory);
 
     jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
