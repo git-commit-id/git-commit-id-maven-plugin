@@ -110,6 +110,9 @@ public abstract class BuildServerDataProvider {
     if (AwsCodeBuildBuildServerData.isActiveServer(env)) {
       return new AwsCodeBuildBuildServerData(log, env);
     }
+    if (BitbucketBuildServerData.isActiveServer(env)) {
+      return new BitbucketBuildServerData(log, env);
+    }
     return new UnknownBuildServerData(log, env);
   }
 
