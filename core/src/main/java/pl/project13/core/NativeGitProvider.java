@@ -256,6 +256,20 @@ public class NativeGitProvider extends GitDataProvider {
   }
 
   @Override
+  public String getCommitAuthorTime() throws GitCommitIdExecutionException {
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%at " + evaluateOnCommit);
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
+    return smf.format(Long.parseLong(value) * 1000L);
+  }
+
+  @Override
+  public String getCommitCommitterTime() throws GitCommitIdExecutionException {
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct " + evaluateOnCommit);
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
+    return smf.format(Long.parseLong(value) * 1000L);
+  }
+
+  @Override
   public String getTags() throws GitCommitIdExecutionException {
     final String result = runQuietGitCommand(canonical, nativeGitTimeoutInMs, "tag --contains " + evaluateOnCommit);
     return result.replace('\n', ',');

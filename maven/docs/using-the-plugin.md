@@ -894,6 +894,8 @@ Generated properties
  |`git.commit.message.full`      | Represents the raw body (unwrapped subject and body) of the commit message (`git log -1 --pretty=format:%B`) |
  |`git.commit.message.short`     | Represents the subject of the commit message - may *not* be suitable for filenames (`git log -1 --pretty=format:%s`) |
  |`git.commit.time`              | Represents the (formatted) time stamp when the commit has been performed. |
+ |`git.commit.committer.time`       | Represents the (formatted) time stamp when the commit has been performed. |
+ |`git.commit.author.time`       | Represents the (formatted) time stamp when the commit has been originally performed. |
  |`git.commit.user.email`        | Represents the user eMail of the user who performed the commit. |
  |`git.commit.user.name`         | Represents the user name of the user who performed the commit. |
  |`git.dirty`                    | A working tree is said to be "dirty" if it contains modifications which have not been committed to the current branch. |

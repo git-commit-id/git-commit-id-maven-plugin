@@ -159,6 +159,10 @@ public abstract class GitDataProvider implements GitProvider {
       maybePut(properties, GitCommitPropertyConstant.COMMIT_MESSAGE_SHORT, this::getCommitMessageShort);
       // git.commit.time
       maybePut(properties, GitCommitPropertyConstant.COMMIT_TIME, this::getCommitTime);
+      // commit.author.time
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_AUTHOR_TIME, this::getCommitAuthorTime);
+      // commit.committer.time
+      maybePut(properties, GitCommitPropertyConstant.COMMIT_COMMITTER_TIME, this::getCommitAuthorTime);
       // git remote.origin.url
       maybePut(properties, GitCommitPropertyConstant.REMOTE_ORIGIN_URL, this::getRemoteOriginUrl);
 
