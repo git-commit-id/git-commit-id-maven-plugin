@@ -43,6 +43,10 @@ public interface GitProvider {
 
   String getCommitAuthorEmail() throws GitCommitIdExecutionException;
 
+  String getCommitAuthorTime() throws GitCommitIdExecutionException;
+
+  String getCommitCommitterTime() throws GitCommitIdExecutionException;
+
   String getCommitMessageFull() throws GitCommitIdExecutionException;
 
   String getCommitMessageShort() throws GitCommitIdExecutionException;

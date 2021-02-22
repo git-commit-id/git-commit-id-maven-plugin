@@ -41,6 +41,8 @@ public class GitCommitPropertyConstant {
   public static final String COMMIT_MESSAGE_FULL = "commit.message.full";
   public static final String COMMIT_MESSAGE_SHORT = "commit.message.short";
   public static final String COMMIT_TIME = "commit.time";
+  public static final String COMMIT_AUTHOR_TIME = "commit.author.time";
+  public static final String COMMIT_COMMITTER_TIME = "commit.committer.time";
   public static final String REMOTE_ORIGIN_URL = "remote.origin.url";
   public static final String TAGS = "tags";
   public static final String CLOSEST_TAG_NAME = "closest.tag.name";

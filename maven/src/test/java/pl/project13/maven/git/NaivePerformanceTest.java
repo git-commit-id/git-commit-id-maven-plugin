@@ -99,6 +99,8 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.author.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.committer.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
   }
 }

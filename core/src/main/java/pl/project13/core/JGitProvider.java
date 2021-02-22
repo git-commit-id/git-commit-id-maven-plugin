@@ -216,6 +216,20 @@ public class JGitProvider extends GitDataProvider {
   }
 
   @Override
+  public String getCommitAuthorTime() throws GitCommitIdExecutionException {
+    Date commitAuthorDate = evalCommit.getAuthorIdent().getWhen();
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
+    return smf.format(commitAuthorDate);
+  }
+
+  @Override
+  public String getCommitCommitterTime() throws GitCommitIdExecutionException {
+    Date commitCommitterDate = evalCommit.getCommitterIdent().getWhen();
+    SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
+    return smf.format(commitCommitterDate);
+  }
+
+  @Override
   public String getRemoteOriginUrl() throws GitCommitIdExecutionException {
     String url = git.getConfig().getString("remote", "origin", "url");
     return stripCredentialsFromOriginUrl(url);
@@ -329,7 +343,7 @@ public class JGitProvider extends GitDataProvider {
 
     return repository;
   }
-  
+
   @Override
   public AheadBehind getAheadBehind() throws GitCommitIdExecutionException {
     try {
