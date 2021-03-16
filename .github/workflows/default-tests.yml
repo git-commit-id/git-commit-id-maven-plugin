@@ -27,7 +27,7 @@ jobs:
     needs: checkstyle
     strategy:
       matrix:
-        java_version: ['8', '9', '10', '11', '12', '13']
+        java_version: ['8', '9', '10', '11', '12', '13', '14', '15', '16']
 
     steps:
       - uses: actions/checkout@v1
