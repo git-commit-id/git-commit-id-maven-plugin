@@ -230,41 +230,41 @@ public class NativeGitProvider extends GitDataProvider {
 
   @Override
   public String getCommitAuthorName() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%an " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%an --no-show-signature " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitAuthorEmail() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ae " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ae --no-show-signature " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageFull() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%B " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%B --no-show-signature " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitMessageShort() throws GitCommitIdExecutionException {
-    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%s " + evaluateOnCommit);
+    return runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%s --no-show-signature " + evaluateOnCommit);
   }
 
   @Override
   public String getCommitTime() throws GitCommitIdExecutionException {
-    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct " + evaluateOnCommit);
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct --no-show-signature " + evaluateOnCommit);
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value) * 1000L);
   }
 
   @Override
   public String getCommitAuthorTime() throws GitCommitIdExecutionException {
-    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%at " + evaluateOnCommit);
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%at --no-show-signature " + evaluateOnCommit);
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value) * 1000L);
   }
 
   @Override
   public String getCommitCommitterTime() throws GitCommitIdExecutionException {
-    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct " + evaluateOnCommit);
+    String value =  runQuietGitCommand(canonical, nativeGitTimeoutInMs, "log -1 --pretty=format:%ct --no-show-signature " + evaluateOnCommit);
     SimpleDateFormat smf = getSimpleDateFormatWithTimeZone();
     return smf.format(Long.parseLong(value) * 1000L);
   }
