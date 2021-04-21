@@ -261,19 +261,11 @@ public final class MessageFormatter {
       return false;
     }
     char potentialEscape = messagePattern.charAt(delimeterStartIndex - 1);
-    if (potentialEscape == ESCAPE_CHAR) {
-      return true;
-    } else {
-      return false;
-    }
+    return (potentialEscape == ESCAPE_CHAR);
   }
 
   static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
-    if (delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
-      return true;
-    } else {
-      return false;
-    }
+    return (delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR);
   }
 
   // special treatment of array values was suggested by 'lizongbo'
