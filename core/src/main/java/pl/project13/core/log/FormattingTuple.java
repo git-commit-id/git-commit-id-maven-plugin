@@ -49,7 +49,7 @@ package pl.project13.core.log;
  */
 public class FormattingTuple {
 
-  public static FormattingTuple NULL = new FormattingTuple(null);
+  public static final FormattingTuple NULL = new FormattingTuple(null);
 
   private String message;
   private Throwable throwable;

@@ -341,13 +341,11 @@ public class JGitCommon {
     // repo is dirty. JGit does this, so we cannot use the isClean method
     // to get the same behaviour. Instead check dirty state without
     // status.getUntracked().isEmpty()
-    boolean isDirty = !(status.getAdded().isEmpty()
+    return !(status.getAdded().isEmpty()
         && status.getChanged().isEmpty()
         && status.getRemoved().isEmpty()
         && status.getMissing().isEmpty()
         && status.getModified().isEmpty()
         && status.getConflicting().isEmpty());
-
-    return isDirty;
   }
 }
