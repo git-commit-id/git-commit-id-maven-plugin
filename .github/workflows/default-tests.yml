@@ -27,11 +27,11 @@ jobs:
     needs: checkstyle
     strategy:
       matrix:
-        java_allow_illegal_access: 0
+        java_allow_illegal_access: '0'
         java_version: ['8', '9', '10', '11', '12', '13', '14', '15']
         include:
           - java_version: ['16']
-            java_allow_illegal_access: 1
+            java_allow_illegal_access: '1'
 
     steps:
       - uses: actions/checkout@v1
@@ -46,10 +46,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        if: ${{ matrix.java_allow_illegal_access == 0 }}
+        if: ${{ matrix.java_allow_illegal_access == '0' }}
         run: mvn clean verify javadoc:javadoc -B
       - name: Build with Maven
-        if: ${{ matrix.java_allow_illegal_access == 1 }}
+        if: ${{ matrix.java_allow_illegal_access == '1' }}
         run: mvn clean verify javadoc:javadoc -Pjava-allow-illegal-access -B
 
   integration-test:
