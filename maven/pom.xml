@@ -191,6 +191,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <trimStackTrace>false</trimStackTrace>
+          <!-- Workaround for https://github.com/stefanbirkner/system-lambda/issues/23 -->
+          <argLine>--illegal-access=permit</argLine>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
