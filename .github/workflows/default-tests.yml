@@ -32,6 +32,8 @@ jobs:
         include:
           - java_version: '16'
             java_allow_illegal_access: true
+          - java_version: '17'
+            java_allow_illegal_access: true
 
     steps:
       - uses: actions/checkout@v1
