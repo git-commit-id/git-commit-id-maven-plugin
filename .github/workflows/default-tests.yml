@@ -30,7 +30,7 @@ jobs:
         java_allow_illegal_access: [false]
         java_version: ['8', '9', '10', '11', '12', '13', '14', '15']
         include:
-          - java_version: ['16']
+          - java_version: '16'
             java_allow_illegal_access: true
 
     steps:
