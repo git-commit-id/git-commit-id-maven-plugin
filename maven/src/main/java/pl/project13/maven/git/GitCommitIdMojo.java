@@ -338,6 +338,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "HEAD")
   String evaluateOnCommit;
+  /**
+   * The plugin allows to specify branch/tag/commit used when finding 'HEAD'.
+   * However we don't want the users to enter everything here and thus allow only the following subset.
+   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/338 for further information
+   */
   protected static final Pattern allowedCharactersForEvaluateOnCommit = Pattern.compile("[a-zA-Z0-9\\_\\-\\^\\/\\.]+");
 
   /**

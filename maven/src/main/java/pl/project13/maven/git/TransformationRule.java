@@ -19,6 +19,18 @@ package pl.project13.maven.git;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
+/**
+ * This class represents a specific transformation logic the user wants to perform.
+ *
+ * Each {@code transformationRule} consist of
+ * two required fields {@code apply} and {@code action}.
+ * The {@code apply}-tag controls when the rule should
+ * be applied and can be set to {@code BEFORE} to have the rule being applied before or it can be
+ * set to {@code AFTER} to have the rule being applied after the replacement.
+ * The {@code action}-tag determines the string conversion rule that should be applied.
+ *
+ * Refer to https://github.com/ktoso/maven-git-commit-id-plugin/issues/317 for a use-case.
+ */
 public class TransformationRule {
   /**
    * Determines when the transformation should be taken place.
@@ -32,7 +44,13 @@ public class TransformationRule {
   private ApplyEnum applyRule;
 
   protected enum ApplyEnum {
+    /**
+     * have the rule being applied before the replacement
+     */
     BEFORE,
+    /**
+     * have the rule being applied after the replacement
+     */
     AFTER,
     ;
   }

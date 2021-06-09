@@ -26,18 +26,30 @@ import java.io.*;
 import java.util.List;
 
 /**
- * Encapsulates logic to locate a valid .git directory.
- *
+ * This class encapsulates logic to locate a valid .git directory of the currently used project.
+ * If it's not already specified, this logic will try to find it.
  */
 public class GitDirLocator {
   final MavenProject mavenProject;
   final List<MavenProject> reactorProjects;
 
+  /**
+   * Constructor to encapsulates all references required to locate a valid .git directory
+   * @param mavenProject The currently used (maven) project.
+   * @param reactorProjects The list of reactor projects (sub-projects) of the current (maven) project.
+   */
   public GitDirLocator(MavenProject mavenProject, List<MavenProject> reactorProjects) {
     this.mavenProject = mavenProject;
     this.reactorProjects = reactorProjects;
   }
 
+  /**
+   * Attempts to lookup a valid .git directory of the currently used project.
+   * @param manuallyConfiguredDir A user has the ability to configure a git-directory with the {@code dotGitDirectory}
+   *                              configuration setting. By default it should be simply {@code ${project.basedir}/.git}
+   * @return A valid .git directory, or {@code null} if none could be found under the user specified location or within
+   * the project or it's reactor projects.
+   */
   @Nullable
   public File lookupGitDirectory(@Nonnull File manuallyConfiguredDir) {
     if (manuallyConfiguredDir.exists()) {
@@ -128,6 +140,11 @@ public class GitDirLocator {
     }
   }
 
+  /**
+   * Helper method to validate that the specified {@code File} is an existing directory.
+   * @param fileLocation The  {@code File} that should be checked if it's actually an existing directory.
+   * @return {@code true} if the specified {@code File} is an existing directory, {@false} otherwise.
+   */
   private static boolean isExistingDirectory(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }

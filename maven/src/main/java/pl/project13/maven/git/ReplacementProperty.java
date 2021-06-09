@@ -23,6 +23,8 @@ import java.util.List;
 import org.apache.maven.plugins.annotations.Parameter;
 
 /**
+ * This class represents a specific property replacement the user wants to perform.
+ * For a use-case refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/317.
  * @since 2.2.3
  */
 public class ReplacementProperty {
@@ -85,9 +87,25 @@ public class ReplacementProperty {
   @Parameter
   private List<TransformationRule> transformationRules = new ArrayList<>();
 
+  /**
+   * Empty constructor
+   */
   public ReplacementProperty() {
   }
 
+  /**
+   * Constructs a specific property replacement the user wants to perform.
+   * @param property The source (input) property on which the replacements should be performed (e.g. {@code git.branch})
+   * @param propertyOutputSuffix The property output suffix where the replacement result should be stored in (e.g. {@code git.branch-no-slashes})
+   * @param token The replacement token acts as {@code needle} that will be searched in the input property (e.g. {@code ^([^\/]*)\/([^\/]*)$})
+   * @param value The value acts as the text to be written over any found tokens ("replacement").
+   * @param regex If {@code true} the replacement will be performed with regular expressions or,
+   *             if {@code false} performs a replacement with java's string.replace-function.
+   * @param forceValueEvaluation If {@code true} forces the plugin to evaluate the given value on *every* project.
+   *                             This might come handy if *every* project needs a unique value and a user wants to
+   *                             project specific variables like {@code project.artifactId}.
+   * @param transformationRules The list of transformation-rules that should be applied during replacement.
+   */
   public ReplacementProperty(String property, String propertyOutputSuffix, String token, String value, boolean regex, boolean forceValueEvaluation, List<TransformationRule> transformationRules) {
     this.property = property;
     this.propertyOutputSuffix = propertyOutputSuffix;
@@ -98,59 +116,109 @@ public class ReplacementProperty {
     this.transformationRules = transformationRules;
   }
 
+  /**
+   * @return The source (input) property on which the replacements should be performed (e.g. {@code git.branch})
+   */
   public String getProperty() {
     return property;
   }
 
+  /**
+   * Set the source (input) property on which the replacements should be performed (e.g. {@code git.branch})
+   * @param property The source (input) property
+   */
   public void setProperty(String property) {
     this.property = property;
   }
 
+  /**
+   * @return The property output suffix where the replacement result should be stored in (e.g. {@code git.branch-no-slashes})
+   */
   public String getPropertyOutputSuffix() {
     return propertyOutputSuffix;
   }
 
+  /**
+   * Set the property output suffix where the replacement result should be stored in (e.g. {@code git.branch-no-slashes})
+   * @param propertyOutputSuffix The property output suffix
+   */
   public void setPropertyOutputSuffix(String propertyOutputSuffix) {
     this.propertyOutputSuffix = propertyOutputSuffix;
   }
 
+  /**
+   * @return The replacement token acts as {@code needle} that will be searched in the input property (e.g. {@code ^([^\/]*)\/([^\/]*)$})
+   */
   public String getToken() {
     return token;
   }
 
+  /**
+   * Set the replacement token
+   * @param token The replacement token
+   */
   public void setToken(String token) {
     this.token = token;
   }
 
+  /**
+   * @return The value that acts as the text to be written over any found tokens ("replacement").
+   */
   public String getValue() {
     return value;
   }
 
+  /**
+   * Sets the value that acts as the text to be written over any found tokens ("replacement").
+   * @param value The replacment value
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
+  /**
+   * @return Indicator if the replacement will be performed with regular expressions ({@code true}) or,
+   * if a replacement with java's string.replace-function is performed ({@code false}).
+   */
   public boolean isRegex() {
     return regex;
   }
 
+  /**
+   * Sets Indicator if the replacement will be performed with regular expressions ({@code true}) or,
+   * if a replacement with java's string.replace-function is performed ({@code false}).
+   * @param regex Indicator
+   */
   public void setRegex(boolean regex) {
     this.regex = regex;
   }
 
-
+  /**
+   * @return Indicator if the plugin forces to evaluate the given value on *every* project ({@code true}).
+   */
   public boolean isForceValueEvaluation() {
     return forceValueEvaluation;
   }
 
+  /**
+   * Sets Indicator if the plugin forces to evaluate the given value on *every* project ({@code true}).
+   * @param forceValueEvaluation
+   */
   public void setForceValueEvaluation(boolean forceValueEvaluation) {
     this.forceValueEvaluation = forceValueEvaluation;
   }
 
+  /**
+   * @return The list of transformation-rules that should be applied during replacement.
+   */
   public List<TransformationRule> getTransformationRules() {
     return transformationRules;
   }
 
+  /**
+   * Sets the list of transformation-rules that should be applied during replacement.
+   * @param transformationRules The list of transformation-rules
+   */
   public void setTransformationRules(List<TransformationRule> transformationRules) {
     this.transformationRules = transformationRules;
   }
