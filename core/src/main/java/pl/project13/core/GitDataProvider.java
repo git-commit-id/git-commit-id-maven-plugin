@@ -33,6 +33,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+/**
+ * An abstract Interface that dictates what functionality a {@code GitProvider} needs to fullfill.
+ * As of now this project implements two variants of a {@code GitProvider}.
+ * Namely {@link NativeGitProvider} which uses the native git binaries and
+ * {@link JGitProvider} which uses a java git implementation ({@code jgit}).
+ */
 public abstract class GitDataProvider implements GitProvider {
 
   @Nonnull
@@ -60,30 +66,59 @@ public abstract class GitDataProvider implements GitProvider {
 
   protected boolean offline;
 
+  /**
+   * Constructor to encapsulates all references required to dertermine all git-data.
+   * @param log logging provider which will be used to log events
+   */
   public GitDataProvider(@Nonnull LoggerBridge log) {
     this.log = log;
   }
 
+  /**
+   * Sets the {@link GitDescribeConfig} for the {@code GitProvider}
+   * @param gitDescribe The {@link GitDescribeConfig}
+   * @return The {@code GitProvider} with the corresponding {@link GitDescribeConfig}.
+   */
   public GitDataProvider setGitDescribe(GitDescribeConfig gitDescribe) {
     this.gitDescribe = gitDescribe;
     return this;
   }
 
+  /**
+   * Sets the {@code prefix} used for all generated properties for the {@code GitProvider}
+   * @param prefixDot The {@code prefix} used for all generated properties
+   * @return The {@code GitProvider} with the corresponding {@code prefix}.
+   */
   public GitDataProvider setPrefixDot(String prefixDot) {
     this.prefixDot = prefixDot;
     return this;
   }
 
+  /**
+   * Sets the {@code commit abbreviation length} for the {@code GitProvider}
+   * @param abbrevLength The {@code commit abbreviation length}
+   * @return The {@code GitProvider} with the corresponding {@code commit abbreviation length}.
+   */
   public GitDataProvider setAbbrevLength(int abbrevLength) {
     this.abbrevLength = abbrevLength;
     return this;
   }
 
+  /**
+   * Sets the {@code date format} for all generated properties for the {@code GitProvider}
+   * @param dateFormat The {@code date format} for all generated properties.
+   * @return The {@code GitProvider} with the corresponding {@code date format}.
+   */
   public GitDataProvider setDateFormat(String dateFormat) {
     this.dateFormat = dateFormat;
     return this;
   }
 
+  /**
+   * Sets the {@code git commit id generation mode} for the {@code GitProvider}
+   * @param commitIdGenerationMode The {@code git commit id generation mode}
+   * @return The {@code GitProvider} with the corresponding {@code git commit id generation mode}.
+   */
   public GitDataProvider setCommitIdGenerationMode(CommitIdGenerationMode commitIdGenerationMode) {
     this.commitIdGenerationMode = commitIdGenerationMode;
     return this;
