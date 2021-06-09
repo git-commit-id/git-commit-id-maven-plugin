@@ -202,7 +202,7 @@ public class ReplacementProperty {
 
   /**
    * Sets Indicator if the plugin forces to evaluate the given value on *every* project ({@code true}).
-   * @param forceValueEvaluation
+   * @param forceValueEvaluation Indicator if the plugin forces to evaluate the given value on *every* project ({@code true}).
    */
   public void setForceValueEvaluation(boolean forceValueEvaluation) {
     this.forceValueEvaluation = forceValueEvaluation;
