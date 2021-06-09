@@ -17,7 +17,17 @@
 
 package pl.project13.core;
 
+/**
+ * An enum to indicate how the {@code git.commit.id} property should be generated.
+ * See https://github.com/ktoso/maven-git-commit-id-plugin/issues/211 for further details.
+ */
 public enum CommitIdGenerationMode {
+  /**
+   * Indicator to generate a {@code git.commit.id.full} property
+   */
   FULL,
+  /**
+   * Indicator to generate a {@code git.commit.id} property (default)
+   */
   FLAT
 }

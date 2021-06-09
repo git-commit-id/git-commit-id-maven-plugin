@@ -19,31 +19,64 @@ package pl.project13.core;
 
 import java.util.Objects;
 
+/**
+ * A local git repository can either be "ahead", or "behind" in the number of commits
+ * relative to the remote repository. This class tracks the amount of commits the local git repository
+ * is "behind", or "ahead" relative to it's remote.
+ */
 public class AheadBehind {
 
+  /**
+   * Indication that we could not find a remote repository to calculate a "behind", or "ahead" relation.
+   */
   public static final AheadBehind NO_REMOTE = AheadBehind.of("NO_REMOTE", "NO_REMOTE");
 
   private final String ahead;
 
   private final String behind;
 
+  /**
+   * Constructor for a "AheadBehind"-object.
+   * @param ahead Number of commits the local repository is "ahead" in relation to it's remote.
+   * @param behind Number of commits the local repository is "behind" in relation to it's remote.
+   */
   private AheadBehind(String ahead, String behind) {
     this.ahead = ahead;
     this.behind = behind;
   }
 
+  /**
+   * Constructor for a "AheadBehind"-object.
+   * @param ahead Number of commits the local repository is "ahead" in relation to it's remote.
+   * @param behind Number of commits the local repository is "behind" in relation to it's remote.
+   *
+   * @return a "AheadBehind"-object.
+   */
   public static AheadBehind of(int ahead, int behind) {
     return new AheadBehind(String.valueOf(ahead), String.valueOf(behind));
   }
 
+  /**
+   * Constructor for a "AheadBehind"-object.
+   * @param ahead Number of commits the local repository is "ahead" in relation to it's remote.
+   * @param behind Number of commits the local repository is "behind" in relation to it's remote.
+   *
+   * @return a "AheadBehind"-object.
+   */
   public static AheadBehind of(String ahead, String behind) {
     return new AheadBehind(ahead, behind);
   }
 
+  /**
+   * @return Number of commits the local repository is "ahead" in relation to it's remote.
+   */
   public String ahead() {
     return ahead;
   }
 
+  /**
+   * @return Number of commits the local repository is "behind" in relation to it's remote.
+   */
   public String behind() {
     return behind;
   }
