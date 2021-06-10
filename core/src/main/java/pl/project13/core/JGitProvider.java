@@ -82,29 +82,52 @@ public class JGitProvider extends GitDataProvider {
   @Override
   public void prepareGitToExtractMoreDetailedRepoInformation() throws GitCommitIdExecutionException {
     try {
-      // more details parsed out bellow
-      Ref evaluateOnCommitReference = git.findRef(evaluateOnCommit);
-      ObjectId evaluateOnCommitResolvedObjectId = git.resolve(evaluateOnCommit);
-
-      if ((evaluateOnCommitReference == null) && (evaluateOnCommitResolvedObjectId == null)) {
-        throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
-      }
       revWalk = new RevWalk(git);
-      ObjectId headObjectId;
-      if (evaluateOnCommitReference != null) {
-        headObjectId = evaluateOnCommitReference.getObjectId();
+      if (projectDirectory != null) {
+        evalCommit = getCommitFromProjectDirectory(projectDirectory);
       } else {
-        headObjectId = evaluateOnCommitResolvedObjectId;
+        evalCommit = getCommitFromRef();
       }
-
-      if (headObjectId == null) {
-        throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have some commits in the dotGitDirectory?");
-      }
-      evalCommit = revWalk.parseCommit(headObjectId);
       revWalk.markStart(evalCommit);
     } catch (Exception e) {
       throw new GitCommitIdExecutionException("Error", e);
     }
+  }
+
+  private RevCommit getCommitFromProjectDirectory(String projectDirectory) throws GitAPIException, GitCommitIdExecutionException {
+    //retrieve last commit in folder projectDirectory
+    Iterator<RevCommit> iterator = new Git(git).log().addPath(projectDirectory).call().iterator();
+    if (!iterator.hasNext()) {
+      throw new GitCommitIdExecutionException("Could not get commit from folder " + projectDirectory + " , are you sure you have some commits in the folder " + projectDirectory + "?");
+    }
+
+    RevCommit revCommit = iterator.next();
+    if (revCommit == null) {
+      throw new GitCommitIdExecutionException("Could not get commit from folder " + projectDirectory + " , are you sure you have some commits in the folder " + projectDirectory + "?");
+    }
+
+    return revCommit;
+  }
+
+  private RevCommit getCommitFromRef() throws IOException, GitCommitIdExecutionException {
+    // more details parsed out bellow
+    Ref evaluateOnCommitReference = git.findRef(evaluateOnCommit);
+    ObjectId evaluateOnCommitResolvedObjectId = git.resolve(evaluateOnCommit);
+
+    if ((evaluateOnCommitReference == null) && (evaluateOnCommitResolvedObjectId == null)) {
+      throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have set the dotGitDirectory property of this plugin to a valid path?");
+    }
+    ObjectId headObjectId;
+    if (evaluateOnCommitReference != null) {
+      headObjectId = evaluateOnCommitReference.getObjectId();
+    } else {
+      headObjectId = evaluateOnCommitResolvedObjectId;
+    }
+
+    if (headObjectId == null) {
+      throw new GitCommitIdExecutionException("Could not get " + evaluateOnCommit + " Ref, are you sure you have some commits in the dotGitDirectory?");
+    }
+    return revWalk.parseCommit(headObjectId);
   }
 
   @Override
