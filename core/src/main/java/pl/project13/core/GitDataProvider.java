@@ -41,29 +41,79 @@ import java.util.regex.Pattern;
  */
 public abstract class GitDataProvider implements GitProvider {
 
+  /**
+   * Logging provider which will be used to log events.
+   */
   @Nonnull
   protected final LoggerBridge log;
 
+  /**
+   * The {@code prefix} used for all generated properties.
+   */
   protected String prefixDot;
 
+  /**
+   * The {@code commit abbreviation length}
+   */
   protected int abbrevLength;
 
+  /**
+   * The {@code date format} for all generated properties.
+   */
   protected String dateFormat;
 
+  /**
+   * The {@code date format time zone} for all generated properties.
+   */
   protected String dateFormatTimeZone;
 
+  /**
+   * The {@link GitDescribeConfig}.
+   */
   protected GitDescribeConfig gitDescribe = new GitDescribeConfig();
 
+  /**
+   * The {@code git commit id generation mode}.
+   */
   protected CommitIdGenerationMode commitIdGenerationMode;
 
+  /**
+   * Allow to tell the plugin what commit should be used as reference to generate the
+   * properties from. Defaults to {@code HEAD}.
+   */
   protected String evaluateOnCommit;
 
+  /**
+   * When set to {@code true} this plugin will try to use the branch name from build environment.
+   * Set to {@code false} to use JGit/GIT to get current branch name which can be useful
+   * when using the JGitflow maven plugin.
+   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/24
+   */
   protected boolean useBranchNameFromBuildEnvironment;
 
+  /**
+   * Can be used to exclude certain properties from being emitted (e.g. filter out properties
+   * that you *don't* want to expose). May be useful when you want to hide
+   * {@code git.remote.origin.url} (maybe because it contains your repo password?),
+   * or the email of the committer etc.
+   */
   protected List<String> excludeProperties;
 
+  /**
+   * Can be used to include only certain properties into the resulting file (e.g. include only
+   * properties that you *want* to expose). This feature was implemented to avoid big exclude
+   * properties tag when we only want very few specific properties.
+   * The inclusion rules, will be overruled by the exclude rules (e.g. you can write an
+   * inclusion rule that applies for multiple properties and then exclude a subset of them).
+   */
   protected List<String> includeOnlyProperties;
 
+  /**
+   * When set to {@code true}, the plugin will not try to contact any remote repositories.
+   * Any operations will only use the local state of the repo.
+   * If set to {@code false}, it will execute {@code git fetch} operations e.g. to determine the
+   * {@code ahead} and {@code behind} branch information.
+   */
   protected boolean offline;
 
   /**
@@ -124,31 +174,82 @@ public abstract class GitDataProvider implements GitProvider {
     return this;
   }
 
+  /**
+   * Sets the {@code date format time zone} for all generated properties for the {@code GitProvider}
+   * @param dateFormatTimeZone The {@code date format time zone} for all generated properties.
+   * @return The {@code GitProvider} with the corresponding {@code date format time zone}.
+   */
   public GitDataProvider setDateFormatTimeZone(String dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
     return this;
   }
 
+  /**
+   * Sets the Indicator if the branch name should be obtained from the build environment, or by the plugin.
+   * @param useBranchNameFromBuildEnvironment When set to {@code true} this plugin will try to use the branch name
+   *                                          from build environment. Set to {@code false} to use JGit/GIT to get
+   *                                          current branch name which can be useful when using the JGitflow
+   *                                          maven plugin.
+   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/24
+   *
+   * @return The {@code GitProvider} with the corresponding Indicator set.
+   */
   public GitDataProvider setUseBranchNameFromBuildEnvironment(boolean useBranchNameFromBuildEnvironment) {
     this.useBranchNameFromBuildEnvironment = useBranchNameFromBuildEnvironment;
     return this;
   }
 
+  /**
+   * Can be used to exclude certain properties from being emitted (e.g. filter out properties
+   * that you *don't* want to expose). May be useful when you want to hide
+   * {@code git.remote.origin.url} (maybe because it contains your repo password?),
+   * or the email of the committer etc.
+   *
+   * @param excludeProperties The properties that shall be excluded from generation.
+   * @return The {@code GitProvider} with the corresponding {@code properties exclusion list}.
+   */
   public GitDataProvider setExcludeProperties(List<String> excludeProperties) {
     this.excludeProperties = excludeProperties;
     return this;
   }
 
+  /**
+   * Can be used to include only certain properties into the resulting file (e.g. include only
+   * properties that you *want* to expose). This feature was implemented to avoid big exclude
+   * properties tag when we only want very few specific properties.
+   * The inclusion rules, will be overruled by the exclude rules (e.g. you can write an
+   * inclusion rule that applies for multiple properties and then exclude a subset of them).
+   *
+   * @param includeOnlyProperties The properties that shall only be included in the generation.
+   * @return The {@code GitProvider} with the corresponding {@code properties inclusion only list}.
+   */
   public GitDataProvider setIncludeOnlyProperties(List<String> includeOnlyProperties) {
     this.includeOnlyProperties = includeOnlyProperties;
     return this;
   }
 
+  /**
+   * When set to {@code true}, the plugin will not try to contact any remote repositories.
+   * Any operations will only use the local state of the repo.
+   * If set to {@code false}, it will execute {@code git fetch} operations e.g. to determine the
+   * {@code ahead} and {@code behind} branch information.
+   *
+   * @param offline Indicator if the plugin should operate in {@code offline} or {@code online}-mode.
+   * @return The {@code GitProvider} with the corresponding Indicator set.
+   */
   public GitDataProvider setOffline(boolean offline) {
     this.offline = offline;
     return this;
   }
 
+  /**
+   * Main function that will attempt to load the desired properties from the git repository.
+   *
+   * @param evaluateOnCommit The commit that should be used as reference to generate the properties from.
+   *                         Defaults to {@code HEAD}.
+   * @param properties The Properties-Set that should be enriched by the generated one.
+   * @throws GitCommitIdExecutionException In case any problem occurred during loading of the properties from the git repository.
+   */
   public void loadGitData(@Nonnull String evaluateOnCommit, @Nonnull Properties properties) throws GitCommitIdExecutionException {
     this.evaluateOnCommit = evaluateOnCommit;
     init();
@@ -297,6 +398,12 @@ public abstract class GitDataProvider implements GitProvider {
     }
   }
 
+  /**
+   * Represents a supplier of results that is allowed to throw a {@link GitCommitIdExecutionException}.
+   * Similar concept as {@link java.util.function.Supplier}.
+   *
+   * @param <T> the type of results supplied by this supplier
+   */
   @FunctionalInterface
   public interface SupplierEx<T> {
     T get() throws GitCommitIdExecutionException;
@@ -350,7 +457,6 @@ public abstract class GitDataProvider implements GitProvider {
    * @return returns the gitRemoteUri with stripped password (might be used in http or https)
    * @throws GitCommitIdExecutionException Exception when URI is invalid
    */
-
   protected String stripCredentialsFromOriginUrl(String gitRemoteString) throws GitCommitIdExecutionException {
 
     // The URL might be null if the repo hasn't set a remote
