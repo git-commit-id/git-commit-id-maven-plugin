@@ -374,9 +374,13 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Controls whether the git plugin tries to access remote repos to fetch latest information
    * or only use local information.
+   *
+   * :warning: Before version 5.X.X the default was set to {@code false} causing the plugin to operate
+   * in online-mode by default.
+   *
    * @since 3.0.1
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue = "true")
   boolean offline;
 
   /**
