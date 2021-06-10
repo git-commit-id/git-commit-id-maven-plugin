@@ -27,9 +27,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <java.target>1.8</java.target>
+    <java.target>11</java.target>
 
-    <maven-plugin-api.version>3.0</maven-plugin-api.version>
+    <maven-plugin-api.version>3.1.0-alpha-1</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 
     <junit.version>4.13.2</junit.version>
