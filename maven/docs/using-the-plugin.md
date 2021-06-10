@@ -308,15 +308,20 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     <!-- @since 3.0.1 -->
                     <!--
                         Default (optional):
-                        false
+                        true
 
                         Explanation:
                         When set to `true`, the plugin will not try to contact any remote repositories.
                         Any operations will only use the local state of the repo. If set to `false`, it will
                         execute `git fetch` operations e.g. to determine the `ahead` and `behind` branch
                         information.
+
+                        Warning:
+                        Before version 5.X.X the default was set to `false` causing the plugin to operate
+                        in online-mode by default. Be advised that in offline-mode the plugin might generate
+                        inaccurate `git.local.branch.ahead` and `git.local.branch.behind` branch information.
                     -->
-                    <offline>false</offline>
+                    <offline>true</offline>
 
                     <!-- @since 2.1.12 -->
                     <!--
@@ -899,8 +904,8 @@ Generated properties
  |`git.commit.user.email`        | Represents the user eMail of the user who performed the commit. |
  |`git.commit.user.name`         | Represents the user name of the user who performed the commit. |
  |`git.dirty`                    | A working tree is said to be "dirty" if it contains modifications which have not been committed to the current branch. |
- |`git.local.branch.ahead`       | Represents the count of commits that your local branch is ahead in perspective to the remote branch (usually the case when your local branch has committed changes that are not pushed yet to the remote branch). Note: To obtain the right value for this property this plugin will perform a `git fetch`. |
- |`git.local.branch.behind`      | Represents the count of commits that your local branch is behind in perspective to the remote branch (usually the case when there are commits in the remote branch that are not yet integrated into your local branch). Note: To obtain the right value for this property this plugin will perform a `git fetch`. |
+ |`git.local.branch.ahead`       | Represents the count of commits that your local branch is ahead in perspective to the remote branch (usually the case when your local branch has committed changes that are not pushed yet to the remote branch). Note: To obtain the right value for this property this plugin should operate in online mode (`<offline>false</offline>`) so a `git fetch` will be performed before retrieval. |
+ |`git.local.branch.behind`      | Represents the count of commits that your local branch is behind in perspective to the remote branch (usually the case when there are commits in the remote branch that are not yet integrated into your local branch). Note: To obtain the right value for this property this plugin should operate in online mode (`<offline>false</offline>`) so a `git fetch` will be performed before retrieval. |
  |`git.remote.origin.url`        | Represents the URL of the remote repository for the current git project. |
  |`git.tags`                     | Represents a list of tags which contain the specified commit (`git tag --contains`). |
  |`git.total.commit.count`       | Represents the total count of all commits in the current repository (`git rev-list HEAD --count`). |

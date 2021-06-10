@@ -23,6 +23,10 @@ import java.util.Objects;
  * A local git repository can either be "ahead", or "behind" in the number of commits
  * relative to the remote repository. This class tracks the amount of commits the local git repository
  * is "behind", or "ahead" relative to it's remote.
+ *
+ * :warning: You must set the {@code offline}-setting of the plugin to {@code false} when you want to ensure
+ * that the properties generated are truly up-to-date. Otherwise the local state of the git repository is used
+ * which might be out-of-date.
  */
 public class AheadBehind {
 
