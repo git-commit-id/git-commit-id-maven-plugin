@@ -24,22 +24,63 @@ package pl.project13.core;
 public class GitCommitIdExecutionException extends Exception {
   private static final long serialVersionUID = 4608506012492555968L;
 
+  /**
+   * Constructs a new exception
+   */
   public GitCommitIdExecutionException() {
     super();
   }
 
+  /**
+   * Constructs a new exception with the specified detail message.
+   *
+   * @param message the detail message. The detail message is saved for
+   *          later retrieval by the {@link Exception#getMessage()} method.
+   */
   public GitCommitIdExecutionException(String message) {
     super(message);
   }
 
+  /**
+   * Constructs a new exception with the specified detail message and
+   * cause.
+   *
+   * @param  message the detail message (which is saved for later retrieval
+   *         by the {@link Exception#getMessage()} method).
+   * @param  cause the cause (which is saved for later retrieval by the
+   *         {@link Exception#getCause()} method).  (A {@code null} value is
+   *         permitted, and indicates that the cause is nonexistent or
+   *         unknown.)
+   */
   public GitCommitIdExecutionException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Constructs a new exception with the specified cause
+   *
+   * @param  cause the cause (which is saved for later retrieval by the
+   *         {@link Exception#getCause()} method).  (A {@code null} value is
+   *         permitted, and indicates that the cause is nonexistent or
+   *         unknown.)
+   */
   public GitCommitIdExecutionException(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Constructs a new exception with the specified detail message,
+   * cause, suppression enabled or disabled, and writable stack
+   * trace enabled or disabled.
+   *
+   * @param message the detail message.
+   * @param cause the cause.  (A {@code null} value is permitted,
+   * and indicates that the cause is nonexistent or unknown.)
+   * @param enableSuppression whether or not suppression is enabled
+   *                          or disabled
+   * @param writableStackTrace whether or not the stack trace should
+   *                           be writable
+   */
   public GitCommitIdExecutionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }

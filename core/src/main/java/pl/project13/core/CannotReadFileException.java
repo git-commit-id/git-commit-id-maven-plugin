@@ -17,9 +17,20 @@
 
 package pl.project13.core;
 
+/**
+ * An exception to indicate that a required file could not be found.
+ */
 public class CannotReadFileException extends Exception {
   private static final long serialVersionUID = -9080356227094128542L;
 
+  /**
+   * Constructs a new exception with the specified cause
+   *
+   * @param  cause the cause (which is saved for later retrieval by the
+   *         {@link Exception#getCause()} method).  (A {@code null} value is
+   *         permitted, and indicates that the cause is nonexistent or
+   *         unknown.)
+   */
   public CannotReadFileException(Throwable cause) {
     super(cause);
   }
