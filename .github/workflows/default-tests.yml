@@ -108,7 +108,7 @@ jobs:
       - name: Run the local testversion with Maven
         run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.buildscript/settings.xml
       - name: Validate if the testversion has produced the desired output
-        run: /bin/bash -c '[[ -f maven/target/testing.properties ]] && cat maven/target/testing.properties || exit 1;'
+        run: /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || exit 1;'
 
   coveralls:
     name: Run coveralls
