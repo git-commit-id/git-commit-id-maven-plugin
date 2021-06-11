@@ -2,9 +2,7 @@
 In general pull requests and support for open issues is always welcome!
 
 ## Project layout
-This project is a multi-module Maven project. It consists of the following modules:
-- [core](core) (`git-commit-id-plugin-core`): The core framework of the plugin
-- [maven](maven) (`git-commit-id-plugin`): The actual plugin, which depends on the `core` module
+This project is a maven plugin and it's core functionallity can be found under https://github.com/git-commit-id/git-commit-id-plugin-core.
 
 To build the project:
 1. Install Maven
