@@ -1,7 +1,7 @@
 maven git commit id plugin
 ==================================
 
-[![Build Status](https://secure.travis-ci.org/git-commit-id/git-commit-id-maven-plugin.svg?branch=master)](https://travis-ci.org/github/git-commit-id/git-commit-id-maven-plugin)
+[![Build Status](https://github.com/git-commit-id/git-commit-id-maven-plugin/workflows/Java%20CI/badge.svg?branch=master)](https://github.com/git-commit-id/git-commit-id-maven-plugin/actions)
 [![Coverage Status](https://coveralls.io/repos/github/git-commit-id/git-commit-id-maven-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/git-commit-id-maven-plugin?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)
 
