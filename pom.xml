@@ -346,7 +346,7 @@
                         <configuration>
                             <trimStackTrace>false</trimStackTrace>
                             <!-- Workaround for https://github.com/stefanbirkner/system-lambda/issues/23 -->
-                            <argLine>--illegal-access=permit --add-opens=java.base/java.util.jar=ALL-UNNAMED</argLine>
+                            <argLine>--illegal-access=permit --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
                         </configuration>
                     </plugin>
                 </plugins>
