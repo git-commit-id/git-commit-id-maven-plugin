@@ -15,11 +15,13 @@
  * along with git-commit-id-maven-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.core.jgit;
+package pl.project13.maven.jgit;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
+import pl.project13.core.jgit.DescribeCommand;
+import pl.project13.core.jgit.DescribeResult;
 import pl.project13.core.log.StdOutLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;

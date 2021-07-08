@@ -19,11 +19,10 @@ package pl.project13.core.jgit;
 
 import org.junit.Test;
 import pl.project13.core.log.StdOutLoggerBridge;
-import pl.project13.maven.git.GitIntegrationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JGitCommonIntegrationTest extends GitIntegrationTest {
+public class JGitCommonTest {
 
   @Test
   public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
