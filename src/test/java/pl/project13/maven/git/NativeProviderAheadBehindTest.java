@@ -15,24 +15,19 @@
  * along with git-commit-id-maven-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.core.jgit;
+package pl.project13.maven.git;
 
-import org.junit.Test;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.core.NativeGitProvider;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class NativeProviderAheadBehindTest extends AheadBehindTest<NativeGitProvider> {
 
-public class JGitCommonTest {
+  @Override
+  protected NativeGitProvider gitProvider() {
+    return NativeGitProvider.on(localRepository.getRoot(), 1000L, null);
+  }
 
-  @Test
-  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
-    // given
-    String fullName = "refs/tags/v1.0.0";
-
-    // when
-    String simpleName = new JGitCommon(new StdOutLoggerBridge(true)).trimFullTagName(fullName);
-
-    // then
-    assertThat(simpleName).isEqualTo("v1.0.0");
+  @Override
+  protected void extraSetup() {
+    gitProvider.setEvaluateOnCommit("HEAD");
   }
 }
