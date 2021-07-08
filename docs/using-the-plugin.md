@@ -11,9 +11,9 @@ For more in-depth explanation of all options read the next section.
 
 ```xml
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.0</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -72,9 +72,9 @@ It's really simple to setup this plugin; below is a sample pom that you may base
 
         <plugins>
             <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.0</version>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -341,7 +341,7 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                         the plugin only generate the file in the project build directory which is the first one
                         based on the execution graph (!).
 
-                        Important: Please note that the git-commit-id-plugin also has an option to skip pom
+                        Important: Please note that the git-commit-id-maven-plugin also has an option to skip pom
                         project (`<packaging>pom</packaging>`). If you plan to use the `runOnlyOnce` option
                         alongside with an aggregator pom you may want to set `<skipPoms>false</skipPoms>`.
 

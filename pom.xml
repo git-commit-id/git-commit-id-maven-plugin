@@ -165,7 +165,7 @@
         </pluginManagement>
 
         <plugins>
-            <!-- if you would like to run the git-commit-id-plugin for your build, you could also include it here instead using a profile (see README.md) -->
+            <!-- if you would like to run the git-commit-id-maven-plugin for your build, you could also include it here instead using a profile (see README.md) -->
             <!-- Setting built-in java compiler properties -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

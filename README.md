@@ -3,10 +3,10 @@ maven git commit id plugin
 
 [![Build Status](https://secure.travis-ci.org/git-commit-id/git-commit-id-maven-plugin.svg?branch=master)](https://travis-ci.org/github/git-commit-id/git-commit-id-maven-plugin)
 [![Coverage Status](https://coveralls.io/repos/github/git-commit-id/git-commit-id-maven-plugin/badge.svg?branch=master)](https://coveralls.io/github/git-commit-id/git-commit-id-maven-plugin?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/pl.project13.maven/git-commit-id-plugin/badge.svg)](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.git-commit-id/git-commit-id-maven-plugin/badge.svg)](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin)
 
 
-git-commit-id-plugin is a plugin quite similar to [Build Number Maven Plugin](https://www.mojohaus.org/buildnumber-maven-plugin/index.html) for example but as the Build Number plugin at the time when I started this plugin only supported CVS and SVN, something had to be done.
+git-commit-id-maven-plugin is a plugin quite similar to [Build Number Maven Plugin](https://www.mojohaus.org/buildnumber-maven-plugin/index.html) for example but as the Build Number plugin at the time when I started this plugin only supported CVS and SVN, something had to be done.
 I had to quickly develop a Git version of such a plugin. For those who don't know the plugin, it basically helps you with the following tasks and answers related questions
 * Which version had the bug? Is that deployed already?
 * Make your distributed deployment aware of versions
@@ -25,16 +25,29 @@ Quicklinks (all relevant documentation)
 
 Getting the plugin
 ==================
-The plugin **is available from Maven Central** ([see here](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin)), so you don't have to configure any additional repositories to use this plugin.
+The plugin **is available from Maven Central** ([see here](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin)), so you don't have to configure any additional repositories to use this plugin.
 
 A detailed description of using the plugin is available in the [Using the plugin](docs/using-the-plugin.md) document. All you need to do in the basic setup is to include that plugin definition in your `pom.xml`.
 For more advanced users we also prepared a [guide to provide a brief overview of the more advanced configurations](docs/using-the-plugin.md)... read on!
+
+Relocation of the Project
+------------------------
+Newer version (5.x.x or more recent) are available via
+```xml
+<groupId>io.github.git-commit-id</groupId>
+<artifactId>git-commit-id-maven-plugin</artifactId>
+```
+older version (4.x.x or older) are available via:
+```xml
+<groupId>pl.project13.maven</groupId>
+<artifactId>git-commit-id-plugin</artifactId>
+``` 
 
 Versions
 --------
 The current version is **4.0.5** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A4.0.5)).
 
-You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/pl.project13.maven/git-commit-id-plugin), though using the newest is obviously the best choice.
+You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin), though using the newest is obviously the best choice.
 
 Plugin compatibility with Java
 -------------------------------
@@ -85,10 +98,13 @@ But I highly recommend using only stable versions, from Maven Central... :-)
     <pluginRepository>
         <id>sonatype-snapshots</id>
         <name>Sonatype Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
     </pluginRepository>
 </pluginRepositories>
 ```
+
+Older Snapshots (prior version 5.X) are available via `<url>https://oss.sonatype.org/content/repositories/snapshots/</url>`.
+
 
 If you just would like to see what the plugin can do, you can clone the repository and run
 ```

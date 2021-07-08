@@ -116,7 +116,7 @@ import org.codehaus.jackson.annotate.JsonWriteNullProperties;
 /**
 * A spring controlled bean that will be injected
 * with properties about the repository state at build time.
-* This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-plugin</b>
+* This information is supplied by my plugin - <b>pl.project13.maven.git-commit-id-maven-plugin</b>
 */
 @JsonWriteNullProperties(true)
 public class GitRepositoryState {
