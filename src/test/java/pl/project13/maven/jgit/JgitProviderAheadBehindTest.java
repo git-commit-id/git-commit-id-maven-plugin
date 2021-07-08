@@ -15,25 +15,22 @@
  * along with git-commit-id-maven-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.core.jgit;
+package pl.project13.maven.jgit;
 
-import org.junit.Test;
-import pl.project13.core.log.StdOutLoggerBridge;
-import pl.project13.maven.git.GitIntegrationTest;
+import pl.project13.core.JGitProvider;
+import pl.project13.maven.git.AheadBehindTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.nio.file.Paths;
 
-public class JGitCommonIntegrationTest extends GitIntegrationTest {
+public class JgitProviderAheadBehindTest extends AheadBehindTest<JGitProvider> {
 
-  @Test
-  public void trimFullTagName_shouldTrimFullTagNamePrefix() throws Exception {
-    // given
-    String fullName = "refs/tags/v1.0.0";
+  @Override
+  public void extraSetup() {
+    gitProvider.setRepository(localRepositoryGit.getRepository());
+  }
 
-    // when
-    String simpleName = new JGitCommon(new StdOutLoggerBridge(true)).trimFullTagName(fullName);
-
-    // then
-    assertThat(simpleName).isEqualTo("v1.0.0");
+  @Override
+  protected JGitProvider gitProvider() {
+    return JGitProvider.on(Paths.get(localRepository.getRoot().getAbsolutePath(), ".git").toFile(), null);
   }
 }

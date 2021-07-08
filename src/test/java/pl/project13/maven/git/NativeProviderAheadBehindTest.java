@@ -15,15 +15,15 @@
  * along with git-commit-id-maven-plugin.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package pl.project13.core;
+package pl.project13.maven.git;
 
-import pl.project13.maven.git.AheadBehindTest;
+import pl.project13.core.NativeGitProvider;
 
 public class NativeProviderAheadBehindTest extends AheadBehindTest<NativeGitProvider> {
 
   @Override
   protected NativeGitProvider gitProvider() {
-    return new NativeGitProvider(localRepository.getRoot(), 1000L, null);
+    return NativeGitProvider.on(localRepository.getRoot(), 1000L, null);
   }
 
   @Override
