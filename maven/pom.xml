@@ -4,13 +4,13 @@
   <parent>
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-parent</artifactId>
-    <version>4.9.9</version>
+    <version>4.9.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>git-commit-id-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>4.9.9</version>
+  <version>4.9.10-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
 
   <distributionManagement>
