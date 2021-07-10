@@ -45,7 +45,7 @@ older version (4.x.x or older) are available via:
 
 Versions
 --------
-The current version is **4.0.5** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A4.0.5)).
+The current version is **5.0.0** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A5.0.0)).
 
 You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin), though using the newest is obviously the best choice.
 
@@ -66,6 +66,7 @@ Even though this plugin tries to be compatible with every Maven version there ar
 
 | Maven Version               | Plugin Version  | Notes                                                                                                           |
 | --------------------------- | ---------------:|:---------------------------------------------------------------------------------------------------------------:|
+| Maven 3.0.X (EOL)           | up to 4.0.5     | Maven 3.0.X is EOL
 | Maven 3.1.0                 | any             | git-commit-id-plugin:2.1.14, 2.1.15, 2.2.0, 2.2.1, 2.2.3 doesn't work -- requires maven version 3.1.1           |
 | Maven 3.3.1                 | any             | git-commit-id-plugin:2.1.14 doesn't work                                                                        |
 | Maven 3.3.3                 | any             | git-commit-id-plugin:2.1.14 doesn't work                                                                        |
