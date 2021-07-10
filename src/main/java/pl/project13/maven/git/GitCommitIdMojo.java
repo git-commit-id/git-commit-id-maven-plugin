@@ -538,11 +538,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         logProperties();
 
         if (generateGitPropertiesFile) {
-          BuildFileChangeListener buildFileChangeListener = new BuildFileChangeListener() {
-            public void changed(@Nonnull File file) {
-              buildContext.refresh(file);
-            }
-          };
+          BuildFileChangeListener buildFileChangeListener = file -> buildContext.refresh(file);
 
           new PropertiesFileGenerator(log, buildFileChangeListener, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
