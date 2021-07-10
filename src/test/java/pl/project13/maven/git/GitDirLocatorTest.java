@@ -36,8 +36,6 @@ public class GitDirLocatorTest {
   @Mock
   MavenProject project;
 
-  List<MavenProject> reactorProjects = Collections.emptyList();
-
   @Test
   public void shouldUseTheManuallySpecifiedDirectory() throws Exception {
     // given
@@ -45,7 +43,7 @@ public class GitDirLocatorTest {
     try {
 
       // when
-      GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+      GitDirLocator locator = new GitDirLocator(project);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then

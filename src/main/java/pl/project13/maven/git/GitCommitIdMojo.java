@@ -670,7 +670,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * @return the File representation of the .git directory
    */
   private File lookupGitDirectory() throws GitCommitIdExecutionException {
-    return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
+    return new GitDirLocator(project).lookupGitDirectory(dotGitDirectory);
   }
 
   private void logProperties() {
