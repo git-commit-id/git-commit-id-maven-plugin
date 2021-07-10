@@ -10,7 +10,7 @@
     <groupId>io.github.git-commit-id</groupId>
     <artifactId>git-commit-id-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>5.0.0</version>
+    <version>5.0.1-SNAPSHOT</version>
     <name>Git Commit Id Maven Plugin</name>
     <url>https://github.com/git-commit-id/git-commit-id-maven-plugin</url>
     <description>
@@ -35,7 +35,7 @@
         <url>git@github.com:git-commit-id/git-commit-id-maven-plugin.git</url>
         <connection>scm:git@github.com:git-commit-id/git-commit-id-maven-plugin</connection>
         <developerConnection>scm:git:git@github.com:git-commit-id/git-commit-id-maven-plugin.git</developerConnection>
-        <tag>v5.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
