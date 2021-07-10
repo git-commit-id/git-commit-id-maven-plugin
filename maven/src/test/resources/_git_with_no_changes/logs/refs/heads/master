@@ -1,4 +1,0 @@
-0000000000000000000000000000000000000000 ff21f63ce400e3ff07b0b318dd4c61a0fb368bd2 Adam Batkin <adam@batkin.net> 1417584929 -0500	commit (initial): add file.txt
-ff21f63ce400e3ff07b0b318dd4c61a0fb368bd2 95412a0871d9c4e1421d71d4fc513556e8d6f985 Adam Batkin <adam@batkin.net> 1417588894 -0500	commit (amend): add file.txt
-95412a0871d9c4e1421d71d4fc513556e8d6f985 e65f5b15be7a302936db2cf50430eae7ef4ecc6f Adam Batkin <adam@batkin.net> 1417588980 -0500	commit (amend): add file.txt
-e65f5b15be7a302936db2cf50430eae7ef4ecc6f 85c28883281d04688ff8caecb597172cc3c0f982 TheSnoozer <s.lange@alumni.tu-berlin.de> 1465332353 +0200	commit: delete file

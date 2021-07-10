@@ -1,6 +1,0 @@
-0000000000000000000000000000000000000000 e3d159dd7383cb06acf7787f1c0d5370a0417a1c Karol Lassak <karol.lassak@coi.gov.pl> 1385717882 +0100	commit (initial): Added readme
-e3d159dd7383cb06acf7787f1c0d5370a0417a1c 234342815bc16c473495871118b3dc5ee68a8a4a Karol Lassak <karol.lassak@coi.gov.pl> 1385717914 +0100	commit: Moved master
-234342815bc16c473495871118b3dc5ee68a8a4a e3d159dd7383cb06acf7787f1c0d5370a0417a1c Karol Lassak <karol.lassak@coi.gov.pl> 1385717941 +0100	checkout: moving from master to master^
-e3d159dd7383cb06acf7787f1c0d5370a0417a1c e3d159dd7383cb06acf7787f1c0d5370a0417a1c Karol Lassak <karol.lassak@coi.gov.pl> 1385717955 +0100	checkout: moving from e3d159dd7383cb06acf7787f1c0d5370a0417a1c to test
-e3d159dd7383cb06acf7787f1c0d5370a0417a1c 9cb810e57e2994f38c7ec6a698a31de66fdd9e24 Karol Lassak <karol.lassak@coi.gov.pl> 1385717971 +0100	commit: Change in tag
-9cb810e57e2994f38c7ec6a698a31de66fdd9e24 234342815bc16c473495871118b3dc5ee68a8a4a Karol Lassak <karol.lassak@coi.gov.pl> 1385718126 +0100	checkout: moving from test to master
