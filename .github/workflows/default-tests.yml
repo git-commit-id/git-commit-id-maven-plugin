@@ -104,9 +104,9 @@ jobs:
       - name: Verify Setup of Maven ${{ matrix.maven_version }}
         run: bash -c "echo ${M2_HOME}; echo ${PATH}; mvn -version"
       - name: Install a test version with Maven
-        run: mvn clean install -B --settings=./.buildscript/settings.xml
+        run: mvn clean install -B --settings=./.github/.buildscript/settings.xml
       - name: Run the local testversion with Maven
-        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.buildscript/settings.xml
+        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.github/.buildscript/settings.xml
       - name: Validate if the testversion has produced the desired output
         run: /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || exit 1;'
 
@@ -155,7 +155,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Deploy snapshot with Maven
-        run: mvn clean deploy -B --settings=./.buildscript/settings.xml
+        run: mvn clean deploy -B --settings=./.github/.buildscript/settings.xml
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
