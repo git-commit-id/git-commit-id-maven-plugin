@@ -58,7 +58,8 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>git-commit-id-plugin-core</artifactId>
-                <version>5.0.0</version>
+                <!-- TODO / FIXME -->
+                <version>5.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -245,7 +246,12 @@
             <artifactId>maven-core</artifactId>
             <version>${maven-plugin-api.version}</version>
         </dependency>
-
+        <!-- plexus build -->
+        <dependency>
+            <groupId>org.sonatype.plexus</groupId>
+            <artifactId>plexus-build-api</artifactId>
+            <version>0.0.7</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>git-commit-id-plugin-core</artifactId>
@@ -269,6 +275,19 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-container-default</artifactId>
+            <version>2.1.0</version>
             <scope>test</scope>
         </dependency>
 

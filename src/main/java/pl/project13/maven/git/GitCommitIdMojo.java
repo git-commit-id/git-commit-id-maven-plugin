@@ -45,6 +45,7 @@ import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.cibuild.BuildServerDataProvider;
+import pl.project13.core.util.BuildFileChangeListener;
 import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;
@@ -537,7 +538,13 @@ public class GitCommitIdMojo extends AbstractMojo {
         logProperties();
 
         if (generateGitPropertiesFile) {
-          new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
+          BuildFileChangeListener buildFileChangeListener = new BuildFileChangeListener() {
+            public void changed(@Nonnull File file) {
+              buildContext.refresh(file);
+            }
+          };
+
+          new PropertiesFileGenerator(log, buildFileChangeListener, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
                   properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
         }
 
