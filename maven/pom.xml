@@ -10,7 +10,7 @@
 
   <artifactId>git-commit-id-plugin</artifactId>
   <packaging>pom</packaging>
-  <version>4.9.9</version>
+  <version>4.9.9-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
 
   <distributionManagement>
