@@ -35,7 +35,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.project13.core.PropertiesFilterer;
-import pl.project13.maven.log.MavenLoggerBridge;
+import pl.project13.core.log.LogInterface;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertiesFiltererTest {
@@ -46,7 +46,7 @@ public class PropertiesFiltererTest {
   private PropertiesFilterer propertiesFilterer;
 
   @Mock
-  private MavenLoggerBridge log;
+  private LogInterface log;
 
   @Mock
   private Properties properties;

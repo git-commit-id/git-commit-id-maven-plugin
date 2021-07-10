@@ -22,7 +22,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.core.log.LogInterface;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
@@ -68,11 +69,12 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .abbrev(2) // 2 is enough to be unique in this small repo
               .call();
 
@@ -92,11 +94,12 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .abbrev(2) // way too small to be unique in git-commit-id's repo!
               .call();
 

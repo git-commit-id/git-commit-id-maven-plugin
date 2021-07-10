@@ -24,13 +24,14 @@ import org.junit.Before;
 import org.junit.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.core.log.LogInterface;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
@@ -56,7 +57,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   @Test
   public void shouldFindAnnotatedTagWithTagsOptionNotGiven() throws Exception {
     // given
-
+    LogInterface logInterface = mock(LogInterface.class);
     // HEAD
     // lightweight-tag
     // annotated-tag
@@ -66,7 +67,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .call();
 
       // then
@@ -79,6 +80,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   @Test
   public void shouldFindLightweightTagWithTagsOptionGiven() throws Exception {
     // given
+    LogInterface logInterface = mock(LogInterface.class);
 
     // HEAD
     // lightweight-tag
@@ -89,7 +91,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -103,6 +105,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   @Test
   public void shouldFindAnnotatedTagWithMatchOptionGiven() throws Exception {
     // given
+    LogInterface logInterface = mock(LogInterface.class);
 
     // HEAD
     // lightweight-tag
@@ -113,7 +116,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .match("annotated*")
               .call();
@@ -139,6 +142,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   @Test
   public void shouldFindNewerTagWhenACommitHasTwoOrMoreTags() throws Exception {
     // given
+    LogInterface logInterface = mock(LogInterface.class);
 
     // HEAD
     // lightweight-tag
@@ -149,7 +153,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -168,6 +172,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     String snapshotTag = "0.0.1-SNAPSHOT";
     String latestTag = "OName-0.0.1";
@@ -182,7 +187,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         wrap.tag().setName(latestTag).call();
 
         DescribeResult res = DescribeCommand
-                .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+                .on(evaluateOnCommit, repo, logInterface)
                 .tags()
                 .call();
 
@@ -200,6 +205,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     String beforeTag = "OName-0.0.1";
     String latestTag = "0.0.1-SNAPSHOT";
@@ -214,7 +220,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
       }
 
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 

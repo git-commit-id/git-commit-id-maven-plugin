@@ -23,7 +23,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.core.log.LogInterface;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
@@ -34,8 +34,7 @@ import java.util.Optional;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
@@ -56,11 +55,12 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .call();
 
       // then
@@ -79,10 +79,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, logInterface));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -103,10 +104,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, logInterface));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -127,11 +129,12 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     int abbrevLength = 10;
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, logInterface));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       command
@@ -154,10 +157,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true));
+      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, logInterface);
       command.dirty(DIRTY_SUFFIX);
       DescribeResult res = command.call();
 
@@ -176,13 +180,14 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     String customDirtySuffix = "-DEV";
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeCommand command = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .dirty(customDirtySuffix);
       DescribeResult res = command.call();
 
@@ -201,6 +206,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
@@ -208,7 +214,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       }
 
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true));
+      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, logInterface);
       DescribeResult res = command.call();
 
       // then
@@ -226,13 +232,14 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -251,13 +258,14 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       git.checkout().setName("v1.0.0").call();
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -278,13 +286,14 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       git.checkout().setName("v1.0.0").call();
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .dirty(customDirtySuffix)
               .call();
@@ -304,11 +313,12 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -325,11 +335,12 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .dirty(DIRTY_SUFFIX)
               .abbrev(0)
               .call();
@@ -349,6 +360,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
@@ -357,7 +369,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .tags()
               .call();
 
@@ -409,6 +421,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withNoChildProject()
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
+    LogInterface logInterface = mock(LogInterface.class);
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
@@ -417,7 +430,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, logInterface)
               .abbrev(zeroAbbrev)
               .call();
 

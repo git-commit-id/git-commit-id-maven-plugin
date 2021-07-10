@@ -19,6 +19,7 @@ package pl.project13.maven.git;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
@@ -34,8 +35,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class GitIntegrationTest {
 
@@ -60,7 +60,7 @@ public abstract class GitIntegrationTest {
     } while (sandbox.exists());
 
     mavenSandbox = new FileSystemMavenSandbox(currSandbox);
-    mojo = new GitCommitIdMojo();
+    mojo = spy(GitCommitIdMojo.class);
     initializeMojoWithDefaults(mojo);
   }
 
@@ -105,6 +105,7 @@ public abstract class GitIntegrationTest {
 
   public static void initializeMojoWithDefaults(GitCommitIdMojo mojo) {
     mojo.verbose = false;
+    mojo.offline = true;
     mojo.skipPoms = true;
     mojo.abbrevLength = 7;
     mojo.generateGitPropertiesFile = false;
@@ -118,6 +119,8 @@ public abstract class GitIntegrationTest {
     mojo.nativeGitTimeoutInMs = (30 * 1000);
     mojo.session = mockSession();
     mojo.settings = mockSettings();
+
+    when(mojo.getLog()).thenReturn(mock(Log.class));
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {

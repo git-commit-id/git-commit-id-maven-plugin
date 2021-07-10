@@ -22,11 +22,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import pl.project13.maven.log.MojoLogHelper;
 
-import pl.project13.core.log.LoggerBridge;
-import pl.project13.maven.log.MavenLoggerBridge;
-
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,18 +33,17 @@ import java.util.regex.Pattern;
  */
 @Mojo(name = "validateRevision", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ValidationMojo extends AbstractMojo {
-
-  @Nonnull
-  private final LoggerBridge log = new MavenLoggerBridge(this, false);
-
   @Parameter(defaultValue = "true")
   private boolean validationShouldFailIfNoMatch;
+  @Parameter(defaultValue = "false")
+  private boolean verbose;
 
   @Parameter
   private List<ValidationProperty> validationProperties;
 
   @Override
   public void execute() throws MojoExecutionException {
+    MojoLogHelper mojoLogHelper = new MojoLogHelper(getLog(), verbose);
     if (validationProperties != null && validationShouldFailIfNoMatch) {
       for (ValidationProperty validationProperty: validationProperties) {
         String name = validationProperty.getName();
@@ -56,7 +52,7 @@ public class ValidationMojo extends AbstractMojo {
         if ((value != null) && (shouldMatchTo != null)) {
           validateIfValueAndShouldMatchToMatches(name, value, shouldMatchTo);
         } else {
-          printLogMessageWhenValueOrShouldMatchToIsEmpty(name, value, shouldMatchTo);
+          printLogMessageWhenValueOrShouldMatchToIsEmpty(mojoLogHelper, name, value, shouldMatchTo);
         }
       }
     }
@@ -75,12 +71,12 @@ public class ValidationMojo extends AbstractMojo {
     }
   }
 
-  private void printLogMessageWhenValueOrShouldMatchToIsEmpty(String name, String value, String shouldMatchTo) {
-    String commonLogMessage = "since one of the values was null! (value = '" + value + "'; shouldMatchTo = '" + shouldMatchTo + "').";
+  private void printLogMessageWhenValueOrShouldMatchToIsEmpty(MojoLogHelper mojoLogHelper, String name, String value, String shouldMatchTo) {
+    String commonLogMessage = String.format("since one of the values was null! (value = '%s'; shouldMatchTo = '%s').", value, shouldMatchTo);
     if (name != null) {
-      log.warn("Skipping validation '" + name + "' " + commonLogMessage);
+      mojoLogHelper.warn(String.format("Skipping validation '%s' %s", name, commonLogMessage));
     } else {
-      log.warn("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) " + commonLogMessage);
+      mojoLogHelper.warn(String.format("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) %s", commonLogMessage));
     }
   }
 

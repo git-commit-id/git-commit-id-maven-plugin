@@ -43,10 +43,9 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.log.LoggerBridge;
 import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.core.util.BuildFileChangeListener;
-import pl.project13.maven.log.MavenLoggerBridge;
+import pl.project13.maven.log.MojoLogHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -412,17 +411,14 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Charset sourceCharset = StandardCharsets.UTF_8;
 
-  @Nonnull
-  private final LoggerBridge log = new MavenLoggerBridge(this, false);
-
-  @Nonnull
-  private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
+  private MojoLogHelper log;
+  private PropertiesFilterer propertiesFilterer;
 
   @Override
   public void execute() throws MojoExecutionException {
     try {
-      // Set the verbose setting: now it should be correctly loaded from maven.
-      log.setVerbose(verbose);
+      log = new MojoLogHelper(getLog(), verbose);
+      propertiesFilterer = new PropertiesFilterer(log);
 
       // Skip mojo execution on incremental builds.
       if (buildContext != null && buildContext.isIncremental()) {
@@ -491,14 +487,14 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (dotGitDirectory != null) {
-        log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
+        log.info(String.format("dotGitDirectory %s", dotGitDirectory.getAbsolutePath()));
       } else {
         log.info("dotGitDirectory is null, aborting execution!");
         return;
       }
 
       if ((evaluateOnCommit == null) || !allowedCharactersForEvaluateOnCommit.matcher(evaluateOnCommit).matches()) {
-        log.error("suspicious argument for evaluateOnCommit, aborting execution!");
+        log.error("suspicious argument for evaluateOnCommit, aborting execution!", new IllegalStateException());
         return;
       }
 
@@ -651,12 +647,12 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void appendPropertiesToReactorProjects() {
     for (MavenProject mavenProject : reactorProjects) {
-      log.debug("Adding properties to project: {}", mavenProject.getName());
+      log.debug(String.format("Adding properties to project: %s", mavenProject.getName()));
 
       publishPropertiesInto(mavenProject.getProperties());
       mavenProject.setContextValue(CONTEXT_KEY, properties);
     }
-    log.info("Added properties to {} projects", reactorProjects.size());
+    log.info(String.format("Added properties to %s projects", reactorProjects.size()));
   }
 
   /**
@@ -671,7 +667,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void logProperties() {
     for (String propertyName : properties.stringPropertyNames()) {
-      log.info("including property {} in results", propertyName);
+      log.info(String.format("including property %s in results", propertyName));
     }
   }
 
