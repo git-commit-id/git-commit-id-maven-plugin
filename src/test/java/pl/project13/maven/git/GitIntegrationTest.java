@@ -113,6 +113,7 @@ public abstract class GitIntegrationTest {
     mojo.prefix = "git";
     mojo.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
     mojo.failOnNoGitDirectory = true;
+    mojo.failOnUnableToExtractRepoInfo = true;
     mojo.useNativeGit = false;
     mojo.commitIdGenerationMode = "full";
     mojo.evaluateOnCommit = evaluateOnCommit;

@@ -18,14 +18,10 @@
 package pl.project13.maven.git;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
@@ -43,7 +39,7 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.cibuild.BuildServerDataProvider;
+import pl.project13.core.log.LogInterface;
 import pl.project13.core.util.BuildFileChangeListener;
 import pl.project13.maven.log.MojoLogHelper;
 
@@ -418,7 +414,6 @@ public class GitCommitIdMojo extends AbstractMojo {
   public void execute() throws MojoExecutionException {
     try {
       log = new MojoLogHelper(getLog(), verbose);
-      propertiesFilterer = new PropertiesFilterer(log);
 
       // Skip mojo execution on incremental builds.
       if (buildContext != null && buildContext.isIncremental()) {
@@ -501,7 +496,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       try {
         try {
           commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
           log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
           commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
         }
@@ -519,26 +514,165 @@ public class GitCommitIdMojo extends AbstractMojo {
           properties = contextProperties;
         }
 
-        loadGitData(properties);
-        loadBuildData(properties);
-        // first round of publication and filtering (we need to make variables available for the ParameterExpressionEvaluator
-        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
-        publishToAllSystemEnvironments();
+        GitDataManager.DataProvider dp = new GitDataManager.DataProvider() {
+          @Nonnull
+          @Override
+          public LogInterface getLogInterface() {
+            return log;
+          }
 
-        // now run replacements
-        PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
-                log, new PluginParameterExpressionEvaluator(session, mojoExecution));
-        propertiesReplacer.performReplacement(properties, replacementProperties);
+          @Nullable
+          @Override
+          public String getPrefixDot() {
+            return prefixDot;
+          }
 
-        logProperties();
+          @Nullable
+          @Override
+          public List<String> getExcludeProperties() {
+            return excludeProperties;
+          }
 
-        if (generateGitPropertiesFile) {
-          BuildFileChangeListener buildFileChangeListener = file -> buildContext.refresh(file);
+          @Nullable
+          @Override
+          public List<String> getIncludeOnlyProperties() {
+            return includeOnlyProperties;
+          }
 
-          new PropertiesFileGenerator(log, buildFileChangeListener, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
-                  properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
-        }
+          @Override
+          public boolean shouldGeneratePropertiesFile() {
+            return generateGitPropertiesFile;
+          }
+
+          @Nonnull
+          @Override
+          public String getGenerateGitPropertiesFilename() {
+            return generateGitPropertiesFilename;
+          }
+
+          @Nonnull
+          @Override
+          public Charset getPropertiesOutputFileSourceCharset() {
+            return sourceCharset;
+          }
+
+          @Nonnull
+          @Override
+          public GitDataManager.PropertiesOutputFormat getPropertiesOutputFormat() {
+            GitDataManager.PropertiesOutputFormat propertiesOutputFormat;
+            try {
+              propertiesOutputFormat = GitDataManager.PropertiesOutputFormat.valueOf(format.toUpperCase());
+            } catch (IllegalArgumentException | NullPointerException e) {
+              log.warn("Detected wrong setting for 'format'. Falling back to default 'properties' mode!");
+              propertiesOutputFormat = GitDataManager.PropertiesOutputFormat.PROPERTIES;
+            }
+
+            return propertiesOutputFormat;
+          }
+
+          @Nonnull
+          @Override
+          public File getProjectBaseDir() {
+            return project.getBasedir();
+          }
+
+          @Nonnull
+          @Override
+          public String getProjectName() {
+            return project.getName();
+          }
+
+          @Nonnull
+          @Override
+          public String getProjectVersion() {
+            return project.getVersion();
+          }
+
+          @Nonnull
+          @Override
+          public String getProjectBuildOutputTimestamp() {
+            return projectBuildOutputTimestamp;
+          }
+
+          @Nonnull
+          @Override
+          public void callBeforePropertiesAreWrittenToFile(Properties p) {
+            publishToAllSystemEnvironments();
+
+            // now run replacements
+            PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
+                    log, new PluginParameterExpressionEvaluator(session, mojoExecution));
+            propertiesReplacer.performReplacement(properties, replacementProperties);
+          }
+
+          @Nonnull
+          @Override
+          public BuildFileChangeListener getBuildFileChangeListener() {
+            return file -> {
+              if (buildContext != null) {
+                buildContext.refresh(file);
+              }
+            };
+          }
+
+          @Nonnull
+          @Override
+          public String getDateFormat() {
+            return dateFormat;
+          }
+
+          @Nonnull
+          @Override
+          public String getDateFormatTimeZone() {
+            return dateFormatTimeZone;
+          }
+
+          @Override
+          public long getNativeGitTimeoutInMs() {
+            return nativeGitTimeoutInMs;
+          }
+
+          @Override
+          public int getAbbrevLength() {
+            return abbrevLength;
+          }
+
+          @Override
+          public boolean shouldRunWithNativeGit() {
+            return useNativeGit || useNativeGitViaCommandLine;
+          }
+
+          @Override
+          public GitDescribeConfig getGitDescribeConfig() {
+            return gitDescribe;
+          }
+
+          @Override
+          public CommitIdGenerationMode getCommitIdGenerationMode() {
+            return commitIdGenerationModeEnum;
+          }
+
+          @Override
+          public boolean shouldUseBranchNameFromBuildEnvironment() {
+            return useBranchNameFromBuildEnvironment;
+          }
+
+          @Override
+          public boolean shouldRunOffline() {
+            return offline || settings.isOffline();
+          }
+
+          @Override
+          public String getEvaluateOnCommit() {
+            return evaluateOnCommit;
+          }
+
+          @Override
+          public File getDotGitDirectory() {
+            return dotGitDirectory;
+          }
+        };
+        properties = new GitDataManager(dp).gatherGitData(properties);
 
         // publish properties again since we might have new properties gained by the replacement
         publishToAllSystemEnvironments();
@@ -574,54 +708,6 @@ public class GitCommitIdMojo extends AbstractMojo {
       return (Properties)stored;
     }
     return null;
-  }
-
-  private void loadBuildData(Properties properties) throws GitCommitIdExecutionException {
-    Map<String, Supplier<String>> additionalProperties = Collections.singletonMap(
-            GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
-    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
-    buildServerDataProvider
-        .setDateFormat(dateFormat)
-        .setDateFormatTimeZone(dateFormatTimeZone)
-        .setAdditionalProperties(additionalProperties)
-        .setPrefixDot(prefixDot)
-        .setExcludeProperties(excludeProperties)
-        .setIncludeOnlyProperties(includeOnlyProperties);
-
-    buildServerDataProvider.loadBuildData(properties, parseOutputTimestamp(projectBuildOutputTimestamp));
-  }
-
-  /**
-   * Parse output timestamp configured for Reproducible Builds' archive entries
-   * (https://maven.apache.org/guides/mini/guide-reproducible-builds.html).
-   * The value from <code>${project.build.outputTimestamp}</code> is either formatted as ISO 8601
-   * <code>yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like
-   * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
-   *
-   * Inspired by https://github.com/apache/maven-archiver/blob/a3103d99396cd8d3440b907ef932a33563225265/src/main/java/org/apache/maven/archiver/MavenArchiver.java#L765
-   *
-   * @param outputTimestamp the value of <code>${project.build.outputTimestamp}</code> (may be <code>null</code>)
-   * @return the parsed timestamp, may be <code>null</code> if <code>null</code> input or input contains only 1
-   *         character
-   */
-  private Date parseOutputTimestamp(String outputTimestamp) throws GitCommitIdExecutionException {
-    if (outputTimestamp != null && !outputTimestamp.trim().isEmpty() && outputTimestamp.chars().allMatch(Character::isDigit)) {
-      return new Date(Long.parseLong(outputTimestamp) * 1000);
-    }
-
-    if ((outputTimestamp == null) || (outputTimestamp.length() < 2)) {
-      // no timestamp configured
-      return null;
-    }
-
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-    try {
-      return df.parse(outputTimestamp);
-    } catch (ParseException pe) {
-      throw new GitCommitIdExecutionException(
-              "Invalid 'project.build.outputTimestamp' value '" + outputTimestamp + "'",
-              pe);
-    }
   }
 
   private void publishPropertiesInto(Properties p) {
@@ -663,60 +749,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private File lookupGitDirectory() throws GitCommitIdExecutionException {
     return new GitDirLocator(project).lookupGitDirectory(dotGitDirectory);
-  }
-
-  private void logProperties() {
-    for (String propertyName : properties.stringPropertyNames()) {
-      log.info(String.format("including property %s in results", propertyName));
-    }
-  }
-
-  private void loadGitData(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    if (useNativeGit || useNativeGitViaCommandLine) {
-      loadGitDataWithNativeGit(properties);
-    } else {
-      loadGitDataWithJGit(properties);
-    }
-  }
-
-  private void loadGitDataWithNativeGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    try {
-      final File basedir = project.getBasedir().getCanonicalFile();
-
-      GitDataProvider nativeGitProvider = NativeGitProvider
-              .on(basedir, nativeGitTimeoutInMs, log)
-              .setPrefixDot(prefixDot)
-              .setAbbrevLength(abbrevLength)
-              .setDateFormat(dateFormat)
-              .setDateFormatTimeZone(dateFormatTimeZone)
-              .setGitDescribe(gitDescribe)
-              .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
-              .setExcludeProperties(excludeProperties)
-              .setIncludeOnlyProperties(includeOnlyProperties)
-              .setOffline(offline || settings.isOffline());
-
-      nativeGitProvider.loadGitData(evaluateOnCommit, properties);
-    } catch (IOException e) {
-      throw new GitCommitIdExecutionException(e);
-    }
-  }
-
-  private void loadGitDataWithJGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    GitDataProvider jGitProvider = JGitProvider
-        .on(dotGitDirectory, log)
-        .setPrefixDot(prefixDot)
-        .setAbbrevLength(abbrevLength)
-        .setDateFormat(dateFormat)
-        .setDateFormatTimeZone(dateFormatTimeZone)
-        .setGitDescribe(gitDescribe)
-        .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
-        .setExcludeProperties(excludeProperties)
-        .setIncludeOnlyProperties(includeOnlyProperties)
-        .setOffline(offline || settings.isOffline());
-
-    jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
 
   private boolean isPomProject(@Nonnull MavenProject project) {
