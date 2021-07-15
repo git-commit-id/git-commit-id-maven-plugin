@@ -12,6 +12,7 @@
     <groupId>io.github.git-commit-id</groupId>
     <artifactId>git-commit-id-plugin-core</artifactId>
     <name>Git Commit Id Plugin Core</name>
+    <version>4.9.9-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
