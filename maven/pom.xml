@@ -11,7 +11,7 @@
   <groupId>io.github.git-commit-id</groupId>
   <artifactId>git-commit-id-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>4.9.9-SNAPSHOT</version>
+  <version>4.9.9</version>
   <name>Git Commit Id Maven Plugin</name>
   <description>
     This plugin makes basic repository information available through maven resources. This can be used to display
@@ -330,4 +330,8 @@
       </build>
     </profile>
   </profiles>
+
+  <scm>
+    <tag>v4.9.9</tag>
+  </scm>
 </project>
