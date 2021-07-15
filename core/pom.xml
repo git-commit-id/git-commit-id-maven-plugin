@@ -5,10 +5,11 @@
     <parent>
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin-parent</artifactId>
-        <version>5.0.0-SNAPSHOT</version>
+        <version>4.9.9-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <groupId>io.github.git-commit-id</groupId>
     <artifactId>git-commit-id-plugin-core</artifactId>
     <name>Git Commit Id Plugin Core</name>
 
@@ -20,6 +21,17 @@
         <jgit.version>5.12.0.202106070339-r</jgit.version>
         <junit.version>4.13.2</junit.version>
     </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>

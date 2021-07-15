@@ -4,13 +4,14 @@
   <parent>
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-parent</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>4.9.9-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>git-commit-id-plugin</artifactId>
+  <groupId>io.github.git-commit-id</groupId>
+  <artifactId>git-commit-id-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>5.0.0-SNAPSHOT</version>
+  <version>4.9.9-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
   <description>
     This plugin makes basic repository information available through maven resources. This can be used to display
@@ -22,6 +23,17 @@
   <prerequisites>
     <maven>[${maven-plugin-api.version},)</maven>
   </prerequisites>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
