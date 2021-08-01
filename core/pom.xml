@@ -9,7 +9,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>io.github.git-commit-id</groupId>
+    <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-core</artifactId>
     <name>Git Commit Id Plugin Core</name>
     <version>4.9.10-SNAPSHOT</version>
@@ -26,12 +26,16 @@
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <!-- include relocation information -->
+        <relocation>
+            <groupId>io.github.git-commit-id</groupId>
+        </relocation>
     </distributionManagement>
 
     <build>

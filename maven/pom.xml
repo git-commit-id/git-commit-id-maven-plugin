@@ -8,8 +8,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>io.github.git-commit-id</groupId>
-  <artifactId>git-commit-id-maven-plugin</artifactId>
+  <groupId>pl.project13.maven</groupId>
+  <artifactId>git-commit-id-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <version>4.9.10-SNAPSHOT</version>
   <name>Git Commit Id Maven Plugin</name>
@@ -27,12 +27,17 @@
   <distributionManagement>
     <snapshotRepository>
       <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
     <repository>
       <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
+    <!-- include relocation information -->
+    <relocation>
+      <groupId>io.github.git-commit-id</groupId>
+      <artifactId>git-commit-id-maven-plugin</artifactId>
+    </relocation>
   </distributionManagement>
 
   <properties>
@@ -249,8 +254,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.github.git-commit-id</groupId>
-            <artifactId>git-commit-id-maven-plugin</artifactId>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
             <version>${project.version}</version>
             <!-- optional to change the phases of the individual mojo's -->
             <executions>
