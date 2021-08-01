@@ -33,11 +33,19 @@
       <id>ossrh</id>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
-    <!-- include relocation information -->
+    <!--
+    We should include relocation information, but if we do
+    maven fails with "Could not find artifact io.github.git-commit-id:git-commit-id-maven-plugin:jar:${version}".
+    If we publish a release under the new coordinates, maven silent ignores the plugin settings
+    when we happen to use the old coordinates in our config
+    (https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/571).
+
+    As a result: The plugin is moving to a new location, but we can't encode it in the pom :-(
     <relocation>
       <groupId>io.github.git-commit-id</groupId>
       <artifactId>git-commit-id-maven-plugin</artifactId>
     </relocation>
+    -->
   </distributionManagement>
 
   <properties>
