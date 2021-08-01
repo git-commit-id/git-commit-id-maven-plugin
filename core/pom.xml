@@ -5,14 +5,14 @@
     <parent>
         <groupId>pl.project13.maven</groupId>
         <artifactId>git-commit-id-plugin-parent</artifactId>
-        <version>4.9.10</version>
+        <version>4.9.11-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>pl.project13.maven</groupId>
     <artifactId>git-commit-id-plugin-core</artifactId>
     <name>Git Commit Id Plugin Core</name>
-    <version>4.9.10</version>
+    <version>4.9.11-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
