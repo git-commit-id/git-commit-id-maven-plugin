@@ -51,6 +51,8 @@ You can check the available versions by visiting [search.maven.org](https://sear
 
 Plugin compatibility with Java
 -------------------------------
+Here is an overview of the current plugin compatibility with Java
+
 | Plugin Version  | Required Java Version |
 | --------------- | ---------------------:|
 | 2.1.X           | Java 1.6              |

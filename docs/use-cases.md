@@ -1,5 +1,6 @@
 Use cases
 =========
+
 Which version had the bug? Is that deployed already?
 ----------------------------------------------------
 If you develop your maven project inside an git repository you may want to know exactly what changeset is currently deployed. Why is this useful? 
