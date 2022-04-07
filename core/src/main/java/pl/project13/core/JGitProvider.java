@@ -25,6 +25,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.RevWalkUtils;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.util.FS;
 
 import pl.project13.core.jgit.DescribeResult;
 import pl.project13.core.jgit.JGitCommon;
@@ -58,6 +59,7 @@ public class JGitProvider extends GitDataProvider {
   JGitProvider(@Nonnull File dotGitDirectory, @Nonnull LoggerBridge log) {
     super(log);
     this.dotGitDirectory = dotGitDirectory;
+    FS.FileStoreAttributes.setBackground(true);
     this.jGitCommon = new JGitCommon(log);
   }
 
