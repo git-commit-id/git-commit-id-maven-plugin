@@ -96,27 +96,27 @@ public class GitCommitIdMojo extends AbstractMojo {
    * See <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
    * </p>
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.injectAllReactorProjects", defaultValue = "false")
   boolean injectAllReactorProjects;
 
   /**
    * Set this to {@code 'true'} to print more info while scanning for paths.
    * It will make git-commit-id "eat its own dog food" :-)
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.verbose", defaultValue = "false")
   boolean verbose;
 
   /**
    * Set this to {@code 'false'} to execute plugin in 'pom' packaged projects.
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.skipPoms", defaultValue = "true")
   boolean skipPoms;
 
   /**
    * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
    * By default plugin only adds properties to maven project properties.
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.generateGitPropertiesFile", defaultValue = "false")
   boolean generateGitPropertiesFile;
 
   /**
@@ -125,13 +125,13 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>The path here is relative to your project src directory.</p>
    */
-  @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
+  @Parameter(property = "maven.gitcommitid.generateGitPropertiesFilename", defaultValue = "${project.build.outputDirectory}/git.properties")
   String generateGitPropertiesFilename;
 
   /**
    * The root directory of the repository we want to check.
    */
-  @Parameter(defaultValue = "${project.basedir}/.git")
+  @Parameter(property = "maven.gitcommitid.dotGitDirectory", defaultValue = "${project.basedir}/.git")
   File dotGitDirectory;
 
   /**
@@ -154,19 +154,19 @@ public class GitCommitIdMojo extends AbstractMojo {
    * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
    *
    */
-  @Parameter(defaultValue = "7")
+  @Parameter(property = "maven.gitcommitid.abbrevLength", defaultValue = "7")
   int abbrevLength;
 
   /**
    * The format to save properties in: {@code 'properties'} or {@code 'json'}.
    */
-  @Parameter(defaultValue = "properties")
+  @Parameter(property = "maven.gitcommitid.format", defaultValue = "properties")
   String format;
 
   /**
    * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
    */
-  @Parameter(defaultValue = "git")
+  @Parameter(property = "maven.gitcommitid.prefix", defaultValue = "git")
   String prefix;
   // prefix with dot appended if needed
   private String prefixDot = "";
@@ -174,7 +174,7 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
    */
-  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
+  @Parameter(property = "maven.gitcommitid.dateFormat", defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
   String dateFormat;
 
   /**
@@ -184,13 +184,13 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
    * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
    */
-  @Parameter
+  @Parameter(property = "maven.gitcommitid.dateFormatTimeZone")
   String dateFormatTimeZone;
 
   /**
    * Set this to {@code 'false'} to continue the build on missing {@code '.git'} directory.
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.failOnNoGitDirectory", defaultValue = "true")
   boolean failOnNoGitDirectory;
 
   /**
@@ -203,7 +203,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>See <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/63">issue #63</a>
    * for a rationale behind this flag.</p>
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.failOnUnableToExtractRepoInfo", defaultValue = "true")
   boolean failOnUnableToExtractRepoInfo;
 
   /**
@@ -213,7 +213,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.1.9
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.useNativeGit", defaultValue = "false")
   boolean useNativeGit;
 
   /**
@@ -258,7 +258,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * <p>The git.* maven properties are available in all modules.</p>
    * @since 2.1.12
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.runOnlyOnce", defaultValue = "false")
   boolean runOnlyOnce;
 
   /**
@@ -308,7 +308,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * the plugin will output a warning and will fallback to the default {@code 'flat'} mode.</p>
    * @since 2.2.0
    */
-  @Parameter(defaultValue = "flat")
+  @Parameter(property = "maven.gitcommitid.commitIdGenerationMode", defaultValue = "flat")
   String commitIdGenerationMode;
   private CommitIdGenerationMode commitIdGenerationModeEnum;
 
@@ -336,7 +336,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * If you have a specific use-case that is currently not white listed feel free to file an issue.
    * @since 2.2.4
    */
-  @Parameter(defaultValue = "HEAD")
+  @Parameter(property = "maven.gitcommitid.evaluateOnCommit", defaultValue = "HEAD")
   String evaluateOnCommit;
   /**
    * The plugin allows to specify branch/tag/commit used when finding 'HEAD'.
@@ -350,7 +350,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Note that {@code useNativeGit} needs to be set to {@code 'true'} to use native Git executable.
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "30000")
+  @Parameter(property = "maven.gitcommitid.nativeGitTimeoutInMs", defaultValue = "30000")
   long nativeGitTimeoutInMs;
 
   /**
@@ -360,7 +360,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * detached head state and therefore a commit id as branch name.
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.useBranchNameFromBuildEnvironment", defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
 
 
@@ -368,7 +368,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * Controls if this plugin should expose the generated properties into System.properties
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.injectIntoSysProperties", defaultValue = "true")
   boolean injectIntoSysProperties;
 
   /**
@@ -380,7 +380,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 3.0.1
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.offline", defaultValue = "true")
   boolean offline;
 
   /**
