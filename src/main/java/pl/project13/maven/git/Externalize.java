@@ -157,7 +157,6 @@ public class Externalize {
     /**
      * <p>The mode of {@code 'git.commit.id'} property generation.</p>
      *
-     * <p>
      * {@code 'git.commit.id'} property name is incompatible with json export
      * (see <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/122">issue #122</a>).
      * This property allows one either to preserve backward compatibility or to enable fully valid json export:
@@ -166,7 +165,6 @@ public class Externalize {
      * <li>{@code 'flat'} (default) generates the property {@code 'git.commit.id'}, preserving backwards compatibility.</li>
      * <li>{@code 'full'} generates the property {@code 'git.commit.id.full'}, enabling fully valid json object export.</li>
      * </ol>
-     * </p>
      *
      * <p><b>Note:</b> Depending on your plugin configuration you obviously can choose the `prefix` of your properties
      * by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration
