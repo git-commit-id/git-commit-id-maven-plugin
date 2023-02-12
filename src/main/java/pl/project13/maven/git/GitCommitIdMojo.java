@@ -18,7 +18,6 @@
 package pl.project13.maven.git;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
@@ -167,8 +166,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "git")
   String prefix;
-  // prefix with dot appended if needed
-  private String prefixDot = "";
 
   /**
    * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
@@ -401,20 +398,12 @@ public class GitCommitIdMojo extends AbstractMojo {
   private BuildContext buildContext;
 
   /**
-   * The properties we store our data in and then expose them.
-   */
-  private Properties properties;
-
-  /**
    * Charset to read-write project sources.
    */
   private Charset sourceCharset = StandardCharsets.UTF_8;
 
   @Nonnull
   private final LoggerBridge log = new MavenLoggerBridge(this, false);
-
-  @Nonnull
-  private PropertiesFilterer propertiesFilterer = new PropertiesFilterer(log);
 
   @Override
   public void execute() throws MojoExecutionException {
@@ -535,7 +524,8 @@ public class GitCommitIdMojo extends AbstractMojo {
           @Nonnull
           @Override
           public String getPrefixDot() {
-            return prefixDot;
+            String trimmedPrefix = prefix.trim();
+            return trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
           }
 
           @Override
@@ -598,13 +588,58 @@ public class GitCommitIdMojo extends AbstractMojo {
           public File getDotGitDirectory() {
             return dotGitDirectory;
           }
+
+          @Override
+          public boolean shouldGenerateGitPropertiesFile() {
+            return generateGitPropertiesFile;
+          }
+
+          @Override
+          public void performPublishToAllSystemEnvironments(Properties properties) {
+            publishToAllSystemEnvironments(properties);
+          }
+
+          @Override
+          public void performPropertiesReplacement(Properties properties) {
+            PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
+                    log, new PluginParameterExpressionEvaluator(session, mojoExecution));
+            propertiesReplacer.performReplacement(properties, replacementProperties);
+
+            logProperties(properties);
+          }
+
+          @Override
+          public String getPropertiesOutputFormat() {
+            return format;
+          }
+
+          @Override
+          public BuildContext getBuildContext() {
+            return buildContext;
+          }
+
+          @Override
+          public String getProjectName() {
+            return project.getName();
+          }
+
+          @Override
+          public File getProjectBaseDir() {
+            return project.getBasedir();
+          }
+
+          @Override
+          public String getGenerateGitPropertiesFilename() {
+            return generateGitPropertiesFilename;
+          }
+
+          @Override
+          public Charset getPropertiesSourceCharset() {
+            return sourceCharset;
+          }
         };
 
-        properties = new Properties();
-
-        String trimmedPrefix = prefix.trim();
-        prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
-
+        Properties properties = null;
         // check if properties have already been injected
         Properties contextProperties = getContextProperties(project);
         boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
@@ -613,28 +648,7 @@ public class GitCommitIdMojo extends AbstractMojo {
           properties = contextProperties;
         }
 
-        Externalize.loadGitData(cb, properties);
-        Externalize.loadBuildData(cb, properties);
-        // first round of publication and filtering (we need to make variables available for the ParameterExpressionEvaluator
-        propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
-        propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
-        publishToAllSystemEnvironments();
-
-        // now run replacements
-        PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
-                log, new PluginParameterExpressionEvaluator(session, mojoExecution));
-        propertiesReplacer.performReplacement(properties, replacementProperties);
-
-        logProperties();
-
-        if (generateGitPropertiesFile) {
-          new PropertiesFileGenerator(log, buildContext, format, prefixDot, project.getName()).maybeGeneratePropertiesFile(
-                  properties, project.getBasedir(), generateGitPropertiesFilename, sourceCharset);
-        }
-
-        // publish properties again since we might have new properties gained by the replacement
-        publishToAllSystemEnvironments();
-
+        Externalize.runPlugin(cb, properties);
       } catch (Exception e) {
         handlePluginFailure(e);
       }
@@ -643,19 +657,19 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void publishToAllSystemEnvironments() {
-    publishPropertiesInto(project.getProperties());
+  private void publishToAllSystemEnvironments(Properties propertiesToPublish) {
+    publishPropertiesInto(propertiesToPublish, project.getProperties());
     // some plugins rely on the user properties (e.g. flatten-maven-plugin)
-    publishPropertiesInto(session.getUserProperties());
+    publishPropertiesInto(propertiesToPublish, session.getUserProperties());
 
     if (injectAllReactorProjects) {
-      appendPropertiesToReactorProjects();
+      appendPropertiesToReactorProjects(propertiesToPublish);
     }
 
     if (injectIntoSysProperties) {
-      publishPropertiesInto(System.getProperties());
-      publishPropertiesInto(session.getSystemProperties());
-      publishPropertiesInto(session.getRequest().getSystemProperties());
+      publishPropertiesInto(propertiesToPublish, System.getProperties());
+      publishPropertiesInto(propertiesToPublish, session.getSystemProperties());
+      publishPropertiesInto(propertiesToPublish, session.getRequest().getSystemProperties());
     }
   }
 
@@ -701,9 +715,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void publishPropertiesInto(Properties p) {
-    for (String propertyName : properties.stringPropertyNames()) {
-      p.setProperty(propertyName, properties.getProperty(propertyName));
+  private void publishPropertiesInto(Properties propertiesToPublish, Properties propertiesTarget) {
+    for (String propertyName : propertiesToPublish.stringPropertyNames()) {
+      propertiesTarget.setProperty(propertyName, propertiesToPublish.getProperty(propertyName));
     }
   }
 
@@ -722,12 +736,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void appendPropertiesToReactorProjects() {
+  private void appendPropertiesToReactorProjects(Properties propertiesToPublish) {
     for (MavenProject mavenProject : reactorProjects) {
       log.debug("Adding properties to project: {}", mavenProject.getName());
 
-      publishPropertiesInto(mavenProject.getProperties());
-      mavenProject.setContextValue(CONTEXT_KEY, properties);
+      publishPropertiesInto(propertiesToPublish, mavenProject.getProperties());
+      mavenProject.setContextValue(CONTEXT_KEY, propertiesToPublish);
     }
     log.info("Added properties to {} projects", reactorProjects.size());
   }
@@ -742,8 +756,8 @@ public class GitCommitIdMojo extends AbstractMojo {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
-  private void logProperties() {
-    for (String propertyName : properties.stringPropertyNames()) {
+  private void logProperties(Properties propertiesToPublish) {
+    for (String propertyName : propertiesToPublish.stringPropertyNames()) {
       log.info("including property {} in results", propertyName);
     }
   }

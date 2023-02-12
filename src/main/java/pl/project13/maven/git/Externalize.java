@@ -1,5 +1,6 @@
 package pl.project13.maven.git;
 
+import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.*;
 import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.core.git.GitDescribeConfig;
@@ -8,7 +9,7 @@ import pl.project13.core.log.LoggerBridge;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.io.IOException;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
@@ -172,6 +173,91 @@ public class Externalize {
          * The root directory of the repository we want to check.
          */
         File getDotGitDirectory();
+
+        /**
+         * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
+         * By default plugin only adds properties to maven project properties.
+         */
+        boolean shouldGenerateGitPropertiesFile();
+
+        /**
+         * Callback when the plugin wants to publish a set of properties.
+         * @param properties The properties the plugin want's to publish to the user.
+         */
+        void performPublishToAllSystemEnvironments(Properties properties);
+
+        /**
+         * Callback when the plugin wants to perform the properties replacement.
+         * @param properties The current set of properties.
+         */
+        void performPropertiesReplacement(Properties properties);
+
+        /**
+         * Defines the output format of the generated properties file.
+         * Can either be "properties" or "json"
+         */
+        // TODO: Why is this a String and not an enum?
+        String getPropertiesOutputFormat();
+
+        // TODO: Huh why is this here?
+        @Deprecated
+        BuildContext getBuildContext();
+
+        /**
+         * Get's the project name
+         */
+        String getProjectName();
+
+        /**
+         * Get's the project base dir
+         */
+        File getProjectBaseDir();
+
+        /**
+         * @return the optional name of the properties filename where properties should be dumped into
+         */
+        String getGenerateGitPropertiesFilename();
+
+        /**
+         * @return The Charset in which format the properties should be dumped (e.g. 'UTF-8')
+         */
+        Charset getPropertiesSourceCharset();
+    }
+
+    protected static void runPlugin(@Nonnull Callback cb, @Nullable Properties contextProperties) throws GitCommitIdExecutionException {
+        PropertiesFilterer propertiesFilterer = new PropertiesFilterer(cb.getLoggerBridge());
+
+        // The properties we store our data in and then expose them.
+        Properties properties = contextProperties == null
+                ? new Properties()
+                : contextProperties;
+
+        loadGitData(cb, properties);
+        loadBuildData(cb, properties);
+        // first round of publication and filtering
+        // (we need to make variables available for the ParameterExpressionEvaluator)
+        propertiesFilterer.filter(properties, cb.getIncludeOnlyProperties(), cb.getPrefixDot());
+        propertiesFilterer.filterNot(properties, cb.getExcludeProperties(), cb.getPrefixDot());
+        cb.performPublishToAllSystemEnvironments(properties);
+
+        cb.performPropertiesReplacement(properties);
+        if (cb.shouldGenerateGitPropertiesFile()) {
+            new PropertiesFileGenerator(
+                    cb.getLoggerBridge(),
+                    cb.getBuildContext(),
+                    cb.getPropertiesOutputFormat(),
+                    cb.getPrefixDot(),
+                    cb.getProjectName()
+            ).maybeGeneratePropertiesFile(
+                    properties,
+                    cb.getProjectBaseDir(),
+                    cb.getGenerateGitPropertiesFilename(),
+                    cb.getPropertiesSourceCharset()
+            );
+        }
+
+        // publish properties again since we might have new properties gained by the replacement
+        cb.performPublishToAllSystemEnvironments(properties);
     }
 
     protected static void loadBuildData(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
