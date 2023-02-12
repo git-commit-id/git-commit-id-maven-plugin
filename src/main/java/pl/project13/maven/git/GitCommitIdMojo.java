@@ -490,168 +490,164 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       try {
-        try {
-          commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
-        } catch (IllegalArgumentException e) {
-          log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
-          commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
-        }
-
-        final Externalize.Callback cb = new Externalize.Callback() {
-          @Override
-          public Supplier<String> supplyProjectVersion() {
-            return () -> project.getVersion();
-          }
-
-          @Nonnull
-          @Override
-          public LoggerBridge getLoggerBridge() {
-            return log;
-          }
-
-          @Nonnull
-          @Override
-          public String getDateFormat() {
-            return dateFormat;
-          }
-
-          @Nonnull
-          @Override
-          public String getDateFormatTimeZone() {
-            return dateFormatTimeZone;
-          }
-
-          @Nonnull
-          @Override
-          public String getPrefixDot() {
-            String trimmedPrefix = prefix.trim();
-            return trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
-          }
-
-          @Override
-          public List<String> getExcludeProperties() {
-            return excludeProperties;
-          }
-
-          @Override
-          public List<String> getIncludeOnlyProperties() {
-            return includeOnlyProperties;
-          }
-
-          @Nullable
-          @Override
-          public Date getReproducibleBuildOutputTimestamp() throws GitCommitIdExecutionException {
-            return parseOutputTimestamp(projectBuildOutputTimestamp);
-          }
-
-          @Override
-          public boolean useNativeGit() {
-            return useNativeGit || useNativeGitViaCommandLine;
-          }
-
-          @Override
-          public long getNativeGitTimeoutInMs() {
-            return nativeGitTimeoutInMs;
-          }
-
-          @Override
-          public int getAbbrevLength() {
-            return abbrevLength;
-          }
-
-          @Override
-          public GitDescribeConfig getGitDescribe() {
-            return gitDescribe;
-          }
-
-          @Override
-          public CommitIdGenerationMode getCommitIdGenerationMode() {
-            return commitIdGenerationModeEnum;
-          }
-
-          @Override
-          public boolean getUseBranchNameFromBuildEnvironment() {
-            return useBranchNameFromBuildEnvironment;
-          }
-
-          @Override
-          public boolean isOffline() {
-            return offline || settings.isOffline();
-          }
-
-          @Override
-          public String getEvaluateOnCommit() {
-            return evaluateOnCommit;
-          }
-
-          @Override
-          public File getDotGitDirectory() {
-            return dotGitDirectory;
-          }
-
-          @Override
-          public boolean shouldGenerateGitPropertiesFile() {
-            return generateGitPropertiesFile;
-          }
-
-          @Override
-          public void performPublishToAllSystemEnvironments(Properties properties) {
-            publishToAllSystemEnvironments(properties);
-          }
-
-          @Override
-          public void performPropertiesReplacement(Properties properties) {
-            PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
-                    log, new PluginParameterExpressionEvaluator(session, mojoExecution));
-            propertiesReplacer.performReplacement(properties, replacementProperties);
-
-            logProperties(properties);
-          }
-
-          @Override
-          public String getPropertiesOutputFormat() {
-            return format;
-          }
-
-          @Override
-          public BuildContext getBuildContext() {
-            return buildContext;
-          }
-
-          @Override
-          public String getProjectName() {
-            return project.getName();
-          }
-
-          @Override
-          public File getProjectBaseDir() {
-            return project.getBasedir();
-          }
-
-          @Override
-          public String getGenerateGitPropertiesFilename() {
-            return generateGitPropertiesFilename;
-          }
-
-          @Override
-          public Charset getPropertiesSourceCharset() {
-            return sourceCharset;
-          }
-        };
-
-        Properties properties = null;
-        // check if properties have already been injected
-        Properties contextProperties = getContextProperties(project);
-        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
-        if (alreadyInjected) {
-          log.info("injectAllReactorProjects is enabled - attempting to use the already computed values");
-          properties = contextProperties;
-        }
-
-        Externalize.runPlugin(cb, properties);
-      } catch (Exception e) {
-        handlePluginFailure(e);
+        commitIdGenerationModeEnum = CommitIdGenerationMode.valueOf(commitIdGenerationMode.toUpperCase());
+      } catch (IllegalArgumentException e) {
+        log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
+        commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
       }
+
+      final Externalize.Callback cb = new Externalize.Callback() {
+        @Override
+        public Supplier<String> supplyProjectVersion() {
+          return () -> project.getVersion();
+        }
+
+        @Nonnull
+        @Override
+        public LoggerBridge getLoggerBridge() {
+          return log;
+        }
+
+        @Nonnull
+        @Override
+        public String getDateFormat() {
+          return dateFormat;
+        }
+
+        @Nonnull
+        @Override
+        public String getDateFormatTimeZone() {
+          return dateFormatTimeZone;
+        }
+
+        @Nonnull
+        @Override
+        public String getPrefixDot() {
+          String trimmedPrefix = prefix.trim();
+          return trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
+        }
+
+        @Override
+        public List<String> getExcludeProperties() {
+          return excludeProperties;
+        }
+
+        @Override
+        public List<String> getIncludeOnlyProperties() {
+          return includeOnlyProperties;
+        }
+
+        @Nullable
+        @Override
+        public Date getReproducibleBuildOutputTimestamp() throws GitCommitIdExecutionException {
+          return parseOutputTimestamp(projectBuildOutputTimestamp);
+        }
+
+        @Override
+        public boolean useNativeGit() {
+          return useNativeGit || useNativeGitViaCommandLine;
+        }
+
+        @Override
+        public long getNativeGitTimeoutInMs() {
+          return nativeGitTimeoutInMs;
+        }
+
+        @Override
+        public int getAbbrevLength() {
+          return abbrevLength;
+        }
+
+        @Override
+        public GitDescribeConfig getGitDescribe() {
+          return gitDescribe;
+        }
+
+        @Override
+        public CommitIdGenerationMode getCommitIdGenerationMode() {
+          return commitIdGenerationModeEnum;
+        }
+
+        @Override
+        public boolean getUseBranchNameFromBuildEnvironment() {
+          return useBranchNameFromBuildEnvironment;
+        }
+
+        @Override
+        public boolean isOffline() {
+          return offline || settings.isOffline();
+        }
+
+        @Override
+        public String getEvaluateOnCommit() {
+          return evaluateOnCommit;
+        }
+
+        @Override
+        public File getDotGitDirectory() {
+          return dotGitDirectory;
+        }
+
+        @Override
+        public boolean shouldGenerateGitPropertiesFile() {
+          return generateGitPropertiesFile;
+        }
+
+        @Override
+        public void performPublishToAllSystemEnvironments(Properties properties) {
+          publishToAllSystemEnvironments(properties);
+        }
+
+        @Override
+        public void performPropertiesReplacement(Properties properties) {
+          PropertiesReplacer propertiesReplacer = new PropertiesReplacer(
+                  log, new PluginParameterExpressionEvaluator(session, mojoExecution));
+          propertiesReplacer.performReplacement(properties, replacementProperties);
+
+          logProperties(properties);
+        }
+
+        @Override
+        public String getPropertiesOutputFormat() {
+          return format;
+        }
+
+        @Override
+        public BuildContext getBuildContext() {
+          return buildContext;
+        }
+
+        @Override
+        public String getProjectName() {
+          return project.getName();
+        }
+
+        @Override
+        public File getProjectBaseDir() {
+          return project.getBasedir();
+        }
+
+        @Override
+        public String getGenerateGitPropertiesFilename() {
+          return generateGitPropertiesFilename;
+        }
+
+        @Override
+        public Charset getPropertiesSourceCharset() {
+          return sourceCharset;
+        }
+      };
+
+      Properties properties = null;
+      // check if properties have already been injected
+      Properties contextProperties = getContextProperties(project);
+      boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
+      if (alreadyInjected) {
+        log.info("injectAllReactorProjects is enabled - attempting to use the already computed values");
+        properties = contextProperties;
+      }
+
+      Externalize.runPlugin(cb, properties);
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
