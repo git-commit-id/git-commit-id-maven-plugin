@@ -478,6 +478,14 @@
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <!-- https://github.com/trautonen/coveralls-maven-plugin/issues/141 -->
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>2.2.3</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>checkstyle</id>
