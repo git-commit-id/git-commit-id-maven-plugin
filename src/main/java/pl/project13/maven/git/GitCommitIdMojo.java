@@ -508,19 +508,6 @@ public class GitCommitIdMojo extends AbstractMojo {
           commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
         }
 
-        properties = new Properties();
-
-        String trimmedPrefix = prefix.trim();
-        prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
-
-        // check if properties have already been injected
-        Properties contextProperties = getContextProperties(project);
-        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
-        if (alreadyInjected) {
-          log.info("injectAllReactorProjects is enabled - attempting to use the already computed values");
-          properties = contextProperties;
-        }
-
         final Externalize.Callback cb = new Externalize.Callback() {
           @Override
           public Supplier<String> supplyProjectVersion() {
@@ -612,6 +599,19 @@ public class GitCommitIdMojo extends AbstractMojo {
             return dotGitDirectory;
           }
         };
+
+        properties = new Properties();
+
+        String trimmedPrefix = prefix.trim();
+        prefixDot = trimmedPrefix.equals("") ? "" : trimmedPrefix + ".";
+
+        // check if properties have already been injected
+        Properties contextProperties = getContextProperties(project);
+        boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
+        if (alreadyInjected) {
+          log.info("injectAllReactorProjects is enabled - attempting to use the already computed values");
+          properties = contextProperties;
+        }
 
         Externalize.loadGitData(cb, properties);
         Externalize.loadBuildData(cb, properties);
