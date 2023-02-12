@@ -107,6 +107,7 @@ public class Externalize {
      * <code>yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like
      * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
      *
+     * @throws GitCommitIdExecutionException In case the user provided time stamp is invalid a GitCommitIdExecutionException is thrown
      * @return Timestamp for reproducible output archive entries.
      */
     @Nullable
@@ -156,7 +157,8 @@ public class Externalize {
     /**
      * <p>The mode of {@code 'git.commit.id'} property generation.</p>
      *
-     * <p>{@code 'git.commit.id'} property name is incompatible with json export
+     * <p>
+     * {@code 'git.commit.id'} property name is incompatible with json export
      * (see <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/122">issue #122</a>).
      * This property allows one either to preserve backward compatibility or to enable fully valid json export:
      *
