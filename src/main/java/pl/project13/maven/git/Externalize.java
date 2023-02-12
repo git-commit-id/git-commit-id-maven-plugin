@@ -1,3 +1,20 @@
+/*
+ * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ *
+ * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * git-commit-id-maven-plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with git-commit-id-maven-plugin.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package pl.project13.maven.git;
 
 import org.sonatype.plexus.build.incremental.BuildContext;
@@ -41,12 +58,16 @@ public class Externalize {
          *
          * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
          * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
+         *
+         * @return The timezone used in the date format of dates exported by this plugin.
          */
         @Nonnull
         String getDateFormatTimeZone();
 
         /**
          * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
+         *
+         * @return The prefix to expose the properties on.
          */
         @Nonnull
         String getPrefixDot();
@@ -60,6 +81,8 @@ public class Externalize {
          * as well as {@code 'email'} properties from being emitted into the resulting files.</p>
          *
          * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
+         *
+         * @return List of properties to exclude
          */
         List<String> getExcludeProperties();
 
@@ -71,6 +94,8 @@ public class Externalize {
          * as well as {@code 'email'} properties into the resulting files.</p>
          *
          * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
+         *
+         * @return List of properties to include
          */
         List<String> getIncludeOnlyProperties();
 
@@ -80,6 +105,8 @@ public class Externalize {
          * The value from <code>${project.build.outputTimestamp}</code> is either formatted as ISO 8601
          * <code>yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like
          * <a href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
+         *
+         * @return Timestamp for reproducible output archive entries.
          */
         @Nullable
         Date getReproducibleBuildOutputTimestamp() throws GitCommitIdExecutionException;
@@ -88,12 +115,16 @@ public class Externalize {
          * Set this to {@code 'true'} to use native Git executable to fetch information about the repository.
          * It is in most cases faster but requires a git executable to be installed in system.
          * By default the plugin will use jGit implementation as a source of information about the repository.
+         *
+         * @return Controls if this plugin should use the native Git executable.
          */
         boolean useNativeGit();
 
         /**
          * Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
          * Note that {@code useNativeGit} needs to be set to {@code 'true'} to use native Git executable.
+         *
+         * @return A timeout (in milliseconds) for fetching information with the native Git executable.
          */
         long getNativeGitTimeoutInMs();
 
@@ -108,12 +139,16 @@ public class Externalize {
          * <p><b>Example:</b> You have a very big repository, yet you set this value to 2. It's very probable that you'll end up
          * getting a 4 or 7 char long abbrev version of the commit id. If your repository, on the other hand,
          * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
+         *
+         * @return Minimum length of {@code 'git.commit.id.abbrev'} property.
          */
         int getAbbrevLength();
 
         /**
          * Configuration for the {@code 'git-describe'} command.
          * You can modify the dirty marker, abbrev length and other options here.
+         *
+         * @return Configuration for the {@code 'git-describe'} command.
          */
         GitDescribeConfig getGitDescribe();
 
@@ -135,6 +170,8 @@ public class Externalize {
          * what the switch means when the 'prefix' is set to it's default value.</p>
          * <p><b>Note:</b> If you set the value to something that's not equal to {@code 'flat'} or {@code 'full'} (ignoring the case)
          * the plugin will output a warning and will fallback to the default {@code 'flat'} mode.</p>
+         *
+         * @return The mode of {@code 'git.commit.id'} property generation.
          */
         CommitIdGenerationMode getCommitIdGenerationMode();
 
@@ -143,6 +180,8 @@ public class Externalize {
          * Useful when using the JGitflow maven plugin.
          * Note: If not using "Check out to specific local branch' and setting this to false may result in getting
          * detached head state and therefore a commit id as branch name.
+         *
+         * @return Controls if the branch name from build environment should be used.
          */
         boolean getUseBranchNameFromBuildEnvironment();
 
@@ -152,6 +191,8 @@ public class Externalize {
          *
          * :warning: Before version 5.X.X the default was set to {@code false} causing the plugin to operate
          * in online-mode by default.
+         *
+         * @return Controls whether the git plugin tries to access remote repos to fetch latest information.
          */
         boolean isOffline();
 
@@ -166,17 +207,21 @@ public class Externalize {
          *
          * Please note that for security purposes not all references might be allowed as configuration.
          * If you have a specific use-case that is currently not white listed feel free to file an issue.
+         *
+         * @return Tell the plugin what commit should be used as reference to generate the properties from.
          */
         String getEvaluateOnCommit();
 
         /**
-         * The root directory of the repository we want to check.
+         * @return The root directory of the repository we want to check.
          */
         File getDotGitDirectory();
 
         /**
-         * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
+         * Set this to {@code 'true'} to generate a {@code 'git.properties'} file.
          * By default plugin only adds properties to maven project properties.
+         *
+         * @return Control if the plugin should generate a {@code 'git.properties'} file.
          */
         boolean shouldGenerateGitPropertiesFile();
 
@@ -193,28 +238,30 @@ public class Externalize {
         void performPropertiesReplacement(Properties properties);
 
         /**
-         * Defines the output format of the generated properties file.
-         * Can either be "properties" or "json"
+         * @return The output format of the generated properties file. Can either be "properties" or "json".
          */
         // TODO: Why is this a String and not an enum?
         String getPropertiesOutputFormat();
 
-        // TODO: Huh why is this here?
+        /**
+         * @return The BuildContext
+         */
+        // TODO: Huh why is this here? Isn't this too maven specific?
         @Deprecated
         BuildContext getBuildContext();
 
         /**
-         * Get's the project name
+         * @return The project name
          */
         String getProjectName();
 
         /**
-         * Get's the project base dir
+         * @return The project base dir
          */
         File getProjectBaseDir();
 
         /**
-         * @return the optional name of the properties filename where properties should be dumped into
+         * @return The optional name of the properties filename where properties should be dumped into
          */
         String getGenerateGitPropertiesFilename();
 
