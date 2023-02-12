@@ -461,6 +461,14 @@
                         <artifactId>coveralls-maven-plugin</artifactId>
                         <version>4.3.0</version>
                         <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
+                        <dependencies>
+                            <!-- https://github.com/trautonen/coveralls-maven-plugin/issues/141 -->
+                            <dependency>
+                                <groupId>javax.xml.bind</groupId>
+                                <artifactId>jaxb-api</artifactId>
+                                <version>2.2.3</version>
+                            </dependency>
+                        </dependencies>
                     </plugin>
                     <!-- cobertura-maven-plugin doesn't support java 8 https://github.com/mojohaus/cobertura-maven-plugin/issues/21-->
                     <plugin>
@@ -478,14 +486,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <dependencies>
-                <!-- https://github.com/trautonen/coveralls-maven-plugin/issues/141 -->
-                <dependency>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                    <version>2.2.3</version>
-                </dependency>
-            </dependencies>
         </profile>
         <profile>
             <id>checkstyle</id>
