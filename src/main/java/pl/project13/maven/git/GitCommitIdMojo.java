@@ -44,7 +44,6 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.log.LoggerBridge;
-import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.maven.log.MavenLoggerBridge;
 
 import javax.annotation.Nonnull;
@@ -522,8 +521,105 @@ public class GitCommitIdMojo extends AbstractMojo {
           properties = contextProperties;
         }
 
-        loadGitData(properties);
-        loadBuildData(properties);
+        final Externalize.Callback cb = new Externalize.Callback() {
+          @Override
+          public Supplier<String> supplyProjectVersion() {
+            return () -> project.getVersion();
+          }
+
+          @Nonnull
+          @Override
+          public LoggerBridge getLoggerBridge() {
+            return log;
+          }
+
+          @Nonnull
+          @Override
+          public String getDateFormat() {
+            return dateFormat;
+          }
+
+          @Nonnull
+          @Override
+          public String getDateFormatTimeZone() {
+            return dateFormatTimeZone;
+          }
+
+          @Nonnull
+          @Override
+          public String getPrefixDot() {
+            return prefixDot;
+          }
+
+          @Override
+          public List<String> getExcludeProperties() {
+            return excludeProperties;
+          }
+
+          @Override
+          public List<String> getIncludeOnlyProperties() {
+            return includeOnlyProperties;
+          }
+
+          @Nullable
+          @Override
+          public Date getReproducibleBuildOutputTimestamp() throws GitCommitIdExecutionException {
+            return parseOutputTimestamp(projectBuildOutputTimestamp);
+          }
+
+          @Override
+          public boolean useNativeGit() {
+            return useNativeGit || useNativeGitViaCommandLine;
+          }
+
+          @Override
+          public long getNativeGitTimeoutInMs() {
+            return nativeGitTimeoutInMs;
+          }
+
+          @Override
+          public int getAbbrevLength() {
+            return abbrevLength;
+          }
+
+          @Override
+          public GitDescribeConfig getGitDescribe() {
+            return gitDescribe;
+          }
+
+          @Override
+          public CommitIdGenerationMode getCommitIdGenerationMode() {
+            return commitIdGenerationModeEnum;
+          }
+
+          @Override
+          public boolean getUseBranchNameFromBuildEnvironment() {
+            return useBranchNameFromBuildEnvironment;
+          }
+
+          @Override
+          public boolean isOffline() {
+            return offline || settings.isOffline();
+          }
+
+          @Override
+          public String getEvaluateOnCommit() {
+            return evaluateOnCommit;
+          }
+
+          @Override
+          public File getDotGitDirectory() {
+            return dotGitDirectory;
+          }
+
+          @Override
+          public File getProjectBaseDir() throws IOException {
+            return project.getBasedir().getCanonicalFile();
+          }
+        };
+
+        Externalize.loadGitData(cb, properties);
+        Externalize.loadBuildData(cb, properties);
         // first round of publication and filtering (we need to make variables available for the ParameterExpressionEvaluator
         propertiesFilterer.filter(properties, includeOnlyProperties, this.prefixDot);
         propertiesFilterer.filterNot(properties, excludeProperties, this.prefixDot);
@@ -575,21 +671,6 @@ public class GitCommitIdMojo extends AbstractMojo {
       return (Properties)stored;
     }
     return null;
-  }
-
-  private void loadBuildData(Properties properties) throws GitCommitIdExecutionException {
-    Map<String, Supplier<String>> additionalProperties = Collections.singletonMap(
-            GitCommitPropertyConstant.BUILD_VERSION, () -> project.getVersion());
-    BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(System.getenv(),log);
-    buildServerDataProvider
-        .setDateFormat(dateFormat)
-        .setDateFormatTimeZone(dateFormatTimeZone)
-        .setAdditionalProperties(additionalProperties)
-        .setPrefixDot(prefixDot)
-        .setExcludeProperties(excludeProperties)
-        .setIncludeOnlyProperties(includeOnlyProperties);
-
-    buildServerDataProvider.loadBuildData(properties, parseOutputTimestamp(projectBuildOutputTimestamp));
   }
 
   /**
@@ -670,54 +751,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     for (String propertyName : properties.stringPropertyNames()) {
       log.info("including property {} in results", propertyName);
     }
-  }
-
-  private void loadGitData(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    if (useNativeGit || useNativeGitViaCommandLine) {
-      loadGitDataWithNativeGit(properties);
-    } else {
-      loadGitDataWithJGit(properties);
-    }
-  }
-
-  private void loadGitDataWithNativeGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    try {
-      final File basedir = project.getBasedir().getCanonicalFile();
-
-      GitDataProvider nativeGitProvider = NativeGitProvider
-              .on(basedir, nativeGitTimeoutInMs, log)
-              .setPrefixDot(prefixDot)
-              .setAbbrevLength(abbrevLength)
-              .setDateFormat(dateFormat)
-              .setDateFormatTimeZone(dateFormatTimeZone)
-              .setGitDescribe(gitDescribe)
-              .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-              .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
-              .setExcludeProperties(excludeProperties)
-              .setIncludeOnlyProperties(includeOnlyProperties)
-              .setOffline(offline || settings.isOffline());
-
-      nativeGitProvider.loadGitData(evaluateOnCommit, properties);
-    } catch (IOException e) {
-      throw new GitCommitIdExecutionException(e);
-    }
-  }
-
-  private void loadGitDataWithJGit(@Nonnull Properties properties) throws GitCommitIdExecutionException {
-    GitDataProvider jGitProvider = JGitProvider
-        .on(dotGitDirectory, log)
-        .setPrefixDot(prefixDot)
-        .setAbbrevLength(abbrevLength)
-        .setDateFormat(dateFormat)
-        .setDateFormatTimeZone(dateFormatTimeZone)
-        .setGitDescribe(gitDescribe)
-        .setCommitIdGenerationMode(commitIdGenerationModeEnum)
-        .setUseBranchNameFromBuildEnvironment(useBranchNameFromBuildEnvironment)
-        .setExcludeProperties(excludeProperties)
-        .setIncludeOnlyProperties(includeOnlyProperties)
-        .setOffline(offline || settings.isOffline());
-
-    jGitProvider.loadGitData(evaluateOnCommit, properties);
   }
 
   private boolean isPomProject(@Nonnull MavenProject project) {
