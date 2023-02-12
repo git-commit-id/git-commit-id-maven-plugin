@@ -611,11 +611,6 @@ public class GitCommitIdMojo extends AbstractMojo {
           public File getDotGitDirectory() {
             return dotGitDirectory;
           }
-
-          @Override
-          public File getProjectBaseDir() throws IOException {
-            return project.getBasedir().getCanonicalFile();
-          }
         };
 
         Externalize.loadGitData(cb, properties);

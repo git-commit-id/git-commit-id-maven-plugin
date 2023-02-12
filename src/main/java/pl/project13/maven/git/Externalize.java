@@ -172,12 +172,6 @@ public class Externalize {
          * The root directory of the repository we want to check.
          */
         File getDotGitDirectory();
-
-        /**
-         * The project root directory.
-         */
-        @Deprecated
-        File getProjectBaseDir() throws IOException;
     }
 
     protected static void loadBuildData(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
@@ -204,27 +198,20 @@ public class Externalize {
     }
 
     private static void loadGitDataWithNativeGit(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
-        try {
-            // TODO: Why does this not use dotGitDir.parent or something?
-            final File basedir = cb.getProjectBaseDir();
+        GitDataProvider nativeGitProvider = NativeGitProvider
+                .on(cb.getDotGitDirectory().getParentFile(), cb.getNativeGitTimeoutInMs(), cb.getLoggerBridge())
+                .setPrefixDot(cb.getPrefixDot())
+                .setAbbrevLength(cb.getAbbrevLength())
+                .setDateFormat(cb.getDateFormat())
+                .setDateFormatTimeZone(cb.getDateFormatTimeZone())
+                .setGitDescribe(cb.getGitDescribe())
+                .setCommitIdGenerationMode(cb.getCommitIdGenerationMode())
+                .setUseBranchNameFromBuildEnvironment(cb.getUseBranchNameFromBuildEnvironment())
+                .setExcludeProperties(cb.getExcludeProperties())
+                .setIncludeOnlyProperties(cb.getIncludeOnlyProperties())
+                .setOffline(cb.isOffline());
 
-            GitDataProvider nativeGitProvider = NativeGitProvider
-                    .on(basedir, cb.getNativeGitTimeoutInMs(), cb.getLoggerBridge())
-                    .setPrefixDot(cb.getPrefixDot())
-                    .setAbbrevLength(cb.getAbbrevLength())
-                    .setDateFormat(cb.getDateFormat())
-                    .setDateFormatTimeZone(cb.getDateFormatTimeZone())
-                    .setGitDescribe(cb.getGitDescribe())
-                    .setCommitIdGenerationMode(cb.getCommitIdGenerationMode())
-                    .setUseBranchNameFromBuildEnvironment(cb.getUseBranchNameFromBuildEnvironment())
-                    .setExcludeProperties(cb.getExcludeProperties())
-                    .setIncludeOnlyProperties(cb.getIncludeOnlyProperties())
-                    .setOffline(cb.isOffline());
-
-            nativeGitProvider.loadGitData(cb.getEvaluateOnCommit(), properties);
-        } catch (IOException e) {
-            throw new GitCommitIdExecutionException(e);
-        }
+        nativeGitProvider.loadGitData(cb.getEvaluateOnCommit(), properties);
     }
 
     private static void loadGitDataWithJGit(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
