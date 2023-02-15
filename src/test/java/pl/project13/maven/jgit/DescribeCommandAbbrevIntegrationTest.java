@@ -22,7 +22,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
@@ -72,7 +72,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(2) // 2 is enough to be unique in this small repo
               .call();
 
@@ -96,7 +96,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(2) // way too small to be unique in git-commit-id's repo!
               .call();
 

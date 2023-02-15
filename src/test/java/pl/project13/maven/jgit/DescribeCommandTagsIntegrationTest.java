@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
@@ -66,7 +66,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .call();
 
       // then
@@ -89,7 +89,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -113,7 +113,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .match("annotated*")
               .call();
@@ -149,7 +149,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -182,7 +182,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         wrap.tag().setName(latestTag).call();
 
         DescribeResult res = DescribeCommand
-                .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+                .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
                 .tags()
                 .call();
 
@@ -214,7 +214,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
       }
 
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 

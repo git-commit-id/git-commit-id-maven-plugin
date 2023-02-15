@@ -42,8 +42,8 @@ import org.sonatype.plexus.build.incremental.BuildContext;
 
 import pl.project13.core.*;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.log.LoggerBridge;
-import pl.project13.maven.log.MavenLoggerBridge;
+import pl.project13.core.log.LogInterface;
+import pl.project13.core.util.BuildFileChangeListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -402,15 +402,49 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Charset sourceCharset = StandardCharsets.UTF_8;
 
-  @Nonnull
-  private final LoggerBridge log = new MavenLoggerBridge(this, false);
-
   @Override
   public void execute() throws MojoExecutionException {
-    try {
-      // Set the verbose setting: now it should be correctly loaded from maven.
-      log.setVerbose(verbose);
+    LogInterface log = new LogInterface() {
+      @Override
+      public void debug(String msg) {
+        if (verbose) {
+          getLog().debug(msg);
+        }
+      }
 
+      @Override
+      public void info(String msg) {
+        if (verbose) {
+          getLog().info(msg);
+        }
+      }
+
+      @Override
+      public void warn(String msg) {
+        if (verbose) {
+          getLog().warn(msg);
+        }
+      }
+
+      @Override
+      public void error(String msg) {
+        // TODO: Should we truly only report errors when verbose = true?
+        if (verbose) {
+          getLog().error(msg);
+        }
+      }
+
+      @Override
+      public void error(String msg, Throwable t) {
+        // TODO: Should we truly only report errors when verbose = true?
+        if (verbose) {
+          getLog().error(msg, t);
+        }
+      }
+    };
+
+
+    try {
       // Skip mojo execution on incremental builds.
       if (buildContext != null && buildContext.isIncremental()) {
         // Except if properties file is missing at all
@@ -478,7 +512,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       if (dotGitDirectory != null) {
-        log.info("dotGitDirectory {}", dotGitDirectory.getAbsolutePath());
+        log.info("dotGitDirectory '" + dotGitDirectory.getAbsolutePath() + "'");
       } else {
         log.info("dotGitDirectory is null, aborting execution!");
         return;
@@ -504,7 +538,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         @Nonnull
         @Override
-        public LoggerBridge getLoggerBridge() {
+        public LogInterface getLogInterface() {
           return log;
         }
 
@@ -595,7 +629,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         @Override
         public void performPublishToAllSystemEnvironments(Properties properties) {
-          publishToAllSystemEnvironments(properties);
+          publishToAllSystemEnvironments(getLogInterface(), properties);
         }
 
         @Override
@@ -604,7 +638,7 @@ public class GitCommitIdMojo extends AbstractMojo {
                   log, new PluginParameterExpressionEvaluator(session, mojoExecution));
           propertiesReplacer.performReplacement(properties, replacementProperties);
 
-          logProperties(properties);
+          logProperties(getLogInterface(), properties);
         }
 
         @Override
@@ -613,8 +647,13 @@ public class GitCommitIdMojo extends AbstractMojo {
         }
 
         @Override
-        public BuildContext getBuildContext() {
-          return buildContext;
+        public BuildFileChangeListener getBuildFileChangeListener() {
+          return file -> {
+            // this should only be null in our tests
+            if (buildContext != null) {
+              buildContext.refresh(file);
+            };
+          };
         }
 
         @Override
@@ -636,6 +675,12 @@ public class GitCommitIdMojo extends AbstractMojo {
         public Charset getPropertiesSourceCharset() {
           return sourceCharset;
         }
+
+        @Override
+        public boolean shouldPropertiesEscapeUnicode() {
+          // TODO there should be a plugin config for this
+          return true;
+        }
       };
 
       Properties properties = null;
@@ -653,13 +698,13 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void publishToAllSystemEnvironments(Properties propertiesToPublish) {
+  private void publishToAllSystemEnvironments(LogInterface log, Properties propertiesToPublish) {
     publishPropertiesInto(propertiesToPublish, project.getProperties());
     // some plugins rely on the user properties (e.g. flatten-maven-plugin)
     publishPropertiesInto(propertiesToPublish, session.getUserProperties());
 
     if (injectAllReactorProjects) {
-      appendPropertiesToReactorProjects(propertiesToPublish);
+      appendPropertiesToReactorProjects(log, propertiesToPublish);
     }
 
     if (injectIntoSysProperties) {
@@ -717,29 +762,14 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  /**
-   * Reacts to an exception based on the {@code failOnUnableToExtractRepoInfo} setting.
-   * If it's true, an GitCommitIdExecutionException will be thrown, otherwise we just log an error message.
-   *
-   * @throws GitCommitIdExecutionException which will be thrown in case the
-   *                                {@code failOnUnableToExtractRepoInfo} setting was set to true.
-   */
-  private void handlePluginFailure(Exception e) throws GitCommitIdExecutionException {
-    if (failOnUnableToExtractRepoInfo) {
-      throw new GitCommitIdExecutionException("Could not complete Mojo execution...", e);
-    } else {
-      log.error(e.getMessage(), e);
-    }
-  }
-
-  private void appendPropertiesToReactorProjects(Properties propertiesToPublish) {
+  private void appendPropertiesToReactorProjects(LogInterface log, Properties propertiesToPublish) {
     for (MavenProject mavenProject : reactorProjects) {
-      log.debug("Adding properties to project: {}", mavenProject.getName());
+      log.debug("Adding properties to project: '" + mavenProject.getName() + "'");
 
       publishPropertiesInto(propertiesToPublish, mavenProject.getProperties());
       mavenProject.setContextValue(CONTEXT_KEY, propertiesToPublish);
     }
-    log.info("Added properties to {} projects", reactorProjects.size());
+    log.info("Added properties to '" + reactorProjects.size() + "' projects");
   }
 
   /**
@@ -752,9 +782,9 @@ public class GitCommitIdMojo extends AbstractMojo {
     return new GitDirLocator(project, reactorProjects).lookupGitDirectory(dotGitDirectory);
   }
 
-  private void logProperties(Properties propertiesToPublish) {
+  private void logProperties(LogInterface log, Properties propertiesToPublish) {
     for (String propertyName : propertiesToPublish.stringPropertyNames()) {
-      log.info("including property {} in results", propertyName);
+      log.info("including property '" + propertyName + "' in results");
     }
   }
 

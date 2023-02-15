@@ -17,11 +17,11 @@
 
 package pl.project13.maven.git;
 
-import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.*;
 import pl.project13.core.cibuild.BuildServerDataProvider;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.log.LogInterface;
+import pl.project13.core.util.BuildFileChangeListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,7 +44,7 @@ public class Externalize {
      * @return Logging Interface
      */
     @Nonnull
-    LoggerBridge getLoggerBridge();
+    LogInterface getLogInterface();
 
     /**
      * @return The date format to be used for any dates exported by this plugin.
@@ -245,11 +245,9 @@ public class Externalize {
     String getPropertiesOutputFormat();
 
     /**
-     * @return The BuildContext
+     * @return The BuildFileChangeListener that will be called when an output file of the plugin has changed
      */
-    // TODO: Huh why is this here? Isn't this too maven specific?
-    @Deprecated
-    BuildContext getBuildContext();
+    BuildFileChangeListener getBuildFileChangeListener();
 
     /**
      * @return The project name
@@ -270,10 +268,12 @@ public class Externalize {
      * @return The Charset in which format the properties should be dumped (e.g. 'UTF-8')
      */
     Charset getPropertiesSourceCharset();
+
+    boolean shouldPropertiesEscapeUnicode();
   }
 
   protected static void runPlugin(@Nonnull Callback cb, @Nullable Properties contextProperties) throws GitCommitIdExecutionException {
-    PropertiesFilterer propertiesFilterer = new PropertiesFilterer(cb.getLoggerBridge());
+    PropertiesFilterer propertiesFilterer = new PropertiesFilterer(cb.getLogInterface());
 
     // The properties we store our data in and then expose them.
     Properties properties = contextProperties == null
@@ -291,8 +291,8 @@ public class Externalize {
     cb.performPropertiesReplacement(properties);
     if (cb.shouldGenerateGitPropertiesFile()) {
       new PropertiesFileGenerator(
-              cb.getLoggerBridge(),
-              cb.getBuildContext(),
+              cb.getLogInterface(),
+              cb.getBuildFileChangeListener(),
               cb.getPropertiesOutputFormat(),
               cb.getPrefixDot(),
               cb.getProjectName()
@@ -300,7 +300,8 @@ public class Externalize {
               properties,
               cb.getProjectBaseDir(),
               cb.getGenerateGitPropertiesFilename(),
-              cb.getPropertiesSourceCharset()
+              cb.getPropertiesSourceCharset(),
+              cb.shouldPropertiesEscapeUnicode()
       );
     }
 
@@ -312,7 +313,7 @@ public class Externalize {
     Map<String, Supplier<String>> additionalProperties = Collections.singletonMap(
             GitCommitPropertyConstant.BUILD_VERSION, cb.supplyProjectVersion());
     BuildServerDataProvider buildServerDataProvider = BuildServerDataProvider.getBuildServerProvider(
-            System.getenv(), cb.getLoggerBridge());
+            System.getenv(), cb.getLogInterface());
     buildServerDataProvider
             .setDateFormat(cb.getDateFormat())
             .setDateFormatTimeZone(cb.getDateFormatTimeZone())
@@ -333,7 +334,7 @@ public class Externalize {
 
   private static void loadGitDataWithNativeGit(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
     GitDataProvider nativeGitProvider = NativeGitProvider
-            .on(cb.getDotGitDirectory().getParentFile(), cb.getNativeGitTimeoutInMs(), cb.getLoggerBridge())
+            .on(cb.getDotGitDirectory().getParentFile(), cb.getNativeGitTimeoutInMs(), cb.getLogInterface())
             .setPrefixDot(cb.getPrefixDot())
             .setAbbrevLength(cb.getAbbrevLength())
             .setDateFormat(cb.getDateFormat())
@@ -350,7 +351,7 @@ public class Externalize {
 
   private static void loadGitDataWithJGit(@Nonnull Callback cb, @Nonnull Properties properties) throws GitCommitIdExecutionException {
     GitDataProvider jGitProvider = JGitProvider
-            .on(cb.getDotGitDirectory(), cb.getLoggerBridge())
+            .on(cb.getDotGitDirectory(), cb.getLogInterface())
             .setPrefixDot(cb.getPrefixDot())
             .setAbbrevLength(cb.getAbbrevLength())
             .setDateFormat(cb.getDateFormat())

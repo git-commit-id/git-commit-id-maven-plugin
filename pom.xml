@@ -59,7 +59,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>git-commit-id-plugin-core</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
@@ -250,6 +250,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>git-commit-id-plugin-core</artifactId>
+        </dependency>
+        <!-- plexus build -->
+        <dependency>
+            <groupId>org.sonatype.plexus</groupId>
+            <artifactId>plexus-build-api</artifactId>
+            <version>0.0.7</version>
         </dependency>
 
         <dependency>

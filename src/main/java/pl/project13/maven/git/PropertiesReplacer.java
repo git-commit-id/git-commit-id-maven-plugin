@@ -18,7 +18,7 @@
 package pl.project13.maven.git;
 
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
-import pl.project13.core.log.LoggerBridge;
+import pl.project13.core.log.LogInterface;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * For a use-case refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/317.
  */
 public class PropertiesReplacer {
-  private final LoggerBridge log;
+  private final LogInterface log;
   private final PluginParameterExpressionEvaluator expressionEvaluator;
 
   /**
@@ -37,7 +37,7 @@ public class PropertiesReplacer {
    * @param expressionEvaluator Maven's PluginParameterExpressionEvaluator
    *                            (see https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/413 why it's needed)
    */
-  public PropertiesReplacer(LoggerBridge log, PluginParameterExpressionEvaluator expressionEvaluator) {
+  public PropertiesReplacer(LogInterface log, PluginParameterExpressionEvaluator expressionEvaluator) {
     this.log = log;
     this.expressionEvaluator = expressionEvaluator;
   }

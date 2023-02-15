@@ -23,10 +23,6 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import pl.project13.core.log.LoggerBridge;
-import pl.project13.maven.log.MavenLoggerBridge;
-
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,10 +32,6 @@ import java.util.regex.Pattern;
  */
 @Mojo(name = "validateRevision", defaultPhase = LifecyclePhase.VERIFY, threadSafe = true)
 public class ValidationMojo extends AbstractMojo {
-
-  @Nonnull
-  private final LoggerBridge log = new MavenLoggerBridge(this, false);
-
   @Parameter(defaultValue = "true")
   private boolean validationShouldFailIfNoMatch;
 
@@ -78,9 +70,9 @@ public class ValidationMojo extends AbstractMojo {
   private void printLogMessageWhenValueOrShouldMatchToIsEmpty(String name, String value, String shouldMatchTo) {
     String commonLogMessage = "since one of the values was null! (value = '" + value + "'; shouldMatchTo = '" + shouldMatchTo + "').";
     if (name != null) {
-      log.warn("Skipping validation '" + name + "' " + commonLogMessage);
+      getLog().warn("Skipping validation '" + name + "' " + commonLogMessage);
     } else {
-      log.warn("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) " + commonLogMessage);
+      getLog().warn("Skipping an unidentified validation (please set the name property-tag to be able to identify the validation) " + commonLogMessage);
     }
   }
 

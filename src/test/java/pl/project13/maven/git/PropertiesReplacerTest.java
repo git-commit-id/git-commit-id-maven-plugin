@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import pl.project13.maven.log.MavenLoggerBridge;
+import pl.project13.core.log.LogInterface;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class PropertiesReplacerTest {
   public void setUp() throws Throwable {
     PluginParameterExpressionEvaluator pluginParameterExpressionEvaluator = mock(PluginParameterExpressionEvaluator.class);
     when(pluginParameterExpressionEvaluator.evaluate(anyString())).then(returnsFirstArg());
-    this.propertiesReplacer = new PropertiesReplacer(mock(MavenLoggerBridge.class), pluginParameterExpressionEvaluator);
+    this.propertiesReplacer = new PropertiesReplacer(mock(LogInterface.class), pluginParameterExpressionEvaluator);
   }
 
   @Test

@@ -23,7 +23,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Test;
-import pl.project13.core.log.StdOutLoggerBridge;
+import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
@@ -60,7 +60,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .call();
 
       // then
@@ -82,7 +82,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -106,7 +106,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -131,7 +131,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     int abbrevLength = 10;
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true)));
+      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       command
@@ -157,7 +157,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true));
+      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
       command.dirty(DIRTY_SUFFIX);
       DescribeResult res = command.call();
 
@@ -182,7 +182,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeCommand command = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .dirty(customDirtySuffix);
       DescribeResult res = command.call();
 
@@ -208,7 +208,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       }
 
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new StdOutLoggerBridge(true));
+      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
       DescribeResult res = command.call();
 
       // then
@@ -232,7 +232,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -257,7 +257,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -284,7 +284,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .dirty(customDirtySuffix)
               .call();
@@ -308,7 +308,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -329,7 +329,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     try (final Git git = git(); final Repository repo = git.getRepository()) {
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .dirty(DIRTY_SUFFIX)
               .abbrev(0)
               .call();
@@ -357,7 +357,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .call();
 
@@ -417,7 +417,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
       // when
       DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new StdOutLoggerBridge(true))
+              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(zeroAbbrev)
               .call();
 
