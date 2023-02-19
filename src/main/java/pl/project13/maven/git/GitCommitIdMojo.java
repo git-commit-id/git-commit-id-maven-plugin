@@ -530,7 +530,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
       }
 
-      final Externalize.Callback cb = new Externalize.Callback() {
+      final GitCommitIdPlugin.Callback cb = new GitCommitIdPlugin.Callback() {
         @Override
         public Supplier<String> supplyProjectVersion() {
           return () -> project.getVersion();
@@ -692,7 +692,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         properties = contextProperties;
       }
 
-      Externalize.runPlugin(cb, properties);
+      GitCommitIdPlugin.runPlugin(cb, properties);
     } catch (GitCommitIdExecutionException e) {
       throw new MojoExecutionException(e.getMessage(), e);
     }
