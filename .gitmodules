@@ -1,0 +1,3 @@
+[submodule "src/test/resources"]
+	path = src/test/resources
+	url = git@github.com:git-commit-id/git-test-resources.git
