@@ -24,10 +24,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.runner.RunWith;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.util.JsonManager;
@@ -40,13 +37,10 @@ import java.util.*;
 import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
-
-  @Rule
-  public final EnvironmentVariables environmentVariablesMock = new EnvironmentVariables();
-
   private static final boolean UseJGit = false;
   private static final boolean UseNativeGit = true;
 
@@ -271,16 +265,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     env.put("JENKINS_URL", "http://myciserver.com");
     env.put("GIT_BRANCH", "mybranch");
     env.put("GIT_LOCAL_BRANCH", "localbranch");
-      
-    // remove all keys from System.getenv()
-    List<String> keySet = new ArrayList<>(System.getenv().keySet());
-    keySet.stream().forEach(key -> environmentVariablesMock.set(key, null));
-
-    // set System.getenv() to be equal to given parameter env
-    env.entrySet().stream().forEach(entry -> environmentVariablesMock.set(entry.getKey(), entry.getValue()));
-      
-    // verify that System.getenv() is actually equal
-    Assert.assertEquals(env, System.getenv());
+    when(mojo.getCustomSystemEnv()).thenReturn(env);
 
     // reset repo and force detached HEAD
     try (final Git git = git("my-jar-project")) {   
@@ -357,18 +342,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.useNativeGit = useNativeGit;
     mojo.useBranchNameFromBuildEnvironment = true;
 
-    // remove all keys from System.getenv()
-    List<String> keySet = new ArrayList<>(System.getenv().keySet());
-    for (String key: keySet) {
-      environmentVariablesMock.set(key, null);
-    }
-    // set System.getenv() to be equal to given parameter env
-    for (Map.Entry<String, String> entry: env.entrySet()) {
-      environmentVariablesMock.set(entry.getKey(), entry.getValue());
-    }
-
-    // verify that System.getenv() is actually equal
-    Assert.assertEquals(env, System.getenv());
+    when(mojo.getCustomSystemEnv()).thenReturn(env);
 
     // reset repo and force detached HEAD
     try (final Git git = git("my-jar-project")) {

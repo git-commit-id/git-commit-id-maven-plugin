@@ -31,17 +31,7 @@ jobs:
     needs: checkstyle
     strategy:
       matrix:
-        java_allow_illegal_access: [false]
-        java_version: ['11', '12', '13', '14', '15']
-        include:
-          - java_version: '16'
-            java_allow_illegal_access: true
-          - java_version: '17'
-            java_allow_illegal_access: true
-          - java_version: '18'
-            java_allow_illegal_access: true
-          - java_version: '19'
-            java_allow_illegal_access: true
+        java_version: ['11', '12', '13', '14', '15', '16', '17', '18', '19']
 
     steps:
       - uses: actions/checkout@v3
@@ -59,12 +49,8 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build with Maven (no illegal access allowed)
-        if: ${{ ! matrix.java_allow_illegal_access }}
+      - name: Build with Maven
         run: mvn clean verify javadoc:javadoc -B
-      - name: Build with Maven (illegal access allowed)
-        if: ${{ matrix.java_allow_illegal_access }}
-        run: mvn clean verify javadoc:javadoc -Pjava-allow-illegal-access -B
 
   integration-test:
     name: Run integration test with Java ${{ matrix.java_version }} and Maven ${{ matrix.maven_version }}

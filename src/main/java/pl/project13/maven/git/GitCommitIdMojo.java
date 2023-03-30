@@ -402,6 +402,15 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   private Charset sourceCharset = StandardCharsets.UTF_8;
 
+  /**
+   * This method is used to mock the system environment in testing.
+   *
+   * @return unmodifiable string map view of the current system environment {@link System#getenv}.
+   */
+  protected Map<String, String> getCustomSystemEnv() {
+    return System.getenv();
+  }
+
   @Override
   public void execute() throws MojoExecutionException {
     LogInterface log = new LogInterface() {
@@ -531,6 +540,11 @@ public class GitCommitIdMojo extends AbstractMojo {
       }
 
       final GitCommitIdPlugin.Callback cb = new GitCommitIdPlugin.Callback() {
+        @Override
+        public Map<String, String> getSystemEnv() {
+          return getCustomSystemEnv();
+        }
+
         @Override
         public Supplier<String> supplyProjectVersion() {
           return () -> project.getVersion();

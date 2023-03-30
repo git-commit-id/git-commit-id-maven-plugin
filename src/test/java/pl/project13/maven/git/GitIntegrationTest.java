@@ -34,8 +34,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class GitIntegrationTest {
 
@@ -60,7 +59,7 @@ public abstract class GitIntegrationTest {
     } while (sandbox.exists());
 
     mavenSandbox = new FileSystemMavenSandbox(currSandbox);
-    mojo = new GitCommitIdMojo();
+    mojo = spy(GitCommitIdMojo.class);
     initializeMojoWithDefaults(mojo);
   }
 
