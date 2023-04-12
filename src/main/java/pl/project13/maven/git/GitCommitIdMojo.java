@@ -666,7 +666,7 @@ public class GitCommitIdMojo extends AbstractMojo {
             // this should only be null in our tests
             if (buildContext != null) {
               buildContext.refresh(file);
-            };
+            }
           };
         }
 
