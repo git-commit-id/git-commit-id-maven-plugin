@@ -219,6 +219,22 @@ It's really simple to setup this plugin; below is a sample pom that you may base
                     -->
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
 
+                    <!-- @since 6.0.0 -->
+                    <!--
+                        Default (optional):
+                        true
+
+                        Explanation:
+                        Controls whether special characters in the properties
+                        within the generateGitPropertiesFilename should be unicode escaped.
+                        By default properties are escaped (e.g. \\u6E2C\\u8A66\\u4E2D\\u6587).
+                        If you write commit messages in chinese and want to extract the mess
+                        you may want to set this to 'false'.
+
+                        See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/590
+                    -->
+                    <generateGitPropertiesFileWithEscapedUnicode>true</generateGitPropertiesFileWithEscapedUnicode>
+
                     <!--
                         Default (optional):
                         properties
