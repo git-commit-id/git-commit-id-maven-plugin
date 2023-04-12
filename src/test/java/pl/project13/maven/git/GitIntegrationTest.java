@@ -108,6 +108,7 @@ public abstract class GitIntegrationTest {
     mojo.abbrevLength = 7;
     mojo.generateGitPropertiesFile = false;
     mojo.generateGitPropertiesFilename = "src/main/resources/git.properties";
+    mojo.generateGitPropertiesFileWithEscapedUnicode = true;
     mojo.prefix = "git";
     mojo.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ";
     mojo.failOnNoGitDirectory = true;
