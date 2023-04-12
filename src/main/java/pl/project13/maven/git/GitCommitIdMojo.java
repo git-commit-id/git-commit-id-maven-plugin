@@ -127,6 +127,22 @@ public class GitCommitIdMojo extends AbstractMojo {
   String generateGitPropertiesFilename;
 
   /**
+   * Controls whether special characters in the properties
+   * within the generateGitPropertiesFilename should be unicode escaped.
+   * By default properties are escaped (e.g. \\u6E2C\\u8A66\\u4E2D\\u6587).
+   * If you write commit messages in chinese and want to extract the message
+   * without any additional conversion from the generated properties
+   * you may want to set this to {@code 'false'}.
+   *
+   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/590
+   * for further details.
+   *
+   * @since 6.0.0
+   */
+  @Parameter(defaultValue = "true")
+  boolean generateGitPropertiesFileWithEscapedUnicode;
+
+  /**
    * The root directory of the repository we want to check.
    */
   @Parameter(defaultValue = "${project.basedir}/.git")
@@ -692,8 +708,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
         @Override
         public boolean shouldPropertiesEscapeUnicode() {
-          // TODO there should be a plugin config for this
-          return true;
+          return generateGitPropertiesFileWithEscapedUnicode;
         }
       };
 
