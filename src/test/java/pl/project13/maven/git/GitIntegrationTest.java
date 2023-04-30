@@ -24,6 +24,7 @@ import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
 import org.junit.After;
 import org.junit.Before;
+import pl.project13.core.CommitIdPropertiesOutputFormat;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -107,6 +108,7 @@ public abstract class GitIntegrationTest {
     mojo.skipPoms = true;
     mojo.abbrevLength = 7;
     mojo.generateGitPropertiesFile = false;
+    mojo.format = CommitIdPropertiesOutputFormat.PROPERTIES.toString();
     mojo.generateGitPropertiesFilename = "src/main/resources/git.properties";
     mojo.generateGitPropertiesFileWithEscapedUnicode = true;
     mojo.prefix = "git";

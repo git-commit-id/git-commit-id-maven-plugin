@@ -35,20 +35,24 @@ public class GitCommitIdMojoTest {
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
-    String generateGitPropertiesFilename = "target" + File.separator + "classes" + File.separator + "git.properties";
+    String generateGitPropertiesFilePath = "target" + File.separator + "classes" + File.separator + "git.properties";
+    File generateGitPropertiesFile = new File(generateGitPropertiesFilePath);
     
-    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
-    assertThat(result.getCanonicalPath()).isEqualTo(targetDir + generateGitPropertiesFilename);
+    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
+    assertThat(result.getCanonicalPath()).isEqualTo(
+            new File(targetDir).toPath().resolve(generateGitPropertiesFilePath).toFile().getCanonicalPath());
   }
 
   @Test
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
-    String generateGitPropertiesFilename = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
+    String generateGitPropertiesFilePath = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
+    File generateGitPropertiesFile = new File(generateGitPropertiesFilePath);
 
-    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFilename);
-    assertThat(result.getCanonicalPath()).isEqualTo(generateGitPropertiesFilename);
+    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
+    assertThat(result.getCanonicalPath()).isEqualTo(
+            new File(targetDir).toPath().resolve(generateGitPropertiesFilePath).toFile().getCanonicalPath());
   }
 
   @Test

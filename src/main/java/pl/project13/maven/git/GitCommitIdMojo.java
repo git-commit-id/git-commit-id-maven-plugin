@@ -177,6 +177,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   @Parameter(defaultValue = "properties")
   String format;
 
+  private CommitIdPropertiesOutputFormat commitIdPropertiesOutputFormat;
+
   /**
    * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
    */
@@ -475,7 +477,7 @@ public class GitCommitIdMojo extends AbstractMojo {
         // Except if properties file is missing at all
         if (!generateGitPropertiesFile ||
                 PropertiesFileGenerator.craftPropertiesOutputFile(
-                        project.getBasedir(), generateGitPropertiesFilename).exists()) {
+                        project.getBasedir(), new File(generateGitPropertiesFilename)).exists()) {
           return;
         }
       }
@@ -553,6 +555,13 @@ public class GitCommitIdMojo extends AbstractMojo {
       } catch (IllegalArgumentException e) {
         log.warn("Detected wrong setting for 'commitIdGenerationMode'. Falling back to default 'flat' mode!");
         commitIdGenerationModeEnum = CommitIdGenerationMode.FLAT;
+      }
+
+      try {
+        commitIdPropertiesOutputFormat = CommitIdPropertiesOutputFormat.valueOf(format.toUpperCase());
+      } catch (IllegalArgumentException e) {
+        log.warn("Detected wrong setting for 'format'. Falling back to default 'properties' mode!");
+        commitIdPropertiesOutputFormat = CommitIdPropertiesOutputFormat.PROPERTIES;
       }
 
       final GitCommitIdPlugin.Callback cb = new GitCommitIdPlugin.Callback() {
@@ -672,8 +681,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         }
 
         @Override
-        public String getPropertiesOutputFormat() {
-          return format;
+        public CommitIdPropertiesOutputFormat getPropertiesOutputFormat() {
+          return commitIdPropertiesOutputFormat;
         }
 
         @Override
@@ -697,8 +706,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         }
 
         @Override
-        public String getGenerateGitPropertiesFilename() {
-          return generateGitPropertiesFilename;
+        public File getGenerateGitPropertiesFile() {
+          return new File(generateGitPropertiesFilename);
         }
 
         @Override
