@@ -1,0 +1,115 @@
+name: Bug Report
+description: Create a bug report to help us fix an issue
+labels: [ "bug", "to-triage" ]
+assignees: [ ]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Please follow the instructions below.
+              We will close issues that don't provide enough information.
+    - type: textarea
+      id: describe-the-bug
+      attributes:
+          label: Describe the bug (required)
+          description: Please provide a brief summary of the issue and provide a summarised description in the title above.
+      validations:
+          required: true
+    - type: textarea
+      id: plugin-configuration
+      attributes:
+          label: Tell us about your plugin configuration (required)
+          description: Include the **full** configuration of the plugin.
+          value: |
+              ```xml
+              <plugin>
+              ...
+              </plugin>
+              ```
+      validations:
+          required: true
+    - type: input
+      id: plugin-version
+      attributes:
+          label: Tell us about the Plugin version used (required)
+          description: What version of the Plugin are you using?
+      validations:
+          required: true
+    - type: textarea
+      id: maven-version
+      attributes:
+          label: Tell us about the Maven version used (required)
+          description: What version of Maven are you running?
+          value: |
+              ```bash
+              mvn --version
+              // ????
+              ```
+      validations:
+          required: true
+    - type: textarea
+      id: steps-to-reproduce
+      attributes:
+          label: Steps to Reproduce (required)
+          description: |
+              Please provide all the steps to experience the issue.
+          value: |
+              I run the plugin with ``mvn clean deploy`` VS ``mvn deploy:deploy``...
+      validations:
+          required: true
+    - type: textarea
+      id: steps-to-reproduce-stack-traces
+      attributes:
+          label: Are there any stacktraces or any error messages? (required)
+          description: |
+              Include any stack-traces or any error messages that are included.
+              For your own troubleshooting you may want to enable the `verbose` mode of the plugin in your `pom.xml`:
+              ```xml
+              <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>5.0.0</version>
+                <configuration>
+                  <verbose>true</verbose>
+                  <!-- your settings ... -->
+                </configuration>
+              </plugin>
+              ```
+          value: |
+              **WARNING** You may **NOT** want to paste all the output that is produced with `verbose` publicly,
+              since it **MAY** contain information you deem sensitive.
+              Review this **CAREFULLY** before posting your issue!
+
+              ```bash
+              mvn clean deploy
+              // ????
+              ```
+      validations:
+          required: true
+    - type: textarea
+      id: steps-to-reproduce-public-project
+      attributes:
+          label: Is there a (public) project where this issue can be reproduced? (optional)
+          description: |
+              You can use [this template](https://github.com/TheSnoozer/git-commit-id-debugging) to showcase your problem.
+      validations:
+          required: false
+    - type: textarea
+      id: environment
+      attributes:
+          label: Your Environment (optional)
+          description: |
+              Include as many relevant details about the environment you experienced the bug in.
+              Are you running inside Windows Terminal, Powershell, Git Bash, /bin/bash, ...?
+              On what Operating System you experience the bug (on Linux run ``lsb_release -a`` or ``cat /etc/*release*``)?
+      validations:
+          required: false
+    - type: textarea
+      id: context
+      attributes:
+          label: Context (optional)
+          description: |
+              Feel free to add any other context or screenshots about the bug.
+              How are you affected? What is your goal? Anything else?
+      validations:
+          required: false
