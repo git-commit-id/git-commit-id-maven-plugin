@@ -25,7 +25,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -352,12 +351,6 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "HEAD")
   String evaluateOnCommit;
-  /**
-   * The plugin allows to specify branch/tag/commit used when finding 'HEAD'.
-   * However we don't want the users to enter everything here and thus allow only the following subset.
-   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/338 for further information
-   */
-  protected static final Pattern allowedCharactersForEvaluateOnCommit = Pattern.compile("[a-zA-Z0-9\\_\\-\\^\\/\\.]+");
 
   /**
    * Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
@@ -542,11 +535,6 @@ public class GitCommitIdMojo extends AbstractMojo {
         log.info("dotGitDirectory '" + dotGitDirectory.getAbsolutePath() + "'");
       } else {
         log.info("dotGitDirectory is null, aborting execution!");
-        return;
-      }
-
-      if ((evaluateOnCommit == null) || !allowedCharactersForEvaluateOnCommit.matcher(evaluateOnCommit).matches()) {
-        log.error("suspicious argument for evaluateOnCommit, aborting execution!");
         return;
       }
 
