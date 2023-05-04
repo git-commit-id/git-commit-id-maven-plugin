@@ -56,85 +56,208 @@ import javax.annotation.Nullable;
 public class GitCommitIdMojo extends AbstractMojo {
   private static final String CONTEXT_KEY = GitCommitIdMojo.class.getName() + ".properties";
 
+  // ============================================================================================================
+  // Parameter injected by maven itself can't be configured in the pom.xml!
+
   /**
-   * The Maven Project.
+   * This parameter can't be configured in the {@code pom.xml}
+   * it represents the Maven Project that will be injected by maven itself.
    */
   @Parameter(defaultValue = "${project}", readonly = true, required = true)
   MavenProject project;
 
   /**
-   * The list of projects in the reactor.
+   * This parameter can't be configured in the {@code pom.xml}
+   * it represents the list of projects in the reactor that will be injected by maven itself.
    */
   @Parameter(defaultValue = "${reactorProjects}", readonly = true, required = true)
   List<MavenProject> reactorProjects;
 
   /**
-   * The Mojo Execution
+   * This parameter can't be configured in the {@code pom.xml}
+   * it represents the Mojo Execution that will be injected by maven itself.
    */
   @Parameter(defaultValue = "${mojoExecution}", readonly = true, required = true)
   MojoExecution mojoExecution;
 
   /**
-   * The Maven Session Object.
+   * This parameter can't be configured in the {@code pom.xml}
+   * it represents the Maven Session Object that will be injected by maven itself.
    */
   @Parameter(defaultValue = "${session}", readonly = true, required = true)
   MavenSession session;
 
   /**
-   * The Maven settings.
+   * This parameter can't be configured in the {@code pom.xml}
+   * it represents the Maven settings that will be injected by maven itself.
    */
   @Parameter(defaultValue = "${settings}", readonly = true, required = true)
   Settings settings;
 
+  // ============================================================================================================
+  // Parameters that can be configured in the pom.xml
+
   /**
-   * <p>Set this to {@code 'true'} to inject git properties into all reactor projects, not just the current one.</p>
+   * Configuration to tell the git-commit-id-maven-plugin if the plugin should
+   * inject the git properties into all reactor projects not just the current one.
    *
-   * <p>Injecting into all projects may slow down the build and you don't always need this feature.
-   * See <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/65">pull #65</a> for details about why you might want to skip this.
+   * <p>The property is set to {@code false} by default to prevent the overriding of
+   * properties that may be unrelated to the project. If you need to expose your git properties
+   * to another maven module (e.g. maven-antrun-plugin) you need to set it to {@code true}.</p>
+   *
+   * <p>Inject git properties into all reactor projects, not just the current one
+   * may slow down the build and you don't always need this feature.</p>
+   *
+   * <p>For details about why you might want to skip this, read this issue:
+   * <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/65">pull #65</a></p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <injectAllReactorProjects>false</injectAllReactorProjects>
+   * </pre>
    * </p>
+   *
+   * @since 2.1.4
    */
   @Parameter(defaultValue = "false")
   boolean injectAllReactorProjects;
 
   /**
-   * Set this to {@code 'true'} to print more info while scanning for paths.
-   * It will make git-commit-id "eat its own dog food" :-)
+   * Configuration to tell the git-commit-id-maven-plugin to print
+   * some more verbose information during the build
+   * (e.g. a summary of all collected properties when it's done).
+   *
+   * <p>By default this option is disabled (set to {@code false})</p>
+   *
+   * <p>Note, If enabled (set to {@code true}) the plugin may
+   * print information you deem sensible, so be extra cautious when you share those.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <verbose>false</verbose>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "false")
   boolean verbose;
 
   /**
-   * Set this to {@code 'false'} to execute plugin in 'pom' packaged projects.
+   * Configuration to tell the git-commit-id-maven-plugin to <b>not</b> run in
+   * a pom packaged project (e.g. {@code <packaging>pom</packaging>}).
+   *
+   * <p>By default 'pom' packaged projects will be skipped (to {@code true})</p>
+   *
+   * <p>You may want to set this to {@code false}, if the plugin
+   * should also run inside a pom packaged project.
+   * Most projects won't need to override this property.
+   * For an use-case for this kind of behaviour see:
+   *
+   * <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/21">Issue 21</a>
+   * </p>
+   *
+   * <p>Note: The plugin might not execute at all, if you also set {@code <runOnlyOnce>true</runOnlyOnce>}</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <skipPoms>true</skipPoms>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "true")
   boolean skipPoms;
 
   /**
-   * Set this to {@code 'true'} to generate {@code 'git.properties'} file.
-   * By default plugin only adds properties to maven project properties.
+   * Configuration to tell the git-commit-id-maven-plugin to
+   * generate a {@code 'git.properties'} file.
+   * By default the plugin will not <b>not</b> generate such a file (set to {@code false}),
+   * and only adds properties to maven project properties.
+   *
+   * <p>Set this to {@code 'true'} if you want an easy way to expose your git information
+   * into your final artifact (jar, war, ...), which will generate a properties file (with filled out values)
+   * that can be configured to end up in the final artifact.
+   * Refer to the configuration of {@link #generateGitPropertiesFilename}`
+   * that helps you setup that final path.</p>
+   *
+   * <p>Such generated property file, can normally be read using
+   * <pre>
+   *     new Properties().load(...)
+   * </pre>
+   * during runtime.</p>
+   *
+   * <p>Note:
+   * When writing the {@code git.properties} file the value *git.build.time* will only be updated
+   * when things in the commit information have changed. If you only change a bit of your code
+   * and rebuild/rerun you will see an older timestamp that you may have expected. Essentially
+   * the functional meaning becomes **The latest build time when the git information was written
+   * to the git.properties file**.
+   * The reason why this was done can be found in
+   * [issue 151](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/151).</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "false")
   boolean generateGitPropertiesFile;
 
   /**
-   * <p>The location of {@code 'git.properties'} file. Set {@code 'generateGitPropertiesFile'} to {@code 'true'}
-   * to generate this file.</p>
+   * Configuration to tell the git-commit-id-maven-plugin about the
+   * location where you want to generate a {@code 'git.properties'} file.
    *
-   * <p>The path here is relative to your project src directory.</p>
+   * <p>By default the file would be generated under
+   * {@code ${project.build.outputDirectory}/git.properties}, but you would need to
+   * set {@link #generateGitPropertiesFile} to {@code true} first to "activate" the generation of this file.
+   * You can also choose the format of the generated properties by specifying it under {@link #format}.</p>
+   *
+   * <p>The path can be relative to {@code ${project.basedir}} (e.g. {@code target/classes/git.properties}) or
+   * can be a full path (e.g. {@code ${project.build.outputDirectory}/git.properties}).</p>
+   *
+   * <p>Note: If you plan to set the generateGitPropertiesFilename-Path to a location where usually
+   * the source-files comes from (e.g. {@code src/main/resources}) and experience that your IDE
+   * (e.g. eclipse) invokes "Maven Project Builder" once every second, the chances that you
+   * are using an IDE where the src-folder is a watched folder for files that are <b>only</b>
+   * edited by humans is pretty high.
+   * </br>
+   * For further information refer to the manual for your
+   * specific IDE and check the workflow of "incremental project builders".
+   * </br>
+   * In order to fix this problem we recommend to set the generateGitPropertiesFilename-Path
+   * to a target folder (e.g. {@code ${project.build.outputDirectory}}) since this is
+   * the place where all derived/generated resources should go.
+   * </br>
+   * With plugin version 3.0.0 we introduced a smarter way to counter that issue, but that might not
+   * be supported by your IDE.
+   * See: <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/385">pull 385</a>
+   * for further information</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+   * </pre>
+   * </p>
+   *
    */
   @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
   String generateGitPropertiesFilename;
 
   /**
    * Controls whether special characters in the properties
-   * within the generateGitPropertiesFilename should be unicode escaped.
+   * within the {@link #generateGitPropertiesFilename} should be unicode escaped.
    * By default properties are escaped (e.g. \\u6E2C\\u8A66\\u4E2D\\u6587).
    * If you write commit messages in chinese and want to extract the message
    * without any additional conversion from the generated properties
-   * you may want to set this to {@code 'false'}.
+   * you may want to set this to {@code false}.
    *
-   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/590
-   * for further details.
+   * <p>See <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/590">issue 590</a>
+   * for further details.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *    <generateGitPropertiesFileWithEscapedUnicode>true</generateGitPropertiesFileWithEscapedUnicode>
+   * </pre>
+   * </p>
    *
    * @since 6.0.0
    */
@@ -142,7 +265,17 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean generateGitPropertiesFileWithEscapedUnicode;
 
   /**
-   * The root directory of the repository we want to check.
+   * Configuration to tell the git-commit-id-maven-plugin about the
+   * root directory of the git repository we want to check.
+   * By default uses {@code ${project.basedir}/.git} will most probably be
+   * ok for single module projects, in other cases please use `../` to get higher up
+   * in the dir tree (e.g. {@code ${project.basedir}/../.git}).
+   *
+   * <p>Example:
+   * <pre>
+   *    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "${project.basedir}/.git")
   File dotGitDirectory;
@@ -150,6 +283,131 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * Configuration for the {@code 'git-describe'} command.
    * You can modify the dirty marker, abbrev length and other options here.
+   * The following `gitDescribe` configuration below is optional and can be leveraged as a
+   * really powerful versioning helper. If you are not familiar with
+   * <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin#git-describe-&#45;-short-intro-to-an-awesome-command">git-describe</a>
+   * it is highly recommended to go through this part of the documentation.
+   *
+   * <p>More advanced users can most likely skip the explanations in this section, as it just explains the
+   * same options that git provides.
+   * As a side note this plugin tries to be 1-to-1 compatible with git's plain output, even
+   * though the describe functionality has been reimplemented manually using JGit (you don't
+   * have to have a git executable to use the plugin).</p>
+   *
+   * For further information refer to <a href="https://git-scm.com/docs/git-describe">this</a>.
+   *
+   * <p>Example:
+   *     <pre>
+   *         <gitDescribe>
+   *             <!--
+   *             Default (optional):
+   *             false
+   *
+   *             Explanation:
+   *             When you don't want to use `git-describe` information in your build, you can set this
+   *             to `true` to avoid to calculate it.
+   *             -->
+   *             <skip>false</skip>
+   *
+   *             <!--
+   *             Default (optional):
+   *             true
+   *
+   *             Explanation:
+   *             In some cases no tag can be found `near` this commit (e.g. usually when performing a
+   *             shallow clone). If this is set to `true` and no tag was found, this property will
+   *             fallback to the commit's id instead (when `true` this property will not become empty).
+   *             Set this to `true` when you *always* want to return something meaningful in the
+   *             describe property.
+   *             -->
+   *             <always>true</always>
+   *
+   *             <!--
+   *             Default (optional):
+   *             7
+   *
+   *             Explanation:
+   *             In the describe output, the object id of the hash is always abbreviated to N letters
+   *             (by default 7).
+   *
+   *             The typical describe output you'll see therefore is: `v2.1.0-1-gf5cd254`, where `-1-`
+   *             means the number of commits away from the mentioned tag and the `-gf5cd254` part means
+   *             the first 7 chars of the current commit's id `f5cd254`.
+   *             Setting *abbrev* to `0` has the effect of hiding the "distance from tag" and
+   *             "object id" parts of the output, so you end up with just the "nearest tag" (that is,
+   *             instead `tag-12-gaaaaaaa` with `abbrev = 0` you'd get `tag`).
+   *
+   *             **Please note that the `g` prefix is included to notify you that it's a commit id,
+   *             it is NOT part of the commit's object id** - *this is default git behaviour, so we're
+   *             doing the same*.
+   *
+   *             You can set this to any value between 0 and 40 (inclusive). `0` carries the special
+   *             meaning (checkout the [git describe documentation](docs/git-describe.md) for the
+   *             special case abbrev = 0).
+   *             Maximum value is `40`, because of max SHA-1 length.
+   *             -->
+   *             <abbrev>7</abbrev>
+   *
+   *             <!--
+   *             Default (optional):
+   *             -dirty
+   *
+   *             Explanation:
+   *             When you run describe on a repository that's in "dirty state" (has uncommitted
+   *             changes), the describe output will contain an additional suffix, such as "-devel"
+   *             in this example: `v3.5-3-g2222222-devel`. This configuration allows you to alter
+   *             that additional suffix and gets appended to describe, while the repo is in
+   *             "dirty state". You can configure that suffix to be anything you want, "-DEV" being
+   *             a nice example. The "-" sign should be included in the configuration parameter, as it
+   *             will not be added automatically. If in doubt run `git describe &#45;-dirty=-my_thing`
+   *             to see how the end result will look like.
+   *             -->
+   *             <dirty>-dirty</dirty>
+   *
+   *             <!--
+   *             Default (optional):
+   *             * (include all tags)
+   *
+   *             Explanation:
+   *             Git describe may contain information to tag names. Set this configuration to only
+   *             consider tags matching the given pattern.
+   *             This can be used to avoid leaking private tags from the repository.
+   *             -->
+   *             <match>*</match>
+   *
+   *             <!--
+   *             Default (optional):
+   *             false
+   *
+   *             Explanation:
+   *             When you run git-describe it only looks only for *annotated tags* by default.
+   *             If you wish to consider *lightweight tags* in your describe as well you would need
+   *             to switch this to `true`.
+   *
+   *             The difference between *annotated tags* and *lightweight tags* is outlined in more
+   *             depth here: https://github.com/git-commit-id/git-commit-id-maven-plugin/#git-describe-and-a-small-gotcha-with-tags
+   *             -->
+   *             <tags>false</tags>
+   *
+   *             <!--
+   *             Default (optional):
+   *             false
+   *
+   *             Explanation:
+   *             git-describe, by default, returns just the tag name, if the current commit is tagged.
+   *             Set this option to `true` to force it to format the output using the typical describe
+   *             format ("${tag-name}-${commits_from_tag}-g${commit_id-maybe_dirty}"), even if "on" a tag.
+   *
+   *             An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is
+   *             0 here, if you don't use **forceLongFormat** mode, the describe for such commit would
+   *             look like this: `tagname`.
+   *             -->
+   *             <forceLongFormat>false</forceLongFormat>
+   *         </gitDescribe>
+   *     </pre>
+   * </p>
+   *
+   * @since 2.1.0
    */
   @Parameter
   GitDescribeConfig gitDescribe;
@@ -157,6 +415,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   /**
    * <p>Minimum length of {@code 'git.commit.id.abbrev'} property.
    * Value must be from 2 to 40 (inclusive), other values will result in an exception.</p>
+   *
+   * <p>Defaults to `7`</p>
    *
    * <p>An abbreviated commit is a shorter version of commit id. However, it is guaranteed to be unique.
    * To keep this contract, the plugin may decide to print an abbreviated version
@@ -166,63 +426,179 @@ public class GitCommitIdMojo extends AbstractMojo {
    * getting a 4 or 7 char long abbrev version of the commit id. If your repository, on the other hand,
    * has just 4 commits, you'll probably get a 2 char long abbreviation.</p>
    *
+   * <p>Example:
+   * <pre>
+   *    <abbrevLength>7</abbrevLength>
+   * </pre>
+   * </p>
+   *
+   * @since 2.0.4
    */
   @Parameter(defaultValue = "7")
   int abbrevLength;
 
   /**
-   * The format to save properties in: {@code 'properties'} or {@code 'json'}.
+   * Denotes the format to save properties of the properties file that can be configured with
+   * {@link #generateGitPropertiesFilename}.
+   *
+   * <p>Valid options are encoded in {@link CommitIdPropertiesOutputFormat}
+   * and currently would allow "properties" (default) and "json".
+   * Future option like yml, toml, ... might be supported at some point.</p>
+   *
+   * <p>Note:
+   * If you set this to "json", you might also should checkout the documentation about
+   * {@link #commitIdGenerationMode} and may want to set
+   * {@code <commitIdGenerationMode>full</commitIdGenerationMode>}.
+   * </p>
+   *
+   * <p>Example:
+   * <pre>
+   *    <format>properties</format>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "properties")
   String format;
 
+  /**
+   * Not settable by any configuration in the {@code pom.xml}.
+   * For internal use only (represents the {@link #format} the user has set as enum.
+   */
   private CommitIdPropertiesOutputFormat commitIdPropertiesOutputFormat;
 
   /**
-   * The prefix to expose the properties on. For example {@code 'git'} would allow you to access {@code ${git.branch}}.
+   * Configuration to tell the git-commit-id-maven-plugin about the
+   * property that will be used as the "namespace" prefix for all exposed/generated properties.
+   * An example the plugin may generate the property `${configured-prefix}.commit.id`.
+   * Such behaviour can be used to generate properties for multiple git repositories (see
+   * <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/137#issuecomment-418144756">issue 173</a>
+   * for a full example).
+   *
+   * <p>By default is set to {@code 'git'} that for example would allow you to access {@code ${git.branch}}</p>
+   *
+   * <p>Example:
+   * <pre>
+   *    <prefix>git</prefix>
+   * </pre>
+   * </p>
    */
   @Parameter(defaultValue = "git")
   String prefix;
 
   /**
-   * The date format to be used for any dates exported by this plugin. It should be a valid {@link SimpleDateFormat} string.
+   * This date format will be used to format the time of any exposed/generated property
+   * that represents dates or times exported by this plugin (e.g. {@code git.commit.time}, {@code git.build.time}).
+   * It should be a valid {@link SimpleDateFormat} string.
+   *
+   * <p>
+   * The current dateFormat is set to match maven's default {@code yyyy-MM-dd'T'HH:mm:ssZ}.
+   * Please note that in previous versions (2.2.0 - 2.2.2) the default dateFormat was set to:
+   * {@code dd.MM.yyyy '@' HH:mm:ss z}. However the {@code RFC 822 time zone} seems to give a more
+   * reliable option in parsing the date and it's being used in maven as default.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+   * </pre>
+   * </p>
+   *
+   * @since 2.2.0
    */
   @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
   String dateFormat;
 
   /**
-   * <p>The timezone used in the date format of dates exported by this plugin.
+   * <p>The timezone used in the {@link #dateFormat} of dates exported by this plugin (e.g. {@code git.commit.time}, {@code git.build.time}).
    * It should be a valid Timezone string such as {@code 'America/Los_Angeles'}, {@code 'GMT+10'} or {@code 'PST'}.</p>
    *
-   * <p>Try to avoid three-letter time zone IDs because the same abbreviation is often used for multiple time zones.
-   * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a> for more information on this issue.</p>
+   * <p>As a general warning try to avoid three-letter time zone IDs because the same abbreviation are often used for multiple time zones.
+   * Please review <a href="https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html">https://docs.oracle.com/javase/7/docs/api/java/util/TimeZone.html</a>
+   * for more information on this issue.</p>
+   *
+   * <p>The default value we'll use the timezone use the timezone that's shipped with java
+   * ({@code java.util.TimeZone.getDefault().getID()}).
+   * <b>Note</b>: If you plan to set the java's timezone by using
+   * {@code MAVEN_OPTS=-Duser.timezone=UTC mvn clean package},
+   * {@code mvn clean package -Duser.timezone=UTC},
+   * or any other configuration keep in mind that this option will override those settings and
+   * will not take other configurations into account!</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+   * </pre>
+   * </p>
+   *
+   * @since 2.2.0
    */
   @Parameter
   String dateFormatTimeZone;
 
   /**
-   * Set this to {@code 'false'} to continue the build on missing {@code '.git'} directory.
+   * Specify whether the plugin should fail when a {@code '.git'} directory cannot be found.
+   * When set to {@code false} and no {@code .git} directory is found the plugin will skip execution.
+   *
+   * <p>Defaults to {@code true}, so a missing {@code '.git'} directory is treated as error
+   * and should cause a failure in your build.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <failOnNoGitDirectory>true</failOnNoGitDirectory>
+   * </pre>
+   * </p>
+   *
+   * @since 2.0.4
    */
   @Parameter(defaultValue = "true")
   boolean failOnNoGitDirectory;
 
   /**
-   * <p>Set this to {@code 'false'} to continue the build even if unable to get enough data for a complete run.
+   * <p>Set this to {@code false} to continue the build even if unable to get enough data for a complete run.
    * This may be useful during CI builds if the CI server does weird things to the repository.</p>
    *
-   * <p>Setting this value to {@code 'false'} causes the plugin to gracefully tell you "I did my best"
+   * <p>Setting this value to {@code false} causes the plugin to gracefully tell you "I did my best"
    * and abort its execution if unable to obtain git meta data - yet the build will continue to run without failing.</p>
+   *
+   * <p>By default the plugin will fail the build (set to {@code true}) if unable to obtain enough data for a complete
+   * run.</p>
    *
    * <p>See <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/63">issue #63</a>
    * for a rationale behind this flag.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+   * </pre>
+   * </p>
+   *
+   * @since 2.1.5
    */
   @Parameter(defaultValue = "true")
   boolean failOnUnableToExtractRepoInfo;
 
   /**
-   * Set this to {@code 'true'} to use native Git executable to fetch information about the repository.
-   * It is in most cases faster but requires a git executable to be installed in system.
-   * By default the plugin will use jGit implementation as a source of information about the repository.
+   * This plugin ships with custom {@code jgit} implementation that is being used to obtain all relevant information.
+   * If set to {@code true} the plugin will use native git executable instead of the custom {@code jgit} implementation
+   * to fetch information about the repository.
+   * Of course if set to {@code true} will require a git executable to be installed in system.
+   *
+   * <p>Although setting this to {@code true} (use the native git executable)
+   * should usually give your build some performance boost, it may randomly
+   * break if you upgrade your git version and it decides to print information in a different
+   * format suddenly.</p>
+   *
+   * <p>By default the plugin will use {@code jgit} implementation as a source of information about the repository.
+   * As rule of thumb, keep using the default {@code jgit} implementation (set to {@code false})
+   * until you notice performance problems within your build (usually when you have *hundreds* of maven modules).</p>
+   *
+   * <p>With plugin version *3.0.2* you can also control it using the commandline option
+   * {@code -Dmaven.gitcommitid.nativegit=true}. See {@link #useNativeGitViaCommandLine}</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <useNativeGit>true</useNativeGit>
+   * </pre>
+   * </p>
    *
    * @since 2.1.9
    */
@@ -230,13 +606,19 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean useNativeGit;
 
   /**
-   * Option to be used in command-line to override the value of {@code 'useNativeGit'} specified in
+   * Option to be used in command-line to override the value of {@link #useNativeGit} specified in
    * the pom.xml, or its default value if it's not set explicitly.
    *
-   *  NOTE / WARNING:
-   *  Do *NOT* set this property inside the configuration of your plugin.
-   *  Please read https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/315
-   *  to find out why.
+   * <p>NOTE / WARNING:
+   * Do *NOT* set this property inside the configuration of your plugin.
+   * Please read <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/315">issue 315</a>
+   * to find out why.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     mvn clean package -Dmaven.gitcommitid.nativegit=true
+   * </pre>
+   * </p>
    *
    * @since 3.0.2
    */
@@ -244,146 +626,434 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean useNativeGitViaCommandLine;
 
   /**
-   * Set this to {@code 'true'} to skip plugin execution.
+   * When set to {@code true} the plugin execution will completely skip.
+   * This is useful for e.g. profile activated plugin invocations or to use properties to
+   * enable / disable pom features.
+   *
+   * <p>By default the execution is not skipped (set to {@code false})</p>
+   *
+   * <p>With version *2.2.3* you can also skip the plugin by using the commandline option
+   * {@code -Dmaven.gitcommitid.skip=true}. See {@link #skipViaCommandLine}</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <skip>false</skip>
+   * </pre>
+   * </p>
+   *
    * @since 2.1.8
    */
   @Parameter(defaultValue = "false")
   boolean skip;
 
-
   /**
-   * Set this to {@code 'true'} to skip plugin execution via commandline.
-   * NOTE / WARNING:
+   * Option to be used in command-line to override the value of {@link #skip} specified in
+   * the pom.xml, or its default value if it's not set explicitly.
+   * Set this to {@code true} to skip plugin execution via commandline.
+   *
+   * <p>NOTE / WARNING:
    * Do *NOT* set this property inside the configuration of your plugin.
-   * Please read
-   * https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/315
-   * to find out why.
+   * Please read <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/315">issue 315</a>
+   * to find out why.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     mvn clean package -Dmaven.gitcommitid.skip=true
+   * </pre>
+   * </p>
+   *
    * @since 2.2.4
    */
   @Parameter(property = "maven.gitcommitid.skip", defaultValue = "false")
   private boolean skipViaCommandLine;
 
   /**
-   * <p>Set this to {@code 'true'} to only run once in a multi-module build.  This probably won't "do the right thing"
-   * if your project has more than one git repository.  If you use this with {@code 'generateGitPropertiesFile'},
-   * it will only generate (or update) the file in the directory where you started your build.</p>
+   * Use with caution!
    *
-   * <p>The git.* maven properties are available in all modules.</p>
+   * <p>Set this to {@code true} to only run once in a multi-module build.
+   * This means that the plugins effects will only execute once for the first project in the execution graph.
+   * If {@code skipPoms} is set to {@code true} (default) the plugin will run for the first
+   * non pom project in the execution graph (as listed in the reactor build order).
+   * This probably won't "do the right thing" if your project has more than one git repository.</p>
+   *
+   * <p>Defaults to {@code false}, so the plugin may get executed multiple times in a reactor build!</p>
+   *
+   * <p>Important: If you're using {@link #generateGitPropertiesFile}, setting {@code runOnlyOnce} will make
+   * the plugin only generate the file in the project build directory which is the first one
+   * based on the execution graph (!).</p>
+   *
+   * <p>Important: Please note that the git-commit-id-maven-plugin also has an option to skip pom
+   * project ({@code <packaging>pom</packaging>}). If you plan to use the {@code runOnlyOnce} option
+   * alongside with an aggregator pom you may want to set {@code <skipPoms>false</skipPoms>}.
+   * Refer to {@link #skipPoms} for more information</p>
+   *
+   * <p>For multi-module build you might also want to set {@link #injectAllReactorProjects} to make
+   * the {@code git.*} maven properties available in all modules.</p>
+   *
+   * <p>Note:
+   * Prior to version 4.0.0 the plugin was simply using the execute once applied for the parent
+   * project (which might have skipped execution if the parent project was a pom project).</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <runOnlyOnce>true</runOnlyOnce>
+   * </pre>
+   * </p>
+   *
    * @since 2.1.12
    */
   @Parameter(defaultValue = "false")
   boolean runOnlyOnce;
 
   /**
-   * <p>List of properties to exclude from the resulting file.
-   * May be useful when you want to hide {@code 'git.remote.origin.url'} (maybe because it contains your repo password?)
-   * or the email of the committer.</p>
+   * Can be used to exclude certain properties from being emitted (e.g. filter out properties
+   * that you *don't* want to expose). May be useful when you want to hide
+   * {@code git.build.user.email} (maybe because you don't want to expose your eMail?),
+   * or the email of the committer?
    *
-   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to exclude both the {@code 'name'}
-   * as well as {@code 'email'} properties from being emitted into the resulting files.</p>
+   * <p>Each value may be globbing, that is, you can write {@code git.commit.user.*} to
+   * exclude both the {@code name}, as well as {@code email} properties from being emitted.
    *
-   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
+   * <p>Please note that the strings here are Java regexes ({@code .*} is globbing,
+   * not plain {@code *}).
+   * If you have a very long list of exclusions you may want to
+   * use {@link #includeOnlyProperties}.
+   *
+   * <p>This feature was implemented in response to <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/91">issue 91</a>,
+   * so if you're curious about the use-case, check that issue.</p>
+   *
+   * <p>Prior to version 3.0.0 the plugin used the 'naive' approach to ask for all properties
+   * and then apply filtering. However, with the growing numbers of properties each property
+   * eat more and more of execution time that will be filtered out afterwards.
+   * With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the
+   * plugin will not even try to get the property when excluded. Such behaviour can result in
+   * an overall reduced execution time of the plugin
+   * (see <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/408">issue 408</a> for details).</p>
+   *
+   * <p>Defaults to the empty list (= no properties are excluded).
+   *
+   * <p>Example:
+   * <pre>
+   *     <excludeProperties>
+   *          <excludeProperty>git.user.*</excludeProperty>
+   *     </excludeProperties>
+   * </pre>
+   * </p>
+   *
    * @since 2.1.9
    */
   @Parameter
   List<String> excludeProperties;
 
   /**
-   * <p>List of properties to include into the resulting file. Only properties specified here will be included.
-   * This list will be overruled by the {@code 'excludeProperties'}.</p>
+   * Can be used to include only certain properties into the emission (e.g. include only
+   * properties that you <b>want</b> to expose). This feature was implemented to avoid big exclude
+   * properties tag when we only want very few specific properties.
    *
-   * <p>Supports wildcards: you can write {@code 'git.commit.user.*'} to include both the {@code 'name'}
-   * as well as {@code 'email'} properties into the resulting files.</p>
+   * <p>The inclusion rules, will be overruled by the {@link #excludeProperties} rules
+   * (e.g. you can write an inclusion rule that applies for multiple
+   * properties and then exclude a subset of them).
+   * You can therefor can be a bit broader in the inclusion rules and
+   * exclude more sensitive ones  in the {@link #excludeProperties} rules.
    *
-   * <p><b>Note:</b> The strings here are Java regular expressions: {@code '.*'} is a wildcard, not plain {@code '*'}.</p>
+   * <p>Each value may be globbing, that is, you can write {@code git.commit.user.*} to
+   * exclude both the {@code name}, as well as {@code email} properties from being emitted.
+   *
+   * <p>Please note that the strings here are Java regexes ({@code .*} is globbing,
+   * not plain {@code *}).
+   * If you have a short list of exclusions you may want to
+   * use {@link #excludeProperties}.
+   *
+   * <p>Prior to version 3.0.0 the plugin used the 'naive' approach to ask for all properties
+   * and then apply filtering. However, with the growing numbers of properties each property
+   * eat more and more of execution time that will be filtered out afterwards.
+   * With 3.0.0 this behaviour was readjusted to a 'selective running' approach whereby the
+   * plugin will not even try to get the property when excluded. Such behaviour can result in
+   * an overall reduced execution time of the plugin
+   * (see <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/408">issue 408</a> for details).</p>
+   *
+   * <p>Defaults to the empty list (= no properties are excluded).</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <includeOnlyProperties>
+   *         <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty>
+   *     </includeOnlyProperties>
+   * </pre>
+   * </p>
+   *
    * @since 2.1.14
    */
   @Parameter
   List<String> includeOnlyProperties;
 
   /**
-   * <p>The mode of {@code 'git.commit.id'} property generation.</p>
+   * The option can be used to tell the plugin how it should generate the {@code 'git.commit.id'} property.
+   * Due to some naming issues when exporting the properties as an json-object
+   * (<a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/122">issue 122</a>) we needed to
+   * make it possible to export all properties as a valid json-object.
    *
-   * <p>{@code 'git.commit.id'} property name is incompatible with json export
-   * (see <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/122">issue #122</a>).
-   * This property allows one either to preserve backward compatibility or to enable fully valid json export:
+   * <p>Due to the fact that this is one of the major properties the plugin is exporting we
+   * just don't want to change the exporting mechanism and somehow throw the backwards
+   * compatibility away.
+   * We rather provide a convenient switch where you can choose if you
+   * would like the properties as they always had been, or if you rather need to support
+   * full json-object compatibility.</p>
    *
+   * <p>In the case you need to fully support json-object we unfortunately need to change the
+   * {@code 'git.commit.id'} property from {@code 'git.commit.id'} to {@code 'git.commit.id.full'} in the exporting
+   * mechanism to allow the generation of a fully valid json object.</p>
+   *
+   * <p>Currently, the switch allows two different options:
    * <ol>
-   * <li>{@code 'flat'} (default) generates the property {@code 'git.commit.id'}, preserving backwards compatibility.</li>
-   * <li>{@code 'full'} generates the property {@code 'git.commit.id.full'}, enabling fully valid json object export.</li>
-   * </ol>
-   * </p>
+   *     <li>
+   *         By default this property is set to {@code 'flat'} and will generate the formerly known
+   *         property {@code 'git.commit.id'} as it was in the previous versions of the plugin.
+   *         Keeping it to {@code 'flat'} by default preserve backwards compatibility and does not require further
+   *         adjustments by the end user.
+   *     </li>
+   *     <li>
+   *         If you set this switch to {@code 'full'} the plugin will export the formerly known property
+   *         {@code 'git.commit.id'} as {@code 'git.commit.id.full'} and therefore will generate a fully valid
+   *         json object in the exporting mechanism.
+   *     </li>
+   * </ol></p>
    *
-   * <p><b>Note:</b> Depending on your plugin configuration you obviously can choose the `prefix` of your properties
-   * by setting it accordingly in the plugin's configuration. As a result this is therefore only an illustration
-   * what the switch means when the 'prefix' is set to it's default value.</p>
    * <p><b>Note:</b> If you set the value to something that's not equal to {@code 'flat'} or {@code 'full'} (ignoring the case)
    * the plugin will output a warning and will fallback to the default {@code 'flat'} mode.</p>
+   *
+   *
+   * <p>Example:
+   * <pre>
+   *     <commitIdGenerationMode>flat</commitIdGenerationMode>
+   * </pre>
+   * </p>
+   *
    * @since 2.2.0
    */
   @Parameter(defaultValue = "flat")
   String commitIdGenerationMode;
+
+  /**
+   * Not settable by any configuration in the {@code pom.xml}.
+   * For internal use only (represents the {@link #commitIdGenerationMode} the user has set as enum.
+   */
   private CommitIdGenerationMode commitIdGenerationModeEnum;
 
   /**
-   * Allow to replace certain characters or strings using regular expressions within the generated git properties.
-   * On a configuration level it can be defined whether the replacement should affect all properties or just a single one.
+   * Can be used to replace certain characters or strings using regular expressions within the
+   * exposed properties.
+   * Replacements can be performed using regular expressions and on a configuration level
+   * it can be defined whether the replacement should affect all properties or just a single one.
    *
    * Please note that the replacement will only be applied to properties that are being generated by the plugin.
-   * If you want to replace properties that are being generated by other plugins you may want to use the maven-replacer-plugin or any other alternative.
+   * If you want to replace properties that are being generated by other plugins you may want to use the
+   * maven-replacer-plugin or any other alternative.
+   *
+   * Replacements can be configured with a {@code replacementProperty}.
+   * A {@code replacementProperty} can have a {@code property}` and a {@code regex}-tag.
+   * If the {@code replacementProperty} configuration has a {@code property}-tag the
+   * replacement will only be performed on that specific property
+   * (e.g. {@code <property>git.branch</property>} will only be performed on {@code git.branch}).
+   *
+   * In case this specific element is not defined or left empty the replacement will be
+   * performed <b>on all generated properties</b>.
+   *
+   * The optional {@code regex}-tag can either be {@code true} to perform a replacement with regular
+   * expressions or {@code false} to perform a replacement with java's string.replace-function.
+   *
+   * By default the replacement will be performed with regular expressions ({@code true}).
+   * Furthermore each {@code replacementProperty} need to be configured with a {@code token} and a {@code value}.
+   * The {@code token} can be seen as the needle and the {@code value} as the text to be written over any
+   * found tokens. If using regular expressions the value can reference grouped regex matches
+   * by using $1, $2, etc.
+   *
+   * Since 2.2.4 the plugin allows to define a even more sophisticated ruleset and allows to
+   * set an {@code propertyOutputSuffix} within each {@code replacementProperty}.
+   * If this option is empty the original property will be overwritten (default behaviour in 2.2.3).
+   * However when this configuration is set to {@code something} and a user wants to modify the
+   * {@code git.branch} property the plugin will keep {@code git.branch} as the original one (w/o modifications)
+   * but also will be creating a new {@code git.branch.something} property with the requested replacement.
+   *
+   * Furthermore with 2.2.4 the plugin allows to perform certain types of string manipulation
+   * either before or after the evaluation of the replacement.
+   * With this feature a user can currently easily manipulate the case (e.g. lower case VS upper case)
+   * of the input/output property.
+   * This behaviour can be achieved by defining a list of {@code transformationRules} for
+   * the property where those rules should take effect.
+   * Each {@code transformationRule} consist of two required fields {@cdoe apply} and {@code action}.
+   * The {@cdoe apply}-tag controls when the rule should be applied and can be set to {@code BEFORE}
+   * to have the rule being applied before or it can be set to {@code AFTER} to have the
+   * rule being applied after the replacement.
+   * The {@code action}-tag determines the string conversion rule that should be applied.
+   * Currently supported is {@code LOWER_CASE} and {@code UPPER_CASE}.
+   * Potential candidates in the feature are {@code CAPITALIZATION} and {@code INVERT_CASE}
+   * (open a ticket if you need them...).
+   *
+   *  Since 4.0.1 the plugin allows to define a {@code forceValueEvaluation}-switch which forces the
+   *  plugin to evaluate the given value on <b>every</b> project.
+   *
+   *  This might come handy if <b>every</b> project needs a unique value and a user wants to
+   *  project specific variables like {@code ${project.artifactId}}.
+   *  Be advised that this essentially means that the plugin <b>must</b> run for every child-project of a
+   *  reactor build and thus might cause some overhead (the git properties should be cached).
+   *  For a use-case refer to <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/457">issue 457</a>
+   *
+   * <p>Defaults to the empty list / not set (= no properties are being replaced by default)</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <replacementProperties>
+   *         <!--
+   *             example:
+   *             apply replacement only to the specific property git.branch and replace '/' with '-'
+   *             see also https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/138
+   *         -->
+   *         <replacementProperty>
+   *             <property>git.branch</property>
+   *             <propertyOutputSuffix>something</propertyOutputSuffix>
+   *             <token>^([^\/]*)\/([^\/]*)$</token>
+   *             <value>$1-$2</value>
+   *             <regex>true</regex>
+   *             <forceValueEvaluation>false</forceValueEvaluation>
+   *             <transformationRules>
+   *                 <transformationRule>
+   *                     <apply>BEFORE</apply>
+   *                     <action>UPPER_CASE</action>
+   *                 </transformationRule>
+   *                 <transformationRule>
+   *                     <apply>AFTER</apply>
+   *                     <action>LOWER_CASE</action>
+   *                 </transformationRule>
+   *             </transformationRules>
+   *         </replacementProperty>
+   *     </replacementProperties>
+   * </pre>
+   * </p>
+   *
    * @since 2.2.3
    */
   @Parameter
   List<ReplacementProperty> replacementProperties;
 
   /**
-   * Allow to tell the plugin what commit should be used as reference to generate the properties from.
-   * By default this property is simply set to <p>HEAD</p> which should reference to the latest commit in your repository.
+   * Allow to tell the plugin what commit should be used as reference to
+   * generate the properties from.
    *
-   * In general this property can be set to something generic like <p>HEAD^1</p> or point to a branch or tag-name.
-   * To support any kind or use-case this configuration can also be set to an entire commit-hash or it's abbreviated version.
+   * <p>In general this property can be set to something generic like {@code HEAD^1} or point to a
+   * branch or tag-name. To support any kind or use-case this configuration can also be set
+   * to an entire commit-hash or it's abbreviated version.</p>
    *
-   * A use-case for this feature can be found in https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/338.
+   * <p>A use-case for this feature can be found in
+   * <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/338">here</a>.</p>
    *
-   * Please note that for security purposes not all references might be allowed as configuration.
-   * If you have a specific use-case that is currently not white listed feel free to file an issue.
+   * <p>Please note that for security purposes not all references might
+   * be allowed as configuration. If you have a specific use-case that is currently
+   * not white listed feel free to file an issue.</p>
+   *
+   * <p>By default this property is simply set to {@code HEAD} which should reference to the latest
+   * commit in your repository.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <evaluateOnCommit>HEAD</evaluateOnCommit>
+   * </pre>
+   * </p>
+   *
    * @since 2.2.4
    */
   @Parameter(defaultValue = "HEAD")
   String evaluateOnCommit;
 
   /**
-   * Allow to specify a timeout (in milliseconds) for fetching information with the native Git executable.
-   * Note that {@code useNativeGit} needs to be set to {@code 'true'} to use native Git executable.
+   * Allow to specify a timeout (in milliseconds) for fetching information with the native
+   * Git executable. This option might come in handy in cases where fetching information
+   * about the repository with the native Git executable does not terminate.
+   *
+   * <p>Note: This option will only be taken into consideration when using the native git
+   * executable ({@link #useNativeGit} is set to {@code true}).
+   *
+   * <p>By default this timeout is set to 30000 (30 seconds).
+   *
+   * <p>Example:
+   * <pre>
+   *     <nativeGitTimeoutInMs>30000</nativeGitTimeoutInMs>
+   * </pre>
+   * </p>
+   *
    * @since 3.0.0
    */
   @Parameter(defaultValue = "30000")
   long nativeGitTimeoutInMs;
 
   /**
-   * Use branch name from build environment. Set to {@code 'false'} to use JGit/GIT to get current branch name.
-   * Useful when using the JGitflow maven plugin.
+   * When set to {@code true} this plugin will try to use the branch name from build environment.
+   * Set to {@code false} to use JGit/GIT to get current branch name which can be useful
+   * when using the JGitflow maven plugin.
+   * See https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/24#issuecomment-203285398
+   *
    * Note: If not using "Check out to specific local branch' and setting this to false may result in getting
    * detached head state and therefore a commit id as branch name.
+   *
+   * <p>By default this is set to {@code true}.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <useBranchNameFromBuildEnvironment>true</useBranchNameFromBuildEnvironment>
+   * </pre>
+   * </p>
+   *
    * @since 3.0.0
    */
   @Parameter(defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
 
-
   /**
-   * Controls if this plugin should expose the generated properties into System.properties
+   * Controls if this plugin should expose the generated properties into {@code System.properties}
+   * When set to {@code true} this plugin will try to expose the generated properties into
+   * {@code System.getProperties()}. Set to {@code false} to avoid this exposure.
+   *
+   * Note that parameters provided via command-line (e.g. {@code -Dgit.commit.id=value}) still
+   * have precedence.
+   *
+   * <p>By default this is set to {@code true}.</p>
+   *
+   * <p>Example:
+   * <pre>
+   *     <injectIntoSysProperties>true</injectIntoSysProperties>
+   * </pre>
+   * </p>
+   *
    * @since 3.0.0
    */
   @Parameter(defaultValue = "true")
   boolean injectIntoSysProperties;
 
   /**
-   * Controls whether the git plugin tries to access remote repos to fetch latest information
-   * or only use local information.
+   * The plugin can generate certain properties that represents the count of commits
+   * that your local branch is ahead or behind in perspective to the remote branch.
    *
-   * :warning: Before version 5.X.X the default was set to {@code false} causing the plugin to operate
-   * in online-mode by default.
+   * <p>When your branch is "ahead" it means your local branch has committed changes that are not
+   * pushed yet to the remote branch.
+   * When your branch is "behind" it means there are commits in the remote branch that are not yet
+   * integrated into your local branch.</p>
+   *
+   * <p>This configuration allows you to control if the plugin should somewhat ensure
+   * that such properties are more accurate. More accurate means that the plugin will perform a
+   * {@code git fetch} before the properties are calculated.
+   * Certainly a {@code git fetch} is an operation that may alter your local git repository
+   * and thus the plugin will operate not perform such operation (offline is set to {@code true}).
+   * If you however desire more accurate properties you may want to set this to {@code false}.</p>
+   *
+   * <p>Before version 5.X.X the default was set to {@code false} causing the plugin to operate
+   * in online-mode by default. Now the default is set to {@code true} (offline-mode) so the plugin might generate
+   * inaccurate {@code git.local.branch.ahead} and {@code git.local.branch.behind} branch information.
+   *
+   * <p>Example:
+   * <pre>
+   *     <offline>true</offline>
+   * </pre>
+   * </p>
    *
    * @since 3.0.1
    */
@@ -401,6 +1071,10 @@ public class GitCommitIdMojo extends AbstractMojo {
    */
   @Parameter(defaultValue = "${project.build.outputTimestamp}")
   private String projectBuildOutputTimestamp;
+
+  // This is now the end of parameters that can be configured in the pom.xml
+  // Happy hacking!
+  // ============================================================================================================
 
   /**
    * Injected {@link BuildContext} to recognize incremental builds.
