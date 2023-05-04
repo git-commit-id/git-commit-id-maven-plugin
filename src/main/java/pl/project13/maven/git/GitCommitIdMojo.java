@@ -219,14 +219,14 @@ public class GitCommitIdMojo extends AbstractMojo {
    * (e.g. eclipse) invokes "Maven Project Builder" once every second, the chances that you
    * are using an IDE where the src-folder is a watched folder for files that are <b>only</b>
    * edited by humans is pretty high.
-   * </br>
+   * <br>
    * For further information refer to the manual for your
    * specific IDE and check the workflow of "incremental project builders".
-   * </br>
+   * <br>
    * In order to fix this problem we recommend to set the generateGitPropertiesFilename-Path
    * to a target folder (e.g. {@code ${project.build.outputDirectory}}) since this is
    * the place where all derived/generated resources should go.
-   * </br>
+   * <br>
    * With plugin version 3.0.0 we introduced a smarter way to counter that issue, but that might not
    * be supported by your IDE.
    * See: <a href="https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/385">pull 385</a>
