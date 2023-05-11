@@ -113,7 +113,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <injectAllReactorProjects>false</injectAllReactorProjects>
+   * }
    * </pre>
    * </p>
    *
@@ -134,7 +136,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <verbose>false</verbose>
+   * }
    * </pre>
    * </p>
    */
@@ -159,7 +163,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <skipPoms>true</skipPoms>
+   * }
    * </pre>
    * </p>
    */
@@ -195,7 +201,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <generateGitPropertiesFile>true</generateGitPropertiesFile>
+   * }
    * </pre>
    * </p>
    */
@@ -234,7 +242,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+   * }
    * </pre>
    * </p>
    *
@@ -255,7 +265,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <generateGitPropertiesFileWithEscapedUnicode>true</generateGitPropertiesFileWithEscapedUnicode>
+   * }
    * </pre>
    * </p>
    *
@@ -273,7 +285,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+   * }
    * </pre>
    * </p>
    */
@@ -298,6 +312,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    *     <pre>
+   *     {@code
    *         <gitDescribe>
    *             <!--
    *             Default (optional):
@@ -396,7 +411,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *             Explanation:
    *             git-describe, by default, returns just the tag name, if the current commit is tagged.
    *             Set this option to `true` to force it to format the output using the typical describe
-   *             format ("${tag-name}-${commits_from_tag}-g${commit_id-maybe_dirty}"), even if "on" a tag.
+   *             format ("$tag_name-$commits_from_tag-g$commit_id-maybe_dirty"), even if "on" a tag.
    *
    *             An example would be: `tagname-0-gc0ffebabe` - notice that the distance from the tag is
    *             0 here, if you don't use **forceLongFormat** mode, the describe for such commit would
@@ -404,6 +419,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *             -->
    *             <forceLongFormat>false</forceLongFormat>
    *         </gitDescribe>
+   *     }
    *     </pre>
    * </p>
    *
@@ -428,7 +444,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <abbrevLength>7</abbrevLength>
+   * }
    * </pre>
    * </p>
    *
@@ -453,7 +471,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <format>properties</format>
+   * }
    * </pre>
    * </p>
    */
@@ -478,7 +498,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <prefix>git</prefix>
+   * }
    * </pre>
    * </p>
    */
@@ -498,7 +520,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+   * }
    * </pre>
    * </p>
    *
@@ -525,7 +549,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+   * }
    * </pre>
    * </p>
    *
@@ -543,7 +569,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <failOnNoGitDirectory>true</failOnNoGitDirectory>
+   * }
    * </pre>
    * </p>
    *
@@ -567,7 +595,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+   * }
    * </pre>
    * </p>
    *
@@ -596,7 +626,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <useNativeGit>true</useNativeGit>
+   * }
    * </pre>
    * </p>
    *
@@ -616,7 +648,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     mvn clean package -Dmaven.gitcommitid.nativegit=true
+   * }
    * </pre>
    * </p>
    *
@@ -637,7 +671,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <skip>false</skip>
+   * }
    * </pre>
    * </p>
    *
@@ -658,7 +694,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     mvn clean package -Dmaven.gitcommitid.skip=true
+   * }
    * </pre>
    * </p>
    *
@@ -696,7 +734,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <runOnlyOnce>true</runOnlyOnce>
+   * }
    * </pre>
    * </p>
    *
@@ -734,9 +774,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <excludeProperties>
    *          <excludeProperty>git.user.*</excludeProperty>
    *     </excludeProperties>
+   * }
    * </pre>
    * </p>
    *
@@ -776,9 +818,11 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <includeOnlyProperties>
    *         <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty>
    *     </includeOnlyProperties>
+   * }
    * </pre>
    * </p>
    *
@@ -825,7 +869,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <commitIdGenerationMode>flat</commitIdGenerationMode>
+   * }
    * </pre>
    * </p>
    *
@@ -903,6 +949,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <replacementProperties>
    *         <!--
    *             example:
@@ -928,6 +975,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *             </transformationRules>
    *         </replacementProperty>
    *     </replacementProperties>
+   * }
    * </pre>
    * </p>
    *
@@ -956,7 +1004,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <evaluateOnCommit>HEAD</evaluateOnCommit>
+   * }
    * </pre>
    * </p>
    *
@@ -977,7 +1027,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <nativeGitTimeoutInMs>30000</nativeGitTimeoutInMs>
+   * }
    * </pre>
    * </p>
    *
@@ -999,7 +1051,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <useBranchNameFromBuildEnvironment>true</useBranchNameFromBuildEnvironment>
+   * }
    * </pre>
    * </p>
    *
@@ -1020,7 +1074,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <injectIntoSysProperties>true</injectIntoSysProperties>
+   * }
    * </pre>
    * </p>
    *
@@ -1051,7 +1107,9 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * <p>Example:
    * <pre>
+   * {@code
    *     <offline>true</offline>
+   * }
    * </pre>
    * </p>
    *
