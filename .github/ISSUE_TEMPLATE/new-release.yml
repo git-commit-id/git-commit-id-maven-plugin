@@ -1,0 +1,40 @@
+name: New release request
+description: Will be created by the author of the plugin, so not relevant for the public :-)
+labels: [ ]
+assignees: [ ]
+body:
+    - type: markdown
+      attributes:
+          description: |
+              Just submit this as new issue...
+          value: |
+              This is the place holder to release the new **6.0.0** version.
+              Note that the current open tickets should be addressed, before performing a release.
+
+              # General scope of the new release:
+              Fixed some minor things, added some minor features...(full list https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A6.0.0).
+
+              # Release-Guide
+              see http://central.sonatype.org/pages/ossrh-guide.html
+
+              - [ ] verify that ~/.m2/settings.xml exists and contains username/password which is required as per https://central.sonatype.org/publish/publish-maven/#distribution-management-and-authentication
+              - [ ] update dependencies `mvn versions:display-dependency-updates`
+              - [ ] wait for github actions to pass
+              - [ ] `mvn release:prepare`
+                    [INFO] Checking dependencies and plugins for snapshots ...
+                    What is the release version for "Git Commit Id Maven Plugin"? (io.github.git-commit-id:git-commit-id-maven-plugin) 6.0.0: : [ENTER]
+                    What is SCM release tag or label for "Git Commit Id Maven Plugin"? (io.github.git-commit-id:git-commit-id-maven-plugin) git-commit-id-maven-plugin-6.0.0: : **v6.0.0** [ENTER]
+                    What is the new development version for "Git Commit Id Maven Plugin"? (io.github.git-commit-id:git-commit-id-maven-plugin) 6.0.1-SNAPSHOT: : [ENTER]
+
+              - [ ] wait for github actions to pass
+              - [ ] `mvn release:perform`
+                    - (or `mvn clean source:jar javadoc:jar deploy -Pgpg` from the git tag)
+                    - (or `mvn release:perform -Dresume=false`)
+                    - Note: If the uploading of the artifacts fails, ensure that a [`settings.xml`](https://github.com/git-commit-id/git-commit-id-maven-plugin/blob/master/.buildscript/settings.xml) exists under the local `.m2`-Folder
+              - [ ] then go to https://s01.oss.sonatype.org/ log in there and go to the staging repositories, there will be the plugin, you have to first close and then release it if validation passed.
+              - [ ] verify plugin is available on (might take some time) https://repo1.maven.org/maven2/io/github/git-commit-id/git-commit-id-maven-plugin/
+              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-maven-plugin/milestones) close old milestone
+              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-maven-plugin/milestones) create new milestone for new version
+              - [ ] under [Releases](https://github.com/git-commit-id/git-commit-id-maven-plugin/releases) publish Release-Notes
+              - [ ] update readme to point to the latest version available
+              - [ ] run performance comparison with previous release (https://gist.github.com/TheSnoozer/7891eb9412c9584a052f00650d9c516b)
