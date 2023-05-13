@@ -6,6 +6,7 @@ body:
     - type: textarea
       id: describe-the-release
       attributes:
+          label: Describe the release details (required)
           description: |
               Just submit this as new issue...
           value: |
@@ -40,5 +41,5 @@ body:
               - [ ] update readme to point to the latest version available
               - [ ] run performance comparison with previous release (https://gist.github.com/TheSnoozer/7891eb9412c9584a052f00650d9c516b)
 
-          validations:
-              required: true
+      validations:
+          required: true
