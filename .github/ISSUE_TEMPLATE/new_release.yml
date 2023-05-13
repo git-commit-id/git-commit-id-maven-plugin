@@ -3,7 +3,8 @@ description: Will be created by the author of the plugin, so not relevant for th
 labels: [ ]
 assignees: [ ]
 body:
-    - type: markdown
+    - type: textarea
+      id: describe-the-release
       attributes:
           description: |
               Just submit this as new issue...
@@ -38,3 +39,6 @@ body:
               - [ ] under [Releases](https://github.com/git-commit-id/git-commit-id-maven-plugin/releases) publish Release-Notes
               - [ ] update readme to point to the latest version available
               - [ ] run performance comparison with previous release (https://gist.github.com/TheSnoozer/7891eb9412c9584a052f00650d9c516b)
+
+          validations:
+              required: true
