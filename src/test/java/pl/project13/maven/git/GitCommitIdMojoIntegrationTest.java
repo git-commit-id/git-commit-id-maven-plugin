@@ -26,11 +26,11 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.git.GitDescribeConfig;
-import pl.project13.core.util.JsonManager;
+import pl.project13.core.util.GenericFileManager;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -544,7 +544,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      Properties p = JsonManager.readJsonProperties(expectedFile, StandardCharsets.UTF_8);
+      Properties p = GenericFileManager.readPropertiesAsUtf8(CommitIdPropertiesOutputFormat.JSON, expectedFile);
       assertThat(p.size() > 10);
     } finally {
       FileUtils.forceDelete(expectedFile);
