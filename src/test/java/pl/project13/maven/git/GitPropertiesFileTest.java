@@ -78,14 +78,14 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
       // it does not matter if we read as UTF-8 or ISO-8859-1
       {
         Properties propertiesFromFile = GenericFileManager.readProperties(
-          CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.UTF_8);
+            CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.UTF_8);
         assertGitPropertiesPresentInProject(propertiesFromFile);
         assertThat(propertiesFromFile.get("git.commit.message.full"))
                 .isEqualTo(propertiesInProject.get("git.commit.message.full"));
       }
       {
         Properties propertiesFromFile = GenericFileManager.readProperties(
-          CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.ISO_8859_1);
+            CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.ISO_8859_1);
         assertGitPropertiesPresentInProject(propertiesFromFile);
         assertThat(propertiesFromFile.get("git.commit.message.full"))
                 .isEqualTo(propertiesInProject.get("git.commit.message.full"));
