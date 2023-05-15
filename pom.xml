@@ -102,7 +102,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.6.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
@@ -110,15 +110,15 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.0.0-M7</version>
+                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.11.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-gpg-plugin</artifactId>
@@ -126,15 +126,15 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-plugin-plugin</artifactId>
@@ -146,7 +146,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
@@ -158,7 +158,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -444,9 +444,9 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.eluder.coveralls</groupId>
+                        <groupId>io.jsonwebtoken.coveralls</groupId>
                         <artifactId>coveralls-maven-plugin</artifactId>
-                        <version>4.3.0</version>
+                        <version>4.4.1</version>
                         <!-- repo token is passed via -DrepoToken=yourcoverallsprojectrepositorytoken -->
                         <dependencies>
                             <!-- https://github.com/trautonen/coveralls-maven-plugin/issues/141 -->
@@ -460,7 +460,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.2</version>
+                        <version>0.8.10</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
@@ -476,7 +476,7 @@
         <profile>
             <id>checkstyle</id>
             <properties>
-                <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+                <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
                 <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
                 <checkstyle.version>8.25</checkstyle.version>
                 <checkstyle.config.path>${basedir}/.github/.checkstyle</checkstyle.config.path>
