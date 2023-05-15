@@ -76,7 +76,7 @@
         <!-- GIT COMMIT ID PLUGIN CONFIGURATION -->
         <resources>
             <resource>
-                <directory>src/main/resources</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/*.properties</include>
@@ -86,7 +86,7 @@
         </resources>
         <testResources>
             <testResource>
-                <directory>src/test/resources</directory>
+                <directory>${project.basedir}/src/test/resources</directory>
                 <excludes>
                     <exclude>_git_*/**</exclude>
                     <exclude>README.md</exclude>
