@@ -927,8 +927,8 @@ public class GitCommitIdMojo extends AbstractMojo {
    * of the input/output property.
    * This behaviour can be achieved by defining a list of {@code transformationRules} for
    * the property where those rules should take effect.
-   * Each {@code transformationRule} consist of two required fields {@cdoe apply} and {@code action}.
-   * The {@cdoe apply}-tag controls when the rule should be applied and can be set to {@code BEFORE}
+   * Each {@code transformationRule} consist of two required fields {@code apply} and {@code action}.
+   * The {@code apply}-tag controls when the rule should be applied and can be set to {@code BEFORE}
    * to have the rule being applied before or it can be set to {@code AFTER} to have the
    * rule being applied after the replacement.
    * The {@code action}-tag determines the string conversion rule that should be applied.
