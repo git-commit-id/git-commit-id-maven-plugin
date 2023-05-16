@@ -47,7 +47,7 @@
 
         <java.target>11</java.target>
 
-        <maven-plugin-api.version>3.9.0</maven-plugin-api.version>
+        <maven-plugin-api.version>3.9.2</maven-plugin-api.version>
         <maven-plugin-plugin.version>3.9.0</maven-plugin-plugin.version>
 
         <junit.version>4.13.2</junit.version>
