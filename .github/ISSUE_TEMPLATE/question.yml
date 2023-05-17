@@ -1,0 +1,26 @@
+name: Question
+description: Ask a question how to use the plugin, or it's configuration
+labels: [ "question", "to-triage" ]
+assignees: [ ]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Please follow the instructions below.
+              We will close issues that don't provide enough information.
+    - type: textarea
+      id: describe-the-idea
+      attributes:
+          label: Describe the question / problem (required)
+          description: Please provide a brief summary of your idea and provide a summarised description in the title above.
+      validations:
+          required: true
+    - type: textarea
+      id: context
+      attributes:
+          label: Context (optional)
+          description: |
+              Feel free to add any other context or screenshots about the feature.
+              How are you affected? What is your goal? Anything else?
+      validations:
+          required: false
