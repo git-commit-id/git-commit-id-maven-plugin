@@ -106,7 +106,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-release-plugin</artifactId>
@@ -486,7 +486,7 @@
         <profile>
             <id>checkstyle</id>
             <properties>
-                <maven-checkstyle-plugin.version>3.2.2</maven-checkstyle-plugin.version>
+                <maven-checkstyle-plugin.version>3.3.0</maven-checkstyle-plugin.version>
                 <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
                 <checkstyle.version>8.25</checkstyle.version>
                 <checkstyle.config.path>${basedir}/.github/.checkstyle</checkstyle.config.path>
@@ -551,7 +551,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.3</version>
+                        <version>3.1.0</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
