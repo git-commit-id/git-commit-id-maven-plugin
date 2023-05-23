@@ -48,7 +48,7 @@
         <maven-plugin-plugin.version>3.6.0</maven-plugin-plugin.version>
 
         <junit.version>4.13.2</junit.version>
-        <mockito.version>3.11.0</mockito.version>
+        <mockito.version>5.1.1</mockito.version>
 
         <assertj.version>3.19.0</assertj.version>
     </properties>
