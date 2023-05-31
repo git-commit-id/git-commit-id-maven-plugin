@@ -20,6 +20,7 @@ Quicklinks (all relevant documentation)
 * [Using the plugin documentation (all details for configuration, properties, ...)](docs/using-the-plugin.md)
 * [A more technical documentation  on how to use the leverage the generated properties from this plugin](docs/using-the-plugin-in-more-depth.md)
 * [A general documentation for git describe (usefull feature in this plugin, if you are not familiar with the command)](docs/git-describe.md)
+* [All configuration options are documented inside `GitCommitIdMojo.java` as Javadoc](src/main/java/pl/project13/maven/git/GitCommitIdMojo.java#L98)
 * [Frequently Asked Question (FAQ)](docs/faq.md)
 * [Contributing](CONTRIBUTING.md)
 
