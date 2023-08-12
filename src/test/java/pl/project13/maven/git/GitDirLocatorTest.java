@@ -58,4 +58,13 @@ public class GitDirLocatorTest {
     }
   }
 
+  @Test
+  public void testWorktreeResolution() {
+    String[] noopCases = {"", "a", "a/b", ".git/worktrees", ".git/worktrees/", "a.git/worktrees/b"};
+    for (String path : noopCases) {
+      assertThat(GitDirLocator.resolveWorktree(new File(path))).isEqualTo(new File(path));
+    }
+    assertThat(GitDirLocator.resolveWorktree(new File("a/.git/worktrees/b"))).isEqualTo(new File("a/.git"));
+    assertThat(GitDirLocator.resolveWorktree(new File("/a/.git/worktrees/b"))).isEqualTo(new File("/a/.git"));
+  }
 }
