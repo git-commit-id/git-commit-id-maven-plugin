@@ -23,6 +23,7 @@ import org.eclipse.jgit.lib.Constants;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -127,7 +128,7 @@ public class GitDirLocator {
       }
 
       // All seems ok so return the "gitdir" value read from the file.
-      File gitDir = new File(parts[1]);
+      File gitDir = resolveWorktree(new File(parts[1]));
       if (gitDir.isAbsolute()) {
         // gitdir value is an absolute path. Return as-is
         return gitDir;
@@ -138,6 +139,21 @@ public class GitDirLocator {
     } catch (IOException e) {
       return null;
     }
+  }
+
+  /**
+   * If the file looks like the location of a worktree, return the .git folder of the git repository of the worktree.
+   * If not, return the file as is.
+   */
+  static File resolveWorktree(File fileLocation) {
+    Path parent = fileLocation.toPath().getParent();
+    if (parent == null) {
+      return fileLocation;
+    }
+    if (parent.endsWith(Path.of(".git", "worktrees"))) {
+      return parent.getParent().toFile();
+    }
+    return fileLocation;
   }
 
   /**
