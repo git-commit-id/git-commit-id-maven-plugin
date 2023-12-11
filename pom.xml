@@ -488,7 +488,7 @@
             <properties>
                 <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
                 <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
-                <checkstyle.version>8.25</checkstyle.version>
+                <checkstyle.version>10.12.6</checkstyle.version>
                 <checkstyle.config.path>${basedir}/.github/.checkstyle</checkstyle.config.path>
             </properties>
             <build>
