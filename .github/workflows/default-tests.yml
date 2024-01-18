@@ -17,7 +17,7 @@ jobs:
           java-version: 11
           java-package: jdk
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -44,7 +44,7 @@ jobs:
           java-version: ${{ matrix.java_version }}
           java-package: jdk
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -89,7 +89,7 @@ jobs:
       - name: Setup System Path to use the custom Maven
         run: echo "${M2_HOME}/bin" >> $GITHUB_PATH
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           # Include Maven version in key to not use cache from other Maven versions
@@ -125,7 +125,7 @@ jobs:
           java-version: 11
           java-package: jdk
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -150,7 +150,7 @@ jobs:
           java-version: 11
           java-package: jdk
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
