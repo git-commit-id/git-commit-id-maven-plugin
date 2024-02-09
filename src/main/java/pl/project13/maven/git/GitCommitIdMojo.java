@@ -121,7 +121,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.1.4
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.injectAllReactorProjects", defaultValue = "false")
   boolean injectAllReactorProjects;
 
   /**
@@ -142,7 +142,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.verbose", defaultValue = "false")
   boolean verbose;
 
   /**
@@ -169,7 +169,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.skipPoms", defaultValue = "true")
   boolean skipPoms;
 
   /**
@@ -207,7 +207,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.generateGitPropertiesFile", defaultValue = "false")
   boolean generateGitPropertiesFile;
 
   /**
@@ -249,7 +249,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </p>
    *
    */
-  @Parameter(defaultValue = "${project.build.outputDirectory}/git.properties")
+  @Parameter(property = "maven.gitcommitid.generateGitPropertiesFilename", defaultValue = "${project.build.outputDirectory}/git.properties")
   String generateGitPropertiesFilename;
 
   /**
@@ -291,7 +291,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "${project.basedir}/.git")
+  @Parameter(property = "maven.gitcommitid.dotGitDirectory", defaultValue = "${project.basedir}/.git")
   File dotGitDirectory;
 
   /**
@@ -452,7 +452,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.0.4
    */
-  @Parameter(defaultValue = "7")
+  @Parameter(property = "maven.gitcommitid.abbrevLength", defaultValue = "7")
   int abbrevLength;
 
   /**
@@ -477,7 +477,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "properties")
+  @Parameter(property = "maven.gitcommitid.format", defaultValue = "properties")
   String format;
 
   /**
@@ -504,7 +504,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    * </pre>
    * </p>
    */
-  @Parameter(defaultValue = "git")
+  @Parameter(property = "maven.gitcommitid.prefix", defaultValue = "git")
   String prefix;
 
   /**
@@ -528,7 +528,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.2.0
    */
-  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
+  @Parameter(property = "maven.gitcommitid.dateFormat", defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
   String dateFormat;
 
   /**
@@ -557,7 +557,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.2.0
    */
-  @Parameter
+  @Parameter(property = "maven.gitcommitid.dateFormatTimeZone")
   String dateFormatTimeZone;
 
   /**
@@ -577,7 +577,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.0.4
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.failOnNoGitDirectory", defaultValue = "true")
   boolean failOnNoGitDirectory;
 
   /**
@@ -603,7 +603,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.1.5
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.failOnUnableToExtractRepoInfo", defaultValue = "true")
   boolean failOnUnableToExtractRepoInfo;
 
   /**
@@ -634,7 +634,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.1.9
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.useNativeGit", defaultValue = "false")
   boolean useNativeGit;
 
   /**
@@ -742,7 +742,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.1.12
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(property = "maven.gitcommitid.runOnlyOnce", defaultValue = "false")
   boolean runOnlyOnce;
 
   /**
@@ -877,7 +877,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.2.0
    */
-  @Parameter(defaultValue = "flat")
+  @Parameter(property = "maven.gitcommitid.commitIdGenerationMode", defaultValue = "flat")
   String commitIdGenerationMode;
 
   /**
@@ -1012,7 +1012,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 2.2.4
    */
-  @Parameter(defaultValue = "HEAD")
+  @Parameter(property = "maven.gitcommitid.evaluateOnCommit", defaultValue = "HEAD")
   String evaluateOnCommit;
 
   /**
@@ -1035,7 +1035,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "30000")
+  @Parameter(property = "maven.gitcommitid.nativeGitTimeoutInMs", defaultValue = "30000")
   long nativeGitTimeoutInMs;
 
   /**
@@ -1059,7 +1059,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.useBranchNameFromBuildEnvironment", defaultValue = "true")
   boolean useBranchNameFromBuildEnvironment;
 
   /**
@@ -1082,7 +1082,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 3.0.0
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.injectIntoSysProperties", defaultValue = "true")
   boolean injectIntoSysProperties;
 
   /**
@@ -1115,7 +1115,7 @@ public class GitCommitIdMojo extends AbstractMojo {
    *
    * @since 3.0.1
    */
-  @Parameter(defaultValue = "true")
+  @Parameter(property = "maven.gitcommitid.offline", defaultValue = "true")
   boolean offline;
 
   /**
