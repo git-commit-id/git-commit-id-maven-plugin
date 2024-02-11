@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,10 +18,9 @@
 
 package pl.project13.maven.git;
 
-import org.assertj.core.api.Condition;
-
-import javax.annotation.Nonnull;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import org.assertj.core.api.Condition;
 
 class DoesNotContainKeyCondition extends Condition<Map<?, ?>> {
 
@@ -39,5 +39,4 @@ class DoesNotContainKeyCondition extends Condition<Map<?, ?>> {
     }
     return true;
   }
-
 }

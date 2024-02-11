@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,24 +18,22 @@
 
 package pl.project13.maven.git;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.List;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @RunWith(MockitoJUnitRunner.class)
 public class GitDirLocatorTest {
 
-  @Mock
-  MavenProject project;
+  @Mock MavenProject project;
 
   List<MavenProject> reactorProjects = Collections.emptyList();
 
@@ -64,7 +63,9 @@ public class GitDirLocatorTest {
     for (String path : noopCases) {
       assertThat(GitDirLocator.resolveWorktree(new File(path))).isEqualTo(new File(path));
     }
-    assertThat(GitDirLocator.resolveWorktree(new File("a/.git/worktrees/b"))).isEqualTo(new File("a/.git"));
-    assertThat(GitDirLocator.resolveWorktree(new File("/a/.git/worktrees/b"))).isEqualTo(new File("/a/.git"));
+    assertThat(GitDirLocator.resolveWorktree(new File("a/.git/worktrees/b")))
+        .isEqualTo(new File("a/.git"));
+    assertThat(GitDirLocator.resolveWorktree(new File("/a/.git/worktrees/b")))
+        .isEqualTo(new File("/a/.git"));
   }
 }

@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,50 +23,55 @@ import org.apache.maven.plugins.annotations.Parameter;
 /**
  * This class represents a specific transformation logic the user wants to perform.
  *
- * Each {@code transformationRule} consist of
- * two required fields {@code apply} and {@code action}.
- * The {@code apply}-tag controls when the rule should
- * be applied and can be set to {@code BEFORE} to have the rule being applied before or it can be
- * set to {@code AFTER} to have the rule being applied after the replacement.
+ * <p>Each {@code transformationRule} consist of two required fields {@code apply} and {@code
+ * action}.
+ * The {@code apply}-tag controls when the rule should be applied and can be set to {@link
+ * ApplyEnum#BEFORE} to have the rule being applied before or it can be set to
+ * {@link ApplyEnum#AFTER} to have the rule being applied after the replacement.
  * The {@code action}-tag determines the string conversion rule that should be applied.
  *
- * Refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/317 for a use-case.
+ * <p>Refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/317 for a
+ * use-case.
  */
 public class TransformationRule {
   /**
-   * Determines when the transformation should be taken place.
-   * Currently supported is
-   *   - BEFORE_REGEX
-   *   - AFTER_REGEX
+   * Determines when the transformation should be taken place. Currently supported is - BEFORE_REGEX
+   * - AFTER_REGEX
    */
   @Parameter(required = true)
   private String apply;
 
   private ApplyEnum applyRule;
 
+  /**
+   * Each {@code transformationRule} consist of two required fields {@code apply} and {@code
+   * action}.
+   * The {@code apply}-tag controls when the rule should be applied and can be set to {@link
+   * ApplyEnum#BEFORE} to have the rule being applied before or it can be set to
+   * {@link ApplyEnum#AFTER} to have the rule being applied after the replacement.
+   */
   protected enum ApplyEnum {
-    /**
-     * have the rule being applied before the replacement
-     */
+    /** have the rule being applied before the replacement. */
     BEFORE,
-    /**
-     * have the rule being applied after the replacement
-     */
+    /** have the rule being applied after the replacement. */
     AFTER,
     ;
   }
 
   /**
-   * Determines the action that should be performed as transformation.
-   * Currently supported is
-   *   - LOWER_CASE
-   *   - UPPER_CASE
+   * Determines the action that should be performed as transformation. Currently supported is -
+   * LOWER_CASE - UPPER_CASE
    */
   @Parameter(required = true)
   private String action;
 
   private ActionEnum actionRule;
 
+  /**
+   * Each {@code transformationRule} consist of two required fields {@code apply} and {@code
+   * action}.
+   * The {@code action}-tag determines the string conversion rule that should be applied.
+   */
   protected enum ActionEnum {
     LOWER_CASE {
       @Override
@@ -86,11 +92,11 @@ public class TransformationRule {
       }
     },
     ;
+
     protected abstract String perform(String input);
   }
 
-  public TransformationRule() {
-  }
+  public TransformationRule() {}
 
   public TransformationRule(String apply, String action) {
     this(ApplyEnum.valueOf(apply), ActionEnum.valueOf(action));
@@ -114,7 +120,8 @@ public class TransformationRule {
 
   public ApplyEnum getApplyRule() {
     if (applyRule == null) {
-      throw new IllegalStateException("The parameter 'apply' for TransformationRule is missing or invalid");
+      throw new IllegalStateException(
+          "The parameter 'apply' for TransformationRule is missing or invalid");
     }
     return applyRule;
   }
@@ -130,7 +137,8 @@ public class TransformationRule {
 
   public ActionEnum getActionRule() {
     if (actionRule == null) {
-      throw new IllegalStateException("The parameter 'action' for TransformationRule is missing or invalid");
+      throw new IllegalStateException(
+          "The parameter 'action' for TransformationRule is missing or invalid");
     }
     return actionRule;
   }

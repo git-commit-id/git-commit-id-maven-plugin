@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,10 +18,9 @@
 
 package pl.project13.maven.git;
 
-import org.assertj.core.api.Condition;
-
-import javax.annotation.Nonnull;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import org.assertj.core.api.Condition;
 
 class ContainsKeyCondition extends Condition<Map<?, ?>> {
 
@@ -34,9 +34,11 @@ class ContainsKeyCondition extends Condition<Map<?, ?>> {
   public boolean matches(@Nonnull Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
     if (!containsKey) {
-      throw new RuntimeException(String.format("Map did not contain [%s] key! Map is: %s\nValue for [%s] was: %s", key, map, key, map.get(key)));
+      throw new RuntimeException(
+          String.format(
+              "Map did not contain [%s] key! Map is: %s\nValue for [%s] was: %s",
+              key, map, key, map.get(key)));
     }
     return true;
   }
-
 }

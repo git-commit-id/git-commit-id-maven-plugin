@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,13 +18,15 @@
 
 package pl.project13.log;
 
-import pl.project13.core.log.LogInterface;
-
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import pl.project13.core.log.LogInterface;
 
+/**
+ * A class to test any logging interaction.
+ */
 public class DummyTestLoggerBridge implements LogInterface {
   private List<String> debugs = new ArrayList<>();
   private ArrayList<String> infos = new ArrayList<>();

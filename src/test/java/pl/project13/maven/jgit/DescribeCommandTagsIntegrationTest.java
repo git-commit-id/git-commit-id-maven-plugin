@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,9 @@
 
 package pl.project13.maven.jgit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
@@ -28,10 +32,9 @@ import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Testcases to verify that the {@link DescribeCommand} works properly.
+ */
 public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
 
   static final String PROJECT_NAME = "my-jar-project";
@@ -61,13 +64,13 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).call();
 
       // then
       assertThat(res).isNotNull();
@@ -84,14 +87,13 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res).isNotNull();
@@ -108,12 +110,13 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .match("annotated*")
               .call();
@@ -126,6 +129,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   }
 
   /**
+   *
+   *
    * <pre>
    * $ lg
    *   * b6a73ed - (HEAD, master) third addition (32 hours ago) <p>Konrad Malawski</p>
@@ -144,14 +149,13 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     // lightweight-tag
     // annotated-tag
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res).isNotNull();
@@ -172,7 +176,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     String snapshotTag = "0.0.1-SNAPSHOT";
     String latestTag = "OName-0.0.1";
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       try (Git wrap = Git.wrap(repo)) {
         wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
@@ -181,10 +186,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         Thread.sleep(2000);
         wrap.tag().setName(latestTag).call();
 
-        DescribeResult res = DescribeCommand
-                .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-                .tags()
-                .call();
+        DescribeResult res =
+            DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
         // then
         assertThat(res.toString()).isEqualTo(latestTag);
@@ -204,7 +207,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
     String beforeTag = "OName-0.0.1";
     String latestTag = "0.0.1-SNAPSHOT";
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       try (Git wrap = Git.wrap(repo)) {
         wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
 
@@ -213,10 +217,8 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
         wrap.tag().setName(latestTag).call();
       }
 
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res.toString()).isEqualTo(latestTag);

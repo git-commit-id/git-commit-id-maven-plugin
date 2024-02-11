@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +18,9 @@
 
 package pl.project13.maven.git;
 
-import java.io.File;
+import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -30,18 +32,16 @@ import org.junit.rules.TemporaryFolder;
 import pl.project13.core.AheadBehind;
 import pl.project13.core.GitProvider;
 
-import static org.junit.Assert.assertEquals;
-
+/**
+ * Testcases to verify that the {@link AheadBehind} works properly.
+ */
 public abstract class AheadBehindTest<T extends GitProvider> {
 
-  @Rule
-  public TemporaryFolder remoteRepository = new TemporaryFolder();
+  @Rule public TemporaryFolder remoteRepository = new TemporaryFolder();
 
-  @Rule
-  public TemporaryFolder localRepository = new TemporaryFolder();
+  @Rule public TemporaryFolder localRepository = new TemporaryFolder();
 
-  @Rule
-  public TemporaryFolder secondLocalRepository = new TemporaryFolder();
+  @Rule public TemporaryFolder secondLocalRepository = new TemporaryFolder();
 
   protected Git localRepositoryGit;
 
@@ -96,8 +96,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createLocalCommit();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertEquals(aheadBehind.ahead(),"1");
-    assertEquals(aheadBehind.behind(),"0");
+    assertEquals(aheadBehind.ahead(), "1");
+    assertEquals(aheadBehind.behind(), "0");
   }
 
   @Test
@@ -106,8 +106,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createCommitInSecondRepoAndPush();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertEquals(aheadBehind.ahead(),"0");
-    assertEquals(aheadBehind.behind(),"1");
+    assertEquals(aheadBehind.ahead(), "0");
+    assertEquals(aheadBehind.behind(), "1");
   }
 
   @Test
@@ -117,8 +117,8 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     createCommitInSecondRepoAndPush();
 
     AheadBehind aheadBehind = gitProvider.getAheadBehind();
-    assertEquals(aheadBehind.ahead(),"1");
-    assertEquals(aheadBehind.behind(),"1");
+    assertEquals(aheadBehind.ahead(), "1");
+    assertEquals(aheadBehind.behind(), "1");
   }
 
   protected void createLocalCommit() throws Exception {
@@ -142,8 +142,12 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   }
 
   protected void setupLocalRepository() throws Exception {
-    localRepositoryGit = Git.cloneRepository().setURI(remoteRepository.getRoot().toURI().toString())
-        .setDirectory(localRepository.getRoot()).setBranch("master").call();
+    localRepositoryGit =
+        Git.cloneRepository()
+            .setURI(remoteRepository.getRoot().toURI().toString())
+            .setDirectory(localRepository.getRoot())
+            .setBranch("master")
+            .call();
 
     StoredConfig config = localRepositoryGit.getRepository().getConfig();
     config.setString(ConfigConstants.CONFIG_BRANCH_SECTION, "master", "remote", "origin");
@@ -152,8 +156,12 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   }
 
   protected void setupSecondLocalRepository() throws Exception {
-    secondLocalRepositoryGit = Git.cloneRepository().setURI(remoteRepository.getRoot().toURI().toString())
-        .setDirectory(secondLocalRepository.getRoot()).setBranch("master").call();
+    secondLocalRepositoryGit =
+        Git.cloneRepository()
+            .setURI(remoteRepository.getRoot().toURI().toString())
+            .setDirectory(secondLocalRepository.getRoot())
+            .setBranch("master")
+            .call();
   }
 
   protected void createAndPushInitialCommit() throws Exception {
@@ -163,5 +171,4 @@ public abstract class AheadBehindTest<T extends GitProvider> {
 
     localRepositoryGit.push().call();
   }
-
 }

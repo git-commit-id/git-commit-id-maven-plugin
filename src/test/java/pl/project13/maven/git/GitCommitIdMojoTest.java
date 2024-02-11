@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,36 +18,52 @@
 
 package pl.project13.maven.git;
 
-import org.junit.Test;
-import pl.project13.core.PropertiesFileGenerator;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import org.junit.Test;
+import pl.project13.core.PropertiesFileGenerator;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Testcases to verify that the git-commit-id works properly.
+ */
 public class GitCommitIdMojoTest {
   @Test
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
-    String generateGitPropertiesFilePath = "target" + File.separator + "classes" + File.separator + "git.properties";
+    String generateGitPropertiesFilePath =
+        "target" + File.separator + "classes" + File.separator + "git.properties";
     File generateGitPropertiesFile = new File(generateGitPropertiesFilePath);
-    
-    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
-    assertThat(result.getCanonicalPath()).isEqualTo(
-            new File(targetDir).toPath().resolve(generateGitPropertiesFilePath).toFile().getCanonicalPath());
+
+    File result =
+        PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
+    assertThat(result.getCanonicalPath())
+        .isEqualTo(
+            new File(targetDir)
+                .toPath()
+                .resolve(generateGitPropertiesFilePath)
+                .toFile()
+                .getCanonicalPath());
   }
 
   @Test
   public void testCraftPropertiesOutputFileWithFullPath() throws IOException {
     File baseDir = new File(".");
     String targetDir = baseDir.getCanonicalPath() + File.separator;
-    String generateGitPropertiesFilePath = targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
+    String generateGitPropertiesFilePath =
+        targetDir + "target" + File.separator + "classes" + File.separator + "git.properties";
     File generateGitPropertiesFile = new File(generateGitPropertiesFilePath);
 
-    File result = PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
-    assertThat(result.getCanonicalPath()).isEqualTo(
-            new File(targetDir).toPath().resolve(generateGitPropertiesFilePath).toFile().getCanonicalPath());
+    File result =
+        PropertiesFileGenerator.craftPropertiesOutputFile(baseDir, generateGitPropertiesFile);
+    assertThat(result.getCanonicalPath())
+        .isEqualTo(
+            new File(targetDir)
+                .toPath()
+                .resolve(generateGitPropertiesFilePath)
+                .toFile()
+                .getCanonicalPath());
   }
 }

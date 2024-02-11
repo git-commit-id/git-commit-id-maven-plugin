@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,11 +18,13 @@
 
 package pl.project13.maven.jgit;
 
+import java.nio.file.Paths;
 import pl.project13.core.JGitProvider;
 import pl.project13.maven.git.AheadBehindTest;
 
-import java.nio.file.Paths;
-
+/**
+ * Testcases to verify that the {@link JGitProvider} works properly.
+ */
 public class JgitProviderAheadBehindTest extends AheadBehindTest<JGitProvider> {
 
   @Override
@@ -31,6 +34,7 @@ public class JgitProviderAheadBehindTest extends AheadBehindTest<JGitProvider> {
 
   @Override
   protected JGitProvider gitProvider() {
-    return JGitProvider.on(Paths.get(localRepository.getRoot().getAbsolutePath(), ".git").toFile(), null);
+    return JGitProvider.on(
+        Paths.get(localRepository.getRoot().getAbsolutePath(), ".git").toFile(), null);
   }
 }

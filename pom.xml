@@ -525,7 +525,10 @@
                                 <configuration>
                                     <configLocation>${checkstyle.config.path}/google_checks_checkstyle_${checkstyle.version}.xml</configLocation>
                                     <suppressionsLocation>${checkstyle.config.path}/checkstyle-suppressions.xml</suppressionsLocation>
-                                    <propertyExpansion>samedir=${checkstyle.config.path}</propertyExpansion>
+                                    <propertyExpansion>
+                                        samedir=${checkstyle.config.path}
+                                        org.checkstyle.google.suppressionfilter.config=${checkstyle.config.path}/checkstyle-suppressions.xml
+                                    </propertyExpansion>
                                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                     <encoding>${project.reporting.outputEncoding}</encoding>
                                     <consoleOutput>true</consoleOutput>

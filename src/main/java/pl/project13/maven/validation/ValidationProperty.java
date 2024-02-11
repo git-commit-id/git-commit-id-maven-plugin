@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,14 +18,26 @@
 
 package pl.project13.maven.validation;
 
-
+/**
+ * Allows to configure a single validation action that shall be performed
+ * when running the {@link ValidationMojo}.
+ * A full configuration may like:
+ * <pre>{@code
+ * <validationProperties>
+ *   <validationProperty>
+ *     <name>validating project version</name>
+ *     <value>${project.version}</value>
+ *     <shouldMatchTo><![CDATA[^.*(?<!-SNAPSHOT)$]]></shouldMatchTo>
+ *   </validationProperty>
+ * </validationProperties>
+ * }</pre>
+ */
 public class ValidationProperty {
   private String name;
   private String value;
   private String shouldMatchTo;
 
-  public ValidationProperty() {
-  }
+  public ValidationProperty() {}
 
   ValidationProperty(String name, String value, String shouldMatchTo) {
     this.name = name;
@@ -32,26 +45,52 @@ public class ValidationProperty {
     this.shouldMatchTo = shouldMatchTo;
   }
 
+  /**
+   * Sets a descriptive name that will be used to be able to identify the validation that
+   * does not match up (will be displayed in the error message).
+   *
+   * @param name The name that shall be used to identify the validation
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Sets the value that needs to be validated.
+   *
+   * @param value The value that needs to be validated.
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
+  /**
+   * Sets the expectation what the given value should match to.
+   *
+   * @param shouldMatchTo The expectation what the given value should match to.
+   */
   public void setShouldMatchTo(String shouldMatchTo) {
     this.shouldMatchTo = shouldMatchTo;
   }
 
+  /**
+   * @return A descriptive name that will be used to be able to identify the validation that
+   * does not match up (will be displayed in the error message).
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * @return The value that needs to be validated.
+   */
   public String getValue() {
     return value;
   }
 
+  /**
+   * @return The expectation what the given value should match to.
+   */
   public String getShouldMatchTo() {
     return shouldMatchTo;
   }

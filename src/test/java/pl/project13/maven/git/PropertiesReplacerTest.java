@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,15 +18,11 @@
 
 package pl.project13.maven.git;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import pl.project13.core.log.LogInterface;
+import static java.util.Arrays.asList;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,13 +31,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import pl.project13.core.log.LogInterface;
 
-import static java.util.Arrays.asList;
-import static org.mockito.AdditionalAnswers.returnsFirstArg;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
+/**
+ * Testcases to verify that the {@link PropertiesReplacer} works properly.
+ */
 @RunWith(JUnitParamsRunner.class)
 public class PropertiesReplacerTest {
   public static Collection<?> useRegexReplacement() {
@@ -51,9 +53,11 @@ public class PropertiesReplacerTest {
 
   @Before
   public void setUp() throws Throwable {
-    PluginParameterExpressionEvaluator pluginParameterExpressionEvaluator = mock(PluginParameterExpressionEvaluator.class);
+    PluginParameterExpressionEvaluator pluginParameterExpressionEvaluator =
+        mock(PluginParameterExpressionEvaluator.class);
     when(pluginParameterExpressionEvaluator.evaluate(anyString())).then(returnsFirstArg());
-    this.propertiesReplacer = new PropertiesReplacer(mock(LogInterface.class), pluginParameterExpressionEvaluator);
+    this.propertiesReplacer =
+        new PropertiesReplacer(mock(LogInterface.class), pluginParameterExpressionEvaluator);
   }
 
   @Test
@@ -69,7 +73,8 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, null, null, regex, false, null));
+    replacementProperties.add(
+        new ReplacementProperty("key1", null, null, null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
   }
@@ -80,21 +85,23 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, "value", "another", regex, false, null));
+    replacementProperties.add(
+        new ReplacementProperty("key1", null, "value", "another", regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
     Properties exptecedProperties = build("key1", "another1", "key2", "value2");
     assertEquals(exptecedProperties, actualProperties);
   }
-  
+
   @Test
   @Parameters(method = "useRegexReplacement")
   public void testPerformReplacementWithSinglePropertyEmptyValue(boolean regex) throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("key1", null, "value", null, regex, false, null));
+    replacementProperties.add(
+        new ReplacementProperty("key1", null, "value", null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -108,21 +115,24 @@ public class PropertiesReplacerTest {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, "value", "another", regex, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(null, null, "value", "another", regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
     Properties exptecedProperties = build("key1", "another1", "key2", "another2");
     assertEquals(exptecedProperties, actualProperties);
   }
-  
+
   @Test
   @Parameters(method = "useRegexReplacement")
-  public void testPerformReplacementWithMultiplePropertiesEmptyValue(boolean regex) throws IOException {
+  public void testPerformReplacementWithMultiplePropertiesEmptyValue(boolean regex)
+      throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, "value", null, regex, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(null, null, "value", null, regex, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -132,75 +142,136 @@ public class PropertiesReplacerTest {
 
   @Test
   public void testPerformReplacementWithPatternGroupAndMatching() throws IOException {
-    Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author/name");
+    Properties actualProperties =
+        build("git.branch", "feature/feature_name", "git.commit.author", "author/name");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(
+            "git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
-    Properties exptecedProperties = build("git.branch", "feature-feature_name", "git.commit.author", "author/name");
+    Properties exptecedProperties =
+        build("git.branch", "feature-feature_name", "git.commit.author", "author/name");
     assertEquals(exptecedProperties, actualProperties);
   }
 
   @Test
   public void testPerformReplacementWithPatternGroupAndNoMatch() throws IOException {
-    Properties actualProperties = build("git.branch", "feature#feature_name", "git.commit.author", "author#");
+    Properties actualProperties =
+        build("git.branch", "feature#feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(
+            "git.branch", null, "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
-    Properties exptecedProperties = build("git.branch", "feature#feature_name", "git.commit.author", "author#");
+    Properties exptecedProperties =
+        build("git.branch", "feature#feature_name", "git.commit.author", "author#");
     assertEquals(exptecedProperties, actualProperties);
   }
 
   @Test
   public void testPerformReplacementOnSinglePropertyAndExpectNewPropertyGenerated() {
-    Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
+    Properties actualProperties =
+        build("git.branch", "feature/feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty("git.branch", "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(
+            "git.branch", "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
-    Properties exptecedProperties = build("git.branch", "feature/feature_name", "git.branch.something", "feature-feature_name", "git.commit.author", "author#");
+    Properties exptecedProperties =
+        build(
+            "git.branch",
+            "feature/feature_name",
+            "git.branch.something",
+            "feature-feature_name",
+            "git.commit.author",
+            "author#");
     assertEquals(exptecedProperties, actualProperties);
   }
 
   @Test
   public void testPerformReplacementOnEveryPropertyAndExpectNewPropertyGenerated() {
-    Properties actualProperties = build("git.branch", "feature/feature_name", "git.commit.author", "author#");
+    Properties actualProperties =
+        build("git.branch", "feature/feature_name", "git.commit.author", "author#");
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
+    replacementProperties.add(
+        new ReplacementProperty(
+            null, "something", "^([^\\/]*)\\/([^\\/]*)$", "$1-$2", true, false, null));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
-    Properties exptecedProperties = build("git.branch", "feature/feature_name", "git.branch.something", "feature-feature_name", "git.commit.author", "author#", "git.commit.author.something", "author#");
+    Properties exptecedProperties =
+        build(
+            "git.branch",
+            "feature/feature_name",
+            "git.branch.something",
+            "feature-feature_name",
+            "git.commit.author",
+            "author#",
+            "git.commit.author.something",
+            "author#");
     assertEquals(exptecedProperties, actualProperties);
   }
 
   public static Collection<Object[]> testPerformReplacementWithTransformationRule() {
-    return Arrays.asList(new Object[][] {
-      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", TransformationRule.ApplyEnum.BEFORE, TransformationRule.ActionEnum.LOWER_CASE, "feature/abcdefgh0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/a-z0-9\\-]", TransformationRule.ApplyEnum.AFTER, TransformationRule.ActionEnum.LOWER_CASE, "feature/-b-d-f-h0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", TransformationRule.ApplyEnum.BEFORE, TransformationRule.ActionEnum.UPPER_CASE, "FEATURE/ABCDEFGH0123456789" },
-      { "feature/AbCdEfGh0123456789", "[^/A-Z0-9\\-]", TransformationRule.ApplyEnum.AFTER, TransformationRule.ActionEnum.UPPER_CASE, "-------/A-C-E-G-0123456789" },
-    });
+    return Arrays.asList(
+        new Object[][] {
+          {
+            "feature/AbCdEfGh0123456789",
+            "[^/a-z0-9\\-]",
+            TransformationRule.ApplyEnum.BEFORE,
+            TransformationRule.ActionEnum.LOWER_CASE,
+            "feature/abcdefgh0123456789"
+          },
+          {
+            "feature/AbCdEfGh0123456789",
+            "[^/a-z0-9\\-]",
+            TransformationRule.ApplyEnum.AFTER,
+            TransformationRule.ActionEnum.LOWER_CASE,
+            "feature/-b-d-f-h0123456789"
+          },
+          {
+            "feature/AbCdEfGh0123456789",
+            "[^/A-Z0-9\\-]",
+            TransformationRule.ApplyEnum.BEFORE,
+            TransformationRule.ActionEnum.UPPER_CASE,
+            "FEATURE/ABCDEFGH0123456789"
+          },
+          {
+            "feature/AbCdEfGh0123456789",
+            "[^/A-Z0-9\\-]",
+            TransformationRule.ApplyEnum.AFTER,
+            TransformationRule.ActionEnum.UPPER_CASE,
+            "-------/A-C-E-G-0123456789"
+          },
+        });
   }
 
   @Test
   @Parameters(method = "testPerformReplacementWithTransformationRule")
-  public void runTransformationTestHelper(String input, String regex, TransformationRule.ApplyEnum applyRule, TransformationRule.ActionEnum actionRule, String expectedOutput) {
+  public void runTransformationTestHelper(
+      String input,
+      String regex,
+      TransformationRule.ApplyEnum applyRule,
+      TransformationRule.ActionEnum actionRule,
+      String expectedOutput) {
     Properties actualProperties = build("git.branch", input);
 
     List<TransformationRule> transformationRules = new ArrayList<>();
     transformationRules.add(new TransformationRule(applyRule, actionRule));
 
     List<ReplacementProperty> replacementProperties = new ArrayList<>();
-    replacementProperties.add(new ReplacementProperty(null, null, regex, "-", true, false, transformationRules));
+    replacementProperties.add(
+        new ReplacementProperty(null, null, regex, "-", true, false, transformationRules));
 
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
 
@@ -228,14 +299,13 @@ public class PropertiesReplacerTest {
       Assert.assertNull(expected);
     } else {
       Assert.assertEquals(expected.size(), actual.size());
-      for (Map.Entry<Object, Object> expectedElementEntry: expected.entrySet()) {
-        String expectedKey = (String)expectedElementEntry.getKey();
-        String expectedValue = (String)expectedElementEntry.getValue();
+      for (Map.Entry<Object, Object> expectedElementEntry : expected.entrySet()) {
+        String expectedKey = (String) expectedElementEntry.getKey();
+        String expectedValue = (String) expectedElementEntry.getValue();
         Assert.assertTrue(actual.containsKey(expectedKey));
         String actualValue = actual.getProperty(expectedKey);
         Assert.assertEquals(expectedValue, actualValue);
       }
     }
   }
-
 }

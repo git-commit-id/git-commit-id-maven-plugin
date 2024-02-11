@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,22 +18,25 @@
 
 package pl.project13.maven.validation;
 
-import org.apache.maven.plugin.MojoExecutionException;
-
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.junit.Test;
 
+/**
+ * Test cases to verify the {@link ValidationMojo} works properly.
+ */
 public class ValidationMojoTest {
   @Test(expected = MojoExecutionException.class)
-  public void validationNotMatchingAndValidationShouldFailIfNoMatch() throws MojoExecutionException {
+  public void validationNotMatchingAndValidationShouldFailIfNoMatch()
+      throws MojoExecutionException {
     List<ValidationProperty> validationProperties = getNonMatchingValidationProperties();
     executeMojo(validationProperties, true);
   }
 
   @Test
-  public void validationNotMatchingAndValidationShouldNotFailIfNoMatch() throws MojoExecutionException {
+  public void validationNotMatchingAndValidationShouldNotFailIfNoMatch()
+      throws MojoExecutionException {
     List<ValidationProperty> validationProperties = getNonMatchingValidationProperties();
     executeMojo(validationProperties, false);
   }
@@ -61,14 +65,17 @@ public class ValidationMojoTest {
     executeMojo(getListValidationProperty(null, null, ""), validationShouldFailIfNoMatch);
   }
 
-  private void executeMojo(List<ValidationProperty> validationProperties, boolean validationShouldFailIfNoMatch) throws MojoExecutionException {
+  private void executeMojo(
+      List<ValidationProperty> validationProperties, boolean validationShouldFailIfNoMatch)
+      throws MojoExecutionException {
     ValidationMojo cut = new ValidationMojo();
     cut.setValidationProperties(validationProperties);
     cut.setValidationShouldFailIfNoMatch(validationShouldFailIfNoMatch);
     cut.execute();
   }
 
-  private List<ValidationProperty> getListValidationProperty(String name, String value, String shouldMatchTo) {
+  private List<ValidationProperty> getListValidationProperty(
+      String name, String value, String shouldMatchTo) {
     List<ValidationProperty> list = new ArrayList<>();
     list.add(new ValidationProperty(name, value, shouldMatchTo));
     return list;
