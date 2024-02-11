@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,14 +27,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import pl.project13.core.PropertiesFilterer;
 import pl.project13.core.log.LogInterface;
 
@@ -42,14 +41,11 @@ public class PropertiesFiltererTest {
 
   private static final String PREFIX_DOT = "prefix.";
 
-  @InjectMocks
-  private PropertiesFilterer propertiesFilterer;
+  @InjectMocks private PropertiesFilterer propertiesFilterer;
 
-  @Mock
-  private LogInterface log;
+  @Mock private LogInterface log;
 
-  @Mock
-  private Properties properties;
+  @Mock private Properties properties;
 
   @Test
   public void filterNotWithoutExclusions() {
@@ -72,7 +68,10 @@ public class PropertiesFiltererTest {
   @Test
   public void filterNotRemovesOwnPropertyInExclusionAndSkipsOtherOnes() {
     List<String> inclusions = Arrays.asList("^prefix\\.exclude1.*$", "^prefix\\.exclude2.*$");
-    when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include", "prefix.exclude1", "prefix.exclude2", "global")));
+    when(properties.stringPropertyNames())
+        .thenReturn(
+            new HashSet<>(
+                Arrays.asList("prefix.include", "prefix.exclude1", "prefix.exclude2", "global")));
 
     propertiesFilterer.filterNot(properties, inclusions, PREFIX_DOT);
 
@@ -103,7 +102,10 @@ public class PropertiesFiltererTest {
   @Test
   public void filterRemovesOwnPropertyNotInInclusionAndSkipsOtherOnes() {
     List<String> inclusions = Arrays.asList("^prefix\\.include1.*$", "^prefix\\.include2.*$");
-    when(properties.stringPropertyNames()).thenReturn(new HashSet<>(Arrays.asList("prefix.include1", "prefix.include2", "prefix.exclude", "global")));
+    when(properties.stringPropertyNames())
+        .thenReturn(
+            new HashSet<>(
+                Arrays.asList("prefix.include1", "prefix.include2", "prefix.exclude", "global")));
 
     propertiesFilterer.filter(properties, inclusions, PREFIX_DOT);
 

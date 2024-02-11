@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,22 +18,25 @@
 
 package pl.project13.maven.git;
 
-import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Properties;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.FileUtils;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.util.GenericFileManager;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Testcases to verify that the git-commit-id works properly.
+ */
 @RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {
 
@@ -45,13 +49,16 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldConformPropertiesFileWhenSpecialCharactersInValueString(boolean useNativeGit) throws Exception {
+  public void shouldConformPropertiesFileWhenSpecialCharactersInValueString(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
-                .withKeepSandboxWhenFinishedTest(false) // set true if you want to overview the result in the generated sandbox
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
+        .withKeepSandboxWhenFinishedTest(
+            false) // set true if you want to overview the result in the generated sandbox
+        .create();
 
     MavenProject targetProject = mavenSandbox.getChildProject();
 
@@ -69,27 +76,31 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      
+
       // the git.properties should exist also among the mojo.project properties
       Properties propertiesInProject = mojo.project.getProperties();
       assertGitPropertiesPresentInProject(propertiesInProject);
 
-      // when the properties file is conform
-      // it does not matter if we read as UTF-8 or ISO-8859-1
-      {
-        Properties propertiesFromFile = GenericFileManager.readProperties(
-            CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.UTF_8);
-        assertGitPropertiesPresentInProject(propertiesFromFile);
-        assertThat(propertiesFromFile.get("git.commit.message.full"))
-                .isEqualTo(propertiesInProject.get("git.commit.message.full"));
-      }
-      {
-        Properties propertiesFromFile = GenericFileManager.readProperties(
-            CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.ISO_8859_1);
-        assertGitPropertiesPresentInProject(propertiesFromFile);
-        assertThat(propertiesFromFile.get("git.commit.message.full"))
-                .isEqualTo(propertiesInProject.get("git.commit.message.full"));
-      }
+        // when the properties file is conform
+        // it does not matter if we read as UTF-8 or ISO-8859-1
+        {
+          Properties propertiesFromFile =
+              GenericFileManager.readProperties(
+                  CommitIdPropertiesOutputFormat.PROPERTIES, expectedFile, StandardCharsets.UTF_8);
+          assertGitPropertiesPresentInProject(propertiesFromFile);
+          assertThat(propertiesFromFile.get("git.commit.message.full"))
+              .isEqualTo(propertiesInProject.get("git.commit.message.full"));
+        }
+        {
+          Properties propertiesFromFile =
+              GenericFileManager.readProperties(
+                  CommitIdPropertiesOutputFormat.PROPERTIES,
+                  expectedFile,
+                  StandardCharsets.ISO_8859_1);
+          assertGitPropertiesPresentInProject(propertiesFromFile);
+          assertThat(propertiesFromFile.get("git.commit.message.full"))
+              .isEqualTo(propertiesInProject.get("git.commit.message.full"));
+        }
 
     } finally {
       if (!mavenSandbox.isKeepSandboxWhenFinishedTest()) {

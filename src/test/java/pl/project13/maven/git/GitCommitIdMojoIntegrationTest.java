@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,22 @@
 
 package pl.project13.maven.git;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,15 +46,6 @@ import org.junit.runner.RunWith;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.util.GenericFileManager;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static java.util.Arrays.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.when;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
@@ -56,10 +64,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldIncludeExpectedProperties(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -88,10 +97,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldExcludeAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -125,14 +135,16 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldIncludeOnlyAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
-    mojo.includeOnlyProperties = Arrays.asList("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$");
+    mojo.includeOnlyProperties =
+        Arrays.asList("git.remote.origin.url", ".*.user.*", "^git.commit.id.full$");
 
     // when
     mojo.execute();
@@ -162,10 +174,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldExcludeAndIncludeAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -200,12 +213,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties(boolean useNativeGit) throws Exception {
+  public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties(
+      boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -227,10 +242,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldSkipDescribeWhenConfiguredToDoSo(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -244,16 +260,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
+    assertThat(targetProject.getProperties())
+        .satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
-  
+
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit) throws Exception {
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit)
+      throws Exception {
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -268,7 +287,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     when(mojo.getCustomSystemEnv()).thenReturn(env);
 
     // reset repo and force detached HEAD
-    try (final Git git = git("my-jar-project")) {   
+    try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("b6a73ed").call();
       git.checkout().setCreateBranch(true).setName("test_branch").setForceRefUpdate(true).call();
     }
@@ -291,11 +310,13 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // when
     // in a detached head state, getBranch() will return the SHA1...standard behavior
-    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(useNativeGit, env, detachedHeadSha1);
+    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+        useNativeGit, env, detachedHeadSha1);
 
     // again, SHA1 will be returned if we're in jenkins, but GIT_BRANCH is not set
     env.put("JENKINS_URL", ciUrl);
-    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(useNativeGit, env, detachedHeadSha1);
+    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+        useNativeGit, env, detachedHeadSha1);
 
     // now set GIT_BRANCH too and see that the branch name from env var is returned
     env.clear();
@@ -314,28 +335,33 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     env.put("JENKINS_URL", ciUrl);
     env.put("GIT_BRANCH", "mybranch");
     env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
-    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(useNativeGit, env, "mylocalbranch");
+    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+        useNativeGit, env, "mylocalbranch");
 
     // same, but for hudson
     env.clear();
     env.put("HUDSON_URL", ciUrl);
     env.put("GIT_BRANCH", "mybranch");
     env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
-    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(useNativeGit, env, "mylocalbranch");
+    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+        useNativeGit, env, "mylocalbranch");
 
     // GIT_BRANCH but no HUDSON_URL or JENKINS_URL
     env.clear();
     env.put("GIT_BRANCH", "mybranch");
     env.put("GIT_LOCAL_BRANCH", "mylocalbranch");
-    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(useNativeGit, env, detachedHeadSha1);
+    shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+        useNativeGit, env, detachedHeadSha1);
   }
 
-  private void shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(boolean useNativeGit, Map<String, String> env, String expectedBranchName) throws Exception {
+  private void shouldUseJenkinsBranchInfoWhenAvailableHelperAndAssertBranch(
+      boolean useNativeGit, Map<String, String> env, String expectedBranchName) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -359,12 +385,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit) throws Exception {
+  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -380,10 +408,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldNotRunWhenSkipIsSet(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-skip-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-skip-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.skip = true;
@@ -398,12 +427,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply(boolean useNativeGit) throws Exception {
+  public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.useNativeGit = useNativeGit;
@@ -419,10 +450,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldRunWhenPackagingPomAndSkipPomsFalse(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.skipPoms = false;
@@ -437,12 +469,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldUseParentProjectRepoWhenInvokedFromChild(boolean useNativeGit) throws Exception {
+  public void shouldUseParentProjectRepoWhenInvokedFromChild(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.skipPoms = false;
@@ -459,10 +493,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldUseChildProjectRepoIfInvokedFromChild(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.skipPoms = false;
@@ -479,10 +514,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldFailWithExceptionWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withNoGitRepoAvailable()
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withNoGitRepoAvailable()
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.skipPoms = false;
@@ -495,10 +531,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldGenerateCustomPropertiesFileProperties(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     String targetFilePath = "target/classes/custom-git.properties";
@@ -524,10 +561,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldGenerateCustomPropertiesFileJson(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT_WITH_SPECIAL_CHARACTERS)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     String targetFilePath = "target/classes/custom-git.properties";
@@ -544,7 +582,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
       // then
       assertThat(expectedFile).exists();
-      Properties p = GenericFileManager.readPropertiesAsUtf8(CommitIdPropertiesOutputFormat.JSON, expectedFile);
+      Properties p =
+          GenericFileManager.readPropertiesAsUtf8(
+              CommitIdPropertiesOutputFormat.JSON, expectedFile);
       assertThat(p.size() > 10);
     } finally {
       FileUtils.forceDelete(expectedFile);
@@ -553,12 +593,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
+  public void shouldSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoFound(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withNoGitRepoAvailable()
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withNoGitRepoAvailable()
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.failOnNoGitDirectory = false;
@@ -573,12 +615,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldNotSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoIsPresent(boolean useNativeGit) throws Exception {
+  public void shouldNotSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoIsPresent(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
     mojo.failOnNoGitDirectory = false;
@@ -593,12 +637,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalse(boolean useNativeGit) throws Exception {
+  public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalse(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -612,17 +658,21 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-dirty");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-dirty");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalseAndAbbrevLengthIsNonDefault(boolean useNativeGit) throws Exception {
+  public void
+      shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalseAndAbbrevLengthIsNonDefault(
+          boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -634,19 +684,23 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "v1.0.0");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "v1.0.0");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrue(boolean useNativeGit) throws Exception {
+  public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrue(
+      boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -658,17 +712,21 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-0-gde4db35");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-0-gde4db35");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrueAndAbbrevLengthIsNonDefault(boolean useNativeGit) throws Exception {
+  public void
+      shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrueAndAbbrevLengthIsNonDefault(
+          boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -680,19 +738,22 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-0-gde4db35917");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-0-gde4db35917");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0-0");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0-0");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldGenerateCommitIdAbbrevWithDefaultLength(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -708,12 +769,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateCommitIdAbbrevWithNonDefaultLength(boolean useNativeGit) throws Exception {
+  public void shouldGenerateCommitIdAbbrevWithNonDefaultLength(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -731,10 +794,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldFormatDate(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -758,10 +822,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldSkipGitDescribe(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -775,17 +840,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
+    assertThat(targetProject.getProperties())
+        .satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldMarkGitDescribeAsDirty(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -800,17 +867,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).contains(entry("git.commit.id.describe", "v1.0.0-0-gde4db35" + dirtySuffix));
+    assertThat(targetProject.getProperties())
+        .contains(entry("git.commit.id.describe", "v1.0.0-0-gde4db35" + dirtySuffix));
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldAlwaysPrintGitDescribe(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -824,17 +893,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "0b0181b");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "0b0181b");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldWorkWithEmptyGitDescribe(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -854,10 +925,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldWorkWithNullGitDescribe(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -876,10 +948,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldExtractTagsOnGivenCommit(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
 
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
@@ -902,18 +975,20 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
     assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
-      .containsOnly("lightweight-tag", "newest-tag");
+        .containsOnly("lightweight-tag", "newest-tag");
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldExtractTagsOnGivenCommitWithOldestCommit(boolean useNativeGit) throws Exception {
+  public void shouldExtractTagsOnGivenCommitWithOldestCommit(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
 
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("9597545").call();
@@ -936,7 +1011,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
     assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
-      .containsOnly("annotated-tag", "lightweight-tag", "newest-tag");
+        .containsOnly("annotated-tag", "lightweight-tag", "newest-tag");
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "1");
   }
 
@@ -944,10 +1019,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldExtractTagsOnHead(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .create();
 
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
@@ -966,27 +1042,29 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties.get("git.tags").toString()).doesNotContain("refs/tags/");
 
     assertThat(Arrays.asList(properties.get("git.tags").toString().split(",")))
-      .containsOnly("v1.0.0");
+        .containsOnly("v1.0.0");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-plugin-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-plugin-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(
+            AvailableGitTestRepo.WITH_THREE_COMMITS_AND_TWO_TAGS_CURRENTLY_ON_COMMIT_WITHOUT_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
     String headCommitId = "b0c6d28b3b83bf7b905321bae67d9ca4c75a203f";
-    Map<String,String> gitTagMap = new HashMap<>();
+    Map<String, String> gitTagMap = new HashMap<>();
     gitTagMap.put("v1.0", "f830b5f85cad3d33ba50d04c3d1454e1ae469057");
     gitTagMap.put("v2.0", "0e3495783c56589213ee5f2ae8900e2dc1b776c4");
 
-    for (Map.Entry<String,String> entry : gitTagMap.entrySet()) {
+    for (Map.Entry<String, String> entry : gitTagMap.entrySet()) {
       String gitDescribeMatchNeedle = entry.getKey();
       String commitIdOfMatchNeedle = entry.getValue();
 
@@ -1001,11 +1079,15 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       mojo.execute();
 
       // then
-      assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.describe");
-      assertThat(targetProject.getProperties().getProperty("git.commit.id.describe")).startsWith(gitDescribeMatchNeedle);
+      assertThat(targetProject.getProperties().stringPropertyNames())
+          .contains("git.commit.id.describe");
+      assertThat(targetProject.getProperties().getProperty("git.commit.id.describe"))
+          .startsWith(gitDescribeMatchNeedle);
 
-      assertThat(targetProject.getProperties().stringPropertyNames()).contains("git.commit.id.full");
-      assertThat(targetProject.getProperties().get("git.commit.id.full")).isNotEqualTo(commitIdOfMatchNeedle);
+      assertThat(targetProject.getProperties().stringPropertyNames())
+          .contains("git.commit.id.full");
+      assertThat(targetProject.getProperties().get("git.commit.id.full"))
+          .isNotEqualTo(commitIdOfMatchNeedle);
       assertThat(targetProject.getProperties().get("git.commit.id.full")).isEqualTo(headCommitId);
       assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "3");
     }
@@ -1015,10 +1097,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldGenerateClosestTagInformationWhenOnATag(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1034,17 +1117,20 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "v1.0.0");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "0");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "0");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWhenOnATagAndDirty(boolean useNativeGit) throws Exception {
+  public void shouldGenerateClosestTagInformationWhenOnATagAndDirty(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1061,18 +1147,20 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "v1.0.0");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "0");
-  }  
-
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "0");
+  }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWhenCommitHasTwoTags(boolean useNativeGit) throws Exception {
+  public void shouldGenerateClosestTagInformationWhenCommitHasTwoTags(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
 
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("d37a598").call();
@@ -1088,26 +1176,31 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    // AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS ==> Where the newest-tag was created latest
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "newest-tag");
+    // AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS ==> Where the newest-tag was created
+    // latest
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.name", "newest-tag");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "0");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "0");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldUseDateFormatTimeZone(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
 
     // RFC 822 time zone: Sign TwoDigitHours Minutes
-    String dateFormat = "Z"; // we want only the timezone (formated in RFC 822) out of the dateformat (easier for asserts)
+    // we want only the timezone (formated in RFC 822) out of the dateformat (easier for asserts)
+    String dateFormat = "Z";
     String expectedTimeZoneOffset = "+0200";
     String executionTimeZoneOffset = "-0800";
     TimeZone expectedTimeZone = TimeZone.getTimeZone("GMT" + expectedTimeZoneOffset);
@@ -1140,10 +1233,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void shouldGenerateCommitIdOldFashioned(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.ON_A_TAG_DIRTY)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1164,10 +1258,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void testDetectCleanWorkingDirectory(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.GIT_WITH_NO_CHANGES)
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.GIT_WITH_NO_CHANGES)
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1186,17 +1281,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("false");
-    assertThat(properties).contains(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
+    assertThat(properties)
+        .contains(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void testDetectDirtyWorkingDirectory(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-                .withChildProject("my-jar-module", "jar")
-                .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT) // GIT_WITH_CHANGES
-                .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withChildProject("my-jar-module", "jar")
+        .withGitRepoInChild(AvailableGitTestRepo.WITH_ONE_COMMIT) // GIT_WITH_CHANGES
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1215,17 +1312,23 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     Properties properties = targetProject.getProperties();
     assertThat(properties.get("git.dirty")).isEqualTo("true");
-    assertThat(properties).contains(entry("git.commit.id.describe", "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
+    assertThat(properties)
+        .contains(
+            entry(
+                "git.commit.id.describe",
+                "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWithExcludeLightweightTagsForClosestTag(boolean useNativeGit) throws Exception {
+  public void shouldGenerateClosestTagInformationWithExcludeLightweightTagsForClosestTag(
+      boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1242,23 +1345,30 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "annotated-tag-2-gb6a73ed74-customDirtyMark");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(),
+        "git.commit.id.describe",
+        "annotated-tag-2-gb6a73ed74-customDirtyMark");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "annotated-tag");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.name", "annotated-tag");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "2");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "2");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "3");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTag(boolean useNativeGit) throws Exception {
+  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTag(
+      boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1275,21 +1385,29 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "lightweight-tag-1-gb6a73ed74-customDirtyMark");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(),
+        "git.commit.id.describe",
+        "lightweight-tag-1-gb6a73ed74-customDirtyMark");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "lightweight-tag");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.name", "lightweight-tag");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndPreferAnnotatedTags(boolean useNativeGit) throws Exception {
+  public void
+      shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndPreferAnnotatedTags(
+          boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1306,21 +1424,28 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "newest-tag-1-gb6a73ed74-customDirtyMark");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(),
+        "git.commit.id.describe",
+        "newest-tag-1-gb6a73ed74-customDirtyMark");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "newest-tag");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.name", "newest-tag");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndFilter(boolean useNativeGit) throws Exception {
+  public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndFilter(
+      boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_COMMIT_THAT_HAS_TWO_TAGS)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1338,21 +1463,27 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "b6a73ed");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "lightweight-tag-1-gb6a73ed74-customDirtyMark");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(),
+        "git.commit.id.describe",
+        "lightweight-tag-1-gb6a73ed74-customDirtyMark");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.name", "lightweight-tag");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.name", "lightweight-tag");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.closest.tag.commit.count", "1");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void verifyEvalOnDifferentCommitWithParentOfHead(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1369,7 +1500,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "e3d159d");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "e3d159dd7");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "e3d159dd7");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
@@ -1380,10 +1512,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void verifyEvalOnDifferentCommitWithBranchName(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1400,7 +1533,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test");
 
@@ -1415,10 +1549,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void verifyEvalOnDifferentCommitWithTagName(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1435,9 +1570,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "9cb810e57e2994f38c7ec6a698a31de66fdd9e24");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.branch", "9cb810e57e2994f38c7ec6a698a31de66fdd9e24");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.tags", "test_tag");
 
@@ -1450,10 +1587,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void verifyEvalOnDifferentCommitWithCommitHash(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-                .withNoChildProject()
-                .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-                .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1470,7 +1608,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "9cb810e");
 
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.describe", "test_tag-0-g9cb810e57");
 
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test");
 
@@ -1485,10 +1624,11 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
   @Parameters(method = "useNativeGit")
   public void verifyEvalOnCommitWithTwoBranches(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-            .withNoChildProject()
-            .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-            .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1508,17 +1648,19 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "2343428");
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "another_branch,master,z_branch");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.branch", "another_branch,master,z_branch");
   }
 
   @Test
   @Parameters(method = "useNativeGit")
   public void verifyDetachedHeadIsNotReportedAsBranch(boolean useNativeGit) throws Exception {
     // given
-    mavenSandbox.withParentProject("my-jar-project", "jar")
-            .withNoChildProject()
-            .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
-            .create();
+    mavenSandbox
+        .withParentProject("my-jar-project", "jar")
+        .withNoChildProject()
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
+        .create();
     MavenProject targetProject = mavenSandbox.getParentProject();
     setProjectToExecuteMojoIn(targetProject);
 
@@ -1540,12 +1682,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldGeneratePropertiesWithMultiplePrefixesAndReactorProject(boolean useNativeGit) throws Exception {
+  public void shouldGeneratePropertiesWithMultiplePrefixesAndReactorProject(boolean useNativeGit)
+      throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
-            .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
-            .withChildProject("my-child-module", "jar")
-            .create();
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
+        .withChildProject("my-child-module", "jar")
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject(); // "my-child-two-module"
 
     setProjectToExecuteMojoIn(targetProject);
@@ -1559,8 +1703,9 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     List<String> prefixes = Arrays.asList("prefix-one", "prefix-two");
     // when
     // simulate plugin execution with multiple prefixes
-    // see https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/137#issuecomment-418144756
-    for (String prefix: prefixes) {
+    // see
+    // https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/137#issuecomment-418144756
+    for (String prefix : prefixes) {
       mojo.prefix = prefix;
 
       mojo.execute();
@@ -1569,7 +1714,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // then
     // since we inject into all reactors both projects should have both properties
     Properties properties = targetProject.getProperties();
-    for (String prefix: prefixes) {
+    for (String prefix : prefixes) {
       assertPropertyPresentAndEqual(properties, prefix + ".commit.id.abbrev", "de4db35");
 
       assertPropertyPresentAndEqual(properties, prefix + ".closest.tag.name", "v1.0.0");

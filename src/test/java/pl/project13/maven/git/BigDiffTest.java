@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,27 +18,25 @@
 
 package pl.project13.maven.git;
 
-import junitparams.JUnitParamsRunner;
-import org.apache.maven.project.MavenProject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import pl.project13.core.git.GitDescribeConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import junitparams.JUnitParamsRunner;
+import org.apache.maven.project.MavenProject;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import pl.project13.core.git.GitDescribeConfig;
 
 /**
  * Run this to simulate hanging native-git-process for repo-state with lots of changes.
  *
- * The test case will still finish successfully because all git-related errors are cught in.
+ * <p>The test case will still finish successfully because all git-related errors are cught in.
  *
  * @author eternach
- *
  */
 @RunWith(JUnitParamsRunner.class)
 public class BigDiffTest extends GitIntegrationTest {
@@ -46,7 +45,8 @@ public class BigDiffTest extends GitIntegrationTest {
   // @Ignore("Run this to simulate hanging native-git-process for repo-state with lots of changes")
   public void bigDiff() throws Exception {
     // given
-    mavenSandbox.withParentProject("my-pom-project", "pom")
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
         .withChildProject("my-jar-module", "jar")
         .withGitRepoInChild(AvailableGitTestRepo.MAVEN_GIT_COMMIT_ID_PLUGIN)
         .create();
@@ -62,7 +62,10 @@ public class BigDiffTest extends GitIntegrationTest {
     mojo.gitDescribe = gitDescribeConfig;
 
     for (int i = 0; i < 100000; i++) {
-      final Path path = Paths.get(mavenSandbox.getChildProject().getBasedir().toString(), "very-long-file-name-with-id-" + Integer.toString(i) + ".txt");
+      final Path path =
+          Paths.get(
+              mavenSandbox.getChildProject().getBasedir().toString(),
+              "very-long-file-name-with-id-" + Integer.toString(i) + ".txt");
       final byte[] bytes = "for performance test\n".getBytes();
       Files.createFile(path);
       try (FileOutputStream fos = new FileOutputStream(path.toFile())) {
@@ -77,8 +80,7 @@ public class BigDiffTest extends GitIntegrationTest {
     mojo.execute();
 
     final long estimatedTime = System.currentTimeMillis() - startTime;
-    System.out.println(
-        "[***] time: " + (double) estimatedTime + " ms");
+    System.out.println("[***] time: " + (double) estimatedTime + " ms");
 
     // then
     assertGitPropertiesPresentInProject(targetProject.getProperties());
@@ -101,7 +103,8 @@ public class BigDiffTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
   }
 
-  private GitDescribeConfig createGitDescribeConfig(final boolean forceLongFormat, final int abbrev) {
+  private GitDescribeConfig createGitDescribeConfig(
+      final boolean forceLongFormat, final int abbrev) {
     final GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
     gitDescribeConfig.setForceLongFormat(forceLongFormat);

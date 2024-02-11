@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,18 @@
 
 package pl.project13.maven.git;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
@@ -26,25 +39,15 @@ import org.junit.After;
 import org.junit.Before;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 
-import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static org.mockito.Mockito.*;
-
+/**
+ * Base class for various Testcases to verify that the git-commit-id-plugin works properly.
+ */
 public abstract class GitIntegrationTest {
 
   private static final String SANDBOX_DIR = "target" + File.separator + "sandbox" + File.separator;
   protected static final String evaluateOnCommit = "HEAD";
 
-  /**
-   * Sandbox directory with unique name for current test.
-   */
+  /** Sandbox directory with unique name for current test. */
   private String currSandbox;
 
   protected GitCommitIdMojo mojo;
@@ -55,7 +58,10 @@ public abstract class GitIntegrationTest {
     // generate unique sandbox for this test
     File sandbox;
     do {
-      currSandbox = SANDBOX_DIR + "sandbox" + Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
+      currSandbox =
+          SANDBOX_DIR
+              + "sandbox"
+              + Integer.toString(ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE));
       sandbox = new File(currSandbox);
     } while (sandbox.exists());
 
@@ -150,5 +156,4 @@ public abstract class GitIntegrationTest {
     }
     return reactorProjects;
   }
-
 }

@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,10 @@
 
 package pl.project13.maven.jgit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
@@ -26,11 +31,9 @@ import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Testcases to verify that the {@link DescribeCommand} works properly.
+ */
 public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
   static final String PROJECT_NAME = "my-jar-project";
@@ -42,6 +45,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
 
   /**
    * Test for such situation:
+   *
    * <pre>
    * master!tag-test$ lg
    *   b6a73ed - (HEAD, master) third addition (8 hours ago) <p>Konrad Malawski</p>
@@ -55,10 +59,8 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
    *   annotated-tag-2-gb6a7
    * </pre>
    *
-   * <p>
-   *   Notice that git will not use less than 4 chars for the abbrev, and in large repositories,
-   *  it will use the abbrev so long that it's guaranteed to be unique.
-   * </p>
+   * <p>Notice that git will not use less than 4 chars for the abbrev, and in large repositories, it
+   * will use the abbrev so long that it's guaranteed to be unique.
    */
   @Test
   public void shouldGiveTheCommitIdAndDirtyMarkerWhenNothingElseCanBeFound() throws Exception {
@@ -69,10 +71,11 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(2) // 2 is enough to be unique in this small repo
               .call();
 
@@ -85,7 +88,8 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void onGitCommitIdsRepo_shouldNoticeThat2CharsIsTooLittleToBeUniqueAndUse4CharsInstead() throws Exception {
+  public void onGitCommitIdsRepo_shouldNoticeThat2CharsIsTooLittleToBeUniqueAndUse4CharsInstead()
+      throws Exception {
     // given
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
@@ -93,10 +97,11 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(2) // way too small to be unique in git-commit-id's repo!
               .call();
 

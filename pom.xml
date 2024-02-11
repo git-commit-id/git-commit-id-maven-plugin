@@ -490,7 +490,7 @@
             <properties>
                 <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
                 <!--  if you update the checkstyle version make sure you update the google_checks.xml inside the repository -->
-                <checkstyle.version>8.25</checkstyle.version>
+                <checkstyle.version>10.13.0</checkstyle.version>
                 <checkstyle.config.path>${basedir}/.github/.checkstyle</checkstyle.config.path>
             </properties>
             <build>
@@ -525,7 +525,10 @@
                                 <configuration>
                                     <configLocation>${checkstyle.config.path}/google_checks_checkstyle_${checkstyle.version}.xml</configLocation>
                                     <suppressionsLocation>${checkstyle.config.path}/checkstyle-suppressions.xml</suppressionsLocation>
-                                    <propertyExpansion>samedir=${checkstyle.config.path}</propertyExpansion>
+                                    <propertyExpansion>
+                                        samedir=${checkstyle.config.path}
+                                        org.checkstyle.google.suppressionfilter.config=${checkstyle.config.path}/checkstyle-suppressions.xml
+                                    </propertyExpansion>
                                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                     <encoding>${project.reporting.outputEncoding}</encoding>
                                     <consoleOutput>true</consoleOutput>

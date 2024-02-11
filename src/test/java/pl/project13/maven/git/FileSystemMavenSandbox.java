@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,20 +18,18 @@
 
 package pl.project13.maven.git;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.project.MavenProject;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.project.MavenProject;
 
 /**
- * Quick and dirty maven projects tree structure to create on disk during integration tests.
- * Can have both parent and child projects set up.
- * Copies sample git repository from prototype location to newly created project.
- * Has ability to set target project for storing git repository.
+ * Quick and dirty maven projects tree structure to create on disk during integration tests. Can
+ * have both parent and child projects set up. Copies sample git repository from prototype location
+ * to newly created project. Has ability to set target project for storing git repository.
  */
 public class FileSystemMavenSandbox {
 
@@ -40,13 +39,12 @@ public class FileSystemMavenSandbox {
   private boolean keepSandboxWhenFinishedTest = false;
 
   /**
-   * Sample git repository location to use as source in integration tests
-   * Test should copy content of this folder to ".git" in correct destination
+   * Sample git repository location to use as source in integration tests Test should copy content
+   * of this folder to ".git" in correct destination
    */
   private File gitRepoSourceDir;
 
-  @Nullable
-  private File gitRepoTargetDir;
+  @Nullable private File gitRepoTargetDir;
 
   public FileSystemMavenSandbox(String rootSandboxPath) {
     this.rootSandboxPath = rootSandboxPath;
@@ -54,7 +52,8 @@ public class FileSystemMavenSandbox {
 
   @Nonnull
   public FileSystemMavenSandbox withParentProject(String parentProjectDirName, String packaging) {
-    parentProject = createProject(new File(rootSandboxPath + File.separator + parentProjectDirName), packaging);
+    parentProject =
+        createProject(new File(rootSandboxPath + File.separator + parentProjectDirName), packaging);
     return this;
   }
 
@@ -66,7 +65,8 @@ public class FileSystemMavenSandbox {
 
   @Nonnull
   public FileSystemMavenSandbox withChildProject(String childProjectDirName, String packaging) {
-    childProject = createProject(new File(parentProject.getBasedir(), childProjectDirName), packaging);
+    childProject =
+        createProject(new File(parentProject.getBasedir(), childProjectDirName), packaging);
     childProject.setParent(parentProject);
     return this;
   }
@@ -109,7 +109,8 @@ public class FileSystemMavenSandbox {
 
       return this;
     } catch (Exception ex) {
-      throw new RuntimeException(String.format("Failed creating %s...", getClass().getSimpleName()), ex);
+      throw new RuntimeException(
+          String.format("Failed creating %s...", getClass().getSimpleName()), ex);
     }
   }
 
@@ -154,15 +155,20 @@ public class FileSystemMavenSandbox {
 
   @Override
   public String toString() {
-    return "FileSystemMavenSandbox{" +
-        "gitRepoTargetDir=" + gitRepoTargetDir +
-        ", gitRepoSourceDir=" + gitRepoSourceDir +
-        ", rootSandboxPath='" + rootSandboxPath + '\'' +
-        '}';
+    return "FileSystemMavenSandbox{"
+        + "gitRepoTargetDir="
+        + gitRepoTargetDir
+        + ", gitRepoSourceDir="
+        + gitRepoSourceDir
+        + ", rootSandboxPath='"
+        + rootSandboxPath
+        + '\''
+        + '}';
   }
 
   @Nonnull
-  public FileSystemMavenSandbox withKeepSandboxWhenFinishedTest(boolean keepSandboxWhenFinishedTest) {
+  public FileSystemMavenSandbox withKeepSandboxWhenFinishedTest(
+      boolean keepSandboxWhenFinishedTest) {
     // if we want to keep the generated sandbox for overwiew the content of it
     this.keepSandboxWhenFinishedTest = keepSandboxWhenFinishedTest;
     return this;

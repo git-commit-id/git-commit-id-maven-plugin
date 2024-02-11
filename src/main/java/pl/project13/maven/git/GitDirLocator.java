@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,18 +18,20 @@
 
 package pl.project13.maven.git;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.*;
-import java.nio.file.Path;
-import java.util.List;
-
 /**
- * This class encapsulates logic to locate a valid .git directory of the currently used project.
- * If it's not already specified, this logic will try to find it.
+ * This class encapsulates logic to locate a valid .git directory of the currently used project. If
+ * it's not already specified, this logic will try to find it.
  */
 public class GitDirLocator {
   final MavenProject mavenProject;
@@ -36,8 +39,10 @@ public class GitDirLocator {
 
   /**
    * Constructor to encapsulates all references required to locate a valid .git directory
+   *
    * @param mavenProject The currently used (maven) project.
-   * @param reactorProjects The list of reactor projects (sub-projects) of the current (maven) project.
+   * @param reactorProjects The list of reactor projects (sub-projects) of the current (maven)
+   *     project.
    */
   public GitDirLocator(MavenProject mavenProject, List<MavenProject> reactorProjects) {
     this.mavenProject = mavenProject;
@@ -46,10 +51,12 @@ public class GitDirLocator {
 
   /**
    * Attempts to lookup a valid .git directory of the currently used project.
-   * @param manuallyConfiguredDir A user has the ability to configure a git-directory with the {@code dotGitDirectory}
-   *                              configuration setting. By default it should be simply {@code ${project.basedir}/.git}
-   * @return A valid .git directory, or {@code null} if none could be found under the user specified location or within
-   * the project or it's reactor projects.
+   *
+   * @param manuallyConfiguredDir A user has the ability to configure a git-directory with the
+   *     {@code dotGitDirectory} configuration setting. By default it should be simply {@code
+   *     ${project.basedir}/.git}
+   * @return A valid .git directory, or {@code null} if none could be found under the user specified
+   *     location or within the project or it's reactor projects.
    */
   @Nullable
   public File lookupGitDirectory(@Nonnull File manuallyConfiguredDir) {
@@ -142,8 +149,8 @@ public class GitDirLocator {
   }
 
   /**
-   * If the file looks like the location of a worktree, return the .git folder of the git repository of the worktree.
-   * If not, return the file as is.
+   * If the file looks like the location of a worktree, return the .git folder of the git repository
+   * of the worktree. If not, return the file as is.
    */
   static File resolveWorktree(File fileLocation) {
     Path parent = fileLocation.toPath().getParent();
@@ -158,8 +165,11 @@ public class GitDirLocator {
 
   /**
    * Helper method to validate that the specified {@code File} is an existing directory.
-   * @param fileLocation The  {@code File} that should be checked if it's actually an existing directory.
-   * @return {@code true} if the specified {@code File} is an existing directory, {@false} otherwise.
+   *
+   * @param fileLocation The {@code File} that should be checked if it's actually an existing
+   *     directory.
+   * @return {@code true} if the specified {@code File} is an existing directory, {@false}
+   *     otherwise.
    */
   private static boolean isExistingDirectory(@Nullable File fileLocation) {
     return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();

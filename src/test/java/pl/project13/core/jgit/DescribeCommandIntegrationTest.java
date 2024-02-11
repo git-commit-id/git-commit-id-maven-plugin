@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,15 @@
 
 package pl.project13.core.jgit;
 
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
+import java.util.Collections;
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
@@ -27,16 +37,9 @@ import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.Optional;
-
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-
+/**
+ * Testcases to verify that the {@link DescribeResult} works properly.
+ */
 public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
   public static final int DEFAULT_ABBREV_LEN = 7;
@@ -57,11 +60,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT_DIRTY)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).call();
 
       // then
       assertThat(res).isNotNull();
@@ -80,9 +83,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_ONE_COMMIT)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
+      DescribeCommand command =
+          spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -94,7 +99,7 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
       assertThat(res.toString()).isEqualTo(abbrev(head.getName()));
     }
   }
-  
+
   @Test
   public void shouldGiveTheCommitIdWhenTagIsOnOtherBranch() throws Exception {
     // given
@@ -104,9 +109,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_TAG_ON_DIFFERENT_BRANCH)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
+      DescribeCommand command =
+          spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
       DescribeResult res = command.call();
@@ -120,7 +127,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGiveTheCommitIdWhenNothingElseCanBeFoundAndUseAbbrevVersionOfIt() throws Exception {
+  public void shouldGiveTheCommitIdWhenNothingElseCanBeFoundAndUseAbbrevVersionOfIt()
+      throws Exception {
     // given
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
@@ -129,13 +137,14 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .create();
 
     int abbrevLength = 10;
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
+      DescribeCommand command =
+          spy(DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()));
       doReturn(false).when(command).findDirtyState(any(Repository.class));
 
-      command
-              .abbrev(abbrevLength);
+      command.abbrev(abbrevLength);
       DescribeResult res = command.call();
 
       // then
@@ -155,9 +164,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
+      DescribeCommand command =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
       command.dirty(DIRTY_SUFFIX);
       DescribeResult res = command.call();
 
@@ -169,7 +180,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGiveTagWithDistanceToCurrentCommitAndItsIdAndCustomDirtyMarker() throws Exception {
+  public void shouldGiveTagWithDistanceToCurrentCommitAndItsIdAndCustomDirtyMarker()
+      throws Exception {
     // given
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
@@ -179,17 +191,19 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
 
     String customDirtySuffix = "-DEV";
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeCommand command = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeCommand command =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .dirty(customDirtySuffix);
       DescribeResult res = command.call();
 
       // then
       assertThat(res).isNotNull();
       RevCommit head = git.log().call().iterator().next();
-      assertThat(res.toString()).isEqualTo("v2.0.4-25-g" + abbrev(head.getName()) + customDirtySuffix);
+      assertThat(res.toString())
+          .isEqualTo("v2.0.4-25-g" + abbrev(head.getName()) + customDirtySuffix);
     }
   }
 
@@ -202,13 +216,15 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
         wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
       }
 
       // when
-      DescribeCommand command = DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
+      DescribeCommand command =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge());
       DescribeResult res = command.call();
 
       // then
@@ -227,14 +243,13 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res).isNotNull();
@@ -244,7 +259,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldNotGiveDirtyMarkerWhenOnATagAndDirtyButNoDirtyOptionConfigured() throws Exception {
+  public void shouldNotGiveDirtyMarkerWhenOnATagAndDirtyButNoDirtyOptionConfigured()
+      throws Exception {
     // given
     mavenSandbox
         .withParentProject(PROJECT_NAME, "jar")
@@ -252,14 +268,13 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.checkout().setName("v1.0.0").call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res).isNotNull();
@@ -279,12 +294,13 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.checkout().setName("v1.0.0").call();
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .tags()
               .dirty(customDirtySuffix)
               .call();
@@ -305,12 +321,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res.toString()).isEqualTo("v1.0.0");
@@ -326,10 +341,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .dirty(DIRTY_SUFFIX)
               .abbrev(0)
               .call();
@@ -350,16 +366,15 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.ON_A_TAG_DIRTY)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
         wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
       }
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
-              .tags()
-              .call();
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge()).tags().call();
 
       // then
       assertThat(res).isNotNull();
@@ -377,7 +392,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(oid, singletonList(tagName)));
+    boolean isATag =
+        DescribeCommand.hasTags(oid, Collections.singletonMap(oid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -394,7 +410,8 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     ObjectId oid = ObjectId.fromString(commitHash);
 
     // when
-    boolean isATag = DescribeCommand.hasTags(oid, Collections.singletonMap(tagOid, singletonList(tagName)));
+    boolean isATag =
+        DescribeCommand.hasTags(oid, Collections.singletonMap(tagOid, singletonList(tagName)));
 
     // then
     assertThat(isATag).isTrue();
@@ -410,14 +427,15 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
         .withGitRepoInParent(AvailableGitTestRepo.WITH_LIGHTWEIGHT_TAG_BEFORE_ANNOTATED_TAG)
         .create();
 
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       try (final Git wrap = Git.wrap(repo)) {
         wrap.reset().setMode(ResetCommand.ResetType.HARD).call();
       }
 
       // when
-      DescribeResult res = DescribeCommand
-              .on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
+      DescribeResult res =
+          DescribeCommand.on(evaluateOnCommit, repo, new DummyTestLoggerBridge())
               .abbrev(zeroAbbrev)
               .call();
 

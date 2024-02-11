@@ -1,5 +1,6 @@
 /*
- * This file is part of git-commit-id-maven-plugin by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
+ * This file is part of git-commit-id-maven-plugin
+ * Originally invented by Konrad 'ktoso' Malawski <konrad.malawski@java.pl>
  *
  * git-commit-id-maven-plugin is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,6 +18,9 @@
 
 package pl.project13.core.jgit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
@@ -26,10 +30,9 @@ import org.junit.Test;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
+/**
+ * Testcases to verify that the {@link DescribeResult} works properly.
+ */
 public class DescribeResultTest extends GitIntegrationTest {
 
   static final String PROJECT_NAME = "my-jar-project";
@@ -77,10 +80,13 @@ public class DescribeResultTest extends GitIntegrationTest {
   @Test
   public void shouldToStringForDirtyTag() throws Exception {
     // given
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-      DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER);
+      DescribeResult res =
+          new DescribeResult(
+              repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER);
 
       // when
       String s = res.toString();
@@ -93,10 +99,12 @@ public class DescribeResultTest extends GitIntegrationTest {
   @Test
   public void shouldToStringForDirtyTagAnd10Abbrev() throws Exception {
     // given
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
-      DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER)
+      DescribeResult res =
+          new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID, true, DIRTY_MARKER)
               .withCommitIdAbbrev(10);
 
       String expectedHash = "gb6a73ed747";
@@ -112,7 +120,8 @@ public class DescribeResultTest extends GitIntegrationTest {
   @Test
   public void shouldToStringFor2CommitsAwayFromTag() throws Exception {
     // given
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       DescribeResult res = new DescribeResult(repo.newObjectReader(), VERSION, 2, HEAD_OBJECT_ID);
@@ -128,11 +137,11 @@ public class DescribeResultTest extends GitIntegrationTest {
   @Test
   public void shouldToStringForNoTagJustACommit() throws Exception {
     // given
-    try (final Git git = git(); final Repository repo = git.getRepository()) {
+    try (final Git git = git();
+        final Repository repo = git.getRepository()) {
       git.reset().setMode(ResetCommand.ResetType.HARD).call();
 
       DescribeResult res = new DescribeResult(repo.newObjectReader(), HEAD_OBJECT_ID);
-
 
       // when
       String s = res.toString();
