@@ -56,8 +56,8 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
         "git.local.branch.behind",
       };
 
-  private static final String DEFAULT_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZ";
-  private static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZZ";
+  private static final String DEFAULT_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssXXX";
+  private static final String ISO8601_FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
   @Test
   public void testCompareBasic() throws Exception {

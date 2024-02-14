@@ -397,7 +397,7 @@
                             <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
                             <generateGitPropertiesFile>true</generateGitPropertiesFile>
                             <generateGitPropertiesFilename>target/testing.properties</generateGitPropertiesFilename>
-                            <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                            <dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
                             <dateFormatTimeZone>GMT-08:00</dateFormatTimeZone>
                             <useNativeGit>false</useNativeGit>
                             <abbrevLength>7</abbrevLength>

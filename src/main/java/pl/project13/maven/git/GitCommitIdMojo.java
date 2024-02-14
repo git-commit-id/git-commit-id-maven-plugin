@@ -498,20 +498,28 @@ public class GitCommitIdMojo extends AbstractMojo {
    * represents dates or times exported by this plugin (e.g. {@code git.commit.time}, {@code
    * git.build.time}). It should be a valid {@link SimpleDateFormat} string.
    *
-   * <p>The current dateFormat is set to match maven's default {@code yyyy-MM-dd'T'HH:mm:ssZ}.
-   * Please note that in previous versions (2.2.0 - 2.2.2) the default dateFormat was set to: {@code
-   * dd.MM.yyyy '@' HH:mm:ss z}. However the {@code RFC 822 time zone} seems to give a more reliable
-   * option in parsing the date and it's being used in maven as default.
+   * <p>The current dateFormat will be formatted as ISO 8601
+   * {@code yyyy-MM-dd'T'HH:mm:ssXXX} and therefore can be used as input to maven's
+   * <a href="https://maven.apache.org/guides/mini/guide-reproducible-builds.html">
+   * reproducible build</a> feature.
+   *
+   * Please note that in previous versions
+   * (2.2.2 - 7.0.1) the default format was set to {@code yyyy-MM-dd'T'HH:mm:ssZ}
+   * which produces a {@code RFC 822 time zone}. While such format gives reliable
+   * options in parsing the date, it does not comply with the requirements of
+   * the reproducible build feature.
+   * (2.2.0 - 2.2.2) the default dateFormat was set to: {@code
+   * dd.MM.yyyy '@' HH:mm:ss z}.
    *
    * <p>Example:
    *
    * <pre>{@code
-   * <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+   * <dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
    * }</pre>
    *
    * @since 2.2.0
    */
-  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
+  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssXXX")
   String dateFormat;
 
   /**
