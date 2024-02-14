@@ -18,6 +18,7 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +33,6 @@ import java.util.Properties;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;

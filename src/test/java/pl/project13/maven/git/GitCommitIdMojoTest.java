@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
