@@ -1240,7 +1240,7 @@ public class GitCommitIdMojo extends AbstractMojo {
       boolean alreadyInjected = injectAllReactorProjects && contextProperties != null;
       if (alreadyInjected) {
         log.info(
-                "injectAllReactorProjects is enabled - attempting to use the already computed values");
+            "injectAllReactorProjects is enabled - attempting to use the already computed values");
         // makes sure the existing context properties are not mutated
         properties = new Properties(contextProperties);
       }
@@ -1350,7 +1350,7 @@ public class GitCommitIdMojo extends AbstractMojo {
 
             @Override
             public void performPublishToAllSystemEnvironments(Properties properties) {
-          publishToAllSystemEnvironments(getLogInterface(), properties, contextProperties);
+              publishToAllSystemEnvironments(getLogInterface(), properties, contextProperties);
             }
 
             @Override
@@ -1410,7 +1410,10 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private void publishToAllSystemEnvironments(LogInterface log, Properties propertiesToPublish, Properties contextProperties) {
+  private void publishToAllSystemEnvironments(
+      LogInterface log,
+      Properties propertiesToPublish,
+      Properties contextProperties) {
     publishPropertiesInto(propertiesToPublish, project.getProperties());
     // some plugins rely on the user properties (e.g. flatten-maven-plugin)
     publishPropertiesInto(propertiesToPublish, session.getUserProperties());
@@ -1418,12 +1421,12 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (injectAllReactorProjects) {
       Properties diffPropertiesToPublish = new Properties();
       propertiesToPublish.forEach((k, v) -> {
-          if (!contextProperties.contains(k)) {
-              diffPropertiesToPublish.setProperty(k.toString(), v.toString());
-          }
+        if (!contextProperties.contains(k)) {
+          diffPropertiesToPublish.setProperty(k.toString(), v.toString());
+        }
       });
-      if(!diffPropertiesToPublish.isEmpty()) {
-          appendPropertiesToReactorProjects(log, diffPropertiesToPublish);
+      if (!diffPropertiesToPublish.isEmpty()) {
+        appendPropertiesToReactorProjects(log, diffPropertiesToPublish);
       }
     }
 
@@ -1488,7 +1491,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   private void appendPropertiesToReactorProjects(LogInterface log, Properties propertiesToPublish) {
     for (MavenProject mavenProject : reactorProjects) {
       log.debug("Adding properties to project: '" + mavenProject.getName() + "'");
-      if(mavenProject.equals(project)) continue;
+      if (mavenProject.equals(project)) {
+        continue;
+      }
       publishPropertiesInto(propertiesToPublish, mavenProject.getProperties());
       mavenProject.setContextValue(CONTEXT_KEY, propertiesToPublish);
     }
