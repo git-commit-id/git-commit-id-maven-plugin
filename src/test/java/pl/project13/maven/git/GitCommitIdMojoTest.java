@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.joda.time.DateTime;
@@ -74,19 +73,19 @@ public class GitCommitIdMojoTest {
                 .getCanonicalPath());
   }
 
+  /**
+   * test cases for output timestamp parsing.
+   * This timestamp is configured for Reproducible Builds' archive entries
+   * (https://maven.apache.org/guides/mini/guide-reproducible-builds.html). The value from <code>
+   * ${project.build.outputTimestamp}</code> is either formatted as ISO 8601 <code>
+   * yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like <a
+   * href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
+   * When using ISO 8601 formatting please note that the entire expression must be entirely either
+   * in the basic format (20240215T135459+0100) or in the
+   * extended format (e.g. 2024-02-15T13:54:59+01:00).
+   * The maven plugin only supports the extended format.
+   */
   private Object[] parametersParseOutputTimestamp() {
-    /**
-     * test cases for output timestamp parsing.
-     * This timestamp is configured for Reproducible Builds' archive entries
-     * (https://maven.apache.org/guides/mini/guide-reproducible-builds.html). The value from <code>
-     * ${project.build.outputTimestamp}</code> is either formatted as ISO 8601 <code>
-     * yyyy-MM-dd'T'HH:mm:ssXXX</code> or as an int representing seconds since the epoch (like <a
-     * href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
-     * When using ISO 8601 formatting please note that the entire expression must be entirely either
-     * in the basic format (20240215T135459+0100) or in the
-     * extended format (e.g. 2024-02-15T13:54:59+01:00).
-     * The maven plugin only supports the extended format.
-     */
     return new Object[] {
       // long since epoch
       new Object[] {
