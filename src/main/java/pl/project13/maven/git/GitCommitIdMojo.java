@@ -18,12 +18,12 @@
 
 package pl.project13.maven.git;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +44,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
+import org.joda.time.DateTime;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.CommitIdGenerationMode;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
@@ -497,20 +498,28 @@ public class GitCommitIdMojo extends AbstractMojo {
    * represents dates or times exported by this plugin (e.g. {@code git.commit.time}, {@code
    * git.build.time}). It should be a valid {@link SimpleDateFormat} string.
    *
-   * <p>The current dateFormat is set to match maven's default {@code yyyy-MM-dd'T'HH:mm:ssZ}.
-   * Please note that in previous versions (2.2.0 - 2.2.2) the default dateFormat was set to: {@code
-   * dd.MM.yyyy '@' HH:mm:ss z}. However the {@code RFC 822 time zone} seems to give a more reliable
-   * option in parsing the date and it's being used in maven as default.
+   * <p>The current dateFormat will be formatted as ISO 8601
+   * {@code yyyy-MM-dd'T'HH:mm:ssXXX} and therefore can be used as input to maven's
+   * <a href="https://maven.apache.org/guides/mini/guide-reproducible-builds.html">
+   * reproducible build</a> feature.
+   *
+   * Please note that in previous versions
+   * (2.2.2 - 7.0.1) the default format was set to {@code yyyy-MM-dd'T'HH:mm:ssZ}
+   * which produces a {@code RFC 822 time zone}. While such format gives reliable
+   * options in parsing the date, it does not comply with the requirements of
+   * the reproducible build feature.
+   * (2.2.0 - 2.2.2) the default dateFormat was set to: {@code
+   * dd.MM.yyyy '@' HH:mm:ss z}.
    *
    * <p>Example:
    *
    * <pre>{@code
-   * <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+   * <dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</dateFormat>
    * }</pre>
    *
    * @since 2.2.0
    */
-  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssZ")
+  @Parameter(defaultValue = "yyyy-MM-dd'T'HH:mm:ssXXX")
   String dateFormat;
 
   /**
@@ -1454,32 +1463,26 @@ public class GitCommitIdMojo extends AbstractMojo {
    * href="https://reproducible-builds.org/docs/source-date-epoch/">SOURCE_DATE_EPOCH</a>.
    *
    * <p>Inspired by
-   * https://github.com/apache/maven-archiver/blob/a3103d99396cd8d3440b907ef932a33563225265/src/main/java/org/apache/maven/archiver/MavenArchiver.java#L765
+   * https://github.com/apache/maven-archiver/blob/7acb1db4a9754beacde3f21a69e5523ee901abd5/src/main/java/org/apache/maven/archiver/MavenArchiver.java#L755
    *
    * @param outputTimestamp the value of <code>${project.build.outputTimestamp}</code> (may be
    *     <code>null</code>)
    * @return the parsed timestamp, may be <code>null</code> if <code>null</code> input or input
    *     contains only 1 character
    */
-  private Date parseOutputTimestamp(String outputTimestamp) throws GitCommitIdExecutionException {
+  @VisibleForTesting
+  protected static Date parseOutputTimestamp(String outputTimestamp) {
     if (outputTimestamp != null
         && !outputTimestamp.trim().isEmpty()
         && outputTimestamp.chars().allMatch(Character::isDigit)) {
-      return new Date(Long.parseLong(outputTimestamp) * 1000);
+      return Date.from(Instant.ofEpochSecond(Long.parseLong(outputTimestamp)));
     }
 
     if ((outputTimestamp == null) || (outputTimestamp.length() < 2)) {
       // no timestamp configured
       return null;
     }
-
-    DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-    try {
-      return df.parse(outputTimestamp);
-    } catch (ParseException pe) {
-      throw new GitCommitIdExecutionException(
-          "Invalid 'project.build.outputTimestamp' value '" + outputTimestamp + "'", pe);
-    }
+    return new DateTime(outputTimestamp).toDate();
   }
 
   private void publishPropertiesInto(Properties propertiesToPublish, Properties propertiesTarget) {
