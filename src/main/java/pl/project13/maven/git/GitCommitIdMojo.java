@@ -1420,9 +1420,9 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void publishToAllSystemEnvironments(
-      LogInterface log,
-      Properties propertiesToPublish,
-      Properties contextProperties) {
+      @Nonnull LogInterface log,
+      @Nonnull Properties propertiesToPublish,
+      @Nullable Properties contextProperties) {
     publishPropertiesInto(propertiesToPublish, project.getProperties());
     // some plugins rely on the user properties (e.g. flatten-maven-plugin)
     publishPropertiesInto(propertiesToPublish, session.getUserProperties());
@@ -1430,7 +1430,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     if (injectAllReactorProjects) {
       Properties diffPropertiesToPublish = new Properties();
       propertiesToPublish.forEach((k, v) -> {
-        if (!contextProperties.contains(k)) {
+        if (contextProperties == null || !contextProperties.contains(k)) {
           diffPropertiesToPublish.setProperty(k.toString(), v.toString());
         }
       });
