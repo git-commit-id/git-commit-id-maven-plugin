@@ -34,6 +34,15 @@ Instead of using the Plugin Prefix Resolution add an execution tag that calls th
 
 Generated properties are not being used in install and/or deploy
 -------------------------------
-If you try to use generated properties like `${git.commit.id}` alongside with your artifact finalName you will soon notice that those properties are not being used in install and/or deploy. This specific behaviour is basically not intended / not supported by maven-install-plugin and/or maven-deploy-plugin (https://issues.apache.org/jira/browse/MINSTALL-1 / https://issues.apache.org/jira/browse/MDEPLOY-93). The naming format in the remote repo seems to be always `$artifactId-$version-$classifier` *by default* and thus any generated property will not end up inside the artifact being installed/deployed. If you for whatever reason still want to have something special you may want to [checkout a full workaround](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/256#issuecomment-321476196) that uses a specific configuration of `install-file` / `deploy-file`.
+If you try to use generated properties like `${git.commit.id}` alongside with your artifact finalName you will soon notice that those properties are not being used in install and/or deploy.
+This specific behaviour is basically **not intended / not supported** by maven-install-plugin and/or maven-deploy-plugin (https://issues.apache.org/jira/browse/MINSTALL-1 / https://issues.apache.org/jira/browse/MDEPLOY-93). The naming format in the remote repo seems to be always `$artifactId-$version-$classifier` *by default* and thus any generated property will not end up inside the artifact being installed/deployed.
+
+If you for whatever reason still want to have something special you may want to 
+[checkout a full project](https://github.com/git-commit-id/git-commit-id-maven-plugin/files/14440383/example-594.zip) that uses a specific configuration of `install-file` / `deploy-file` (you may also view the comment in [issue 594](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/594#issuecomment-1970003328). The intial instructions are from [issue 256](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/256#issuecomment-321476196).
+
+In a nutshell the workaround disables the default install and default deploy and replaces it with a "custom" install and a "custom" deploy (the one that deploys your custom named artifact).
+Depending on the target location where you deploy the file to you might need add an extra dependency (as outlined in https://maven.apache.org/plugins/maven-site-plugin/examples/adding-deploy-protocol.html). Supported protocols are mentioned in https://maven.apache.org/wagon/.
+However I need to stress that this **might not be something fully supported** or intended by the maven eco-system. So use this at your **own risk**.
+
 
 As a general note also ensure to use `mvn clean deploy` instead of `mvn deploy:deploy` (or you run into  https://issues.apache.org/jira/browse/MNG-6260) and ensure to set `<injectAllReactorProjects>true</injectAllReactorProjects>` inside the plugin's config.
