@@ -25,7 +25,6 @@ import java.util.Properties;
 import javax.annotation.Nonnull;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
-import pl.project13.core.jgit.DescribeCommand;
 
 /**
  * Testcases to verify that the git-commit-id-plugin works properly.
