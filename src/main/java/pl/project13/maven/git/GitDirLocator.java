@@ -35,18 +35,14 @@ import org.eclipse.jgit.lib.Constants;
  */
 public class GitDirLocator {
   final MavenProject mavenProject;
-  final List<MavenProject> reactorProjects;
 
   /**
    * Constructor to encapsulates all references required to locate a valid .git directory
    *
    * @param mavenProject The currently used (maven) project.
-   * @param reactorProjects The list of reactor projects (sub-projects) of the current (maven)
-   *     project.
    */
-  public GitDirLocator(MavenProject mavenProject, List<MavenProject> reactorProjects) {
+  public GitDirLocator(MavenProject mavenProject) {
     this.mavenProject = mavenProject;
-    this.reactorProjects = reactorProjects;
   }
 
   /**

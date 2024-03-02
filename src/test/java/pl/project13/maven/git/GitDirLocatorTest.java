@@ -37,8 +37,6 @@ public class GitDirLocatorTest {
 
   @Mock MavenProject project;
 
-  List<MavenProject> reactorProjects = Collections.emptyList();
-
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
@@ -48,7 +46,7 @@ public class GitDirLocatorTest {
     File dotGitDir = folder.newFolder("temp");
     try {
       // when
-      GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+      GitDirLocator locator = new GitDirLocator(project);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then
@@ -81,7 +79,7 @@ public class GitDirLocatorTest {
 
     try {
       // when
-      GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+      GitDirLocator locator = new GitDirLocator(project);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then
