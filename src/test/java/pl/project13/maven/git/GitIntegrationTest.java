@@ -169,24 +169,40 @@ public abstract class GitIntegrationTest {
     assertThat(properties.getProperty(key)).isEqualTo(expected);
   }
 
+  /**
+   * Ensures that the provided properties contain the properties the plugin can generate.
+   * See also {@link pl.project13.core.GitCommitPropertyConstant}
+   *
+   * @param properties The properties that should be verified
+   */
   public static void assertGitPropertiesPresentInProject(Properties properties) {
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.local.branch.ahead"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.local.branch.behind"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.dirty"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe-short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.version"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
+    // assertThat(properties).satisfies(new ContainsKeyCondition("git.build.number"));
+    // assertThat(properties).satisfies(new ContainsKeyCondition("git.build.number.unique"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.committer.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.author.time"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.committer.time"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.tags"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.name"));
+    // assertThat(properties).satisfies(new ContainsKeyCondition("git.tag"));
     assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.commit.count"));
+    assertThat(properties).satisfies(new ContainsKeyCondition("git.total.commit.count"));
   }
 }
