@@ -135,13 +135,14 @@ public class GitDirLocator {
       }
 
       // All seems ok so return the "gitdir" value read from the file.
-      File gitDir = resolveWorktree(new File(parts[1]));
+      String extractFromConfig = parts[1];
+      File gitDir = resolveWorktree(new File(extractFromConfig));
       if (gitDir.isAbsolute()) {
         // gitdir value is an absolute path. Return as-is
         return gitDir;
       } else {
         // gitdir value is relative.
-        return new File(file.getParentFile(), parts[1]);
+        return new File(file.getParentFile(), extractFromConfig);
       }
     } catch (IOException e) {
       return null;
@@ -149,8 +150,12 @@ public class GitDirLocator {
   }
 
   /**
-   * If the file looks like the location of a worktree, return the .git folder of the git repository
-   * of the worktree. If not, return the file as is.
+   * Attempts to resolve the actual location of the .git folder for a given
+   * worktree.
+   * For example for a worktree like {@code a/.git/worktrees/X} structure would return {@code a/.git}.
+   *
+   * If the conditions for a git worktree like file structure are met simply return the provided
+   * argument as is.
    */
   static File resolveWorktree(File fileLocation) {
     Path parent = fileLocation.toPath().getParent();

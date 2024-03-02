@@ -21,6 +21,7 @@ package pl.project13.maven.git;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.Properties;
 import javax.annotation.Nonnull;
 import org.apache.maven.project.MavenProject;
@@ -47,6 +48,34 @@ public class GitSubmodulesTest extends GitIntegrationTest {
 
     // then
     assertGitPropertiesPresentInProject(targetProject.getProperties());
+  }
+
+  @Test
+  public void shouldGeneratePropertiesWithSubmodules() throws Exception {
+    // given
+    mavenSandbox
+      .withParentProject("my-pom-project", "pom")
+      .withGitRepoInParent(AvailableGitTestRepo.WITH_REMOTE_SUBMODULES)
+      .withChildProject("remote-module", "jar")
+      .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+    setProjectToExecuteMojoIn(targetProject);
+
+    // create a relative pointer to trigger the relative path logic in GitDirLocator#lookupGitDirectory
+    // makes the dotGitDirectory look like "my-pom-project/.git/modules/remote-module"
+    Files.write(
+      mavenSandbox.getChildProject().getBasedir().toPath().resolve(".git"),
+      "gitdir: ../.git/modules/remote-module".getBytes()
+    );
+
+    mojo.useNativeGit = true; // FIXME: make me a parameter
+
+    // when
+    mojo.execute();
+
+    // then
+    assertGitPropertiesPresentInProject(targetProject.getProperties());
+    assertThat(targetProject.getProperties().getProperty("git.commit.id.abbrev")).isEqualTo("945bfe6");
   }
 
   public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
