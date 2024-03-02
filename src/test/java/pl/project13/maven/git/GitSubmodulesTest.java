@@ -18,22 +18,23 @@
 
 package pl.project13.maven.git;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
-import java.util.Properties;
-import javax.annotation.Nonnull;
+import java.nio.file.Files;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
-import pl.project13.core.jgit.DescribeCommand;
+import org.junit.runner.RunWith;
 
 /**
  * Testcases to verify that the git-commit-id-plugin works properly.
  */
+@RunWith(JUnitParamsRunner.class)
 public class GitSubmodulesTest extends GitIntegrationTest {
 
   @Test
-  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject() throws Exception {
+  @Parameters(method = "useNativeGit")
+  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(
+      boolean useNativeGit) throws Exception {
     mavenSandbox
         .withParentProject("my-jar-project", "jar")
         .withGitRepoInParent(AvailableGitTestRepo.WITH_SUBMODULES)
@@ -42,6 +43,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
 
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -50,24 +52,33 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
-    mojo.project = project;
-    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
-  }
+  @Test
+  @Parameters(method = "useNativeGit")
+  public void shouldGeneratePropertiesWithSubmodules(boolean useNativeGit) throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject("my-pom-project", "pom")
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_REMOTE_SUBMODULES)
+        .withChildProject("remote-module", "jar")
+        .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+    setProjectToExecuteMojoIn(targetProject);
 
-  private void assertGitPropertiesPresentInProject(Properties properties) {
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+    // create a relative pointer to trigger the relative path logic in
+    // GitDirLocator#lookupGitDirectory
+    // makes the dotGitDirectory look like "my-pom-project/.git/modules/remote-module"
+    Files.write(
+        mavenSandbox.getChildProject().getBasedir().toPath().resolve(".git"),
+        "gitdir: ../.git/modules/remote-module".getBytes()
+    );
+
+    mojo.useNativeGit = useNativeGit;
+
+    // when
+    mojo.execute();
+
+    // then
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.abbrev", "945bfe6");
   }
 }

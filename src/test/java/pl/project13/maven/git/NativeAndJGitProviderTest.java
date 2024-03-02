@@ -186,10 +186,4 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
 
     return p;
   }
-
-  private void assertGitPropertiesPresentInProject(Properties properties) {
-    for (String key : GIT_KEYS) {
-      assertThat(properties).satisfies(new ContainsKeyCondition(key));
-    }
-  }
 }

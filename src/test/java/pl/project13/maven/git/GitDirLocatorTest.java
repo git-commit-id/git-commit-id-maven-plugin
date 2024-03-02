@@ -25,7 +25,9 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import org.apache.maven.project.MavenProject;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -37,18 +39,20 @@ public class GitDirLocatorTest {
 
   List<MavenProject> reactorProjects = Collections.emptyList();
 
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+
   @Test
   public void shouldUseTheManuallySpecifiedDirectory() throws Exception {
     // given
-    File dotGitDir = Files.createTempDirectory("temp").toFile();
+    File dotGitDir = folder.newFolder("temp");
     try {
-
       // when
       GitDirLocator locator = new GitDirLocator(project, reactorProjects);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then
-      assert foundDirectory != null;
+      assertThat(foundDirectory).isNotNull();
       assertThat(foundDirectory.getAbsolutePath()).isEqualTo(dotGitDir.getAbsolutePath());
     } finally {
       if (!dotGitDir.delete()) {
@@ -58,11 +62,65 @@ public class GitDirLocatorTest {
   }
 
   @Test
+  public void shouldResolveRelativeSubmodule() throws Exception {
+    // given
+    folder.newFolder("main-project");
+    folder.newFolder("main-project", ".git", "modules", "sub-module");
+    folder.newFolder("main-project", "sub-module");
+
+    // and a .git dir in submodule that points to the main's project .git/modules/submodule
+    File dotGitDir = folder.getRoot().toPath()
+        .resolve("main-project")
+        .resolve("sub-module")
+        .resolve(".git")
+        .toFile();
+    Files.write(
+        dotGitDir.toPath(),
+        "gitdir: ../.git/modules/sub-module".getBytes()
+    );
+
+    try {
+      // when
+      GitDirLocator locator = new GitDirLocator(project, reactorProjects);
+      File foundDirectory = locator.lookupGitDirectory(dotGitDir);
+
+      // then
+      assertThat(foundDirectory).isNotNull();
+      assertThat(
+          foundDirectory.getCanonicalFile()
+      ).isEqualTo(
+          folder.getRoot().toPath()
+          .resolve("main-project")
+          .resolve(".git")
+          .resolve("modules")
+          .resolve("sub-module")
+          .toFile()
+      );
+    } finally {
+      if (!dotGitDir.delete()) {
+        dotGitDir.deleteOnExit();
+      }
+    }
+  }
+
+  @Test
   public void testWorktreeResolution() {
-    String[] noopCases = {"", "a", "a/b", ".git/worktrees", ".git/worktrees/", "a.git/worktrees/b"};
+    // tests to ensure we do not try to modify things that should not be modified
+    String[] noopCases = {
+      "",
+      "a",
+      "a/b",
+      ".git/worktrees",
+      ".git/worktrees/",
+      "a.git/worktrees/b",
+      ".git/modules",
+      ".git/modules/",
+      "a.git/modules/b",
+    };
     for (String path : noopCases) {
       assertThat(GitDirLocator.resolveWorktree(new File(path))).isEqualTo(new File(path));
     }
+    // tests that worktree resolution works
     assertThat(GitDirLocator.resolveWorktree(new File("a/.git/worktrees/b")))
         .isEqualTo(new File("a/.git"));
     assertThat(GitDirLocator.resolveWorktree(new File("/a/.git/worktrees/b")))

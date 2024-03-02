@@ -54,7 +54,42 @@ public enum AvailableGitTestRepo {
    */
   WITH_COMMIT_THAT_HAS_TWO_TAGS("src/test/resources/_git_with_commit_that_has_two_tags"),
   ON_A_TAG_DIRTY("src/test/resources/_git_on_a_tag_dirty"),
+
+  /**
+   * <pre>
+   * * 01ed93c - (11 years ago) any commit, just a readme - Konrad Malawski (HEAD -> master)
+   * * 4ce26eb - (11 years ago) my submodules, yay - Konrad Malawski
+   * </pre>
+   * <pre>
+   * $ git submodule status
+   * -9fd4b69a5ca09b60884d4f8f49ce16ea071077be module1
+   * -9fd4b69a5ca09b60884d4f8f49ce16ea071077be module2
+   * -9fd4b69a5ca09b60884d4f8f49ce16ea071077be module3
+   * -9fd4b69a5ca09b60884d4f8f49ce16ea071077be module4
+   *
+   * $ git config --file .gitmodules --get-regexp '\.url$'
+   * submodule.module1.url /tmp/module1
+   * submodule.module2.url /tmp/module1
+   * submodule.module3.url /tmp/module1
+   * submodule.module4.url /tmp/module1
+   * </pre>
+   */
   WITH_SUBMODULES("src/test/resources/_git_with_submodules"),
+
+  /**
+   * <pre>
+   * 6455ccd - (3 minutes ago) init (HEAD -> master)
+   * </pre>
+   * <pre>
+   * $ git submodule status
+   * 945bfe60e8a3eff168e915c7ba5bac37c9d0165b remote-module (heads/empty-branch)
+   *
+   * $ git submodule foreach --recursive git remote get-url origin
+   * Entering 'remote-module'
+   * git@github.com:git-commit-id/git-test-resources.git
+   * </pre>
+   */
+  WITH_REMOTE_SUBMODULES("src/test/resources/_git_with_remote_submodules"),
   /**
    *
    *
