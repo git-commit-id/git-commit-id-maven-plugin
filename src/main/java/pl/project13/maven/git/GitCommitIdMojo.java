@@ -1397,6 +1397,11 @@ public class GitCommitIdMojo extends AbstractMojo {
             public boolean shouldPropertiesEscapeUnicode() {
               return generateGitPropertiesFileWithEscapedUnicode;
             }
+
+            @Override
+            public boolean shouldFailOnNoGitDirectory() {
+              return failOnNoGitDirectory;
+            }
           };
 
       GitCommitIdPlugin.runPlugin(cb, properties);
