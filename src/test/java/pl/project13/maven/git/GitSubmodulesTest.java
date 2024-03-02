@@ -19,7 +19,6 @@
 package pl.project13.maven.git;
 
 import java.nio.file.Files;
-
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
@@ -34,7 +33,8 @@ public class GitSubmodulesTest extends GitIntegrationTest {
 
   @Test
   @Parameters(method = "useNativeGit")
-  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit) throws Exception {
+  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(
+      boolean useNativeGit) throws Exception {
     mavenSandbox
         .withParentProject("my-jar-project", "jar")
         .withGitRepoInParent(AvailableGitTestRepo.WITH_SUBMODULES)
@@ -57,18 +57,19 @@ public class GitSubmodulesTest extends GitIntegrationTest {
   public void shouldGeneratePropertiesWithSubmodules(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
-      .withParentProject("my-pom-project", "pom")
-      .withGitRepoInParent(AvailableGitTestRepo.WITH_REMOTE_SUBMODULES)
-      .withChildProject("remote-module", "jar")
-      .create();
+        .withParentProject("my-pom-project", "pom")
+        .withGitRepoInParent(AvailableGitTestRepo.WITH_REMOTE_SUBMODULES)
+        .withChildProject("remote-module", "jar")
+        .create();
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
 
-    // create a relative pointer to trigger the relative path logic in GitDirLocator#lookupGitDirectory
+    // create a relative pointer to trigger the relative path logic in
+    // GitDirLocator#lookupGitDirectory
     // makes the dotGitDirectory look like "my-pom-project/.git/modules/remote-module"
     Files.write(
-      mavenSandbox.getChildProject().getBasedir().toPath().resolve(".git"),
-      "gitdir: ../.git/modules/remote-module".getBytes()
+        mavenSandbox.getChildProject().getBasedir().toPath().resolve(".git"),
+        "gitdir: ../.git/modules/remote-module".getBytes()
     );
 
     mojo.useNativeGit = useNativeGit;
@@ -77,6 +78,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "945bfe6");
+    assertPropertyPresentAndEqual(
+        targetProject.getProperties(), "git.commit.id.abbrev", "945bfe6");
   }
 }

@@ -26,7 +26,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
@@ -164,7 +168,7 @@ public abstract class GitIntegrationTest {
   }
 
   public static void assertPropertyPresentAndEqual(
-    Properties properties, String key, String expected) {
+      Properties properties, String key, String expected) {
     assertThat(properties.stringPropertyNames()).contains(key);
     assertThat(properties.getProperty(key)).isEqualTo(expected);
   }

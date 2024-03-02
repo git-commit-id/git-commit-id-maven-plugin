@@ -152,7 +152,8 @@ public class GitDirLocator {
   /**
    * Attempts to resolve the actual location of the .git folder for a given
    * worktree.
-   * For example for a worktree like {@code a/.git/worktrees/X} structure would return {@code a/.git}.
+   * For example for a worktree like {@code a/.git/worktrees/X} structure would
+   * return {@code a/.git}.
    *
    * If the conditions for a git worktree like file structure are met simply return the provided
    * argument as is.

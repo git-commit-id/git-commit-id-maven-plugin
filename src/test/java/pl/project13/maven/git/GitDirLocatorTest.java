@@ -70,13 +70,13 @@ public class GitDirLocatorTest {
 
     // and a .git dir in submodule that points to the main's project .git/modules/submodule
     File dotGitDir = folder.getRoot().toPath()
-      .resolve("main-project")
-      .resolve("sub-module")
-      .resolve(".git")
-      .toFile();
+        .resolve("main-project")
+        .resolve("sub-module")
+        .resolve(".git")
+        .toFile();
     Files.write(
-      dotGitDir.toPath(),
-      "gitdir: ../.git/modules/sub-module".getBytes()
+        dotGitDir.toPath(),
+        "gitdir: ../.git/modules/sub-module".getBytes()
     );
 
     try {
@@ -87,9 +87,9 @@ public class GitDirLocatorTest {
       // then
       assertThat(foundDirectory).isNotNull();
       assertThat(
-        foundDirectory.getCanonicalFile()
+          foundDirectory.getCanonicalFile()
       ).isEqualTo(
-        folder.getRoot().toPath()
+          folder.getRoot().toPath()
           .resolve("main-project")
           .resolve(".git")
           .resolve("modules")
