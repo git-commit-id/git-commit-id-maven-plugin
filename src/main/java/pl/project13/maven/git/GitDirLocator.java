@@ -23,10 +23,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.lib.Constants;
 
 /**
@@ -34,15 +32,16 @@ import org.eclipse.jgit.lib.Constants;
  * it's not already specified, this logic will try to find it.
  */
 public class GitDirLocator {
-  final MavenProject mavenProject;
+  final File projectBasedir;
 
   /**
    * Constructor to encapsulates all references required to locate a valid .git directory
    *
-   * @param mavenProject The currently used (maven) project.
+   * @param projectBasedir The project basedir that will be used as last resort to search
+   *                       the parent project hierarchy until a .git directory is found.
    */
-  public GitDirLocator(MavenProject mavenProject) {
-    this.mavenProject = mavenProject;
+  public GitDirLocator(File projectBasedir) {
+    this.projectBasedir = projectBasedir;
   }
 
   /**
@@ -82,17 +81,13 @@ public class GitDirLocator {
   }
 
   /**
-   * Search up all the maven parent project hierarchy until a .git directory is found.
+   * Search up all the parent project hierarchy until a .git directory is found.
    *
    * @return File which represents the location of the .git directory or NULL if none found.
    */
   @Nullable
   private File findProjectGitDirectory() {
-    if (this.mavenProject == null) {
-      return null;
-    }
-
-    File basedir = mavenProject.getBasedir();
+    File basedir = this.projectBasedir;
     while (basedir != null) {
       File gitdir = new File(basedir, Constants.DOT_GIT);
       if (gitdir.exists()) {

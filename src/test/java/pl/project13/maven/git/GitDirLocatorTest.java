@@ -22,21 +22,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
-import org.apache.maven.project.MavenProject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GitDirLocatorTest {
-
-  @Mock MavenProject project;
-
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
 
@@ -46,7 +39,7 @@ public class GitDirLocatorTest {
     File dotGitDir = folder.newFolder("temp");
     try {
       // when
-      GitDirLocator locator = new GitDirLocator(project);
+      GitDirLocator locator = new GitDirLocator(dotGitDir);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then
@@ -79,7 +72,7 @@ public class GitDirLocatorTest {
 
     try {
       // when
-      GitDirLocator locator = new GitDirLocator(project);
+      GitDirLocator locator = new GitDirLocator(dotGitDir);
       File foundDirectory = locator.lookupGitDirectory(dotGitDir);
 
       // then
