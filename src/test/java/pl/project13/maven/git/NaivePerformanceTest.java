@@ -94,23 +94,4 @@ public class NaivePerformanceTest extends GitIntegrationTest {
     gitDescribeConfig.setAbbrev(abbrev);
     return gitDescribeConfig;
   }
-
-  private void assertGitPropertiesPresentInProject(Properties properties) {
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.author.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.committer.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-  }
 }

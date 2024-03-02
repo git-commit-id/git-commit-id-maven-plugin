@@ -18,7 +18,6 @@
 
 package pl.project13.maven.git;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
@@ -26,7 +25,6 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,17 +47,6 @@ import pl.project13.core.util.GenericFileManager;
 
 @RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
-  private static final boolean UseJGit = false;
-  private static final boolean UseNativeGit = true;
-
-  public static Collection<?> useNativeGit() {
-    return asList(UseJGit, UseNativeGit);
-  }
-
-  public static Collection<?> useDirty() {
-    return asList(true, false);
-  }
-
   @Test
   @Parameters(method = "useNativeGit")
   public void shouldIncludeExpectedProperties(boolean useNativeGit) throws Exception {
@@ -1730,29 +1717,5 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     gitDescribeConfig.setAbbrev(abbrev);
     gitDescribeConfig.setDirty("");
     return gitDescribeConfig;
-  }
-
-  private void assertPropertyPresentAndEqual(Properties properties, String key, String expected) {
-    assertThat(properties.stringPropertyNames()).contains(key);
-    assertThat(properties.getProperty(key)).isEqualTo(expected);
-  }
-
-  private void assertGitPropertiesPresentInProject(Properties properties) {
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.describe"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.closest.tag.commit.count"));
   }
 }

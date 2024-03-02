@@ -18,22 +18,23 @@
 
 package pl.project13.maven.git;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.File;
 import java.nio.file.Files;
-import java.util.Properties;
-import javax.annotation.Nonnull;
+
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Testcases to verify that the git-commit-id-plugin works properly.
  */
+@RunWith(JUnitParamsRunner.class)
 public class GitSubmodulesTest extends GitIntegrationTest {
 
   @Test
-  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject() throws Exception {
+  @Parameters(method = "useNativeGit")
+  public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit) throws Exception {
     mavenSandbox
         .withParentProject("my-jar-project", "jar")
         .withGitRepoInParent(AvailableGitTestRepo.WITH_SUBMODULES)
@@ -42,6 +43,7 @@ public class GitSubmodulesTest extends GitIntegrationTest {
 
     MavenProject targetProject = mavenSandbox.getChildProject();
     setProjectToExecuteMojoIn(targetProject);
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
@@ -51,7 +53,8 @@ public class GitSubmodulesTest extends GitIntegrationTest {
   }
 
   @Test
-  public void shouldGeneratePropertiesWithSubmodules() throws Exception {
+  @Parameters(method = "useNativeGit")
+  public void shouldGeneratePropertiesWithSubmodules(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
       .withParentProject("my-pom-project", "pom")
@@ -68,34 +71,12 @@ public class GitSubmodulesTest extends GitIntegrationTest {
       "gitdir: ../.git/modules/remote-module".getBytes()
     );
 
-    mojo.useNativeGit = true; // FIXME: make me a parameter
+    mojo.useNativeGit = useNativeGit;
 
     // when
     mojo.execute();
 
     // then
-    assertGitPropertiesPresentInProject(targetProject.getProperties());
-    assertThat(targetProject.getProperties().getProperty("git.commit.id.abbrev")).isEqualTo("945bfe6");
-  }
-
-  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
-    mojo.project = project;
-    mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
-  }
-
-  private void assertGitPropertiesPresentInProject(Properties properties) {
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.host"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.branch"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.id.abbrev"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.build.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.name"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.user.email"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.full"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.message.short"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
-    assertThat(properties).satisfies(new ContainsKeyCondition("git.remote.origin.url"));
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "945bfe6");
   }
 }
