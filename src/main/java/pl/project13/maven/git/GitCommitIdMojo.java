@@ -1207,22 +1207,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         return;
       }
 
-      dotGitDirectory = lookupGitDirectory();
-      if (failOnNoGitDirectory && !directoryExists(dotGitDirectory)) {
-        throw new GitCommitIdExecutionException(
-            ".git directory is not found! Please specify a valid [dotGitDirectory] in your"
-                + " pom.xml");
-      }
-
       if (gitDescribe == null) {
         gitDescribe = new GitDescribeConfig();
-      }
-
-      if (dotGitDirectory != null) {
-        log.info("dotGitDirectory '" + dotGitDirectory.getAbsolutePath() + "'");
-      } else {
-        log.info("dotGitDirectory is null, aborting execution!");
-        return;
       }
 
       try {
@@ -1503,16 +1489,6 @@ public class GitCommitIdMojo extends AbstractMojo {
     log.info("Added properties to '" + reactorProjects.size() + "' projects");
   }
 
-  /**
-   * Find the git directory of the currently used project. If it's not already specified, this
-   * method will try to find it.
-   *
-   * @return the File representation of the .git directory
-   */
-  private File lookupGitDirectory() throws GitCommitIdExecutionException {
-    return new GitDirLocator(project.getBasedir()).lookupGitDirectory(dotGitDirectory);
-  }
-
   private void logProperties(LogInterface log, Properties propertiesToPublish) {
     for (String propertyName : propertiesToPublish.stringPropertyNames()) {
       log.info("including property '" + propertyName + "' in results");
@@ -1521,9 +1497,5 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private boolean isPomProject(@Nonnull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
-  }
-
-  private boolean directoryExists(@Nullable File fileLocation) {
-    return fileLocation != null && fileLocation.exists() && fileLocation.isDirectory();
   }
 }
