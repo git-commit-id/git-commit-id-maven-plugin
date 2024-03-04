@@ -585,7 +585,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.execute();
 
     // then
-    assertThat(targetProject.getProperties()).isEmpty();
+    assertThat(targetProject.getProperties().keySet()).containsOnly(
+        "git.build.time", "git.build.version", "git.build.host");
   }
 
   @Test
