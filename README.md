@@ -46,7 +46,7 @@ older version (4.x.x or older) are available via:
 
 Versions
 --------
-The current version is **7.0.0** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A7.0.0)).
+The current version is **8.0.0** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A8.0.0)).
 
 You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin), though using the newest is obviously the best choice.
 
@@ -63,6 +63,7 @@ Here is an overview of the current plugin compatibility with Java
 | 5.0.0           | Java 11               |
 | 6.0.0           | Java 11               |
 | 7.0.0           | Java 11               |
+| 8.0.0           | Java 11               |
 
 
 Plugin compatibility with Maven
@@ -78,6 +79,7 @@ Even though this plugin tries to be compatible with every Maven version there ar
 | 5.0.0          |                    Maven 3.1.0-alpha-1                     |
 | 6.0.0          |                    Maven 3.1.0-alpha-1                     |
 | 7.0.0          |                        Maven 3.2.5                         |
+| 8.0.0          |                        Maven 3.2.5                         |
 
 Flipping the table to maven:
 Please note that in theory maven 4.X should support all maven 3 plugins.
