@@ -178,6 +178,9 @@
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.1</version>
+                <configuration>
+                    <arguments>-Pgpg</arguments>
+                </configuration>
             </plugin>
 
             <!-- if you would like to run the git-commit-id-maven-plugin for your build, you could also include it here instead using a profile (see README.md) -->
