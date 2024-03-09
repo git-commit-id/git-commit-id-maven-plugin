@@ -46,7 +46,7 @@ older version (4.x.x or older) are available via:
 
 Versions
 --------
-The current version is **8.0.0** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A8.0.0)).
+The current version is **8.0.1** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A8.0.1)).
 
 You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin), though using the newest is obviously the best choice.
 
@@ -58,12 +58,12 @@ Here is an overview of the current plugin compatibility with Java
 | --------------- | ---------------------:|
 | 2.1.X           | Java 1.6              |
 | 2.2.X           | Java 1.7              |
-| 3.0.0           | Java 1.8              |
-| 4.0.0           | Java 1.8              |
-| 5.0.0           | Java 11               |
-| 6.0.0           | Java 11               |
-| 7.0.0           | Java 11               |
-| 8.0.0           | Java 11               |
+| 3.X.X           | Java 1.8              |
+| 4.X.X           | Java 1.8              |
+| 5.X.X           | Java 11               |
+| 6.X.X           | Java 11               |
+| 7.X.X           | Java 11               |
+| 8.X.X           | Java 11               |
 
 
 Plugin compatibility with Maven
@@ -74,12 +74,12 @@ Even though this plugin tries to be compatible with every Maven version there ar
 |----------------|:----------------------------------------------------------:|
 | 2.1.X          | Maven 2.2.1 up to v2.1.13; Maven 3.1.1 for any later 2.1.X |
 | 2.2.X          |  Maven 3.1.1 up to v2.2.3; Maven 3.0 for any later 2.2.X   |
-| 3.0.0          |                         Maven 3.0                          |
-| 4.0.0          |                         Maven 3.0                          |
-| 5.0.0          |                    Maven 3.1.0-alpha-1                     |
-| 6.0.0          |                    Maven 3.1.0-alpha-1                     |
-| 7.0.0          |                        Maven 3.2.5                         |
-| 8.0.0          |                        Maven 3.2.5                         |
+| 3.X.X          |                         Maven 3.0                          |
+| 4.X.X          |                         Maven 3.0                          |
+| 5.X.X          |                    Maven 3.1.0-alpha-1                     |
+| 6.X.X          |                    Maven 3.1.0-alpha-1                     |
+| 7.X.X          |                        Maven 3.2.5                         |
+| 8.X.X          |                        Maven 3.2.5                         |
 
 Flipping the table to maven:
 Please note that in theory maven 4.X should support all maven 3 plugins.
