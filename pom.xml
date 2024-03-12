@@ -189,14 +189,25 @@
         <plugins>
             <!-- Override oss parent downgrades -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.4.1</version>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.1</version>
                 <configuration>
                     <arguments>-Pgpg</arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.2</version>
+                <configuration>
+                    <!-- https://www.mojohaus.org/versions/versions-maven-plugin/examples/display-dependency-updates.html -->
+                    <ignoredVersions>.*-M.*,.*-alpha.*</ignoredVersions>
                 </configuration>
             </plugin>
 
