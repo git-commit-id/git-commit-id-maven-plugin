@@ -52,7 +52,7 @@
         <maven-plugin-api.version>3.9.6</maven-plugin-api.version>
         <maven-plugin-plugin.version>3.11.0</maven-plugin-plugin.version>
 
-        <junit.version>4.13.2</junit.version>
+        <junit.version>5.10.2</junit.version>
         <mockito.version>5.10.0</mockito.version>
 
         <assertj.version>3.25.3</assertj.version>
@@ -320,8 +320,20 @@
 
         <!-- Test stuff -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -345,13 +357,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.15.1</version>
             <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>pl.pragmatists</groupId>
-            <artifactId>JUnitParams</artifactId>
-            <version>1.1.1</version>
             <scope>test</scope>
         </dependency>
 

@@ -18,15 +18,12 @@
 
 package pl.project13.maven.git;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 import org.apache.maven.project.MavenProject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import pl.project13.core.jgit.DescribeResult;
 
 /**
@@ -148,24 +145,24 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
         // git.build.time is excused because the two runs happened at different times.
         String jGitKey = jgitProps.getProperty(key);
         String nativeKey = nativeProps.getProperty(key);
-        assertEquals(
-            "Key difference for key: '" + key + "'; jgit=" + jGitKey
-                + "; nativeKey=" + nativeKey + "; for " + repo.getDir(),
+        Assertions.assertEquals(
             jGitKey,
-            nativeKey);
+            nativeKey,
+            "Key difference for key: '" + key + "'; jgit=" + jGitKey
+                + "; nativeKey=" + nativeKey + "; for " + repo.getDir());
       } else {
         // Ensure that the date formats are parseable and within reason. If running all the git
         // commands on the
         // native provider takes more than 60 seconds, then something is seriously wrong.
         long jGitBuildTimeInMs = format.parse(jgitProps.getProperty(key)).getTime();
         long nativeBuildTimeInMs = format.parse(nativeProps.getProperty(key)).getTime();
-        Assert.assertTrue(
-            "Time ran backwards, jgitTime after nativeTime!",
-            jGitBuildTimeInMs <= nativeBuildTimeInMs);
-        Assert.assertTrue(
-            "Build ran too slow.",
-            (nativeBuildTimeInMs - jGitBuildTimeInMs)
-                < 60000L); // If native takes more than 1 minute, something is wrong.
+        Assertions.assertTrue(
+            jGitBuildTimeInMs <= nativeBuildTimeInMs,
+            "Time ran backwards, jgitTime after nativeTime!");
+        // If native takes more than 1 minute, something is wrong.
+        Assertions.assertTrue(
+            (nativeBuildTimeInMs - jGitBuildTimeInMs) < 60000L,
+            "Build ran too slow.");
       }
     }
 
@@ -173,9 +170,10 @@ public class NativeAndJGitProviderTest extends GitIntegrationTest {
     long jGitCommitTimeInMs = format.parse(jgitProps.getProperty("git.commit.time")).getTime();
     long nativeCommitTimeInMs = format.parse(nativeProps.getProperty("git.commit.time")).getTime();
 
-    assertEquals(
-        "commit times parse to different time stamps",
-        jGitCommitTimeInMs, nativeCommitTimeInMs);
+    Assertions.assertEquals(
+        jGitCommitTimeInMs,
+        nativeCommitTimeInMs,
+        "commit times parse to different time stamps");
   }
 
   private Properties createCopy(Properties orig) {

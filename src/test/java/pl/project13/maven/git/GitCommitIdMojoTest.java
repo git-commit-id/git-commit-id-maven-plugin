@@ -22,19 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Date;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.PropertiesFileGenerator;
 
 /**
  * Testcases to verify that the git-commit-id works properly.
  */
-@RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoTest {
   @Test
   public void testCraftPropertiesOutputFileWithRelativePath() throws IOException {
@@ -86,7 +82,7 @@ public class GitCommitIdMojoTest {
    * extended format (e.g. 2024-02-15T13:54:59+01:00).
    * The maven plugin only supports the extended format.
    */
-  private Object[] parametersParseOutputTimestamp() {
+  private static Object[] parametersParseOutputTimestamp() {
     return new Object[] {
       // long since epoch
       new Object[] {
@@ -129,8 +125,8 @@ public class GitCommitIdMojoTest {
     };
   }
 
-  @Test
-  @Parameters(method = "parametersParseOutputTimestamp")
+  @ParameterizedTest
+  @MethodSource("parametersParseOutputTimestamp")
   public void testParseOutputTimestamp(String input) {
     Date actual = GitCommitIdMojo.parseOutputTimestamp(input);
     assertThat(actual).isNotNull();

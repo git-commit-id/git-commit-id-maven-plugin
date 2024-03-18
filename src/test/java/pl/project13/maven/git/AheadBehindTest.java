@@ -18,17 +18,17 @@
 
 package pl.project13.maven.git;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.nio.file.Path;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import pl.project13.core.AheadBehind;
 import pl.project13.core.GitProvider;
 
@@ -37,11 +37,14 @@ import pl.project13.core.GitProvider;
  */
 public abstract class AheadBehindTest<T extends GitProvider> {
 
-  @Rule public TemporaryFolder remoteRepository = new TemporaryFolder();
+  @TempDir
+  public Path remoteRepository;
 
-  @Rule public TemporaryFolder localRepository = new TemporaryFolder();
+  @TempDir
+  public Path localRepository;
 
-  @Rule public TemporaryFolder secondLocalRepository = new TemporaryFolder();
+  @TempDir
+  public Path secondLocalRepository;
 
   protected Git localRepositoryGit;
 
@@ -49,7 +52,7 @@ public abstract class AheadBehindTest<T extends GitProvider> {
 
   protected T gitProvider;
 
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
 
     createRemoteRepository();
@@ -65,7 +68,7 @@ public abstract class AheadBehindTest<T extends GitProvider> {
     extraSetup();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     if (localRepositoryGit != null) {
       localRepositoryGit.close();
@@ -122,7 +125,7 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   }
 
   protected void createLocalCommit() throws Exception {
-    File newFile = localRepository.newFile();
+    File newFile = localRepository.toFile();
     localRepositoryGit.add().addFilepattern(newFile.getName()).call();
     localRepositoryGit.commit().setMessage("ahead").call();
   }
@@ -130,7 +133,7 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   protected void createCommitInSecondRepoAndPush() throws Exception {
     secondLocalRepositoryGit.pull().call();
 
-    File newFile = secondLocalRepository.newFile();
+    File newFile = secondLocalRepository.toFile();
     secondLocalRepositoryGit.add().addFilepattern(newFile.getName()).call();
     secondLocalRepositoryGit.commit().setMessage("behind").call();
 
@@ -138,14 +141,14 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   }
 
   protected void createRemoteRepository() throws Exception {
-    Git.init().setBare(true).setDirectory(remoteRepository.getRoot()).call();
+    Git.init().setBare(true).setDirectory(remoteRepository.toFile()).call();
   }
 
   protected void setupLocalRepository() throws Exception {
     localRepositoryGit =
         Git.cloneRepository()
-            .setURI(remoteRepository.getRoot().toURI().toString())
-            .setDirectory(localRepository.getRoot())
+            .setURI(remoteRepository.toFile().toURI().toString())
+            .setDirectory(localRepository.toFile())
             .setBranch("master")
             .call();
 
@@ -158,14 +161,14 @@ public abstract class AheadBehindTest<T extends GitProvider> {
   protected void setupSecondLocalRepository() throws Exception {
     secondLocalRepositoryGit =
         Git.cloneRepository()
-            .setURI(remoteRepository.getRoot().toURI().toString())
-            .setDirectory(secondLocalRepository.getRoot())
+            .setURI(remoteRepository.toFile().toURI().toString())
+            .setDirectory(secondLocalRepository.toFile())
             .setBranch("master")
             .call();
   }
 
   protected void createAndPushInitialCommit() throws Exception {
-    File newFile = localRepository.newFile();
+    File newFile = localRepository.toFile();
     localRepositoryGit.add().addFilepattern(newFile.getName()).call();
     localRepositoryGit.commit().setMessage("initial").call();
 

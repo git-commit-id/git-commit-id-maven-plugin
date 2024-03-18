@@ -24,7 +24,7 @@ public class NativeProviderAheadBehindTest extends AheadBehindTest<NativeGitProv
 
   @Override
   protected NativeGitProvider gitProvider() {
-    return NativeGitProvider.on(localRepository.getRoot(), 1000L, null);
+    return NativeGitProvider.on(localRepository.toFile(), 1000L, null);
   }
 
   @Override

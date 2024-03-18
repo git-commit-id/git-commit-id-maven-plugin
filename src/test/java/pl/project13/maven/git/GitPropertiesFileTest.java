@@ -25,19 +25,16 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Properties;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.util.GenericFileManager;
 
 /**
  * Testcases to verify that the git-commit-id works properly.
  */
-@RunWith(JUnitParamsRunner.class)
 public class GitPropertiesFileTest extends GitIntegrationTest {
 
   static final boolean USE_JGIT = false;
@@ -47,8 +44,8 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
     return asList(USE_JGIT, USE_NATIVE_GIT);
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldConformPropertiesFileWhenSpecialCharactersInValueString(boolean useNativeGit)
       throws Exception {
     // given

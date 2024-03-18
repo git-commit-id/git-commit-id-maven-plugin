@@ -24,7 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
 import pl.project13.log.DummyTestLoggerBridge;

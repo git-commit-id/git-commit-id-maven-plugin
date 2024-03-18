@@ -18,17 +18,12 @@
 
 package pl.project13.maven.git;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
-import junitparams.JUnitParamsRunner;
 import org.apache.maven.project.MavenProject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import pl.project13.core.git.GitDescribeConfig;
 
 /**
@@ -38,7 +33,6 @@ import pl.project13.core.git.GitDescribeConfig;
  *
  * @author eternach
  */
-@RunWith(JUnitParamsRunner.class)
 public class BigDiffTest extends GitIntegrationTest {
 
   @Test

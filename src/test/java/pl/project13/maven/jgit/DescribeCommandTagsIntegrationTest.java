@@ -24,8 +24,8 @@ import java.util.Optional;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.Repository;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
 import pl.project13.log.DummyTestLoggerBridge;
@@ -40,7 +40,7 @@ public class DescribeCommandTagsIntegrationTest extends GitIntegrationTest {
   static final String PROJECT_NAME = "my-jar-project";
 
   @Override
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     super.setUp();
 
