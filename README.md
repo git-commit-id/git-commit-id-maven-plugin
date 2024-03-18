@@ -46,7 +46,7 @@ older version (4.x.x or older) are available via:
 
 Versions
 --------
-The current version is **8.0.1** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A8.0.1)).
+The current version is **8.0.2** ([changelist](https://github.com/git-commit-id/git-commit-id-maven-plugin/issues?q=milestone%3A8.0.2)).
 
 You can check the available versions by visiting [search.maven.org](https://search.maven.org/artifact/io.github.git-commit-id/git-commit-id-maven-plugin), though using the newest is obviously the best choice.
 
