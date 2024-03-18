@@ -31,19 +31,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.plugin.PluginParameterExpressionEvaluator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.log.LogInterface;
 
 /**
  * Testcases to verify that the {@link PropertiesReplacer} works properly.
  */
-@RunWith(JUnitParamsRunner.class)
 public class PropertiesReplacerTest {
   public static Collection<?> useRegexReplacement() {
     return asList(true, false);
@@ -51,7 +49,7 @@ public class PropertiesReplacerTest {
 
   private PropertiesReplacer propertiesReplacer;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Throwable {
     PluginParameterExpressionEvaluator pluginParameterExpressionEvaluator =
         mock(PluginParameterExpressionEvaluator.class);
@@ -67,8 +65,8 @@ public class PropertiesReplacerTest {
     propertiesReplacer.performReplacement(properties, replacementProperties);
   }
 
-  @Test
-  @Parameters(method = "useRegexReplacement")
+  @ParameterizedTest
+  @MethodSource("useRegexReplacement")
   public void testPerformReplacementWithInvalidReplacement(boolean regex) throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
@@ -79,8 +77,8 @@ public class PropertiesReplacerTest {
     propertiesReplacer.performReplacement(actualProperties, replacementProperties);
   }
 
-  @Test
-  @Parameters(method = "useRegexReplacement")
+  @ParameterizedTest
+  @MethodSource("useRegexReplacement")
   public void testPerformReplacementWithSingleProperty(boolean regex) throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
@@ -94,8 +92,8 @@ public class PropertiesReplacerTest {
     assertEquals(exptecedProperties, actualProperties);
   }
 
-  @Test
-  @Parameters(method = "useRegexReplacement")
+  @ParameterizedTest
+  @MethodSource("useRegexReplacement")
   public void testPerformReplacementWithSinglePropertyEmptyValue(boolean regex) throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
@@ -109,8 +107,8 @@ public class PropertiesReplacerTest {
     assertEquals(exptecedProperties, actualProperties);
   }
 
-  @Test
-  @Parameters(method = "useRegexReplacement")
+  @ParameterizedTest
+  @MethodSource("useRegexReplacement")
   public void testPerformReplacementWithMultipleProperties(boolean regex) throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
 
@@ -124,8 +122,8 @@ public class PropertiesReplacerTest {
     assertEquals(exptecedProperties, actualProperties);
   }
 
-  @Test
-  @Parameters(method = "useRegexReplacement")
+  @ParameterizedTest
+  @MethodSource("useRegexReplacement")
   public void testPerformReplacementWithMultiplePropertiesEmptyValue(boolean regex)
       throws IOException {
     Properties actualProperties = build("key1", "value1", "key2", "value2");
@@ -256,8 +254,8 @@ public class PropertiesReplacerTest {
         });
   }
 
-  @Test
-  @Parameters(method = "testPerformReplacementWithTransformationRule")
+  @ParameterizedTest
+  @MethodSource("testPerformReplacementWithTransformationRule")
   public void runTransformationTestHelper(
       String input,
       String regex,
@@ -281,7 +279,7 @@ public class PropertiesReplacerTest {
 
   private Properties build(String... args) {
     if ((args.length == 0) || ((args.length % 2) != 0)) {
-      Assert.fail("Expecting a pair of values...");
+      Assertions.fail("Expecting a pair of values...");
     }
     Properties properties = new Properties();
     for (int i = 0; i < args.length; i = i + 2) {
@@ -294,17 +292,17 @@ public class PropertiesReplacerTest {
 
   private void assertEquals(Properties expected, Properties actual) {
     if (expected == null) {
-      Assert.assertNull(actual);
+      Assertions.assertNull(actual);
     } else if (actual == null) {
-      Assert.assertNull(expected);
+      Assertions.assertNull(expected);
     } else {
-      Assert.assertEquals(expected.size(), actual.size());
+      Assertions.assertEquals(expected.size(), actual.size());
       for (Map.Entry<Object, Object> expectedElementEntry : expected.entrySet()) {
         String expectedKey = (String) expectedElementEntry.getKey();
         String expectedValue = (String) expectedElementEntry.getValue();
-        Assert.assertTrue(actual.containsKey(expectedKey));
+        Assertions.assertTrue(actual.containsKey(expectedKey));
         String actualValue = actual.getProperty(expectedKey);
-        Assert.assertEquals(expectedValue, actualValue);
+        Assertions.assertEquals(expectedValue, actualValue);
       }
     }
   }

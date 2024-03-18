@@ -20,6 +20,7 @@ package pl.project13.maven.git;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -32,23 +33,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.git.GitDescribeConfig;
 import pl.project13.core.util.GenericFileManager;
 
-@RunWith(JUnitParamsRunner.class)
 public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldIncludeExpectedProperties(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -68,8 +66,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(properties);
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldExcludeAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -106,8 +104,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("git.commit.time"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldIncludeOnlyAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -145,8 +143,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldExcludeAndIncludeAsConfiguredProperties(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -186,8 +184,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new DoesNotContainKeyCondition("git.commit.time"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldHaveNoPrefixWhenConfiguredPrefixIsEmptyStringAsConfiguredProperties(
       boolean useNativeGit) throws Exception {
     // given
@@ -213,8 +211,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties).satisfies(new ContainsKeyCondition("remote.origin.url"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldSkipDescribeWhenConfiguredToDoSo(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -239,8 +237,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit)
       throws Exception {
     mavenSandbox
@@ -274,8 +272,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test_branch");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldUseJenkinsBranchInfoWhenAvailable(boolean useNativeGit) throws Exception {
     // given
     Map<String, String> env = new HashMap<>();
@@ -358,8 +356,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", expectedBranchName);
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(boolean useNativeGit)
       throws Exception {
     // given
@@ -379,8 +377,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldNotRunWhenSkipIsSet(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -400,8 +398,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).isEmpty();
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldNotRunWhenPackagingPomAndDefaultSettingsApply(boolean useNativeGit)
       throws Exception {
     // given
@@ -421,8 +419,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).isEmpty();
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldRunWhenPackagingPomAndSkipPomsFalse(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -442,8 +440,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).isNotEmpty();
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldUseParentProjectRepoWhenInvokedFromChild(boolean useNativeGit)
       throws Exception {
     // given
@@ -464,8 +462,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldUseChildProjectRepoIfInvokedFromChild(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -485,8 +483,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test(expected = MojoExecutionException.class)
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldFailWithExceptionWhenNoGitRepoFound(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -499,11 +497,13 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.skipPoms = false;
     mojo.useNativeGit = useNativeGit;
 
-    mojo.execute();
+    assertThrows(MojoExecutionException.class, () -> {
+      mojo.execute();
+    });
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateCustomPropertiesFileProperties(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -532,8 +532,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateCustomPropertiesFileJson(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -566,8 +566,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoFound(boolean useNativeGit)
       throws Exception {
     // given
@@ -589,8 +589,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         "git.build.time", "git.build.version", "git.build.host");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldNotSkipWithoutFailOnNoGitDirectoryWhenNoGitRepoIsPresent(boolean useNativeGit)
       throws Exception {
     // given
@@ -611,8 +611,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalse(boolean useNativeGit)
       throws Exception {
     // given
@@ -638,8 +638,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-dirty");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void
       shouldGenerateDescribeWithTagOnlyWhenForceLongFormatIsFalseAndAbbrevLengthIsNonDefault(
           boolean useNativeGit) throws Exception {
@@ -667,8 +667,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrue(
       boolean useNativeGit) throws Exception {
     // given
@@ -692,8 +692,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.commit.id.describe", "v1.0.0-0-gde4db35");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void
       shouldGenerateDescribeWithTagAndZeroAndCommitIdWhenForceLongFormatIsTrueAndAbbrevLengthIsNonDefault(
           boolean useNativeGit) throws Exception {
@@ -721,8 +721,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.commit.id.describe-short", "v1.0.0-0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateCommitIdAbbrevWithDefaultLength(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -743,8 +743,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.commit.id.abbrev", "de4db35");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateCommitIdAbbrevWithNonDefaultLength(boolean useNativeGit)
       throws Exception {
     // given
@@ -766,8 +766,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).contains(entry("git.commit.id.abbrev", "de4db35917"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldFormatDate(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -794,8 +794,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(targetProject.getProperties()).contains(entry("git.commit.time", "08/19/2012"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldSkipGitDescribe(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -820,8 +820,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldMarkGitDescribeAsDirty(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -847,8 +847,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .contains(entry("git.commit.id.describe", "v1.0.0-0-gde4db35" + dirtySuffix));
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldAlwaysPrintGitDescribe(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -873,8 +873,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.commit.id.describe", "0b0181b");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldWorkWithEmptyGitDescribe(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -897,8 +897,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldWorkWithNullGitDescribe(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -920,8 +920,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldExtractTagsOnGivenCommit(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -955,8 +955,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldExtractTagsOnGivenCommitWithOldestCommit(boolean useNativeGit)
       throws Exception {
     // given
@@ -991,8 +991,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "1");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldExtractTagsOnHead(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1021,8 +1021,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .containsOnly("v1.0.0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void runGitDescribeWithMatchOption(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1069,8 +1069,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWhenOnATag(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1097,8 +1097,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWhenOnATagAndDirty(boolean useNativeGit)
       throws Exception {
     // given
@@ -1127,8 +1127,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWhenCommitHasTwoTags(boolean useNativeGit)
       throws Exception {
     // given
@@ -1161,8 +1161,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "0");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldUseDateFormatTimeZone(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1205,8 +1205,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     TimeZone.setDefault(currentDefaultTimeZone);
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateCommitIdOldFashioned(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1230,8 +1230,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(properties.stringPropertyNames()).doesNotContain("git.commit.id.full");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void testDetectCleanWorkingDirectory(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1261,8 +1261,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .contains(entry("git.commit.id.describe", "85c2888")); // assert no dirtySuffix at the end!
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void testDetectDirtyWorkingDirectory(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1295,8 +1295,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
                 "0b0181b" + dirtySuffix)); // assert dirtySuffix at the end!
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWithExcludeLightweightTagsForClosestTag(
       boolean useNativeGit) throws Exception {
     // given
@@ -1335,8 +1335,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "3");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTag(
       boolean useNativeGit) throws Exception {
     // given
@@ -1373,8 +1373,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void
       shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndPreferAnnotatedTags(
           boolean useNativeGit) throws Exception {
@@ -1412,8 +1412,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGenerateClosestTagInformationWithIncludeLightweightTagsForClosestTagAndFilter(
       boolean useNativeGit) throws Exception {
     // given
@@ -1451,8 +1451,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.closest.tag.commit.count", "1");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyEvalOnDifferentCommitWithParentOfHead(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1484,8 +1484,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.dirty", "true");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyEvalOnDifferentCommitWithBranchName(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1521,8 +1521,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyEvalOnDifferentCommitWithTagName(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1559,8 +1559,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyEvalOnDifferentCommitWithCommitHash(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1596,8 +1596,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.total.commit.count", "2");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyEvalOnCommitWithTwoBranches(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1628,8 +1628,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         targetProject.getProperties(), "git.branch", "another_branch,master,z_branch");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void verifyDetachedHeadIsNotReportedAsBranch(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox
@@ -1656,8 +1656,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "master");
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGeneratePropertiesWithMultiplePrefixesAndReactorProject(boolean useNativeGit)
       throws Exception {
     // given

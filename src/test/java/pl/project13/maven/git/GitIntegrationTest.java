@@ -38,8 +38,8 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 
 /**
@@ -63,7 +63,7 @@ public abstract class GitIntegrationTest {
   protected GitCommitIdMojo mojo;
   protected FileSystemMavenSandbox mavenSandbox;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     // generate unique sandbox for this test
     File sandbox;
@@ -80,7 +80,7 @@ public abstract class GitIntegrationTest {
     initializeMojoWithDefaults(mojo);
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws Exception {
     final boolean keep = mavenSandbox != null && mavenSandbox.isKeepSandboxWhenFinishedTest();
 

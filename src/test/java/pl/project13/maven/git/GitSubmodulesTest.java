@@ -19,20 +19,17 @@
 package pl.project13.maven.git;
 
 import java.nio.file.Files;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Testcases to verify that the git-commit-id-plugin works properly.
  */
-@RunWith(JUnitParamsRunner.class)
 public class GitSubmodulesTest extends GitIntegrationTest {
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldResolvePropertiesOnDefaultSettingsForNonPomProject(
       boolean useNativeGit) throws Exception {
     mavenSandbox
@@ -52,8 +49,8 @@ public class GitSubmodulesTest extends GitIntegrationTest {
     assertGitPropertiesPresentInProject(targetProject.getProperties());
   }
 
-  @Test
-  @Parameters(method = "useNativeGit")
+  @ParameterizedTest
+  @MethodSource("useNativeGit")
   public void shouldGeneratePropertiesWithSubmodules(boolean useNativeGit) throws Exception {
     // given
     mavenSandbox

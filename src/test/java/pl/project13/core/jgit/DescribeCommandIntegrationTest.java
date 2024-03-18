@@ -32,7 +32,7 @@ import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
 import pl.project13.maven.git.GitIntegrationTest;

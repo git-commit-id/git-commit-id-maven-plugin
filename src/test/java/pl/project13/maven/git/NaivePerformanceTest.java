@@ -18,23 +18,17 @@
 
 package pl.project13.maven.git;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Properties;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.apache.maven.project.MavenProject;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.git.GitDescribeConfig;
 
 /**
  * Testcases to verify that the git-commit-id works properly.
  */
-@RunWith(JUnitParamsRunner.class)
 public class NaivePerformanceTest extends GitIntegrationTest {
 
   static final boolean UseJGit = false;
@@ -50,9 +44,9 @@ public class NaivePerformanceTest extends GitIntegrationTest {
         });
   }
 
-  @Test
-  @Parameters(method = "performanceParameter")
-  @Ignore("Naive performance test - run this locally")
+  @ParameterizedTest
+  @MethodSource("performanceParameter")
+  @Disabled("Naive performance test - run this locally")
   public void performance(boolean useNativeGit, int iterations) throws Exception {
     // given
     mavenSandbox

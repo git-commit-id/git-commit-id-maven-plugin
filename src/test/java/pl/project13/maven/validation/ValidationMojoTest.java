@@ -18,20 +18,24 @@
 
 package pl.project13.maven.validation;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases to verify the {@link ValidationMojo} works properly.
  */
 public class ValidationMojoTest {
-  @Test(expected = MojoExecutionException.class)
+  @Test
   public void validationNotMatchingAndValidationShouldFailIfNoMatch()
       throws MojoExecutionException {
-    List<ValidationProperty> validationProperties = getNonMatchingValidationProperties();
-    executeMojo(validationProperties, true);
+    assertThrows(MojoExecutionException.class, () -> {
+      List<ValidationProperty> validationProperties = getNonMatchingValidationProperties();
+      executeMojo(validationProperties, true);
+    });
   }
 
   @Test

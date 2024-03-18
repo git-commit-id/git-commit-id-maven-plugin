@@ -18,6 +18,7 @@
 
 package pl.project13.maven.git;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -27,25 +28,24 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import pl.project13.core.PropertiesFilterer;
 import pl.project13.core.log.LogInterface;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PropertiesFiltererTest {
 
   private static final String PREFIX_DOT = "prefix.";
+  private PropertiesFilterer propertiesFilterer;
+  private Properties properties;
 
-  @InjectMocks private PropertiesFilterer propertiesFilterer;
-
-  @Mock private LogInterface log;
-
-  @Mock private Properties properties;
+  @BeforeEach
+  public void setUp() {
+    LogInterface log = mock(LogInterface.class);
+    propertiesFilterer = new PropertiesFilterer(log);
+    properties = mock(Properties.class);
+  }
 
   @Test
   public void filterNotWithoutExclusions() {

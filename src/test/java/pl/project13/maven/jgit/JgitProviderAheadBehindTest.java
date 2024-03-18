@@ -35,6 +35,6 @@ public class JgitProviderAheadBehindTest extends AheadBehindTest<JGitProvider> {
   @Override
   protected JGitProvider gitProvider() {
     return JGitProvider.on(
-        Paths.get(localRepository.getRoot().getAbsolutePath(), ".git").toFile(), null);
+        Paths.get(localRepository.toFile().getAbsolutePath(), ".git").toFile(), null);
   }
 }
