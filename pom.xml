@@ -24,7 +24,7 @@
     </description>
 
     <prerequisites>
-        <maven>[3.2.5,)</maven>
+        <maven>[3.6.3,)</maven>
     </prerequisites>
 
     <licenses>
