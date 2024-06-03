@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         java_version: ['11']
-        maven_version: ['3.6.3', '3.8.8', '3.9.6', '4.0.0-alpha-13']
+        maven_version: ['3.6.3', '3.8.8', '3.9.7', '4.0.0-alpha-13', '4.0.0-beta-3']
 
     steps:
       - uses: actions/checkout@v4
