@@ -1486,7 +1486,9 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void appendPropertiesToReactorProjects(LogInterface log, Properties propertiesToPublish) {
     for (MavenProject mavenProject : reactorProjects) {
-      log.debug("Adding '" + propertiesToPublish.size() + "' properties to project: '" + mavenProject.getName() + "'");
+      log.debug(
+          "Adding '" + propertiesToPublish.size() + "' properties "
+          + "to project: '" + mavenProject.getName() + "'");
       if (mavenProject.equals(project)) {
         continue;
       }
@@ -1494,8 +1496,8 @@ public class GitCommitIdMojo extends AbstractMojo {
       mavenProject.setContextValue(CONTEXT_KEY, propertiesToPublish);
     }
     log.info(
-      "Added '" + propertiesToPublish.size() + "' properties " +
-      "to '" + reactorProjects.size() + "' projects");
+        "Added '" + propertiesToPublish.size() + "' properties "
+        + "to '" + reactorProjects.size() + "' projects");
   }
 
   private void logProperties(LogInterface log, Properties propertiesToPublish) {
