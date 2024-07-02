@@ -1145,6 +1145,7 @@ public class GitCommitIdMojo extends AbstractMojo {
             || PropertiesFileGenerator.craftPropertiesOutputFile(
                     project.getBasedir(), new File(generateGitPropertiesFilename))
                 .exists()) {
+          log.info("Skip mojo execution on incremental builds.");
           return;
         }
       }
@@ -1237,7 +1238,8 @@ public class GitCommitIdMojo extends AbstractMojo {
         log.info(
             "injectAllReactorProjects is enabled - attempting to use the already computed values");
         // makes sure the existing context properties are not mutated
-        properties = new Properties(contextProperties);
+        properties = new Properties();
+        properties.putAll(contextProperties);
       }
 
       final GitCommitIdPlugin.Callback cb =
@@ -1484,14 +1486,18 @@ public class GitCommitIdMojo extends AbstractMojo {
 
   private void appendPropertiesToReactorProjects(LogInterface log, Properties propertiesToPublish) {
     for (MavenProject mavenProject : reactorProjects) {
-      log.debug("Adding properties to project: '" + mavenProject.getName() + "'");
+      log.debug(
+          "Adding '" + propertiesToPublish.size() + "' properties "
+          + "to project: '" + mavenProject.getName() + "'");
       if (mavenProject.equals(project)) {
         continue;
       }
       publishPropertiesInto(propertiesToPublish, mavenProject.getProperties());
       mavenProject.setContextValue(CONTEXT_KEY, propertiesToPublish);
     }
-    log.info("Added properties to '" + reactorProjects.size() + "' projects");
+    log.info(
+        "Added '" + propertiesToPublish.size() + "' properties "
+        + "to '" + reactorProjects.size() + "' projects");
   }
 
   private void logProperties(LogInterface log, Properties propertiesToPublish) {
