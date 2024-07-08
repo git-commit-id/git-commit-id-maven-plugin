@@ -63,7 +63,7 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>git-commit-id-plugin-core</artifactId>
-                <version>6.0.0-rc.8</version>
+                <version>6.0.0-rc.9</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
