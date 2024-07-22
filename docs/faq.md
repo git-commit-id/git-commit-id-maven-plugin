@@ -1,6 +1,17 @@
 Frequently Asked Question (FAQ)
 =========
 
+Plugin options and configurations
+-------------------------------
+This plugin is around for quite some time and has various options and configurations.
+The most up-to-date documentation about the various options can be found in the [plugin itself](https://github.com/git-commit-id/git-commit-id-maven-plugin/blob/master/src/main/java/pl/project13/maven/git/GitCommitIdMojo.java#L105).
+
+On top of the various options that can be configured in the `pom.xml` the plugin has the following command-line arguments:
+* `-Dmaven.gitcommitid.skip=true` - skip the plugin execution
+* `-Dmaven.gitcommitid.nativegit=true` - by default this plugin will use the `jgit` implementation to interact with your git repository, specify this command-line option to use the native `git` binary instead
+Note that all command-line options can also be configured in the `pom.xml`.
+
+
 Generated properties are not usable inside the pom / properties don't get exposed by the plugin
 -------------------------------
 Since version `2.1.4` there is a switch to control if you want the plugin to expose the generated properties to your pom as well.
