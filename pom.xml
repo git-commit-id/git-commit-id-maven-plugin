@@ -50,7 +50,7 @@
         <java.target>11</java.target>
 
         <maven-plugin-api.version>3.9.6</maven-plugin-api.version>
-        <maven-plugin-plugin.version>3.13.1</maven-plugin-plugin.version>
+        <maven-plugin-plugin.version>3.14.0</maven-plugin-plugin.version>
 
         <junit.version>5.10.3</junit.version>
         <mockito.version>5.12.0</mockito.version>
