@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
@@ -40,6 +41,7 @@ import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.provider.Arguments;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 
 /**
@@ -53,8 +55,11 @@ public abstract class GitIntegrationTest {
   private static final boolean UseJGit = false;
   private static final boolean UseNativeGit = true;
 
-  public static Collection<?> useNativeGit() {
-    return asList(UseJGit, UseNativeGit);
+  public static Stream<Arguments> useNativeGit() {
+    return Stream.of(
+            Arguments.of(UseJGit),
+            Arguments.of(UseNativeGit)
+    );
   }
 
   /** Sandbox directory with unique name for current test. */

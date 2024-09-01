@@ -33,12 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.stream.Stream;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.git.GitDescribeConfig;
@@ -237,9 +239,20 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
         .satisfies(new DoesNotContainKeyCondition("git.commit.id.describe"));
   }
 
+  static Stream<Arguments> useNativeGitWithBranches() {
+    return useNativeGit().flatMap(arg ->
+      Stream.of(
+        "test_branch",
+        "feature/my-git-branch"
+      ).map(str ->
+        Arguments.of(arg.get()[0], str)
+      )
+    );
+  }
+
   @ParameterizedTest
-  @MethodSource("useNativeGit")
-  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit)
+  @MethodSource("useNativeGitWithBranches")
+  public void shouldNotUseBuildEnvironmentBranchInfoWhenParameterSet(boolean useNativeGit, String branchName)
       throws Exception {
     mavenSandbox
         .withParentProject("my-jar-project", "jar")
@@ -262,14 +275,14 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     // reset repo and force detached HEAD
     try (final Git git = git("my-jar-project")) {
       git.reset().setMode(ResetCommand.ResetType.HARD).setRef("b6a73ed").call();
-      git.checkout().setCreateBranch(true).setName("test_branch").setForceRefUpdate(true).call();
+      git.checkout().setCreateBranch(true).setName(branchName).setForceRefUpdate(true).call();
     }
 
     // when
     mojo.execute();
 
     // then
-    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", "test_branch");
+    assertPropertyPresentAndEqual(targetProject.getProperties(), "git.branch", branchName);
   }
 
   @ParameterizedTest

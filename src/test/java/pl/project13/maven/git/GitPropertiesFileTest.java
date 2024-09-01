@@ -18,16 +18,16 @@
 
 package pl.project13.maven.git;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Properties;
+import java.util.stream.Stream;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
 import pl.project13.core.util.GenericFileManager;
@@ -40,8 +40,11 @@ public class GitPropertiesFileTest extends GitIntegrationTest {
   static final boolean USE_JGIT = false;
   static final boolean USE_NATIVE_GIT = true;
 
-  public static Collection<?> useNativeGit() {
-    return asList(USE_JGIT, USE_NATIVE_GIT);
+  public static Stream<Arguments> useNativeGit() {
+    return Stream.of(
+      Arguments.of(USE_JGIT),
+      Arguments.of(USE_NATIVE_GIT)
+    );
   }
 
   @ParameterizedTest
