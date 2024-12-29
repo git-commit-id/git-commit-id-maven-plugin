@@ -31,7 +31,7 @@ jobs:
     needs: checkstyle
     strategy:
       matrix:
-        java_version: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22']
+        java_version: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
 
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         java_version: ['11']
-        maven_version: ['3.6.3', '3.8.8', '3.9.7', '4.0.0-alpha-13', '4.0.0-beta-3']
+        maven_version: ['3.6.3', '3.8.8', '3.9.9', '4.0.0-alpha-13', '4.0.0-beta-5', '4.0.0-rc-2']
 
     steps:
       - uses: actions/checkout@v4
