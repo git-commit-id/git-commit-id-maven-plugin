@@ -33,7 +33,7 @@ With the current version of the validation the user can decide if the build shou
 For flexibility and due to the fact that this validation has a different scope than the git-commit-id-maven-plugin this validation needs to be configured as additional execution inside the configuration of the pom.xml.
 Once configured, the validation is executed during the verification-phase. However since the validation is done in a separate execution the phase can easily be changed by adding the desired phase to the execution configuration.
 
-Note that this feature needs to be enabled properly, before it can be used. Checkout the `Validation Usage Example` in the [using the plugin](using-the-plugin.md) guide to find out more.
+Note that this feature needs to be enabled properly, before it can be used. Checkout the `Validation Usage Example` in the [Configuration & Properties](configuration-and-properties.md) guide to find out more.
 
 Other
 -----
