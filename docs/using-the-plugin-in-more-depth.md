@@ -5,6 +5,7 @@ Essentially every user can chose between the following alternatives:
 * use plain resource filtering from maven
 * use resource filtering from maven Maven in combination with Spring beans
 * have the plugin generate a `git.properties` inside your artifact
+* Generate a Java Source File with Compile Time Constants
 
 The following should give you a broad overview about the different cases.
 
@@ -274,8 +275,69 @@ public GitRepositoryState(Properties properties)
 }
 ```
 
-Yet another way to use the plugin
+Generate A Java Source File with Compile Time Constants
 =================================
 
-Rather than reading properties files at runtime or injecting with spring, you can filter a Java source file directly and place it into `src/main/java` with an ignore, or into generated sources directory within the target directory. This has some minor advantages and disadvantages, but is useful for avoiding runtime injection or lookup from properties files that might get lost during repackaging later if used within a library.
+Rather than reading properties files at runtime or injecting with spring, you can filter a Java source file directly into a `generated-sources` directory within the `target` directory. This is useful for avoiding runtime injection and/or lookup from properties files that might get lost during repackaging later if used within a library.
 
+Add the [templating-maven-plugin](https://github.com/mojohaus/templating-maven-plugin) to your pom.xml:  
+```xml
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>templating-maven-plugin</artifactId>
+    <version>3.0.0</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>filter-sources</goal>
+            </goals>
+            <phase>generate-sources</phase>
+        </execution>
+    </executions>
+</plugin>
+```
+
+Add a template .java source file to `src/main/java-templates`:  
+```java
+package com.example.demo;
+
+public interface Version {
+	String TAGS = "${git.tags}";
+	String BRANCH = "${git.branch}";
+	String DIRTY = "${git.dirty}";
+	String REMOTE_ORIGIN_URL = "${git.remote.origin.url}";
+
+	String COMMIT_ID = "${git.commit.id.full}";
+	String COMMIT_ID_ABBREV = "${git.commit.id.abbrev}";
+	String DESCRIBE = "${git.commit.id.describe}";
+	String DESCRIBE_SHORT = "${git.commit.id.describe-short}";
+	String COMMIT_USER_NAME = "${git.commit.user.name}";
+	String COMMIT_USER_EMAIL = "${git.commit.user.email}";
+	String COMMIT_MESSAGE_FULL = "${git.commit.message.full}";
+	String COMMIT_MESSAGE_SHORT = "${git.commit.message.short}";
+	String COMMIT_TIME = "${git.commit.time}";
+	String CLOSEST_TAG_NAME = "${git.closest.tag.name}";
+	String CLOSEST_TAG_COMMIT_COUNT = "${git.closest.tag.commit.count}";
+
+	String BUILD_USER_NAME = "${git.build.user.name}";
+	String BUILD_USER_EMAIL = "${git.build.user.email}";
+	String BUILD_TIME = "${git.build.time}";
+	String BUILD_HOST = "${git.build.host}";
+	String BUILD_VERSION = "${git.build.version}";
+	String BUILD_NUMBER = "${git.build.number}";
+	String BUILD_NUMBER_UNIQUE = "${git.build.number.unique}";
+}
+```
+Use the same package declaration as your program's entry point, presumably in `src/main/java`.  
+This example would have a relative path of `src/main/java-templates/com/example/demo/Version.java`.  
+
+Use the version info as you would any other constant:  
+```java
+package com.example.demo;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Version: " + Version.COMMIT_ID);
+    }
+}
+```
