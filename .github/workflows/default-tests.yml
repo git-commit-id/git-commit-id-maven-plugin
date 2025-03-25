@@ -23,7 +23,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Run checkstyle with Maven
-        run: mvn clean verify -B -Pcheckstyle -Dmaven.test.skip=true
+        run: mvn clean verify -B -Pcheckstyle -Dmaven.test.skip=true --no-transfer-progress
 
   test:
     name: Run basic test with Java ${{ matrix.java_version }}
@@ -50,7 +50,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean verify javadoc:javadoc -B
+        run: mvn clean verify javadoc:javadoc -B --no-transfer-progress
 
   integration-test:
     name: Run integration test with Java ${{ matrix.java_version }} and Maven ${{ matrix.maven_version }}
@@ -100,9 +100,9 @@ jobs:
       - name: Verify Setup of Maven ${{ matrix.maven_version }}
         run: bash -c "echo ${M2_HOME}; echo ${PATH}; mvn -version"
       - name: Install a test version with Maven
-        run: mvn clean install -B --settings=./.buildscript/settings.xml
+        run: mvn clean install -B --settings=./.buildscript/settings.xml --no-transfer-progress
       - name: Run the local testversion with Maven
-        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.buildscript/settings.xml
+        run: mvn clean initialize -B -Pdemo -Dmaven.test.skip=true --settings=./.buildscript/settings.xml --no-transfer-progress
       - name: Validate if the testversion has produced the desired output
         run: /bin/bash -c '[[ -f target/testing.properties ]] && cat target/testing.properties || exit 1;'
 
@@ -131,7 +131,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Run Coveralls with Maven
-        run: mvn clean test jacoco:report coveralls:report -B -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }}
+        run: mvn clean test jacoco:report coveralls:report -B -Pcoveralls -DrepoToken=${{ secrets.CoverallsRepoTokenSecret }} --no-transfer-progress
 
   deploy-snapshot:
     name: Deploy snapshot
@@ -156,7 +156,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Deploy snapshot with Maven
-        run: mvn clean deploy -B --settings=./.buildscript/settings.xml
+        run: mvn clean deploy -B --settings=./.buildscript/settings.xml --no-transfer-progress
         env:
           CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
           CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
