@@ -594,13 +594,16 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     mojo.failOnNoGitDirectory = false;
     mojo.useNativeGit = useNativeGit;
 
+    // Set empty env to avoid exposing "git.build.number.unique", "git.build.number"
+    Map<String, String> env = new HashMap<>();
+    when(mojo.getCustomSystemEnv()).thenReturn(env);
+
     // when
     mojo.execute();
 
     // then
     assertThat(targetProject.getProperties().keySet()).containsOnly(
-        "git.build.time", "git.build.version", "git.build.host",
-            "git.build.number.unique", "git.build.number");
+        "git.build.time", "git.build.version", "git.build.host");
   }
 
   @ParameterizedTest
