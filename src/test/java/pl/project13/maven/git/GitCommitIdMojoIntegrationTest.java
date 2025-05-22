@@ -599,7 +599,8 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
 
     // then
     assertThat(targetProject.getProperties().keySet()).containsOnly(
-        "git.build.time", "git.build.version", "git.build.host");
+        "git.build.time", "git.build.version", "git.build.host",
+            "git.build.number.unique", "git.build.number");
   }
 
   @ParameterizedTest
