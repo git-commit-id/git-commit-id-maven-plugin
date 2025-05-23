@@ -13,7 +13,7 @@ The plugin is **available from [Maven Central](https://central.sonatype.com/arti
 <plugin>
     <groupId>io.github.git-commit-id</groupId>
     <artifactId>git-commit-id-maven-plugin</artifactId>
-    <version>9.0.1</version>
+    <version>9.0.2</version>
     <executions>
         <execution>
             <id>get-the-git-infos</id>
