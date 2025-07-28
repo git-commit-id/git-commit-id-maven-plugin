@@ -285,6 +285,14 @@ public class GitCommitIdMojo extends AbstractMojo {
   File dotGitDirectory;
 
   /**
+   * Configuration to tell the git-commit-id-maven-plugin to consider only
+   * commits affecting the folder containing this module, rather than all
+   * commits in the repository.
+   */
+  @Parameter(defaultValue = "false")
+  boolean enablePerModuleVersions;
+
+  /**
    * Configuration for the {@code 'git-describe'} command. You can modify the dirty marker, abbrev
    * length and other options here. The following `gitDescribe` configuration below is optional and
    * can be leveraged as a really powerful versioning helper. If you are not familiar with <a
@@ -1326,6 +1334,11 @@ public class GitCommitIdMojo extends AbstractMojo {
             }
 
             @Override
+            public boolean getPerModuleVersions() {
+              return enablePerModuleVersions;
+            }
+
+            @Override
             public boolean isOffline() {
               return offline || settings.isOffline();
             }
@@ -1403,6 +1416,10 @@ public class GitCommitIdMojo extends AbstractMojo {
             @Override
             public boolean shouldFailOnNoGitDirectory() {
               return failOnNoGitDirectory;
+            }
+            @Override
+            public File getModuleBaseDir() {
+              return new File(project.getBasedir().getAbsolutePath());
             }
           };
 
