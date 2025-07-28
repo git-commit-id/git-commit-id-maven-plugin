@@ -1756,8 +1756,7 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     assertThat(parentProperties).containsKey("git.commit.id.abbrev");
     assertThat(childProperties).containsKey("git.commit.id.abbrev");
     assertThat(parentProperties.getProperty("git.commit.id.abbrev")).isNotEqualTo(childProperties.getProperty("git.commit.id.abbrev"));
-
- }
+  }
 
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
