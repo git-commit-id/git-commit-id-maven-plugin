@@ -1417,6 +1417,7 @@ public class GitCommitIdMojo extends AbstractMojo {
             public boolean shouldFailOnNoGitDirectory() {
               return failOnNoGitDirectory;
             }
+            
             @Override
             public File getModuleBaseDir() {
               return new File(project.getBasedir().getAbsolutePath());
