@@ -7,7 +7,7 @@ jobs:
     name: Run checkstyle
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up JDK 11
@@ -34,7 +34,7 @@ jobs:
         java_version: ['11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up JDK ${{ matrix.java_version }}
@@ -62,7 +62,7 @@ jobs:
         maven_version: ['3.6.3', '3.8.8', '3.9.9', '4.0.0-alpha-13', '4.0.0-beta-5', '4.0.0-rc-2']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up JDK ${{ matrix.java_version }}
@@ -113,7 +113,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master') }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - run: git checkout "${GITHUB_REF:11}"
@@ -140,7 +140,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/') && github.ref == 'refs/heads/master' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - name: Set up JDK 11
