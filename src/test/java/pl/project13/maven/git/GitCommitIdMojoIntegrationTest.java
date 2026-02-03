@@ -39,6 +39,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -1715,6 +1716,48 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
       assertPropertyPresentAndEqual(properties, prefix + ".closest.tag.commit.count", "0");
     }
   }
+
+  @Test
+  public void shouldGiveCommitIdForEachFolderWhenPerModuleVersionsEnabled()
+      throws Exception {
+    // given
+    mavenSandbox
+        .withParentProject("parent-project", "pom")
+        .withChildProject("src/test", "jar")
+        .withGitRepoInParent(AvailableGitTestRepo.GIT_COMMIT_ID)
+        .withKeepSandboxWhenFinishedTest(true)
+        .create();
+
+    // Only supported with JGit
+    mojo.useNativeGit = false;
+    
+    // Don't skip the parent project
+    mojo.skipPoms = false;
+
+    //Enable per module versions
+    mojo.enablePerModuleVersions = true;
+    
+    MavenProject parentProject = mavenSandbox.getParentProject(); // "my-pom-project"
+    MavenProject childProject = mavenSandbox.getChildProject(); // "my-child-module"
+
+    // when
+    // Execute the mojo in both parent and child projects
+    setProjectToExecuteMojoIn(parentProject);
+    mojo.execute();
+
+    setProjectToExecuteMojoIn(childProject);
+    mojo.execute();
+
+    // then
+    // The commit IDs should be different for parent and child projects
+    Properties parentProperties = parentProject.getProperties();
+    Properties childProperties = childProject.getProperties();
+
+    assertThat(parentProperties).containsKey("git.commit.id.abbrev");
+    assertThat(childProperties).containsKey("git.commit.id.abbrev");
+    assertThat(parentProperties.getProperty("git.commit.id.abbrev")).isNotEqualTo(childProperties.getProperty("git.commit.id.abbrev"));
+  }
+
 
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
