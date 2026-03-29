@@ -127,16 +127,28 @@ public enum AvailableGitTestRepo {
   /**
    * <pre>
    * $  git log --name-only --pretty=format:"%H '%an' '%aD' '%s' %d" --date=short
-   * 2ed2ea209fb99c360cd8434eb2d82b929da6b908 'TheSnoozer' 'Fri, 27 Mar 2026 17:40:36 +0100' 'a change in the root pom'  (HEAD -> master)
+   * 2ed2ea209fb99c360cd8434eb2d82b929da6b908
+   *    'TheSnoozer'
+   *    'Fri, 27 Mar 2026 17:40:36 +0100'
+   *    'a change in the root pom' (HEAD -> master)
    * pom.xml
    *
-   * 70a13b95591dac76ce92dd9087d557fca539f98a 'submodule-two Author' 'Fri, 27 Mar 2026 17:39:59 +0100' 'a change in submodule-two'  (tag: tag-submodule-two)
+   * 70a13b95591dac76ce92dd9087d557fca539f98a
+   *    'submodule-two Author'
+   *    'Fri, 27 Mar 2026 17:39:59 +0100'
+   *    'a change in submodule-two'  (tag: tag-submodule-two)
    * submodule-two/pom.xml
    *
-   * 91e49245092c089624d3e770d902cfc8bc53a852 'submodule-one Author' 'Fri, 27 Mar 2026 17:39:23 +0100' 'a change in submodule-one'  (tag: tag-submodule-one)
+   * 91e49245092c089624d3e770d902cfc8bc53a852
+   *    'submodule-one Author'
+   *    'Fri, 27 Mar 2026 17:39:23 +0100'
+   *    'a change in submodule-one'  (tag: tag-submodule-one)
    * submodule-one/pom.xml
    *
-   * 9c5d2e13d042b0acb71c48232a9c408e42da87f7 'TheSnoozer' 'Fri, 27 Mar 2026 17:38:16 +0100' 'new repo for testing (based on git-commit-id-maven-debugging)'
+   * 9c5d2e13d042b0acb71c48232a9c408e42da87f7
+   *    'TheSnoozer'
+   *    'Fri, 27 Mar 2026 17:38:16 +0100'
+   *    'new repo for testing (based on git-commit-id-maven-debugging)'
    * [snip]
    * </pre>
    * and dirty:
@@ -145,7 +157,8 @@ public enum AvailableGitTestRepo {
    * M submodule-two/pom.xml
    * </pre>
    */
-  WITH_SUBMODULES_AND_MULTIPLE_COMMITS("src/test/resources/_git_with_submodules_and_multiple_commits"),
+  WITH_SUBMODULES_AND_MULTIPLE_COMMITS(
+          "src/test/resources/_git_with_submodules_and_multiple_commits"),
   // TODO: Why do the tests get stuck when we use .git??
   MAVEN_GIT_COMMIT_ID_PLUGIN("src/test/resources/_git_one_commit_with_umlaut");
 
