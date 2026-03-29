@@ -1716,6 +1716,90 @@ public class GitCommitIdMojoIntegrationTest extends GitIntegrationTest {
     }
   }
 
+  static Stream<Arguments> useNativeGitWithSubmoduleName() {
+    return useNativeGit().flatMap(arg ->
+      Stream.of(
+        "submodule-one",
+        "submodule-two"
+      ).map(str ->
+        Arguments.of(arg.get()[0], str)
+      )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("useNativeGitWithSubmoduleName")
+  public void shouldGiveCommitIdForEachFolderWhenPerModuleVersionsEnabled(boolean useNativeGit, String submoduleName) throws Exception {
+    // given
+    mavenSandbox
+            .withParentProject("my-pom-project", "pom")
+            .withGitRepoInParent(AvailableGitTestRepo.WITH_SUBMODULES_AND_MULTIPLE_COMMITS)
+            .withChildProject(submoduleName, "jar")
+            .create();
+    MavenProject targetProject = mavenSandbox.getChildProject();
+
+    setProjectToExecuteMojoIn(targetProject);
+
+    GitDescribeConfig gitDescribeConfig = createGitDescribeConfig(false, 7);
+
+    mojo.gitDescribe = gitDescribeConfig;
+    mojo.useNativeGit = useNativeGit;
+    mojo.perModuleVersions = true;
+    mojo.dateFormatTimeZone = "CET";
+
+    // when
+    mojo.execute();
+    // then
+    Properties properties = targetProject.getProperties();
+    assertGitPropertiesPresentInProject(properties);
+
+    // setup expectations
+    Map<String, Object> expectedValues = new HashMap<>();
+    expectedValues.put("git.commit.id.full", null);
+    expectedValues.put("git.closest.tag.name", "tag-" + submoduleName);
+    expectedValues.put("git.closest.tag.commit.count", null);
+    expectedValues.put("git.dirty", null);
+    expectedValues.put("git.commit.message.full", "a change in " + submoduleName);
+    expectedValues.put("git.commit.user.name", submoduleName + " Author");
+    expectedValues.put("git.commit.user.email", submoduleName + "@example.com");
+    expectedValues.put("git.commit.time", null);
+    expectedValues.put("git.commit.author.time", null);
+    expectedValues.put("git.commit.committer.time", null);
+
+    if (submoduleName.equals("submodule-one")) {
+      expectedValues.put("git.commit.id.full", "91e49245092c089624d3e770d902cfc8bc53a852");
+      expectedValues.put("git.closest.tag.commit.count", 0);
+      expectedValues.put("git.dirty", true); // Really?
+      // date -d @$(git log -1 --pretty=format:%ct 91e4924) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.time", "2026-03-28T11:47:51+0100");
+      // date -d @$(git log -1 --pretty=format:%at 91e4924) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.author.time", "2026-03-27T17:39:23+0100");
+      // date -d @$(git log -1 --pretty=format:%ct 91e4924) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.committer.time", "2026-03-28T11:47:51+0100");
+    } else if (submoduleName.equals("submodule-two")) {
+      expectedValues.put("git.commit.id.full", "70a13b95591dac76ce92dd9087d557fca539f98a");
+      expectedValues.put("git.closest.tag.commit.count", 0);
+      expectedValues.put("git.dirty", true);
+      // date -d @$(git log -1 --pretty=format:%ct 70a13b9) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.time", "2026-03-28T11:48:17+0100");
+      // date -d @$(git log -1 --pretty=format:%at 70a13b9) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.author.time", "2026-03-27T17:39:59+0100");
+      // date -d @$(git log -1 --pretty=format:%ct 70a13b9) "+%Y-%m-%dT%H:%M:%S%z"
+      expectedValues.put("git.commit.committer.time", "2026-03-28T11:48:17+0100");
+    }
+
+    // Assertions
+    for (Map.Entry<String, Object> entry : expectedValues.entrySet()) {
+      String key = entry.getKey();
+      Object expectedValue = entry.getValue();
+
+      assertThat(expectedValue).isNotNull();
+      assertThat(properties.getProperty(key))
+              .as("useNativeGit=%s,submoduleName=%s,key=%s", useNativeGit, submoduleName, key)
+              .isEqualTo(String.valueOf(expectedValue));
+    }
+  }
+
   private GitDescribeConfig createGitDescribeConfig(boolean forceLongFormat, int abbrev) {
     GitDescribeConfig gitDescribeConfig = new GitDescribeConfig();
     gitDescribeConfig.setTags(true);
