@@ -131,6 +131,31 @@ public class GitCommitIdMojo extends AbstractMojo {
   boolean injectAllReactorProjects;
 
   /**
+   * Configuration to enable per-module version generation.
+   * When enabled, the plugin will only consider commits affecting paths within the current module.
+   *
+   * <p>By default this option is disabled (set to {@code false})
+   *
+   * <p>This is useful in multi-module builds where you want to track module-specific changes
+   * rather than the entire repository's commit history.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * <perModuleVersions>true</perModuleVersions>
+   * }</pre>
+   *
+   * See
+   * - https://github.com/git-commit-id/git-commit-id-plugin-core/pull/247
+   * - https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/136
+   * - https://github.com/git-commit-id/git-commit-id-maven-plugin/pull/535
+   *
+   * @since 9.1.0
+   */
+  @Parameter(defaultValue = "false")
+  boolean perModuleVersions;
+
+  /**
    * Configuration to tell the git-commit-id-maven-plugin to print some more verbose information
    * during the build (e.g. a summary of all collected properties when it's done).
    *
@@ -1403,6 +1428,11 @@ public class GitCommitIdMojo extends AbstractMojo {
             @Override
             public boolean shouldFailOnNoGitDirectory() {
               return failOnNoGitDirectory;
+            }
+
+            @Override
+            public boolean isPerModuleVersions() {
+              return perModuleVersions;
             }
           };
 
