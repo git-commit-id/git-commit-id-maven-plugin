@@ -3,17 +3,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-        <relativePath />
-    </parent>
-
     <groupId>io.github.git-commit-id</groupId>
     <artifactId>git-commit-id-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>9.0.3-SNAPSHOT</version>
+    <version>9.0.2</version>
     <name>Git Commit Id Maven Plugin</name>
     <url>https://github.com/git-commit-id/git-commit-id-maven-plugin</url>
     <description>
@@ -22,6 +15,16 @@
         it easy to find things like "oh, that isn't deployed yet, I'll test it tomorrow" and making both testers and
         developers life easier. See https://github.com/git-commit-id/git-commit-id-maven-plugin
     </description>
+
+    <developers>
+        <developer>
+            <id>git-commit-id</id>
+            <name>Git Commit ID Community</name>
+            <email>github@git-commit-id.io</email>
+            <organization>git-commit-id</organization>
+            <organizationUrl>https://github.com/git-commit-id</organizationUrl>
+        </developer>
+    </developers>
 
     <prerequisites>
         <maven>[3.6.3,)</maven>
@@ -117,6 +120,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>3.3.1</version>
+                    <configuration>
+                      <arguments>-Pgpg</arguments>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -132,6 +138,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>3.2.8</version>
+                    <configuration>
+                        <gpgArguments>
+                            <arg>--pinentry-mode</arg>
+                            <arg>loopback</arg>
+                        </gpgArguments>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -164,9 +176,9 @@
                     <version>3.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.4</version>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.10.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -187,7 +199,16 @@
         </pluginManagement>
 
         <plugins>
-            <!-- Override oss parent downgrades -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -367,17 +388,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <profiles>
         <profile>
