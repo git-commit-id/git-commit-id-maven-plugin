@@ -33,12 +33,12 @@ body:
               - [ ] Push changes and tag: `git push origin master --follow-tags`
               - [ ] wait for github actions to pass
               - [ ] `mvn clean deploy -Pgpg`
-              - [ ] verify plugin is available on (might take some time) https://repo1.maven.org/maven2/io/github/git-commit-id/git-commit-id-plugin-core/
+              - [ ] verify plugin is available on (might take some time) https://repo1.maven.org/maven2/io/github/git-commit-id/git-commit-id-maven-plugin/
               - [ ] Set next development version: `bump2version patch --dry-run --verbose`
               - [ ] Push snapshot version: `git push origin master`
-              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-plugin-core/milestones) close old milestone
-              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-plugin-core/milestones) create new milestone for new version
-              - [ ] under [Releases](https://github.com/git-commit-id/git-commit-id-plugin-core/releases) publish Release-Notes
+              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-maven-plugin/milestones) close old milestone
+              - [ ] under [Milestones](https://github.com/git-commit-id/git-commit-id-maven-plugin/milestones) create new milestone for new version
+              - [ ] under [Releases](https://github.com/git-commit-id/git-commit-id-maven-plugin/releases) publish Release-Notes
               - [ ] update readme to point to the latest version available
       validations:
           required: true
