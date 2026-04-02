@@ -24,6 +24,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecution;
@@ -44,7 +44,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
-import org.joda.time.DateTime;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.sonatype.plexus.build.incremental.BuildContext;
 import pl.project13.core.CommitIdGenerationMode;
 import pl.project13.core.CommitIdPropertiesOutputFormat;
@@ -1279,25 +1280,25 @@ public class GitCommitIdMojo extends AbstractMojo {
               return () -> project.getVersion();
             }
 
-            @Nonnull
+            @NonNull
             @Override
             public LogInterface getLogInterface() {
               return log;
             }
 
-            @Nonnull
+            @NonNull
             @Override
             public String getDateFormat() {
               return dateFormat;
             }
 
-            @Nonnull
+            @NonNull
             @Override
             public String getDateFormatTimeZone() {
               return dateFormatTimeZone;
             }
 
-            @Nonnull
+            @NonNull
             @Override
             public String getPrefixDot() {
               String trimmedPrefix = prefix.trim();
@@ -1443,8 +1444,8 @@ public class GitCommitIdMojo extends AbstractMojo {
   }
 
   private void publishToAllSystemEnvironments(
-      @Nonnull LogInterface log,
-      @Nonnull Properties propertiesToPublish,
+      @NonNull LogInterface log,
+      @NonNull Properties propertiesToPublish,
       @Nullable Properties contextProperties) {
     publishPropertiesInto(propertiesToPublish, project.getProperties());
     // some plugins rely on the user properties (e.g. flatten-maven-plugin)
@@ -1505,7 +1506,44 @@ public class GitCommitIdMojo extends AbstractMojo {
       // no timestamp configured
       return null;
     }
-    return new DateTime(outputTimestamp).toDate();
+    // Normalize the timestamp to handle common variations
+    String normalized = outputTimestamp.trim();
+
+    // Handle lowercase designators
+    normalized = normalized.replace('t', 'T').replace('z', 'Z');
+
+    // Handle hours-only offsets by adding :00 minutes if needed
+    if (normalized.matches(".*[+-]\\d{2}$")) {
+      normalized = normalized.substring(0, normalized.length() - 3)
+              + normalized.substring(normalized.length() - 3) + ":00";
+    }
+
+    // Try parsing with different formatters in order of preference
+    DateTimeFormatter[] formatters = {
+      DateTimeFormatter.ISO_INSTANT,                           // 2022-02-12T15:30:00Z
+      DateTimeFormatter.ISO_OFFSET_DATE_TIME,                  // 2022-02-12T15:30+00:00
+      DateTimeFormatter.ISO_LOCAL_DATE_TIME,                   // 2022-02-12T15:30:00
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ"),      // 2019-03-26T10:00-0400
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ"),   // 2019-03-26T10:00:00-0400
+      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")        // 2022-02-12T15:30
+    };
+
+    for (DateTimeFormatter formatter : formatters) {
+      try {
+        if (
+            formatter == DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            &&
+            (normalized.contains("+") || normalized.contains("-") || normalized.endsWith("Z"))
+        ) {
+          continue; // Skip local formatter for timestamps with timezones
+        }
+        return Date.from(Instant.from(formatter.parse(normalized)));
+      } catch (DateTimeParseException ignore) {
+        // Try next formatter
+      }
+    }
+
+    throw new IllegalArgumentException("Unable to parse timestamp: " + outputTimestamp);
   }
 
   private void publishPropertiesInto(Properties propertiesToPublish, Properties propertiesTarget) {
@@ -1536,7 +1574,7 @@ public class GitCommitIdMojo extends AbstractMojo {
     }
   }
 
-  private boolean isPomProject(@Nonnull MavenProject project) {
+  private boolean isPomProject(@NonNull MavenProject project) {
     return project.getPackaging().equalsIgnoreCase("pom");
   }
 }

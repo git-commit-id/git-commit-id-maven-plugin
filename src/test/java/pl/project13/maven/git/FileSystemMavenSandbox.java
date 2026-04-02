@@ -21,10 +21,10 @@ package pl.project13.maven.git;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.project.MavenProject;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Quick and dirty maven projects tree structure to create on disk during integration tests. Can
@@ -50,20 +50,20 @@ public class FileSystemMavenSandbox {
     this.rootSandboxPath = rootSandboxPath;
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox withParentProject(String parentProjectDirName, String packaging) {
     parentProject =
         createProject(new File(rootSandboxPath + File.separator + parentProjectDirName), packaging);
     return this;
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox withNoChildProject() {
     // no-op: marker for better tests readability
     return this;
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox withChildProject(String childProjectDirName, String packaging) {
     childProject =
         createProject(new File(parentProject.getBasedir(), childProjectDirName), packaging);
@@ -71,8 +71,8 @@ public class FileSystemMavenSandbox {
     return this;
   }
 
-  @Nonnull
-  public FileSystemMavenSandbox withGitRepoInParent(@Nonnull AvailableGitTestRepo repo) {
+  @NonNull
+  public FileSystemMavenSandbox withGitRepoInParent(@NonNull AvailableGitTestRepo repo) {
     System.out.println("TEST: Will prepare sandbox repository based on: [" + repo.getDir() + "]");
 
     gitRepoSourceDir = repo.getDir();
@@ -80,27 +80,27 @@ public class FileSystemMavenSandbox {
     return this;
   }
 
-  @Nonnull
-  public FileSystemMavenSandbox withGitRepoInChild(@Nonnull AvailableGitTestRepo repo) {
+  @NonNull
+  public FileSystemMavenSandbox withGitRepoInChild(@NonNull AvailableGitTestRepo repo) {
     gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = childProject.getBasedir();
     return this;
   }
 
-  @Nonnull
-  public FileSystemMavenSandbox withGitRepoAboveParent(@Nonnull AvailableGitTestRepo repo) {
+  @NonNull
+  public FileSystemMavenSandbox withGitRepoAboveParent(@NonNull AvailableGitTestRepo repo) {
     gitRepoSourceDir = repo.getDir();
     gitRepoTargetDir = new File(rootSandboxPath);
     return this;
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox withNoGitRepoAvailable() {
     gitRepoTargetDir = null;
     return this;
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox create() throws RuntimeException {
     try {
       createParentDir();
@@ -145,7 +145,7 @@ public class FileSystemMavenSandbox {
     return childProject;
   }
 
-  @Nonnull
+  @NonNull
   private MavenProject createProject(File basedir, String packaging) {
     MavenProject project = new MavenProject();
     project.setFile(new File(basedir + File.separator + "pom.xml"));
@@ -166,7 +166,7 @@ public class FileSystemMavenSandbox {
         + '}';
   }
 
-  @Nonnull
+  @NonNull
   public FileSystemMavenSandbox withKeepSandboxWhenFinishedTest(
       boolean keepSandboxWhenFinishedTest) {
     // if we want to keep the generated sandbox for overwiew the content of it

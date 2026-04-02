@@ -19,8 +19,8 @@
 package pl.project13.maven.git;
 
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.assertj.core.api.Condition;
+import org.jspecify.annotations.NonNull;
 
 class ContainsKeyCondition extends Condition<Map<?, ?>> {
 
@@ -31,7 +31,7 @@ class ContainsKeyCondition extends Condition<Map<?, ?>> {
   }
 
   @Override
-  public boolean matches(@Nonnull Map<?, ?> map) {
+  public boolean matches(@NonNull Map<?, ?> map) {
     boolean containsKey = map.containsKey(key);
     if (!containsKey) {
       throw new RuntimeException(

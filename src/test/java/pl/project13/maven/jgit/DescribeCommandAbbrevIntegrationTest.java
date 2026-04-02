@@ -21,9 +21,9 @@ package pl.project13.maven.jgit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import pl.project13.core.jgit.DescribeCommand;
 import pl.project13.core.jgit.DescribeResult;
@@ -113,7 +113,7 @@ public class DescribeCommandAbbrevIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  String abbrev(@Nonnull String id, int n) {
+  String abbrev(@NonNull String id, int n) {
     return id.substring(0, n);
   }
 }
