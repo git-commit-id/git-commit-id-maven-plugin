@@ -18,7 +18,6 @@
 
 package pl.project13.maven.git;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -27,18 +26,17 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.Git;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
@@ -115,8 +113,8 @@ public abstract class GitIntegrationTest {
     return Optional.empty();
   }
 
-  @Nonnull
-  protected File dotGitDir(@Nonnull Optional<String> projectDir) {
+  @NonNull
+  protected File dotGitDir(@NonNull Optional<String> projectDir) {
     if (projectDir.isPresent()) {
       return new File(currSandbox + File.separator + projectDir.get() + File.separator + ".git");
     } else {
@@ -143,7 +141,7 @@ public abstract class GitIntegrationTest {
     mojo.settings = mockSettings();
   }
 
-  public void setProjectToExecuteMojoIn(@Nonnull MavenProject project) {
+  public void setProjectToExecuteMojoIn(@NonNull MavenProject project) {
     mojo.project = project;
     mojo.dotGitDirectory = new File(project.getBasedir(), ".git");
     mojo.reactorProjects = getReactorProjects(project);
@@ -162,7 +160,7 @@ public abstract class GitIntegrationTest {
     return settings;
   }
 
-  private static List<MavenProject> getReactorProjects(@Nonnull MavenProject project) {
+  private static List<MavenProject> getReactorProjects(@NonNull MavenProject project) {
     List<MavenProject> reactorProjects = new ArrayList<>();
     MavenProject mavenProject = project;
     while (mavenProject != null) {

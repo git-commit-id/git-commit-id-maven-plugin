@@ -19,7 +19,7 @@
 package pl.project13.maven.git;
 
 import java.io.File;
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * List of available git repositories that we can use to perform tests with.
@@ -168,7 +168,7 @@ public enum AvailableGitTestRepo {
     this.dir = dir;
   }
 
-  @Nonnull
+  @NonNull
   public File getDir() {
     return new File(dir);
   }

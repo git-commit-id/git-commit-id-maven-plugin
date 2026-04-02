@@ -26,12 +26,12 @@ import static org.mockito.Mockito.spy;
 
 import java.util.Collections;
 import java.util.Optional;
-import javax.annotation.Nonnull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import pl.project13.log.DummyTestLoggerBridge;
 import pl.project13.maven.git.AvailableGitTestRepo;
@@ -448,11 +448,11 @@ public class DescribeCommandIntegrationTest extends GitIntegrationTest {
     }
   }
 
-  String abbrev(@Nonnull String id) {
+  String abbrev(@NonNull String id) {
     return abbrev(id, DEFAULT_ABBREV_LEN);
   }
 
-  String abbrev(@Nonnull String id, int n) {
+  String abbrev(@NonNull String id, int n) {
     return id.substring(0, n);
   }
 }
