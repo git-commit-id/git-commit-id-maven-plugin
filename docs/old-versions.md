@@ -37,6 +37,7 @@ Even though this plugin tries to be compatible with every Maven version there ar
 | 7.X.X          |                        Maven 3.2.5                         |
 | 8.X.X          |                        Maven 3.2.5                         |
 | 9.X.X          |                        Maven 3.6.3                         |
+| 10.X.X         |                        Maven 3.9.0                         |
 
 Flipping the table to maven:
 Please note that in theory maven 4.X should support all maven 3 plugins.
