@@ -33,7 +33,7 @@ The plugin is **available from [Maven Central](https://central.sonatype.com/arti
 
 ## Minimum Requirements
 * Java 11
-* Maven 3.6.3
+* Maven 3.9.0
 
 ## Documentation
 * [Use Cases](docs/use-cases.md)
